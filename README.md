@@ -1,6 +1,6 @@
 # Money
 
-** Work in progress - don't use, its not all there yet! **
+**Work in progress - don't use, its not all there yet!**
 
 Implements a **Money** type for Elixir that includes:
 
