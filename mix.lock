@@ -1,0 +1,3 @@
+%{"cldr": {:git, "https://github.com/kipcole9/cldr.git", "f6a3426a42835c4a8071f69b6ac067e7ca7950f8", []},
+  "decimal": {:git, "https://github.com/ericmj/decimal.git", "2d0e5f2ffb45d377f6a25a642bc27a0f56e2e3d3", []},
+  "poison": {:hex, :poison, "2.2.0", "4763b69a8a77bd77d26f477d196428b741261a761257ff1cf92753a0d4d24a63", [:mix], []}}
