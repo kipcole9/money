@@ -16,24 +16,24 @@ if Code.ensure_loaded?(Ecto) do
     therefore may not be supported in other database.
     """
 
-    @switches [change: :string]
-
     @doc false
     def run(args) do
       no_umbrella!("money.gen.migration")
       repos = parse_repo(args)
       name = "add_money_with_currency_type_to_postgres"
-      ensure_repo(repo, args)
-      path = Path.relative_to(migrations_path(repo), Mix.Project.app_path)
-      file = Path.join(path, "#{timestamp()}_#{underscore(name)}.exs")
-      create_directory path
+      Enum.each repos, fn repo ->
+        ensure_repo(repo, args)
+        path = Path.relative_to(migrations_path(repo), Mix.Project.app_path)
+        file = Path.join(path, "#{timestamp()}_#{underscore(name)}.exs")
+        create_directory path
 
-      assigns = [mod: Module.concat([repo, Migrations, camelize(name)])]
+        assigns = [mod: Module.concat([repo, Migrations, camelize(name)])]
 
-      create_file file, migration_template(assigns)
+        create_file file, migration_template(assigns)
 
-      if open?(file) and Mix.shell.yes?("Do you want to run this migration?") do
-        Mix.Task.run "ecto.migrate", [repo]
+        if open?(file) and Mix.shell.yes?("Do you want to run this migration?") do
+          Mix.Task.run "ecto.migrate", [repo]
+        end
       end
     end
 

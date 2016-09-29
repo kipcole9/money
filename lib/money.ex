@@ -1,6 +1,7 @@
 defmodule Money do
+  # use Money.Arithmetic
 
-  @type t :: %Money{ currency: String.t , value: Decimal }
+  @type t :: %Money{currency: String.t , value: Decimal}
   defstruct currency: nil, value: nil
 
   # Tuple form comes from the database
@@ -47,5 +48,15 @@ defmodule Money do
     Keyword.merge(options, required, fn _k, _v1, v2 -> v2 end)
   end
 
-end
+  defimpl String.Chars do
+    def to_string(v) do
+      Money.to_string(v)
+    end
+  end
 
+  defimpl Inspect, for: Money do
+    def inspect(money, _opts) do
+      Money.to_string(money)
+    end
+  end
+end

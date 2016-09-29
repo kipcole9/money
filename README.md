@@ -20,7 +20,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
     ```elixir
     def deps do
-      [{:money, "~> 0.1.0"}]
+      [{:ex_money, "~> 0.1.0"}]
     end
     ```
 
@@ -28,7 +28,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
     ```elixir
     def application do
-      [applications: [:money]]
+      [applications: [:ex_money]]
     end
     ```
 
