@@ -27,7 +27,8 @@ if Code.ensure_loaded?(Ecto) do
         file = Path.join(path, "#{timestamp()}_#{underscore(name)}.exs")
         create_directory path
 
-        assigns = [mod: Module.concat([repo, Migrations, camelize(name)])]
+        assigns = [mod: Module.concat([repo, Migrations, camelize(name)]),
+                   rounding: Money.rounding]
 
         create_file file, migration_template(assigns)
 
@@ -53,7 +54,7 @@ if Code.ensure_loaded?(Ecto) do
         execute \"\"\"
           CREATE TYPE public.money_with_currency AS (
             currency_code  char(3),
-            value          numeric(20,8)
+            value          numeric(20,<%= @rounding %>)
           )
         \"\"\"
       end
