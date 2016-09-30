@@ -1,5 +1,10 @@
 defmodule Money do
-  @type t :: %Money{currency: String.t , value: Decimal}
+  @moduledoc """
+  Money implements a set of functions to store, retrieve and perform arithmetic
+  on a %Money{} type that is composed of a currency code and a currency value.
+  """
+
+  @opaque t :: %Money{currency: atom, value: Decimal}
   defstruct currency: nil, value: nil
 
   # Decimal fractional digits
@@ -32,6 +37,10 @@ defmodule Money do
     |> String.downcase
     |> String.to_existing_atom
     |> new(value)
+  end
+
+  def new(currency_code, value) when is_number(value) and is_binary(currency_code) do
+    new(value, currency_code)
   end
 
   def new(value, currency_code) when is_number(value) and is_atom(currency_code) do

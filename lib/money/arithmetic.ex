@@ -12,23 +12,17 @@ defmodule Money.Arithmetic do
         %Money{currency: code_a, value: Decimal.add(value_a, value_b)}
       end
 
-      def mult(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
-      when code_a == code_b do
-        %Money{currency: code_a, value: Decimal.mult(value_a, value_b)}
-      end
-
       def sub(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
       when code_a == code_b do
         %Money{currency: code_a, value: Decimal.sub(value_a, value_b)}
       end
 
-      def div(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
-      when code_a == code_b do
-        %Money{currency: code_a, value: Decimal.div(value_a, value_b)}
+      def mult(%Money{currency: code, value: value}, integer) when is_integer(integer) do
+        %Money{currency: code, value: Decimal.mult(value, Decimal.new(integer))}
       end
 
-      def div(%Money{currency: code_a, value: value_a}, integer) when is_integer(integer) do
-        %Money{currency: code_a, value: Decimal.div(value_a, Decimal.new(integer))}
+      def div(%Money{currency: code, value: value}, integer) when is_integer(integer) do
+        %Money{currency: code, value: Decimal.div(value, Decimal.new(integer))}
       end
 
       def equal?(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
