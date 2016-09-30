@@ -55,15 +55,40 @@ defmodule Money do
     @rounding
   end
 
-  # Tuple form comes from the database
-  def new({currency_code, value}) do
+  @doc """
+  Returns a %Money{} struct from a tuple consistenting of a currency code and
+  a currency value.
+
+  * `currency_code` is an ISO4217 three-character binary
+
+  * `value` is an integer or a float
+
+  This function is typically called from Ecto when its loading a %Money{}
+  struct from the database.
+  """
+  @spec new({binary, number}) :: Money.t
+  def new({currency_code, value}) when is_binary(currency_code) do
+    currency_code = currency_code
+    |> String.to_existing_atom
+
     validate_currency_code!(currency_code)
     %Money{value: Decimal.new(value), currency: currency_code}
   end
 
+  @doc """
+  Returns a %Money{} struct from a currency code and a currency value.
+
+  * `currency_code` is an ISO4217 three-character binary
+
+  * `value` is an integer or a float
+
+  This function is typically called from Ecto when its loading a %Money{}
+  struct from the database.
+  """
+  @spec new(number, binary) :: Money.t
   def new(value, currency_code) when is_number(value) and is_binary(currency_code) do
     currency_code
-    |> String.downcase
+    |> String.upcase
     |> String.to_existing_atom
     |> new(value)
   end
