@@ -44,6 +44,7 @@ defmodule Money do
   @default_rounding_mode :half_even
 
   use Money.Arithmetic
+  alias Cldr.Currency
 
   @doc """
   Returns the number of fractional digits to which money is rounded.
@@ -68,8 +69,7 @@ defmodule Money do
   """
   @spec new({binary, number}) :: Money.t
   def new({currency_code, value}) when is_binary(currency_code) do
-    currency_code = currency_code
-    |> String.to_existing_atom
+    currency_code = Currency.normalize_currency_code(currency_code)
 
     validate_currency_code!(currency_code)
     %Money{value: Decimal.new(value), currency: currency_code}
@@ -88,8 +88,7 @@ defmodule Money do
   @spec new(number, binary) :: Money.t
   def new(value, currency_code) when is_number(value) and is_binary(currency_code) do
     currency_code
-    |> String.upcase
-    |> String.to_existing_atom
+    |> Currency.normalize_currency_code
     |> new(value)
   end
 
@@ -123,7 +122,7 @@ defmodule Money do
   end
 
   defp validate_currency_code!(currency_code) do
-    if Cldr.Currency.known_currency?(currency_code) do
+    if Currency.known_currency?(currency_code) do
       currency_code
     else
       raise Money.UnknownCurrencyError,
