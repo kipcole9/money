@@ -121,6 +121,10 @@ defmodule Money do
     Cldr.Number.to_string(money.value, options)
   end
 
+  def to_decimal(%Money{value: value}) do
+    value
+  end
+
   defp validate_currency_code!(currency_code) do
     if Currency.known_currency?(currency_code) do
       currency_code
