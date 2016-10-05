@@ -32,6 +32,30 @@ defmodule MoneyTest do
     assert money.value == Decimal.new(1234)
   end
 
+  test "create a new money struct from a tuple" do
+    money = Money.new({"USD", 1234})
+    assert money.currency == :USD
+    assert money.value == Decimal.new(1234)
+  end
+
+  test "create a new money struct with a decimal" do
+    money = Money.new(:USD, Decimal.new(1234))
+    assert money.currency == :USD
+    assert money.value == Decimal.new(1234)
+
+    money = Money.new("usd", Decimal.new(1234))
+    assert money.currency == :USD
+    assert money.value == Decimal.new(1234)
+
+    money = Money.new(Decimal.new(1234), :USD)
+    assert money.currency == :USD
+    assert money.value == Decimal.new(1234)
+
+    money = Money.new(Decimal.new(1234), "usd")
+    assert money.currency == :USD
+    assert money.value == Decimal.new(1234)
+  end
+
   test "creating a money struct with an invalid currency code raises" do
     assert_raise Money.UnknownCurrencyError, ~r/The currency code :XYZ is not known/, fn ->
       Money.new(:XYZ, 100)
@@ -113,5 +137,9 @@ defmodule MoneyTest do
 
   test "Money is rounded according to currency cash definition for CHF" do
     assert Money.round(Money.new(:CHF, 123.456), cash: true) == Money.new(:CHF, 125)
+  end
+
+  test "Extract decimal from money" do
+    assert Money.to_decimal(Money.new(:USD, 1234)) == Decimal.new(1234)
   end
 end

@@ -86,13 +86,13 @@ defmodule Money do
   struct from the database.
   """
   @spec new(number, binary) :: Money.t
-  def new(value, currency_code) when is_number(value) and is_binary(currency_code) do
+  def new(value, currency_code) when is_binary(currency_code) do
     currency_code
     |> Currency.normalize_currency_code
     |> new(value)
   end
 
-  def new(currency_code, value) when is_number(value) and is_binary(currency_code) do
+  def new(currency_code, value) when is_binary(currency_code) do
     new(value, currency_code)
   end
 
@@ -106,7 +106,7 @@ defmodule Money do
     %Money{value: Decimal.new(value), currency: currency_code}
   end
 
-  def new(%Decimal{} = value, currency_code) when is_binary(currency_code) do
+  def new(%Decimal{} = value, currency_code) when is_atom(currency_code) do
     validate_currency_code!(currency_code)
     %Money{value: value, currency: currency_code}
   end
