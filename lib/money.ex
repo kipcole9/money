@@ -23,7 +23,7 @@ defmodule Money do
   both the value and the currency.  Therefore for serialization Postgres is
   assumed as the data store.
 
-  6. All arithmetic functions work in un-rounded fixed point.  No rounding
+  6. All arithmetic functions work in un-rounded fixed point decimal.  No rounding
   occurs automatically (unless expressly called out for a function).
 
   7. Explicit rounding obeys the rounding rules for a given currency.  The
@@ -116,14 +116,41 @@ defmodule Money do
     %Money{value: value, currency: currency_code}
   end
 
+  @doc """
+  Returns a formatted string representation of a `Money{}`.
+
+  Formatting is performed according to the rules defined by CLDR. See
+  `Cldr.Number.to_string/2` for formatting options.  The default is to format
+  as a currency which applies the appropriate rounding and fractional digits
+  for the currency.
+
+  ## Examples
+
+      iex> Money.to_string Money.new(:USD, 1234)
+      "$1,234.00"
+
+      iex> Money.to_string Money.new(:JPY, 1234)
+      "¥1,234"
+
+      iex> Money.to_string Money.new(:THB, 1234)
+      "THB1,234.00"
+
+      iex> Money.to_string Money.new(:USD, 1234), format: :long
+      "1,234.00 US dollars"
+  """
   def to_string(%Money{} = money, options \\ []) do
     options = merge_options(options, [currency: money.currency])
     Cldr.Number.to_string(money.value, options)
   end
 
+  @doc """
+  Returns the value part of a `Money{}` as a `Decimal`
+  """
   def to_decimal(%Money{value: value}) do
     value
   end
+
+  ## Helpers
 
   defp validate_currency_code!(currency_code) do
     if Currency.known_currency?(currency_code) do

@@ -8,27 +8,100 @@ defmodule Money.Arithmetic do
       import Kernel, except: [div: 2, round: 1]
       alias Cldr.Currency
 
+      @doc """
+      Add two `%Money{}` structs.
+
+      ## Example
+
+          Money.add Money.new(:USD, 200), Money.new(:USD, 100)
+          $300.00
+      """
+      @spec add(Money.t, Money.t) :: Money.t
       def add(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
       when code_a == code_b do
         %Money{currency: code_a, value: Decimal.add(value_a, value_b)}
       end
 
+      def add(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b}) do
+        raise ArgumentError, message: "Cannot add two %Money{} with different currencies. " <>
+          "Received #{inspect code_a} and #{inspect code_b}."
+      end
+
+      @doc """
+      Subtract one `%Money{}` struct from another.
+
+      ## Example
+
+          Money.sub Money.new(:USD, 200), Money.new(:USD, 100)
+          $100.00
+      """
       def sub(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
       when code_a == code_b do
         %Money{currency: code_a, value: Decimal.sub(value_a, value_b)}
       end
 
-      def mult(%Money{currency: code, value: value}, integer) when is_integer(integer) do
-        %Money{currency: code, value: Decimal.mult(value, Decimal.new(integer))}
+      def sub(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b}) do
+        raise ArgumentError, message: "Cannot subtract two %Money{} with different currencies. " <>
+          "Received #{inspect code_a} and #{inspect code_b}."
       end
 
-      def div(%Money{currency: code, value: value}, integer) when is_integer(integer) do
-        %Money{currency: code, value: Decimal.div(value, Decimal.new(integer))}
+      @doc """
+      Multiply a `%Money{}` by a number.
+
+      * `money` is a %Money{} struct
+
+      * `number` is an integer or float
+
+      > Note that multipling one %Money{} by another is not supported.
+
+      ## Example
+
+          Money.mult Money.new(:USD, 200), 2
+          $400.00
+      """
+      @spec mult(Money.t, number) :: Money.t
+      def mult(%Money{currency: code, value: value}, number) when is_number(number) do
+        %Money{currency: code, value: Decimal.mult(value, Decimal.new(number))}
       end
 
+      def mult(%Money{} = money, number) do
+        raise ArgumentError, message: "Cannot multiply a %Money{} by #{inspect number}"
+      end
+
+      @doc """
+      Divide a `%Money{}` by a number.
+
+      * `money` is a %Money{} struct
+
+      * `number` is an integer or float
+
+      > Note that dividing one %Money{} by another is not supported.
+
+      ## Example
+
+          Money.div Money.new(:USD, 200), 2
+          $100.00
+      """
+      @spec div(Money.t, number) :: Money.t
+      def div(%Money{currency: code, value: value}, number) when is_number(number) do
+        %Money{currency: code, value: Decimal.div(value, Decimal.new(number))}
+      end
+
+      def div(%Money{} = money, other) do
+        raise ArgumentError, message: "Cannot divide a %Money{} by #{inspect other}"
+      end
+
+      @doc """
+      Returns a boolean indicating if two `%Money{}` structs are equal
+      """
+      @spec equal?(Money.t, Money.t) :: boolean
       def equal?(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
       when code_a == code_b do
         Decimal.equal?(value_a, value_b)
+      end
+
+      def equal?(_, _) do
+        false
       end
 
       def cmp(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
@@ -36,13 +109,21 @@ defmodule Money.Arithmetic do
         Decimal.cmp(value_a, value_b)
       end
 
+      def cmp(%Money{currency: code_a, value: value_a}, _) do
+        :ne
+      end
+
       def compare(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
       when code_a == code_b do
         Decimal.compare(value_a, value_b)
       end
 
+      def compare(%Money{currency: code_a, value: value_a}, _) do
+        :ne
+      end
+
       @doc """
-      Split a %Money{} amount into a number of parts maintaining the currency's
+      Split a `%Money{}` amount into a number of parts maintaining the currency's
       precision and rounding and ensuring that the parts sum to the original
       value.
 
@@ -135,7 +216,7 @@ defmodule Money.Arithmetic do
         %Money{currency: code, value: rounded_value}
       end
 
-      def round_to_nearest(%Money{currency: code, value: value} = money, opts \\ []) do
+      defp round_to_nearest(%Money{currency: code, value: value} = money, opts \\ []) do
         currency  = Currency.for_code(code)
         increment = if opts[:cash], do: currency.cash_rounding, else: currency.rounding
         do_round_to_nearest(money, increment, opts)
