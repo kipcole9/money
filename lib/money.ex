@@ -17,13 +17,13 @@ defmodule Money do
   3. Money arithmetic can only be performed when both operands are of the
   same currency.
 
-  4. Money amounts are stored as a `Decimal`.
+  4. Money amounts are represented as a `Decimal`.
 
   5. Money is serialised to the database as a custom Postgres type that includes
-  both the amount and the currency.  Therefore for serialization Postgres is
-  assumed as the data store.
+  both the amount and the currency.  Therefore for Ecto serialization Postgres is
+  assumed as the data store.  Serialization is entirely optional.
 
-  6. All arithmetic functions work in un-rounded fixed point decimal.  No rounding
+  6. All arithmetic functions work in fixed point decimal.  No rounding
   occurs automatically (unless expressly called out for a function).
 
   7. Explicit rounding obeys the rounding rules for a given currency.  The
