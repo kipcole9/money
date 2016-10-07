@@ -54,7 +54,7 @@ if Code.ensure_loaded?(Ecto) do
         execute \"\"\"
           CREATE TYPE public.money_with_currency AS (
             currency_code  char(3),
-            value          numeric(20,<%= @rounding %>)
+            amount         numeric(20,<%= @rounding %>)
           )
         \"\"\"
       end

@@ -1,7 +1,7 @@
 defmodule Money do
   @moduledoc """
   Money implements a set of functions to store, retrieve and perform arithmetic
-  on a %Money{} type that is composed of a currency code and a currency value.
+  on a %Money{} type that is composed of a currency code and a currency amount.
 
   Money is very opinionated in the interests of serving as a dependable library
   that can underpin accounting and financial applications.  In its initial
@@ -10,17 +10,17 @@ defmodule Money do
 
   How is this opinion expressed:
 
-  1. Money must always have both a value and a currency code.
+  1. Money must always have both a amount and a currency code.
 
   2. The currency code must always be valid.
 
   3. Money arithmetic can only be performed when both operands are of the
   same currency.
 
-  4. Money values are stored as a `Decimal`.
+  4. Money amounts are stored as a `Decimal`.
 
   5. Money is serialised to the database as a custom Postgres type that includes
-  both the value and the currency.  Therefore for serialization Postgres is
+  both the amount and the currency.  Therefore for serialization Postgres is
   assumed as the data store.
 
   6. All arithmetic functions work in un-rounded fixed point decimal.  No rounding
@@ -33,8 +33,8 @@ defmodule Money do
   increment where appropriate.
   """
 
-  @opaque t :: %Money{currency: atom, value: Decimal}
-  defstruct currency: nil, value: nil
+  @opaque t :: %Money{currency: atom, amount: Decimal}
+  defstruct currency: nil, amount: nil
 
   # Decimal fractional digits
   @rounding 8
@@ -58,62 +58,62 @@ defmodule Money do
 
   @doc """
   Returns a %Money{} struct from a tuple consistenting of a currency code and
-  a currency value.
+  a currency amount.
 
   * `currency_code` is an ISO4217 three-character binary
 
-  * `value` is an integer or a float
+  * `amount` is an integer or a float
 
   This function is typically called from Ecto when its loading a %Money{}
   struct from the database.
   """
   @spec new({binary, number}) :: Money.t
-  def new({currency_code, value}) when is_binary(currency_code) do
+  def new({currency_code, amount}) when is_binary(currency_code) do
     currency_code = Currency.normalize_currency_code(currency_code)
 
     validate_currency_code!(currency_code)
-    %Money{value: Decimal.new(value), currency: currency_code}
+    %Money{amount: Decimal.new(amount), currency: currency_code}
   end
 
   @doc """
-  Returns a %Money{} struct from a currency code and a currency value.
+  Returns a %Money{} struct from a currency code and a currency amount.
 
   * `currency_code` is an ISO4217 three-character binary
 
-  * `value` is an integer or a float
+  * `amount` is an integer or a float
 
   This function is typically called from Ecto when its loading a %Money{}
   struct from the database.
   """
   @spec new(number, binary) :: Money.t
-  def new(value, currency_code) when is_binary(currency_code) do
+  def new(amount, currency_code) when is_binary(currency_code) do
     currency_code
     |> Currency.normalize_currency_code
-    |> new(value)
+    |> new(amount)
   end
 
-  def new(currency_code, value) when is_binary(currency_code) do
-    new(value, currency_code)
+  def new(currency_code, amount) when is_binary(currency_code) do
+    new(amount, currency_code)
   end
 
-  def new(value, currency_code) when is_number(value) and is_atom(currency_code) do
+  def new(amount, currency_code) when is_number(amount) and is_atom(currency_code) do
     validate_currency_code!(currency_code)
-    %Money{value: Decimal.new(value), currency: currency_code}
+    %Money{amount: Decimal.new(amount), currency: currency_code}
   end
 
-  def new(currency_code, value) when is_atom(currency_code) and is_number(value) do
+  def new(currency_code, amount) when is_atom(currency_code) and is_number(amount) do
     validate_currency_code!(currency_code)
-    %Money{value: Decimal.new(value), currency: currency_code}
+    %Money{amount: Decimal.new(amount), currency: currency_code}
   end
 
-  def new(%Decimal{} = value, currency_code) when is_atom(currency_code) do
+  def new(%Decimal{} = amount, currency_code) when is_atom(currency_code) do
     validate_currency_code!(currency_code)
-    %Money{value: value, currency: currency_code}
+    %Money{amount: amount, currency: currency_code}
   end
 
-  def new(currency_code, %Decimal{} = value) when is_atom(currency_code) do
+  def new(currency_code, %Decimal{} = amount) when is_atom(currency_code) do
     validate_currency_code!(currency_code)
-    %Money{value: value, currency: currency_code}
+    %Money{amount: amount, currency: currency_code}
   end
 
   @doc """
@@ -140,14 +140,14 @@ defmodule Money do
   """
   def to_string(%Money{} = money, options \\ []) do
     options = merge_options(options, [currency: money.currency])
-    Cldr.Number.to_string(money.value, options)
+    Cldr.Number.to_string(money.amount, options)
   end
 
   @doc """
   Returns the value part of a `Money{}` as a `Decimal`
   """
-  def to_decimal(%Money{value: value}) do
-    value
+  def to_decimal(%Money{amount: amount}) do
+    amount
   end
 
   ## Helpers

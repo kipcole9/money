@@ -20,7 +20,7 @@ defmodule Money.Ecto.Type do
     end
 
     def dump(%Money{} = money) do
-      {:ok, {money.code, money.value}}
+      {:ok, {to_string(money.currency), money.amount}}
     end
 
     def dump(money) when is_tuple(money) do

@@ -5,55 +5,55 @@ defmodule MoneyTest do
   test "create a new money struct with a binary currency code" do
     money = Money.new(1234, "USD")
     assert money.currency == :USD
-    assert money.value == Decimal.new(1234)
+    assert money.amount == Decimal.new(1234)
   end
 
   test "create a new money struct with an atom currency code" do
     money = Money.new(1234, :USD)
     assert money.currency == :USD
-    assert money.value == Decimal.new(1234)
+    assert money.amount == Decimal.new(1234)
   end
 
   test "create a new money struct with a binary currency code with reversed params" do
     money = Money.new("USD", 1234)
     assert money.currency == :USD
-    assert money.value == Decimal.new(1234)
+    assert money.amount == Decimal.new(1234)
   end
 
   test "create a new money struct with a atom currency code with reversed params" do
     money = Money.new(:USD, 1234)
     assert money.currency == :USD
-    assert money.value == Decimal.new(1234)
+    assert money.amount == Decimal.new(1234)
   end
 
   test "create a new money struct with a lower case binary currency code with reversed params" do
     money = Money.new("usd", 1234)
     assert money.currency == :USD
-    assert money.value == Decimal.new(1234)
+    assert money.amount == Decimal.new(1234)
   end
 
   test "create a new money struct from a tuple" do
     money = Money.new({"USD", 1234})
     assert money.currency == :USD
-    assert money.value == Decimal.new(1234)
+    assert money.amount == Decimal.new(1234)
   end
 
   test "create a new money struct with a decimal" do
     money = Money.new(:USD, Decimal.new(1234))
     assert money.currency == :USD
-    assert money.value == Decimal.new(1234)
+    assert money.amount == Decimal.new(1234)
 
     money = Money.new("usd", Decimal.new(1234))
     assert money.currency == :USD
-    assert money.value == Decimal.new(1234)
+    assert money.amount == Decimal.new(1234)
 
     money = Money.new(Decimal.new(1234), :USD)
     assert money.currency == :USD
-    assert money.value == Decimal.new(1234)
+    assert money.amount == Decimal.new(1234)
 
     money = Money.new(Decimal.new(1234), "usd")
     assert money.currency == :USD
-    assert money.value == Decimal.new(1234)
+    assert money.amount == Decimal.new(1234)
   end
 
   test "creating a money struct with an invalid currency code raises" do

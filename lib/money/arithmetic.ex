@@ -17,12 +17,12 @@ defmodule Money.Arithmetic do
           $300.00
       """
       @spec add(Money.t, Money.t) :: Money.t
-      def add(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
+      def add(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
       when code_a == code_b do
-        %Money{currency: code_a, value: Decimal.add(value_a, value_b)}
+        %Money{currency: code_a, amount: Decimal.add(amount_a, amount_b)}
       end
 
-      def add(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b}) do
+      def add(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b}) do
         raise ArgumentError, message: "Cannot add two %Money{} with different currencies. " <>
           "Received #{inspect code_a} and #{inspect code_b}."
       end
@@ -35,12 +35,12 @@ defmodule Money.Arithmetic do
           Money.sub Money.new(:USD, 200), Money.new(:USD, 100)
           $100.00
       """
-      def sub(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
+      def sub(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
       when code_a == code_b do
-        %Money{currency: code_a, value: Decimal.sub(value_a, value_b)}
+        %Money{currency: code_a, amount: Decimal.sub(amount_a, amount_b)}
       end
 
-      def sub(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b}) do
+      def sub(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b}) do
         raise ArgumentError, message: "Cannot subtract two %Money{} with different currencies. " <>
           "Received #{inspect code_a} and #{inspect code_b}."
       end
@@ -60,8 +60,8 @@ defmodule Money.Arithmetic do
           $400.00
       """
       @spec mult(Money.t, number) :: Money.t
-      def mult(%Money{currency: code, value: value}, number) when is_number(number) do
-        %Money{currency: code, value: Decimal.mult(value, Decimal.new(number))}
+      def mult(%Money{currency: code, amount: amount}, number) when is_number(number) do
+        %Money{currency: code, amount: Decimal.mult(amount, Decimal.new(number))}
       end
 
       def mult(%Money{} = money, number) do
@@ -83,8 +83,8 @@ defmodule Money.Arithmetic do
           $100.00
       """
       @spec div(Money.t, number) :: Money.t
-      def div(%Money{currency: code, value: value}, number) when is_number(number) do
-        %Money{currency: code, value: Decimal.div(value, Decimal.new(number))}
+      def div(%Money{currency: code, amount: amount}, number) when is_number(number) do
+        %Money{currency: code, amount: Decimal.div(amount, Decimal.new(number))}
       end
 
       def div(%Money{} = money, other) do
@@ -95,37 +95,37 @@ defmodule Money.Arithmetic do
       Returns a boolean indicating if two `%Money{}` structs are equal
       """
       @spec equal?(Money.t, Money.t) :: boolean
-      def equal?(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
+      def equal?(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
       when code_a == code_b do
-        Decimal.equal?(value_a, value_b)
+        Decimal.equal?(amount_a, amount_b)
       end
 
       def equal?(_, _) do
         false
       end
 
-      def cmp(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
+      def cmp(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
       when code_a == code_b do
-        Decimal.cmp(value_a, value_b)
+        Decimal.cmp(amount_a, amount_b)
       end
 
-      def cmp(%Money{currency: code_a, value: value_a}, _) do
+      def cmp(%Money{currency: code_a, amount: amount_a}, _) do
         :ne
       end
 
-      def compare(%Money{currency: code_a, value: value_a}, %Money{currency: code_b, value: value_b})
+      def compare(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
       when code_a == code_b do
-        Decimal.compare(value_a, value_b)
+        Decimal.compare(amount_a, amount_b)
       end
 
-      def compare(%Money{currency: code_a, value: value_a}, _) do
+      def compare(%Money{currency: code_a, amount: amount_a}, _) do
         :ne
       end
 
       @doc """
       Split a `%Money{}` amount into a number of parts maintaining the currency's
       precision and rounding and ensuring that the parts sum to the original
-      value.
+      amount.
 
       * `money` is a `%Money{}` struct
 
@@ -134,7 +134,7 @@ defmodule Money.Arithmetic do
       Returns a tuple `{dividend, remainder}` as the function result
       derived as follows:
 
-      1. Round the money value to the required currency precision using
+      1. Round the money amount to the required currency precision using
       `Money.round/1`
 
       2. Divide the result of step 1 by the integer divisor
@@ -180,7 +180,7 @@ defmodule Money.Arithmetic do
         * `:cash` which determines whether the rounding is being applied to
         an accounting amount or a cash amount.  Some currencies, such as the
         :AUD and :CHF have a cash unit increment minimum which requires
-        a different rounding increment to an arbitrary accounting value. The
+        a different rounding increment to an arbitrary accounting amount. The
         default is `false`.
 
       There are two kinds of rounding applied:
@@ -190,7 +190,7 @@ defmodule Money.Arithmetic do
       2. Apply an appropriate rounding increment.  Most currencies
       round to the same precision as the number of decimal digits, but some
       such as :AUD and :CHF round to a minimum such as 0.05 when its a cash
-      value.
+      amount.
 
       ## Examples
 
@@ -208,15 +208,15 @@ defmodule Money.Arithmetic do
         |> round_to_nearest(opts)
       end
 
-      defp round_to_decimal_digits(%Money{currency: code, value: value}, opts \\ []) do
+      defp round_to_decimal_digits(%Money{currency: code, amount: amount}, opts \\ []) do
         rounding_mode = Keyword.get(opts, :rounding_mode, @default_rounding_mode)
         currency = Currency.for_code(code)
         rounding = if opts[:cash], do: currency.cash_digits, else: currency.digits
-        rounded_value = Decimal.round(value, rounding, rounding_mode)
-        %Money{currency: code, value: rounded_value}
+        rounded_amount = Decimal.round(amount, rounding, rounding_mode)
+        %Money{currency: code, amount: rounded_amount}
       end
 
-      defp round_to_nearest(%Money{currency: code, value: value} = money, opts \\ []) do
+      def round_to_nearest(%Money{currency: code, amount: amount} = money, opts \\ []) do
         currency  = Currency.for_code(code)
         increment = if opts[:cash], do: currency.cash_rounding, else: currency.rounding
         do_round_to_nearest(money, increment, opts)
@@ -230,12 +230,12 @@ defmodule Money.Arithmetic do
         rounding_mode = Keyword.get(opts, :rounding_mode, @default_rounding_mode)
         rounding = Decimal.new(increment)
 
-        rounded_value = money.value
+        rounded_amount = money.amount
         |> Decimal.div(rounding)
         |> Decimal.round(0, rounding_mode)
         |> Decimal.mult(rounding)
 
-        %Money{currency: money.currency, value: rounded_value}
+        %Money{currency: money.currency, amount: rounded_amount}
       end
     end
   end
