@@ -173,7 +173,7 @@ defmodule Money do
 
   defimpl Inspect, for: Money do
     def inspect(money, _opts) do
-      Money.to_string(money)
+      "#Money<#{inspect money.currency}, #{Decimal.to_string(money.amount)}>"
     end
   end
 end
