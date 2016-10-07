@@ -18,3 +18,6 @@ erl_crash.dump
 
 # Priv dir is only used in development, not needed for the package
 /priv
+
+# Hex build files
+*.tar

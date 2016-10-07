@@ -51,7 +51,7 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:ex_cldr, github: "kipcole9/cldr"},
+      {:ex_cldr, "~> 0.0.4"},
       {:excoveralls, "~> 0.5.6", only: :test},
       {:gen_stage, "~> 0.4", only: [:dev, :test]}
     ]

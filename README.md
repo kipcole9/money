@@ -1,16 +1,16 @@
 # Money
 
-**Work in progress - don't use, its not all there yet!**
-
 Implements a **Money** type for Elixir that includes:
 
-- Postgres extension for a custom type `money_with_currency` that stores a decimal monetary value with an associated currency code
+- Postgres extension for a custom type `money_with_currency` that stores a decimal monetary value with an associated currency code.  Also includes a `Mix` task to generate a migration that creates the custom type.
 
-- Money formatting output using cldr (also under development)
+- Money formatting output using the hex package ex_cldr that correctly rounds to the appropriate number of fractional digits and to the correct rounding increment for currencies that have minimum cash increments (like the Swiss Franc and Australian Dollar)
 
-- Money arithmetic using Decimal arithmetic for math and exchange rates
+- Money arithmetic using Decimal arithmetic for math
 
-- Exchange rate process to retrieve and manage current exchange rates
+## Examples
+
+## Roadmap
 
 ## Installation
 
@@ -20,7 +20,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
     ```elixir
     def deps do
-      [{:ex_money, "~> 0.1.0"}]
+      [{:ex_money, "~> 0.0.1"}]
     end
     ```
 
