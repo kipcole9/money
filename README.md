@@ -37,6 +37,15 @@ In addition:
 
 - Money formatting output using the hex package [ex_cldr](https://hex.pm/packages/ex_cldr) that correctly rounds to the appropriate number of fractional digits and to the correct rounding increment for currencies that have minimum cash increments (like the Swiss Franc and Australian Dollar)
 
+
+## Why yet another Money package?
+
+* Fully localized formatting and rounding using [ex_cldr](https://hex.pm/packages/ex_cldr)
+
+* Provides serialization to Postgres using a custom type that keeps both the currency code and the amount together removing a source of potential error
+
+* Uses the `Decimal` type in Elixir and the Postgres `numeric` type to preserve precision
+
 ## Examples
 
 ###Creating a new %Money{} struct:
