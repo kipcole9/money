@@ -33,11 +33,12 @@ defmodule Money do
   increment where appropriate.
   """
 
+  @typedoc """
+  Money is composed of an atom representation of an ISO4217 currency code and
+  a `Decimal` representation of an amount.
+  """
   @opaque t :: %Money{currency: atom, amount: Decimal}
   defstruct currency: nil, amount: nil
-
-  # Decimal fractional digits
-  @rounding 8
 
   # Default mode for rounding is :half_even, also known
   # as bankers rounding
@@ -47,25 +48,20 @@ defmodule Money do
   alias Cldr.Currency
 
   @doc """
-  Returns the number of fractional digits to which money is rounded.
-
-  This value is used to set the fractional digits in the Postgres migration
-  and for rounding purposes.
-  """
-  def rounding do
-    @rounding
-  end
-
-  @doc """
   Returns a %Money{} struct from a tuple consistenting of a currency code and
-  a currency amount.
+  a currency amount.  The format of the argument is a 2-tuple where:
 
-  * `currency_code` is an ISO4217 three-character binary
+  * `currency_code` is an ISO4217 three-character upcased binary
 
   * `amount` is an integer or a float
 
   This function is typically called from Ecto when its loading a %Money{}
   struct from the database.
+
+  ## Example
+
+      Money.new({"USD", 100})
+      #Money<:USD, 100>
   """
   @spec new({binary, number}) :: Money.t
   def new(money_tuple)
@@ -79,22 +75,36 @@ defmodule Money do
   @doc """
   Returns a %Money{} struct from a currency code and a currency amount.
 
-  * `currency_code` is an ISO4217 three-character binary
+  * `currency_code` is an ISO4217 three-character upcased binary or atom
 
-  * `amount` is an integer or a float
+  * `amount` is an integer, float or Decimal
 
-  This function is typically called from Ecto when its loading a %Money{}
-  struct from the database.
+  ## Examples
+
+      iex> Money.new(:USD, 100)
+      #Money<:USD, 100>
+
+      iex> Money.new("USD", 100)
+      #Money<:USD, 100>
+
+      iex> Money.new("thb", 500)
+      #Money<:THB, 500>
+
+      iex> Money.new(500, "thb")
+      #Money<:THB, 500>
+
+      iex> Money.new("EUR", Decimal.new(100))
+      #Money<:EUR, 100>
   """
   @spec new(number, binary) :: Money.t
-  def new(amount, currency_code) when is_binary(currency_code) do
+  def new(currency_code, amount) when is_binary(currency_code) do
     currency_code
     |> Currency.normalize_currency_code
     |> new(amount)
   end
 
-  def new(currency_code, amount) when is_binary(currency_code) do
-    new(amount, currency_code)
+  def new(amount, currency_code) when is_binary(currency_code) do
+    new(currency_code, amount)
   end
 
   def new(amount, currency_code) when is_number(amount) and is_atom(currency_code) do
@@ -145,7 +155,13 @@ defmodule Money do
   end
 
   @doc """
-  Returns the value part of a `Money{}` as a `Decimal`
+  Returns the amount part of a `Money{}` as a `Decimal`
+
+  ## Example
+
+      iex> m = Money.new("USD", 100)
+      iex> Money.to_decimal(m)
+      #Decimal<100>
   """
   def to_decimal(%Money{amount: amount}) do
     amount

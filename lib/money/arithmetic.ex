@@ -13,8 +13,8 @@ defmodule Money.Arithmetic do
 
       ## Example
 
-          Money.add Money.new(:USD, 200), Money.new(:USD, 100)
-          $300.00
+          iex> Money.add Money.new(:USD, 200), Money.new(:USD, 100)
+          #Money<:USD, 300>
       """
       @spec add(Money.t, Money.t) :: Money.t
       def add(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
@@ -32,8 +32,8 @@ defmodule Money.Arithmetic do
 
       ## Example
 
-          Money.sub Money.new(:USD, 200), Money.new(:USD, 100)
-          $100.00
+          iex> Money.sub Money.new(:USD, 200), Money.new(:USD, 100)
+          #Money<:USD, 100>
       """
       def sub(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
       when code_a == code_b do
@@ -56,8 +56,8 @@ defmodule Money.Arithmetic do
 
       ## Example
 
-          Money.mult Money.new(:USD, 200), 2
-          $400.00
+          iex> Money.mult Money.new(:USD, 200), 2
+          #Money<:USD, 400>
       """
       @spec mult(Money.t, number) :: Money.t
       def mult(%Money{currency: code, amount: amount}, number) when is_number(number) do
@@ -79,8 +79,8 @@ defmodule Money.Arithmetic do
 
       ## Example
 
-          Money.div Money.new(:USD, 200), 2
-          $100.00
+          iex> Money.div Money.new(:USD, 200), 2
+          #Money<:USD, 100>
       """
       @spec div(Money.t, number) :: Money.t
       def div(%Money{currency: code, amount: amount}, number) when is_number(number) do
@@ -93,6 +93,14 @@ defmodule Money.Arithmetic do
 
       @doc """
       Returns a boolean indicating if two `%Money{}` structs are equal
+
+      ## Example
+
+          iex> Money.equal? Money.new(:USD, 200), Money.new(:USD, 200)
+          true
+
+          iex> Money.equal? Money.new(:USD, 200), Money.new(:USD, 100)
+          false
       """
       @spec equal?(Money.t, Money.t) :: boolean
       def equal?(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
@@ -108,6 +116,17 @@ defmodule Money.Arithmetic do
       Compares two %Money{} structs numerically. If the first number is greater
       than the second :gt is returned, if less than :lt is returned, if both
       numbers are equal :eq is returned.
+
+      ## Examples
+
+          iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 100)
+          :gt
+
+          iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 200)
+          :eq
+
+          iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 500)
+          :lt
       """
       def cmp(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
       when code_a == code_b do
@@ -118,6 +137,17 @@ defmodule Money.Arithmetic do
       Compares two %Money{} structs numerically. If the first number is greater
       than the second #Integer<1> is returned, if less than Integer<-1> is
       returned. Otherwise, if both numbers are equal Integer<0> is returned.
+
+      ## Examples
+
+          iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 100)
+          1
+
+          iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 200)
+          0
+
+          iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 500)
+          -1
       """
       def compare(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
       when code_a == code_b do
@@ -197,14 +227,14 @@ defmodule Money.Arithmetic do
 
       ## Examples
 
-          Money.round Money.new(123.7456, :CHF), cash: true
-          CHF125.00
+          iex> Money.round Money.new(123.7456, :CHF), cash: true
+          #Money<:CHF, 125>
 
-          Money.round Money.new(123.7456, :CHF)
-          CHF123.75
+          iex> Money.round Money.new(123.7456, :CHF)
+          #Money<:CHF, 123.75>
 
           Money.round Money.new(123.7456, :JPY)
-          ¥124
+          #Money<:JPY, 124>
       """
       def round(%Money{} = money, opts \\ []) do
         round_to_decimal_digits(money, opts)

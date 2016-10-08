@@ -6,14 +6,14 @@ if Code.ensure_loaded?(Ecto) do
     import Mix.Generator
     import Mix.Ecto
 
-    @shortdoc "Generates a migration to create the :money_with_currency type"
+    @shortdoc "Generates a migration to create the :money_with_currency composite database type"
 
     @moduledoc """
-    Generates a migration to add a type called `:money_with_currency` to
-    a Postgres database.
+    Generates a migration to add a composite type called `:money_with_currency`
+    to a Postgres database.
 
     The `:money_with_currency` type created is a composite type and
-    therefore may not be supported in other database.
+    therefore may not be supported in other databases.
     """
 
     @doc false
@@ -27,8 +27,7 @@ if Code.ensure_loaded?(Ecto) do
         file = Path.join(path, "#{timestamp()}_#{underscore(name)}.exs")
         create_directory path
 
-        assigns = [mod: Module.concat([repo, Migrations, camelize(name)]),
-                   rounding: Money.rounding]
+        assigns = [mod: Module.concat([repo, Migrations, camelize(name)])]
 
         create_file file, migration_template(assigns)
 
@@ -52,10 +51,7 @@ if Code.ensure_loaded?(Ecto) do
 
       def up do
         execute \"\"\"
-          CREATE TYPE public.money_with_currency AS (
-            currency_code  char(3),
-            amount         numeric(20,<%= @rounding %>)
-          )
+          CREATE TYPE public.money_with_currency AS (currency_code char(3), amount numeric(20,8))
         \"\"\"
       end
 

@@ -11,16 +11,16 @@ How is this opinion expressed?
 
 1. Money must always have both a amount and a currency code.
 
-2. The currency code must always be valid.
+2. The currency code must always be a valid ISO4217 code.
 
 3. Money arithmetic can only be performed when both operands are of the
 same currency.
 
 4. Money amounts are represented as a `Decimal`.
 
-5. Money is serialised to the database as a custom Postgres type that includes
-both the amount and the currency. Therefore for Ecto serialization Postgres is
-assumed as the data store. Serialization is entirely optional.
+5. Money can be serialised to the database as a composite Postgres type that
+includes both the amount and the currency. Therefore for Ecto serialization
+Postgres is assumed as the data store. Serialization is entirely optional.
 
 6. All arithmetic functions work on a `Decimal`. No rounding occurs
 automatically (unless expressly called out for a function, as is the case for
@@ -31,24 +31,24 @@ rounding rules are defined by the Unicode consortium in its CLDR repository as
 implemented by the hex package `ex_cldr`. These rules define the number of
 fractional digits for a currency and the rounding increment where appropriate.
 
-In addition:
-
-- A Postgres custom type `money_with_currency` is provided that stores a decimal monetary value with an associated currency code.  Also includes a `Mix` task to generate a migration that creates the custom type.
-
-- Money formatting output using the hex package [ex_cldr](https://hex.pm/packages/ex_cldr) that correctly rounds to the appropriate number of fractional digits and to the correct rounding increment for currencies that have minimum cash increments (like the Swiss Franc and Australian Dollar)
+8. Money output string formatting output using the hex package
+[ex_cldr](https://hex.pm/packages/ex_cldr) that correctly rounds to the
+appropriate number of fractional digits and to the correct rounding increment
+for currencies that have minimum cash increments (like the Swiss Franc and
+Australian Dollar)
 
 
 ## Why yet another Money package?
 
 * Fully localized formatting and rounding using [ex_cldr](https://hex.pm/packages/ex_cldr)
 
-* Provides serialization to Postgres using a custom type that keeps both the currency code and the amount together removing a source of potential error
+* Provides serialization to Postgres using a composite type that keeps both the currency code and the amount together removing a source of potential error
 
 * Uses the `Decimal` type in Elixir and the Postgres `numeric` type to preserve precision
 
 ## Examples
 
-###Creating a new %Money{} struct:
+###Creating a %Money{} struct
 
      iex> Money.new(:USD, 100)
      #Money<:USD, 100>
@@ -74,7 +74,7 @@ See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
     iex> Money.to_string Money.new("USD", 234.467), format: :long
     "234.47 US dollars"
 
-###Money Arithmetic
+###%Money{} Arithmetic
 See also the module `Money.Arithmetic`):
 
     iex> m1 = Money.new(:USD, 100)
@@ -109,7 +109,7 @@ See also the module `Money.Arithmetic`):
     iex> Money.round Money.new(:JPY, 100.678)
     #Money<:JPY, 101>
 
-## Serializing %Money{} to a Postgres database
+## Serializing %Money{} to a Postgres database with Ecto
 
 First generate the migration to create the custom type:
 
@@ -121,7 +121,7 @@ Then migrate the database:
 
     mix ecto.migrate
     07:09:28.637 [info]  == Running MoneyTest.Repo.Migrations.AddMoneyWithCurrencyTypeToPostgres.up/0 forward
-    07:09:28.640 [info]  execute "  CREATE TYPE public.money_with_currency AS (\n    currency_code  char(3),\n    amount          numeric(20,8)\n  )\n"
+    07:09:28.640 [info]  execute "CREATE TYPE public.money_with_currency AS (currency_code char(3), amount numeric(20,8))"
     07:09:28.647 [info]  == Migrated in 0.0s
 
 Create your schema using the `Money.Ecto.Type` ecto type:
@@ -148,7 +148,7 @@ Retrieve from the database:
     Repo.all Ledger
     [debug] QUERY OK source="ledgers" db=5.3ms decode=0.1ms queue=0.1ms
     SELECT l0."amount", l0."inserted_at", l0."updated_at" FROM "ledgers" AS l0 []
-    [%Ledger{__meta__: #Ecto.Schema.Metadata<:loaded, "ledgers">, amount: $100.00,
+    [%Ledger{__meta__: #Ecto.Schema.Metadata<:loaded, "ledgers">, amount: #<:USD, 100.00000000>,
       inserted_at: #Ecto.DateTime<2016-10-07 23:12:13>,
       updated_at: #Ecto.DateTime<2016-10-07 23:12:13>}]
 
