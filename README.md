@@ -53,7 +53,8 @@ In addition:
 The canonical representation of a currency code is an `atom` that is a valid
 [ISO4217](http://www.currency-iso.org/en/home/tables/table-a1.html) currency code. The amount of a `%Money{}` is represented by a `Decimal`.
 
-###Formatting a %Money{} to a string (see `Money.to_string/2` and `Cldr.Number.to_string/2`):
+###Formatting a %Money{} to a string
+See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
 
     iex> Money.to_string Money.new("thb", 11)
     "THB11.00"
@@ -64,7 +65,8 @@ The canonical representation of a currency code is an `atom` that is a valid
     iex> Money.to_string Money.new("USD", 234.467), format: :long
     "234.47 US dollars"
 
-###Money Arithmetic (see the module `Money.Arithmetic`):
+###Money Arithmetic
+See also the module `Money.Arithmetic`):
 
     iex> m1 = Money.new(:USD, 100)
     #Money<:USD, 100>
@@ -89,6 +91,14 @@ The canonical representation of a currency code is an `atom` that is a valid
 
     iex> Money.split(m1, 3)
     {#Money<:USD, 33.33>, #Money<:USD, 0.01>}
+
+    # Rounding applies the currency definitions of CLDR as implemented in
+    # the hex package [ex_cldr](https://hex.pm/packages/ex_cldr)
+    iex> Money.round Money.new(:USD, 100.678)
+    #Money<:USD, 100.68>
+
+    iex> Money.round Money.new(:JPY, 100.678)
+    #Money<:JPY, 101>
 
 ## Serializing %Money{} to a Postgres database
 
