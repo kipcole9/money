@@ -1,16 +1,45 @@
 # Money
 
-Implements a **Money** type for Elixir that includes:
+Money implements a set of functions to store, retrieve and perform arithmetic
+on a `%Money{}` type that is composed of a currency code and a currency amount.
 
-- A Postgres custom type `money_with_currency` that stores a decimal monetary value with an associated currency code.  Also includes a `Mix` task to generate a migration that creates the custom type.
+Money is opinionated in the interests of serving as a dependable library
+that can underpin accounting and financial applications.  In its initial
+release it can be expected that this contract may not be fully met.
+
+How is this opinion expressed?
+
+1. Money must always have both a amount and a currency code.
+
+2. The currency code must always be valid.
+
+3. Money arithmetic can only be performed when both operands are of the
+same currency.
+
+4. Money amounts are represented as a `Decimal`.
+
+5. Money is serialised to the database as a custom Postgres type that includes
+both the amount and the currency. Therefore for Ecto serialization Postgres is
+assumed as the data store. Serialization is entirely optional.
+
+6. All arithmetic functions work on a `Decimal`. No rounding occurs
+automatically (unless expressly called out for a function, as is the case for
+`Money.split/2`).
+
+7. Explicit rounding obeys the rounding rules for a given currency. The
+rounding rules are defined by the Unicode consortium in its CLDR repository as
+implemented by the hex package `ex_cldr`. These rules define the number of
+fractional digits for a currency and the rounding increment where appropriate.
+
+In addition:
+
+- A Postgres custom type `money_with_currency` is provided that stores a decimal monetary value with an associated currency code.  Also includes a `Mix` task to generate a migration that creates the custom type.
 
 - Money formatting output using the hex package [ex_cldr](https://hex.pm/packages/ex_cldr) that correctly rounds to the appropriate number of fractional digits and to the correct rounding increment for currencies that have minimum cash increments (like the Swiss Franc and Australian Dollar)
 
-- Money arithmetic
-
 ## Examples
 
-Creating a new %Money{} struct:
+###Creating a new %Money{} struct:
 
      iex> Money.new(:USD, 100)
      #Money<:USD, 100>
@@ -21,7 +50,10 @@ Creating a new %Money{} struct:
      iex> Money.new("thb", 11)
      #Money<:THB, 11>
 
-Formatting a %Money{} to a string (see `Money.to_string/2` and `Cldr.Number.to_string/2`):
+The canonical representation of a currency code is an `atom` that is a valid
+[ISO4217](http://www.currency-iso.org/en/home/tables/table-a1.html) currency code. The amount of a `%Money{}` is represented by a `Decimal`.
+
+###Formatting a %Money{} to a string (see `Money.to_string/2` and `Cldr.Number.to_string/2`):
 
     iex> Money.to_string Money.new("thb", 11)
     "THB11.00"
@@ -32,7 +64,7 @@ Formatting a %Money{} to a string (see `Money.to_string/2` and `Cldr.Number.to_s
     iex> Money.to_string Money.new("USD", 234.467), format: :long
     "234.47 US dollars"
 
-Money Arithmetic (see the module `Money.Arithmetic`):
+###Money Arithmetic (see the module `Money.Arithmetic`):
 
     iex> m1 = Money.new(:USD, 100)
     #Money<:USD, 100>
@@ -49,6 +81,14 @@ Money Arithmetic (see the module `Money.Arithmetic`):
     iex(11)> Money.add(m1, m3)
     ** (ArgumentError) Cannot add two %Money{} with different currencies. Received :USD and :AUD.
         (ex_money) lib/money.ex:46: Money.add/2
+
+    # Split a %Money{} returning the a dividend and a remainder. All
+    # operations respect the number of fractional digits defined for a currency
+    iex> m1 = Money.new(:USD, 100)
+    #Money<:USD, 100>
+
+    iex> Money.split(m1, 3)
+    {#Money<:USD, 33.33>, #Money<:USD, 0.01>}
 
 ## Serializing %Money{} to a Postgres database
 
