@@ -104,22 +104,25 @@ defmodule Money.Arithmetic do
         false
       end
 
+      @doc """
+      Compares two %Money{} structs numerically. If the first number is greater
+      than the second :gt is returned, if less than :lt is returned, if both
+      numbers are equal :eq is returned.
+      """
       def cmp(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
       when code_a == code_b do
         Decimal.cmp(amount_a, amount_b)
       end
 
-      def cmp(%Money{currency: code_a, amount: amount_a}, _) do
-        :ne
-      end
-
+      @doc """
+      Compares two %Money{} structs numerically. If the first number is greater
+      than the second #Integer<1> is returned, if less than Integer<-1> is
+      returned. Otherwise, if both numbers are equal Integer<0> is returned.
+      """
       def compare(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
       when code_a == code_b do
         Decimal.compare(amount_a, amount_b)
-      end
-
-      def compare(%Money{currency: code_a, amount: amount_a}, _) do
-        :ne
+        |> Decimal.to_integer
       end
 
       @doc """
@@ -216,7 +219,7 @@ defmodule Money.Arithmetic do
         %Money{currency: code, amount: rounded_amount}
       end
 
-      def round_to_nearest(%Money{currency: code, amount: amount} = money, opts \\ []) do
+      defp round_to_nearest(%Money{currency: code, amount: amount} = money, opts \\ []) do
         currency  = Currency.for_code(code)
         increment = if opts[:cash], do: currency.cash_rounding, else: currency.rounding
         do_round_to_nearest(money, increment, opts)

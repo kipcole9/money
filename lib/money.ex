@@ -68,6 +68,7 @@ defmodule Money do
   struct from the database.
   """
   @spec new({binary, number}) :: Money.t
+  def new(money_tuple)
   def new({currency_code, amount}) when is_binary(currency_code) do
     currency_code = Currency.normalize_currency_code(currency_code)
 
