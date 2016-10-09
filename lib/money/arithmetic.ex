@@ -1,7 +1,5 @@
 defmodule Money.Arithmetic do
-  @moduledoc """
-  Arithmetic functions for %Money{}
-  """
+  @moduledoc false
 
   defmacro __using__(_opts) do
     quote do

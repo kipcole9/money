@@ -1,6 +1,6 @@
 defmodule Money.Ecto.Type do
   @moduledoc """
-  Implements the Ecto.Type behaviour for a user-defined Postgres type
+  Implements the Ecto.Type behaviour for a user-defined Postgres composite type
   called `:money_with_currency`.
   """
 

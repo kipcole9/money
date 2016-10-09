@@ -5,8 +5,7 @@ defmodule Money do
 
   Money is very opinionated in the interests of serving as a dependable library
   that can underpin accounting and financial applications.  In its initial
-  release it can be expected that this contract may not be fully met.  But
-  thats the contract.
+  release it can be expected that this contract may not be fully met.
 
   How is this opinion expressed:
 
@@ -53,9 +52,9 @@ defmodule Money do
 
   * `currency_code` is an ISO4217 three-character upcased binary
 
-  * `amount` is an integer or a float
+  * `amount` is an integer, float or Decimal
 
-  This function is typically called from Ecto when its loading a %Money{}
+  This function is typically called from Ecto when it's loading a %Money{}
   struct from the database.
 
   ## Example
