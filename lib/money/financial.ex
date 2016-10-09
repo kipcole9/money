@@ -1,5 +1,6 @@
 defmodule Money.Financial do
   @moduledoc false
+  # Some algorithms from http://www.financeformulas.net
   alias Cldr.Number.Math
 
   defmacro __using__(_opts) do
@@ -58,7 +59,7 @@ defmodule Money.Financial do
           #Money<:USD, 148.6436280241436864020760472>
       """
       def present_value(%Money{currency: currency, amount: amount} = future_value, interest_rate, periods)
-      when is_number(interest_rate) and is_number(periods) do
+      when is_number(interest_rate) and interest_rate > 0 and is_number(periods) and periods > 0 do
         pv_1 = interest_rate
         |> Decimal.new
         |> Decimal.add(@one)
@@ -78,7 +79,7 @@ defmodule Money.Financial do
 
       * `future_value` is a %Money{} representation of the future value
 
-      * `periods` in an integer number of periods
+      * `periods` is an integer number of periods
 
       ## Examples
 
@@ -95,6 +96,55 @@ defmodule Money.Financial do
         Decimal.div(fv_amount, pv_amount)
         |> Math.root(periods)
         |> Decimal.sub(@one)
+      end
+
+      @doc """
+      Calculates the number of periods between a %Money{} present value and
+      a %Money{} future value with a given interest rate.
+
+      * `present_value` is a %Money{} representation of the present value
+
+      * `future_value` is a %Money{} representation of the future value
+
+      * `interest_rate` is a float representation of an interest rate.  For
+      example, 12% would be represented as `0.12`
+
+      ## Example
+
+          iex> Money.periods Money.new(:USD, 1500), Money.new(:USD, 2000), 0.005
+          #Decimal<57.68013595323872502502238648>
+      """
+      def periods(%Money{currency: pv_currency, amount: pv_amount} = present_value,
+                  %Money{currency: fv_currency, amount: fv_amount} = future_value,
+                  interest_rate)
+      when pv_currency == fv_currency and is_number(interest_rate) and interest_rate > 0 do
+        Decimal.div(Math.log(Decimal.div(fv_amount, pv_amount)),
+                    Math.log(Decimal.add(@one, Decimal.new(interest_rate))))
+      end
+
+      @doc """
+      Calculates the payment for a given loan or annuity given a %Money{}
+      present value, an interest rate and a number of periods.
+
+      * `present_value` is a %Money{} representation of the present value
+
+      * `interest_rate` is a float representation of an interest rate.  For
+      example, 12% would be represented as `0.12`
+
+      * `periods` is an integer number of periods
+
+      ## Example
+
+          iex> Money.payment Money.new(:USD, 100), 0.12, 20
+          #Money<:USD, 13.38787800396606622792492299>
+      """
+      def payment(%Money{currency: pv_currency, amount: pv_amount} = present_value,
+                  interest_rate, periods)
+      when is_number(interest_rate) and interest_rate > 0 and is_number(periods) and periods > 0 do
+        interest_rate = Decimal.new(interest_rate)
+        p1 = Decimal.mult(pv_amount, interest_rate)
+        p2 = Decimal.sub(@one, Decimal.add(@one, interest_rate) |> Math.power(-periods))
+        Money.new(pv_currency, Decimal.div(p1, p2))
       end
     end
   end
