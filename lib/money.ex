@@ -18,9 +18,10 @@ defmodule Money do
 
   4. Money amounts are represented as a `Decimal`.
 
-  5. Money is serialised to the database as a custom Postgres type that includes
-  both the amount and the currency.  Therefore for Ecto serialization Postgres is
-  assumed as the data store.  Serialization is entirely optional.
+  5. Money is serialised to the database as a custom Postgres composite type
+  that includes both the amount and the currency. Therefore for Ecto
+  serialization Postgres is assumed as the data store. Serialization is
+  entirely optional and Ecto is not a package dependency.
 
   6. All arithmetic functions work in fixed point decimal.  No rounding
   occurs automatically (unless expressly called out for a function).
@@ -36,7 +37,7 @@ defmodule Money do
   Money is composed of an atom representation of an ISO4217 currency code and
   a `Decimal` representation of an amount.
   """
-  @opaque t :: %Money{currency: atom, amount: Decimal}
+  @type t :: %Money{currency: atom, amount: Decimal}
   defstruct currency: nil, amount: nil
 
   # Default mode for rounding is :half_even, also known
@@ -44,6 +45,7 @@ defmodule Money do
   @default_rounding_mode :half_even
 
   use Money.Arithmetic
+  use Money.Financial
   alias Cldr.Currency
 
   @doc """
