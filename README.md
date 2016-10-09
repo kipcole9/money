@@ -62,7 +62,16 @@ Australian Dollar)
 The canonical representation of a currency code is an `atom` that is a valid
 [ISO4217](http://www.currency-iso.org/en/home/tables/table-a1.html) currency code. The amount of a `%Money{}` is represented by a `Decimal`.
 
-###Formatting a %Money{} to a string
+###Optional ~M sigil
+
+An optional sigil module is available to aid in creating %Money{} structs.  It needs to be imported before use:
+
+    import Money.Sigil
+
+    ~M[100]USD
+    #> #Money<:USD, 100>
+
+###Localised String formatting
 See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
 
     iex> Money.to_string Money.new("thb", 11)
@@ -74,7 +83,9 @@ See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
     iex> Money.to_string Money.new("USD", 234.467), format: :long
     "234.47 US dollars"
 
-###%Money{} Arithmetic
+Note that the output is influenced by the locale in effect.  By default the localed used is that returned by `Cldr.get_local/0`.  Its default value is "en".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
+
+###Arithmetic Functions
 See also the module `Money.Arithmetic`):
 
     iex> m1 = Money.new(:USD, 100)
@@ -109,7 +120,11 @@ See also the module `Money.Arithmetic`):
     iex> Money.round Money.new(:JPY, 100.678)
     #Money<:JPY, 101>
 
-## Serializing %Money{} to a Postgres database with Ecto
+###Financial Functions
+
+A limited set of financial functions are available in the module `Money.Financial`.  These are `use`d in the `Money` module. See `Money` for the available functions.
+
+## Serializing to a Postgres database with Ecto
 
 First generate the migration to create the custom type:
 
@@ -164,7 +179,7 @@ ex_money can be installed by:
 
     ```elixir
     def deps do
-      [{:ex_money, "~> 0.0.3"}]
+      [{:ex_money, "~> 0.0.5"}]
     end
     ```
 

@@ -1,3 +1,13 @@
+## Changelog for Ex_Money v0.0.5 October 8, 2016
+
+### Enhancements
+
+* Adds a set of financial functions defined in `Money.Financial`
+
+* Adds a sigil `~M` defined in `Money.Sigil`
+
+* Adds the `Phoenix.HTML.Safe` protocol implementation
+
 ## Changelog for Ex_Money v0.0.4 October 8, 2016
 
 ### Bug Fixes
