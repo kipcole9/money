@@ -9,11 +9,11 @@ defmodule Money.Sigil do
 
       import Money.Sigil
 
-      ~M[1000]usd
-      #> #Money<:USD, 1000>
+      iex> ~M[1000]usd
+      #Money<:USD, 1000>
   """
 
-  def sigil_M(amount, [_,_,_]=currency) do
+  def sigil_M(amount, [_, _, _] = currency) do
     Money.new(to_decimal(amount), atomize(currency))
   end
 
