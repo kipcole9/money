@@ -1,3 +1,9 @@
+## Changelof for Ex_Money v0.0.6
+
+### Enhancements
+
+* Add present_value and future_value for a list of cash flows
+
 ## Changelog for Ex_Money v0.0.5 October 8, 2016
 
 ### Enhancements

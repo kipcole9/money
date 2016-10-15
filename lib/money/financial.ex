@@ -40,6 +40,37 @@ defmodule Money.Financial do
       end
 
       @doc """
+      Calculates the future value for a list of cash flows and an interest rate.
+
+      * `flows` is a list of tuples representing a cash flow.  Each flow is
+      represented as a tuple of the form `{period, %Money{}}`
+
+      * `interest_rate` is a float representation of an interest rate.  For
+      example, 12% would be represented as `0.12`
+
+      ## Example
+
+          iex> Money.future_value([{4, Money.new(:USD, 10000)}, {5, Money.new(:USD, 10000)}, {6, Money.new(:USD, 10000)}], 0.13)
+          #Money<:USD, 55548.605419090000>
+      """
+      def future_value(flows, interest_rate)
+
+      def future_value({period, %Money{} = future_value}, interest_rate)
+      when is_integer(period) and is_number(interest_rate) do
+        future_value(future_value, interest_rate, period)
+      end
+
+      def future_value([{period, %Money{}} = flow | []], interest_rate)
+      when is_integer(period) and is_number(interest_rate) do
+        future_value(flow, interest_rate)
+      end
+
+      def future_value([{period, %Money{}} = flow | other_flows], interest_rate)
+      when is_integer(period) and is_number(interest_rate) do
+        Money.add(future_value(flow, interest_rate), future_value(other_flows, interest_rate))
+      end
+
+      @doc """
       Calculates the present value for %Money{} future value, an interest rate
       and a number of periods
 
@@ -69,6 +100,37 @@ defmodule Money.Financial do
         |> Decimal.mult(amount)
 
         Money.new(currency, pv)
+      end
+
+      @doc """
+      Calculates the present value for a list of cash flows and an interest rate.
+
+      * `flows` is a list of tuples representing a cash flow.  Each flow is
+      represented as a tuple of the form `{period, %Money{}}`
+
+      * `interest_rate` is a float representation of an interest rate.  For
+      example, 12% would be represented as `0.12`
+
+      ## Example
+
+          iex> Money.present_value([{4, Money.new(:USD, 10000)}, {5, Money.new(:USD, 10000)}, {6, Money.new(:USD, 10000)}], 0.13)
+          #Money<:USD, 16363.97191111964880256655144>
+      """
+      def present_value(flows, interest_rate)
+
+      def present_value({period, %Money{} = future_value}, interest_rate)
+      when is_integer(period) and is_number(interest_rate) do
+        present_value(future_value, interest_rate, period)
+      end
+
+      def present_value([{period, %Money{}} = flow | []], interest_rate)
+      when is_integer(period) and is_number(interest_rate) do
+        present_value(flow, interest_rate)
+      end
+
+      def present_value([{period, %Money{}} = flow | other_flows], interest_rate)
+      when is_integer(period) and is_number(interest_rate) do
+        Money.add(present_value(flow, interest_rate), present_value(other_flows, interest_rate))
       end
 
       @doc """
