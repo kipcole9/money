@@ -157,4 +157,9 @@ defmodule MoneyTest do
   test "Extract decimal from money" do
     assert Money.to_decimal(Money.new(:USD, 1234)) == Decimal.new(1234)
   end
+
+  test "Calculate irr" do
+    flows = [{0, Money.new(:USD, -123400)},{1, Money.new(:USD, 36200)},{2,Money.new(:USD,54800)},{3,Money.new(:USD,48100)}]
+    assert Money.internal_rate_of_return(flows) == 0.596
+  end
 end

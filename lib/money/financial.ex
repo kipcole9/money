@@ -83,7 +83,7 @@ defmodule Money.Financial do
           #Money<:USD, 148.6436280241436864020760472>
       """
       def present_value(%Money{currency: currency, amount: amount} = future_value, interest_rate, periods)
-      when is_number(interest_rate) and interest_rate > 0 and is_number(periods) and periods >= 0 do
+      when is_number(interest_rate) and is_number(periods) and periods >= 0 do
         pv_1 = interest_rate
         |> Decimal.new
         |> Decimal.add(@one)
@@ -191,6 +191,33 @@ defmodule Money.Financial do
       def net_present_value(%Money{} = future_value, interest_rate, periods, %Money{} = investment) do
         present_value(future_value, interest_rate, periods)
         |> Money.sub(investment)
+      end
+
+      @doc """
+      Calculates the interal rate of return for a given list of cash flows.
+
+      * `flows` is a list of tuples representing a cash flow.  Each flow is
+      represented as a tuple of the form `{period, %Money{}}`
+      """
+      def internal_rate_of_return(flows) do
+        estimate_n = 0.2
+        estimate_m = 0.1
+
+        do_internal_rate_of_return(flows, estimate_m, estimate_n)
+      end
+
+      def do_internal_rate_of_return(flows, estimate_m, estimate_n) do
+        IO.puts "#{inspect estimate_m};#{inspect estimate_n}"
+        npv_n = net_present_value(flows, estimate_n).amount |> Math.to_float
+        npv_m = net_present_value(flows, estimate_m).amount |> Math.to_float
+
+        estimate_o = ((estimate_n - estimate_m) / (npv_n - npv_m)) * npv_n
+
+        if abs(estimate_o - estimate_n) > 0.00001 do
+          do_internal_rate_of_return(flows, estimate_n, estimate_o)
+        else
+          estimate_o
+        end
       end
 
       @doc """
