@@ -4,9 +4,9 @@ defmodule Money.Financial do
   alias Cldr.Number.Math
 
   defmacro __using__(_opts) do
-    quote do
+    quote location: :keep do
       @doc """
-      Calculates the future value for a %Money{} present value, an interest rate
+      Calculates the future value for a present value, an interest rate
       and a number of periods.
 
       * `present_value` is a %Money{} representation of the present value
@@ -51,27 +51,20 @@ defmodule Money.Financial do
       ## Example
 
           iex> Money.future_value([{4, Money.new(:USD, 10000)}, {5, Money.new(:USD, 10000)}, {6, Money.new(:USD, 10000)}], 0.13)
-          #Money<:USD, 55548.605419090000>
+          #Money<:USD, 34068.99999999999999999999999>
       """
       def future_value(flows, interest_rate)
 
-      def future_value({period, %Money{} = future_value}, interest_rate)
+      def future_value([{period, %Money{}} = flow | other_flows] = flows, interest_rate)
       when is_integer(period) and is_number(interest_rate) do
-        future_value(future_value, interest_rate, period)
-      end
+        {max_period, _} = Enum.max(flows)
 
-      def future_value([{period, %Money{}} = flow | []], interest_rate)
-      when is_integer(period) and is_number(interest_rate) do
-        future_value(flow, interest_rate)
-      end
-
-      def future_value([{period, %Money{}} = flow | other_flows], interest_rate)
-      when is_integer(period) and is_number(interest_rate) do
-        Money.add(future_value(flow, interest_rate), future_value(other_flows, interest_rate))
+        present_value(flows, interest_rate)
+        |> future_value(interest_rate, max_period)
       end
 
       @doc """
-      Calculates the present value for %Money{} future value, an interest rate
+      Calculates the present value for future value, an interest rate
       and a number of periods
 
       * `future_value` is a %Money{} representation of the future value
@@ -118,24 +111,85 @@ defmodule Money.Financial do
       """
       def present_value(flows, interest_rate)
 
-      def present_value({period, %Money{} = future_value}, interest_rate)
+      def present_value([{period, %Money{}} = flow | other_flows] = flows, interest_rate)
       when is_integer(period) and is_number(interest_rate) do
-        present_value(future_value, interest_rate, period)
+        validate_same_currency!(flows)
+        do_present_value(flows, interest_rate)
       end
 
-      def present_value([{period, %Money{}} = flow | []], interest_rate)
+      defp do_present_value({period, %Money{currency: currency, amount: amount} = flow}, interest_rate)
       when is_integer(period) and is_number(interest_rate) do
-        present_value(flow, interest_rate)
+        pv_1 = interest_rate
+        |> Decimal.new
+        |> Decimal.add(@one)
+        |> Math.power(period)
+
+        pv = Decimal.div(amount, pv_1)
+        Money.new(currency, pv)
       end
 
-      def present_value([{period, %Money{}} = flow | other_flows], interest_rate)
+      defp do_present_value([{period, %Money{}} = flow | []], interest_rate)
       when is_integer(period) and is_number(interest_rate) do
-        Money.add(present_value(flow, interest_rate), present_value(other_flows, interest_rate))
+        do_present_value(flow, interest_rate)
+      end
+
+      defp do_present_value([{period, %Money{}} = flow | other_flows], interest_rate)
+      when is_integer(period) and is_number(interest_rate) do
+        do_present_value(flow, interest_rate)
+        |> Money.add(do_present_value(other_flows, interest_rate))
       end
 
       @doc """
-      Calculates the effective interest rate for a given %Money{} present value,
-      a %Money{} future value and a number of periods.
+      Calculates the net present value of an initial investment, a list of
+      cash flows and an interest rate.
+
+      * `investment` is a %Money{} struct representing the initial investment
+
+      * `flows` is a list of tuples representing a cash flow.  Each flow is
+      represented as a tuple of the form `{period, %Money{}}`
+
+      * `interest_rate` is a float representation of an interest rate.  For
+      example, 12% would be represented as `0.12`
+
+      ## Example
+
+          iex> flows = [{0, Money.new(:USD, 5000)},{1, Money.new(:USD, 2000)},{2, Money.new(:USD, 500)},{3, Money.new(:USD,10_000)}]
+          iex> Money.net_present_value Money.new(:USD, 100), flows, 0.08
+          #Money<:USD, 15118.84367220444038002337042>
+      """
+      def net_present_value(%Money{} = investment, [{period, %Money{}} | _] = flows, interest_rate)
+      when is_number(interest_rate) do
+        validate_same_currency!(investment, flows)
+        present_value(flows, interest_rate)
+        |> Money.sub(investment)
+      end
+
+      @doc """
+      Calculates the net present value of an initial investment, a recurring
+      payment, an interest rate and a number of periods
+
+      * `investment` is a %Money{} struct representing the initial investment
+
+      * `future_value` is a %Money{} representation of the future value
+
+      * `interest_rate` is a float representation of an interest rate.  For
+      example, 12% would be represented as `0.12`
+
+      * `periods` in an integer number of periods
+
+      ## Example
+
+          iex> Money.net_present_value Money.new(:USD, 100), Money.new(:USD, 10000), 0.13, 2
+          #Money<:USD, 7731.466833737959119743127888>
+      """
+      def net_present_value(%Money{} = investment, %Money{} = future_value, interest_rate, periods) do
+        present_value(future_value, interest_rate, periods)
+        |> Money.sub(investment)
+      end
+
+      @doc """
+      Calculates the effective interest rate for a given present value,
+      a future value and a number of periods.
 
       * `present_value` is a %Money{} representation of the present value
 
@@ -161,8 +215,8 @@ defmodule Money.Financial do
       end
 
       @doc """
-      Calculates the number of periods between a %Money{} present value and
-      a %Money{} future value with a given interest rate.
+      Calculates the number of periods between a present value and
+      a future value with a given interest rate.
 
       * `present_value` is a %Money{} representation of the present value
 
@@ -185,7 +239,7 @@ defmodule Money.Financial do
       end
 
       @doc """
-      Calculates the payment for a given loan or annuity given a %Money{}
+      Calculates the payment for a given loan or annuity given a
       present value, an interest rate and a number of periods.
 
       * `present_value` is a %Money{} representation of the present value
@@ -207,6 +261,25 @@ defmodule Money.Financial do
         p1 = Decimal.mult(pv_amount, interest_rate)
         p2 = Decimal.sub(@one, Decimal.add(@one, interest_rate) |> Math.power(-periods))
         Money.new(pv_currency, Decimal.div(p1, p2))
+      end
+
+      defp validate_same_currency!(%Money{} = flow, flows) do
+        validate_same_currency!([{0, flow} | flows])
+      end
+
+      defp validate_same_currency!(flows) do
+        number_of_currencies =
+          flows
+          |> Enum.map(fn {period, %Money{currency: currency}} -> currency end)
+          |> Enum.uniq
+          |> Enum.count
+
+        if number_of_currencies > 1 do
+          raise ArgumentError, message:
+            "More than one currency found in a cash flows, " <>
+            "implicit currency conversion is not supported.  Found: " <>
+            inspect(flows)
+        end
       end
     end
   end

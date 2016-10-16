@@ -2,7 +2,7 @@ defmodule Money.Arithmetic do
   @moduledoc false
 
   defmacro __using__(_opts) do
-    quote do
+    quote location: :keep do
       import Kernel, except: [div: 2, round: 1]
       alias Cldr.Currency
 

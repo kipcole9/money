@@ -87,6 +87,21 @@ defmodule MoneyTest do
     end
   end
 
+  test "cash flows with different currencies raises" do
+    flows = [{1, Money.new(:USD, 100)}, {2, Money.new(:AUD, 100)}]
+    assert_raise ArgumentError, ~r/More than one currency found in a cash flows/, fn ->
+      Money.present_value(flows, 0.12)
+    end
+
+    assert_raise ArgumentError, ~r/More than one currency found in a cash flows/, fn ->
+      Money.future_value(flows, 0.12)
+    end
+
+    assert_raise ArgumentError, ~r/More than one currency found in a cash flows/, fn ->
+      Money.net_present_value(Money.new(:EUR, 100), flows, 0.12)
+    end
+  end
+
   test "multiply a money by an integer" do
     assert Money.mult(Money.new(:USD, 100), 2) == Money.new(:USD, 200)
   end
