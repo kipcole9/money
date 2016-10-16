@@ -52,6 +52,9 @@ defmodule Money.Financial do
 
           iex> Money.future_value([{4, Money.new(:USD, 10000)}, {5, Money.new(:USD, 10000)}, {6, Money.new(:USD, 10000)}], 0.13)
           #Money<:USD, 34068.99999999999999999999999>
+
+          iex> Money.future_value [{0, Money.new(:USD, 5000)},{1, Money.new(:USD, 2000)}], 0.12
+          #Money<:USD, 7600.000000000000000000000000>
       """
       def future_value(flows, interest_rate)
 
@@ -106,6 +109,9 @@ defmodule Money.Financial do
 
           iex> Money.present_value([{4, Money.new(:USD, 10000)}, {5, Money.new(:USD, 10000)}, {6, Money.new(:USD, 10000)}], 0.13)
           #Money<:USD, 16363.97191111964880256655144>
+
+          iex> Money.present_value [{0, Money.new(:USD, -1000)},{1, Money.new(:USD, -4000)}], 0.1
+          #Money<:USD, -4636.363636363636363636363636>
       """
       def present_value(flows, interest_rate)
 
