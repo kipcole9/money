@@ -206,17 +206,16 @@ defmodule Money.Financial do
         do_internal_rate_of_return(flows, estimate_m, estimate_n)
       end
 
+      @irr_precision 0.000001
       def do_internal_rate_of_return(flows, estimate_m, estimate_n) do
-        IO.puts "#{inspect estimate_m};#{inspect estimate_n}"
         npv_n = net_present_value(flows, estimate_n).amount |> Math.to_float
         npv_m = net_present_value(flows, estimate_m).amount |> Math.to_float
 
-        estimate_o = ((estimate_n - estimate_m) / (npv_n - npv_m)) * npv_n
-
-        if abs(estimate_o - estimate_n) > 0.00001 do
+        if abs(npv_n - npv_m) > @irr_precision do
+          estimate_o = estimate_n - (((estimate_n - estimate_m) / (npv_n - npv_m)) * npv_n)
           do_internal_rate_of_return(flows, estimate_n, estimate_o)
         else
-          estimate_o
+          estimate_n
         end
       end
 

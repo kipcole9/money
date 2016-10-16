@@ -158,8 +158,13 @@ defmodule MoneyTest do
     assert Money.to_decimal(Money.new(:USD, 1234)) == Decimal.new(1234)
   end
 
-  test "Calculate irr" do
-    flows = [{0, Money.new(:USD, -123400)},{1, Money.new(:USD, 36200)},{2,Money.new(:USD,54800)},{3,Money.new(:USD,48100)}]
-    assert Money.internal_rate_of_return(flows) == 0.596
+  test "Calculate irr with one outflow" do
+    flows = [{1, Money.new(:USD, -123400)},{2, Money.new(:USD, 36200)},{3,Money.new(:USD,54800)},{4,Money.new(:USD,48100)}]
+    assert Float.round(Money.internal_rate_of_return(flows), 4) == 0.0596
+  end
+
+  test "Calculate irr with two outflows" do
+    flows = [{0, Money.new(:USD, -1000)},{1, Money.new(:USD, -4000)},{2,Money.new(:USD,5000)},{3,Money.new(:USD,2000)}]
+    assert Float.round(Money.internal_rate_of_return(flows), 4) == 0.2548
   end
 end
