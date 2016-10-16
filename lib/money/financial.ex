@@ -83,15 +83,13 @@ defmodule Money.Financial do
           #Money<:USD, 148.6436280241436864020760472>
       """
       def present_value(%Money{currency: currency, amount: amount} = future_value, interest_rate, periods)
-      when is_number(interest_rate) and interest_rate > 0 and is_number(periods) and periods > 0 do
+      when is_number(interest_rate) and interest_rate > 0 and is_number(periods) and periods >= 0 do
         pv_1 = interest_rate
         |> Decimal.new
         |> Decimal.add(@one)
         |> Math.power(periods)
 
-        pv = Decimal.div(@one, pv_1)
-        |> Decimal.mult(amount)
-
+        pv = Decimal.div(amount, pv_1)
         Money.new(currency, pv)
       end
 
@@ -119,13 +117,7 @@ defmodule Money.Financial do
 
       defp do_present_value({period, %Money{currency: currency, amount: amount} = flow}, interest_rate)
       when is_integer(period) and is_number(interest_rate) do
-        pv_1 = interest_rate
-        |> Decimal.new
-        |> Decimal.add(@one)
-        |> Math.power(period)
-
-        pv = Decimal.div(amount, pv_1)
-        Money.new(currency, pv)
+        present_value(flow, interest_rate, period)
       end
 
       defp do_present_value([{period, %Money{}} = flow | []], interest_rate)
@@ -143,22 +135,29 @@ defmodule Money.Financial do
       Calculates the net present value of an initial investment, a list of
       cash flows and an interest rate.
 
-      * `investment` is a %Money{} struct representing the initial investment
-
       * `flows` is a list of tuples representing a cash flow.  Each flow is
       represented as a tuple of the form `{period, %Money{}}`
 
       * `interest_rate` is a float representation of an interest rate.  For
       example, 12% would be represented as `0.12`
 
+      * `investment` is a %Money{} struct representing the initial investment
+
       ## Example
 
           iex> flows = [{0, Money.new(:USD, 5000)},{1, Money.new(:USD, 2000)},{2, Money.new(:USD, 500)},{3, Money.new(:USD,10_000)}]
-          iex> Money.net_present_value Money.new(:USD, 100), flows, 0.08
+          iex> Money.net_present_value flows, 0.08, Money.new(:USD, 100)
           #Money<:USD, 15118.84367220444038002337042>
+          iex> Money.net_present_value flows, 0.08
+          #Money<:USD, 15218.84367220444038002337042>
       """
-      def net_present_value(%Money{} = investment, [{period, %Money{}} | _] = flows, interest_rate)
-      when is_number(interest_rate) do
+      def net_present_value([{period, %Money{currency: currency}} | _] = flows, interest_rate)
+      when is_integer(period) and is_number(interest_rate) do
+        net_present_value(flows, interest_rate, Money.new(currency, 0))
+      end
+
+      def net_present_value([{period, %Money{}} | _] = flows, interest_rate, %Money{} = investment)
+      when is_integer(period) and is_number(interest_rate) do
         validate_same_currency!(investment, flows)
         present_value(flows, interest_rate)
         |> Money.sub(investment)
@@ -175,14 +174,21 @@ defmodule Money.Financial do
       * `interest_rate` is a float representation of an interest rate.  For
       example, 12% would be represented as `0.12`
 
-      * `periods` in an integer number of periods
+      * `periods` in an integer number of a period
 
       ## Example
 
-          iex> Money.net_present_value Money.new(:USD, 100), Money.new(:USD, 10000), 0.13, 2
+          iex> Money.net_present_value Money.new(:USD, 10000), 0.13, 2
+          #Money<:USD, 7831.466833737959119743127888>
+
+          iex> Money.net_present_value Money.new(:USD, 10000), 0.13, 2, Money.new(:USD, 100)
           #Money<:USD, 7731.466833737959119743127888>
       """
-      def net_present_value(%Money{} = investment, %Money{} = future_value, interest_rate, periods) do
+      def net_present_value(%Money{currency: currency} = future_value, interest_rate, periods) do
+        net_present_value(future_value, interest_rate, periods, Money.new(currency, 0))
+      end
+
+      def net_present_value(%Money{} = future_value, interest_rate, periods, %Money{} = investment) do
         present_value(future_value, interest_rate, periods)
         |> Money.sub(investment)
       end
@@ -195,7 +201,7 @@ defmodule Money.Financial do
 
       * `future_value` is a %Money{} representation of the future value
 
-      * `periods` is an integer number of periods
+      * `periods` is an integer number of a period
 
       ## Examples
 

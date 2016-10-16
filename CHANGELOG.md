@@ -6,6 +6,8 @@
 
 * Add net_present_value for an investment and a list of cash flows
 
+* Add net_present_value for an investment, payment, interest rate and periods
+
 ## Changelog for Ex_Money v0.0.5 October 8, 2016
 
 ### Enhancements

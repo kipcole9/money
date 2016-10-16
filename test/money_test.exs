@@ -98,7 +98,7 @@ defmodule MoneyTest do
     end
 
     assert_raise ArgumentError, ~r/More than one currency found in a cash flows/, fn ->
-      Money.net_present_value(Money.new(:EUR, 100), flows, 0.12)
+      Money.net_present_value(flows, 0.12, Money.new(:EUR, 100))
     end
   end
 
