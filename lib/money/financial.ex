@@ -207,7 +207,7 @@ defmodule Money.Financial do
       end
 
       @irr_precision 0.000001
-      def do_internal_rate_of_return(flows, estimate_m, estimate_n) do
+      defp do_internal_rate_of_return(flows, estimate_m, estimate_n) do
         npv_n = net_present_value(flows, estimate_n).amount |> Math.to_float
         npv_m = net_present_value(flows, estimate_m).amount |> Math.to_float
 
@@ -308,8 +308,8 @@ defmodule Money.Financial do
 
         if number_of_currencies > 1 do
           raise ArgumentError, message:
-            "More than one currency found in a cash flows, " <>
-            "implicit currency conversion is not supported.  Found: " <>
+            "More than one currency found in cash flows; " <>
+            "implicit currency conversion is not supported.  Cash flows: " <>
             inspect(flows)
         end
       end

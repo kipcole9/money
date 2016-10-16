@@ -89,15 +89,15 @@ defmodule MoneyTest do
 
   test "cash flows with different currencies raises" do
     flows = [{1, Money.new(:USD, 100)}, {2, Money.new(:AUD, 100)}]
-    assert_raise ArgumentError, ~r/More than one currency found in a cash flows/, fn ->
+    assert_raise ArgumentError, ~r/More than one currency found in cash flows/, fn ->
       Money.present_value(flows, 0.12)
     end
 
-    assert_raise ArgumentError, ~r/More than one currency found in a cash flows/, fn ->
+    assert_raise ArgumentError, ~r/More than one currency found in cash flows/, fn ->
       Money.future_value(flows, 0.12)
     end
 
-    assert_raise ArgumentError, ~r/More than one currency found in a cash flows/, fn ->
+    assert_raise ArgumentError, ~r/More than one currency found in cash flows/, fn ->
       Money.net_present_value(flows, 0.12, Money.new(:EUR, 100))
     end
   end
