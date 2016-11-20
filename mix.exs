@@ -16,7 +16,8 @@ defmodule Money.Mixfile do
      description: description(),
      package: package(),
      test_coverage: [tool: ExCoveralls],
-     aliases: aliases()
+     aliases: aliases(),
+     elixirc_paths: elixirc_paths(Mix.env)
    ]
   end
 
@@ -61,4 +62,7 @@ defmodule Money.Mixfile do
       {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib"]
 end

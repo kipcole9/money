@@ -1,8 +1,10 @@
 defmodule Money.ExchangeRates.Retriever do
   @moduledoc """
   Implements a `GenServer` to retrieve exchange rates from
-  [Open Exchange Rates](http://openexchangerates.org) on a periodic basis and
-  store the resulting rates in an `:ets` table.
+  a configured retrieveal module on a periodic basis.  By default exchange
+  rates are retrieved from [Open Exchange Rates](http://openexchangerates.org).
+
+  Retrieved data is stored in an `:ets` table.
 
   By default the period of execution is 5 minutes (360_000 microseconds). The
   period of retrieval is configured in `config.exs` or the appropriate
@@ -34,14 +36,13 @@ defmodule Money.ExchangeRates.Retriever do
    end
 
    defp do_retrieve_rates do
-     require Logger
-
      case Money.ExchangeRates.get_latest_rates() do
        {:ok, rates} ->
-         Logger.debug "#{__MODULE__}: Retrieved exchange rates successfully"
          :ets.insert(:exchange_rates, {:rates, rates})
+         :ets.insert(:exchange_rates, {:last_updated, DateTime.utc_now})
+         log(:success, "#{__MODULE__}: Retrieved exchange rates successfully")
        {:error, reason} ->
-         Logger.warn "#{__MODULE__}: Error retrieving rates from Open Exchange Rates: #{inspect reason}"
+         log(:failure, "#{__MODULE__}: Error retrieving rates from Open Exchange Rates: #{inspect reason}")
      end
    end
 
@@ -51,5 +52,21 @@ defmodule Money.ExchangeRates.Retriever do
 
    defp initialize_ets_table do
      :ets.new(:exchange_rates, [:named_table, read_concurrency: true])
+   end
+
+   defp log(:success, message) do
+     require Logger
+
+     if level = Application.get_env(:ex_money, :log_success, nil) do
+       Logger.log(level, message)
+     end
+   end
+
+   defp log(:failure, message) do
+     require Logger
+
+     if level = Application.get_env(:ex_money, :log_failure, :warn) do
+       Logger.log(level, message)
+     end
    end
  end

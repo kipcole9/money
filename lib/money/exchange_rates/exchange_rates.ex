@@ -18,12 +18,11 @@ defmodule Money.ExchangeRates do
         open_exchange_rates_retrieve_every: 360_000
   """
 
-  @app_id Money.get_env(:open_exchange_rates_app_id)
-  @exr_url "https://openexchangerates.org/api"
-
-  if is_nil(@app_id) do
-    raise ArgumentError, message: "An Open Exchange Rates app_id must be configured in config.exs"
-  end
+  @doc """
+  Defines the behaviour to retrieve exchange rates from an external
+  data source
+  """
+  @callback get_latest_rates() :: {:ok, %{}} | {:error, binary}
 
   @doc """
   Return the latest exchange rates.
@@ -43,34 +42,25 @@ defmodule Money.ExchangeRates do
   end
 
   @doc """
-  Retrieves the latest exchange rates from Open Exchange Rates site.
+  Return the timestamp of the last successful retrieval of exchange rates
 
-  Returns:
+  ##Example:
 
-  * `{:ok, rates}` is the rates can be retrieved
-
-  * `{:error, reason}` if rates cannot be retrieved
+      Money.ExchangeRates.last_updated
+      #> {:ok,
+       %DateTime{calendar: Calendar.ISO, day: 20, hour: 12, microsecond: {731942, 6},
+        minute: 36, month: 11, second: 6, std_offset: 0, time_zone: "Etc/UTC",
+        utc_offset: 0, year: 2016, zone_abbr: "UTC"}}
   """
-  @latest_endpoint "/latest.json"
-  @latest_url @exr_url <> @latest_endpoint <> "?app_id=" <> @app_id
-  def get_latest_rates do
-    get_rates(@latest_url)
+  def last_updated do
+    case :ets.lookup(:exchange_rates, :last_updated) do
+      [{:last_updated, timestamp}] -> {:ok, timestamp}
+      [] -> :error
+    end
   end
 
-  defp get_rates(url) do
-    case HTTPoison.get(url) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        %{"base" => base, "rates" => rates} = Poison.decode!(body)
-
-        decimal_rates = rates
-        |> Cldr.Map.atomize_keys
-        |> Enum.map(fn {k, v} -> {k, Decimal.new(v)} end)
-
-        {:ok, decimal_rates}
-      {:ok, %HTTPoison.Response{status_code: 404}} ->
-        {:error, "#{url} was not found"}
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, reason}
-    end
+  @exchange_rate_api Money.get_env(:api_module, Money.ExchangeRates.OpenExchangeRates)
+  def get_latest_rates do
+    @exchange_rate_api.get_latest_rates()
   end
 end

@@ -167,4 +167,13 @@ defmodule MoneyTest do
     flows = [{0, Money.new(:USD, -1000)},{1, Money.new(:USD, -4000)},{2,Money.new(:USD,5000)},{3,Money.new(:USD,2000)}]
     assert Float.round(Money.internal_rate_of_return(flows), 4) == 0.2548
   end
+
+  test "Get exchange rates" do
+    test_result = {:ok, %{USD: Decimal.new(1), AUD: Decimal.new(0.7), EUR: Decimal.new(1.2)}}
+    assert Money.ExchangeRates.latest_rates() == test_result
+  end
+
+  test "Convert from USD to AUD" do
+    assert Money.cmp(Money.to_currency(Money.new(:USD, 100), :AUD), Money.new(:AUD, 70)) == :eq
+  end
 end
