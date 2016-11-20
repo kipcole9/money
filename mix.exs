@@ -36,7 +36,10 @@ defmodule Money.Mixfile do
   end
 
   def application do
-    []
+    [
+      mod: {Money, []},
+      applications: [:logger, :httpoison]
+    ]
   end
 
   def docs do
@@ -51,6 +54,7 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
+      {:httpoison, "~> 0.10.0"},
       {:ex_cldr, "~> 0.0.5"},
       {:excoveralls, "~> 0.5.6", only: :test},
       {:gen_stage, "~> 0.4", only: [:dev, :test]},

@@ -7,7 +7,7 @@ defmodule Money.Arithmetic do
       alias Cldr.Currency
 
       @doc """
-      Add two `%Money{}` structs.
+      Add two `Money` values.
 
       ## Example
 
@@ -26,7 +26,7 @@ defmodule Money.Arithmetic do
       end
 
       @doc """
-      Subtract one `%Money{}` struct from another.
+      Subtract one `Money` value struct from another.
 
       ## Example
 
@@ -44,7 +44,7 @@ defmodule Money.Arithmetic do
       end
 
       @doc """
-      Multiply a `%Money{}` by a number.
+      Multiply a `Money` value by a number.
 
       * `money` is a %Money{} struct
 
@@ -67,7 +67,7 @@ defmodule Money.Arithmetic do
       end
 
       @doc """
-      Divide a `%Money{}` by a number.
+      Divide a `Money` value by a number.
 
       * `money` is a %Money{} struct
 
@@ -90,7 +90,7 @@ defmodule Money.Arithmetic do
       end
 
       @doc """
-      Returns a boolean indicating if two `%Money{}` structs are equal
+      Returns a boolean indicating if two `Money` values are equal
 
       ## Example
 
@@ -111,7 +111,7 @@ defmodule Money.Arithmetic do
       end
 
       @doc """
-      Compares two %Money{} structs numerically. If the first number is greater
+      Compares two `Money` values numerically. If the first number is greater
       than the second :gt is returned, if less than :lt is returned, if both
       numbers are equal :eq is returned.
 
@@ -132,7 +132,7 @@ defmodule Money.Arithmetic do
       end
 
       @doc """
-      Compares two %Money{} structs numerically. If the first number is greater
+      Compares two `Money` values numerically. If the first number is greater
       than the second #Integer<1> is returned, if less than Integer<-1> is
       returned. Otherwise, if both numbers are equal Integer<0> is returned.
 
@@ -154,7 +154,7 @@ defmodule Money.Arithmetic do
       end
 
       @doc """
-      Split a `%Money{}` amount into a number of parts maintaining the currency's
+      Split a `Money` value into a number of parts maintaining the currency's
       precision and rounding and ensuring that the parts sum to the original
       amount.
 
@@ -198,7 +198,7 @@ defmodule Money.Arithmetic do
       end
 
       @doc """
-      Round a %Money{} struct into the acceptable range for the defined currency.
+      Round a `Money` value into the acceptable range for the defined currency.
 
       * `money` is a `%Money{}` struct
 

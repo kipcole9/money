@@ -205,7 +205,14 @@ defmodule Money.Financial do
       * `flows` is a list of tuples representing a cash flow.  Each flow is
       represented as a tuple of the form `{period, %Money{}}`
       """
-      def internal_rate_of_return(flows) do
+      def internal_rate_of_return([{period, %Money{amount: amount}} | other_flows] = flows) do
+        # estimate_m = sum_of_inflows(flows)
+        # |> Kernel./(abs(Math.to_float(amount)))
+        # |> :math.pow(2 / (number_of_flows(flows) + 1))
+        # |> Kernel.-(1)
+
+        # estimate_n = :math.pow(1 + estimate_m, )
+
         estimate_n = 0.2
         estimate_m = 0.1
 

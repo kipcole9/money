@@ -44,9 +44,27 @@ defmodule Money do
   # as bankers rounding
   @default_rounding_mode :half_even
 
+  use Application
   use Money.Arithmetic
   use Money.Financial
+  use Money.Currency.Conversion
+
   alias Cldr.Currency
+
+  # See http://elixir-lang.org/docs/stable/elixir/Application.html
+  # for more information on OTP Applications
+  def start(_type, _args) do
+    import Supervisor.Spec, warn: false
+
+    children = [
+      supervisor(Money.ExchangeRates.Supervisor, [])
+    ]
+
+    # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
+    # for other strategies and supported options
+    opts = [strategy: :one_for_one, name: Money.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
 
   @doc """
   Returns a %Money{} struct from a tuple consistenting of a currency code and
@@ -166,6 +184,15 @@ defmodule Money do
   """
   def to_decimal(%Money{amount: amount}) do
     amount
+  end
+
+  def get_env(key, default \\ nil) do
+    case env = Application.get_env(:ex_money, key, default) do
+      {:system, env_key} ->
+        System.get_env(env_key)
+      _ ->
+        env
+    end
   end
 
   ## Helpers
