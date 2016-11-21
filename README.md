@@ -224,7 +224,7 @@ Retrieve from the database:
 
 ## Roadmap
 
-The next phase of development will focus on adding exchange rate support to ex_money.
+The next phase of development will focus on additional financial functions.
 
 ## Installation
 
