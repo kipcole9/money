@@ -1,4 +1,4 @@
-## Changelof for Ex_Money v0.0.6
+## Changelog for Ex_Money v0.0.6 November 21, 2016
 
 ### Enhancements
 
@@ -7,6 +7,10 @@
 * Add net_present_value for an investment and a list of cash flows
 
 * Add net_present_value for an investment, payment, interest rate and periods
+
+* Add internal_rate_of_return for a list of cash flows
+
+* Add exchange rate retrieval and currency conversion support
 
 ## Changelog for Ex_Money v0.0.5 October 8, 2016
 

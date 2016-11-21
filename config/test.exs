@@ -11,7 +11,7 @@ config :ex_money,
   ecto_repos: [Money.Repo]
 
 config :ex_money,
-  open_exchange_rates_app_id: "app_id",
+  exchange_rate_services: false,
   open_exchange_rates_retrieve_every: 360_000,
   api_module: Money.ExchangeRates.Test,
   log_failure: :warn

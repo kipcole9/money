@@ -20,7 +20,9 @@ defmodule Money.Currency.Conversion do
       `to_currency` converts one money amount to another currency via a map of
       currency conversion values.
 
-      ## Examples
+      ##Example
+
+          #> Money.to_currency Money.new(:USD, 100), :AUD
 
       """
       def to_currency(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
@@ -56,7 +58,7 @@ defmodule Money.Currency.Conversion do
 
       defp validate_rate_exists!(currency, rates) do
         if is_nil(rates[currency]) do
-          raise Money.ExchangeRateError, message: "No exchange rate is available for currency #{inspect currency}"
+          raise Money.ExchangeRateError, "No exchange rate is available for currency #{inspect currency}"
         end
       end
     end

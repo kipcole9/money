@@ -37,6 +37,44 @@ appropriate number of fractional digits and to the correct rounding increment
 for currencies that have minimum cash increments (like the Swiss Franc and
 Australian Dollar)
 
+## Exchange rates and currency conversion
+
+Money includes a process to retrieve exchange rates on a periodic basis.  These exchange rates can then be used to support currency conversion.  This service is started by default and will attempt to retrieve exchange rates every 5 minutes.
+
+By default, exchange rates are retrieved from [Open Exchange Rates](http://openexchangerates.org) however any module that conforms to the `Money.ExchangeRates` behaviour can be configured.
+
+##Configuration
+
+`Money` provides a set of configuration keys to customize behaviour. The default configuration is:
+
+    config :ex_money,
+      exchange_rate_service: true,
+      exchange_rates_retrieve_every: 360_000,
+      api_module: Money.ExchangeRates.OpenExchangeRates,
+      open_exchange_rates_app_id: nil,
+      log_failure: :warn,
+      log_success: nil
+
+These keys are are defined as follows:
+
+* `exchange_rate_service` is a boolean that determines whether to start the exchange rate retrieval service.  The default it `true`.
+
+* `exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (360,000 milliseconds)
+
+* `api_module` identifies the module that does the retrieval of exchange rates. This is any module that implements the `Money.ExchangeRates` behaviour.  The  default is `Money.ExchangeRates.OpenExchangeRates`
+
+* `open_exchange_rates_app_id` defines the `app_id` that is required to use the Open Exchange Rates api
+
+* `log_failure` defines the log level at which api retrieval errors are logged.  The default is `:warn`
+
+* `log_success` defines the log level at which successful api retrieval notifications are logged.  The default is `nil` which means no logging.
+
+Keys can also be configured to retrieve values from environment variables.  This lookup is done at runtime to facilitate deployment strategies.  If the value of a configuration key is `{:system, "some_string"}` then `"some_string"` is interpreted as an environment variable name which is passed to `System.get_env/2`.  An example configuration might be:
+
+    config :ex_money,
+      exchange_rate_service: {:system, "RATE_SERVICE"},
+      exchange_rates_retrieve_every: {:system, "RETRIEVE_EVERY"},
+      open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"}
 
 ## Why yet another Money package?
 
@@ -86,7 +124,7 @@ See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
 Note that the output is influenced by the locale in effect.  By default the localed used is that returned by `Cldr.get_local/0`.  Its default value is "en".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
 
 ###Arithmetic Functions
-See also the module `Money.Arithmetic`):
+See also the module `Money.Arithmetic`:
 
     iex> m1 = Money.new(:USD, 100)
     #Money<:USD, 100>
@@ -120,9 +158,26 @@ See also the module `Money.Arithmetic`):
     iex> Money.round Money.new(:JPY, 100.678)
     #Money<:JPY, 101>
 
+###Currency Conversion
+A `%Money{}` struct can be converted to another currency using `Money.to_currency/3`.  For example:
+
+    iex> Money.to_currency Money.new(:USD,100), :AUD
+    #Money<:AUD, 136.4300>
+
+    iex> Money.to_currency Money.new(:USD,100), :ZIP
+    ** (Money.UnknownCurrencyError) The currency code :ZIP is not known
+
+    iex(1)> Money.to_currency Money.new(:USD,100), :XXX
+    ** (Money.ExchangeRateError) No exchange rate is available for currency :XXX
+
+A user-defined map of exchange rates can also be supplied:
+
+    iex(2)> Money.to_currency Money.new(:USD,100), :AUD, %{USD: Decimal.new(1.0), AUD: Decimal.new(1.3)}
+    #Money<:AUD, 130>
+
 ###Financial Functions
 
-A limited set of financial functions are available in the module `Money.Financial`.  These are `use`d in the `Money` module. See `Money` for the available functions.
+A set of financial functions are available in the module `Money.Financial`.  These are `use`d in the `Money` module. See `Money` for the available functions.
 
 ## Serializing to a Postgres database with Ecto
 

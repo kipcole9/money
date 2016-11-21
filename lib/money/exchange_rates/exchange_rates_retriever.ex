@@ -16,7 +16,8 @@ defmodule Money.ExchangeRates.Retriever do
   """
 
   use GenServer
-  @retrieve_every Money.get_env(:open_exchange_rates_retrieve_every, 360_000)
+  @default_retrieval_interval 360_000
+  @retrieve_every Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval)
 
    def start_link(name) do
      GenServer.start_link(__MODULE__, [], name: name)
@@ -42,7 +43,7 @@ defmodule Money.ExchangeRates.Retriever do
          :ets.insert(:exchange_rates, {:last_updated, DateTime.utc_now})
          log(:success, "#{__MODULE__}: Retrieved exchange rates successfully")
        {:error, reason} ->
-         log(:failure, "#{__MODULE__}: Error retrieving rates from Open Exchange Rates: #{inspect reason}")
+         log(:failure, "#{__MODULE__}: Error retrieving exchange rates: #{inspect reason}")
      end
    end
 
@@ -54,19 +55,21 @@ defmodule Money.ExchangeRates.Retriever do
      :ets.new(:exchange_rates, [:named_table, read_concurrency: true])
    end
 
+   @success_level Application.get_env(:ex_money, :log_success, nil)
    defp log(:success, message) do
      require Logger
 
-     if level = Application.get_env(:ex_money, :log_success, nil) do
-       Logger.log(level, message)
+     if not is_nil(@success_level) do
+       Logger.log(@success_level, message)
      end
    end
 
+   @failure_level Application.get_env(:ex_money, :log_failure, :warn)
    defp log(:failure, message) do
      require Logger
 
-     if level = Application.get_env(:ex_money, :log_failure, :warn) do
-       Logger.log(level, message)
+     if not is_nil(@failure_level) do
+       Logger.log(@failure_level, message)
      end
    end
  end

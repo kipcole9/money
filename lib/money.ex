@@ -56,9 +56,11 @@ defmodule Money do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    children = [
-      supervisor(Money.ExchangeRates.Supervisor, [])
-    ]
+    children = if get_env(:exchange_rate_service, true) do
+      [ supervisor(Money.ExchangeRates.Supervisor, []) ]
+    else
+      []
+    end
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options

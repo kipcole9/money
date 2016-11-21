@@ -59,6 +59,14 @@ defmodule Money.ExchangeRates do
     end
   end
 
+  @doc """
+  Retrieves exchange rates from the configured exchange rate api module.
+  
+  This call is the public api to retrieve results from an external api service
+  or other mechanism implemented by an api module.  This method is typically
+  called periodically by `Money.ExchangeRates.Retriever.handle_info/2` but can
+  called at any time by other functions.
+  """
   @exchange_rate_api Money.get_env(:api_module, Money.ExchangeRates.OpenExchangeRates)
   def get_latest_rates do
     @exchange_rate_api.get_latest_rates()
