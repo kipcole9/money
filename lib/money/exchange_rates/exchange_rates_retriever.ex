@@ -19,6 +19,9 @@ defmodule Money.ExchangeRates.Retriever do
   @default_retrieval_interval 360_000
   @retrieve_every Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval)
 
+  @default_callback_module Money.ExchangeRates.Callback
+  @callback_module Money.get_env(:callback_module, @default_callback_module)
+
    def start_link(name) do
      GenServer.start_link(__MODULE__, [], name: name)
    end
@@ -36,11 +39,13 @@ defmodule Money.ExchangeRates.Retriever do
      {:noreply, state}
    end
 
-   defp do_retrieve_rates do
+   def do_retrieve_rates do
      case Money.ExchangeRates.get_latest_rates() do
        {:ok, rates} ->
+         retrieved_at = DateTime.utc_now
          :ets.insert(:exchange_rates, {:rates, rates})
-         :ets.insert(:exchange_rates, {:last_updated, DateTime.utc_now})
+         :ets.insert(:exchange_rates, {:last_updated, retrieved_at})
+         apply(@callback_module, :rates_retrieved, [rates, retrieved_at])
          log(:success, "#{__MODULE__}: Retrieved exchange rates successfully")
        {:error, reason} ->
          log(:failure, "#{__MODULE__}: Error retrieving exchange rates: #{inspect reason}")

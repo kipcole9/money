@@ -43,6 +43,8 @@ Money includes a process to retrieve exchange rates on a periodic basis.  These 
 
 By default, exchange rates are retrieved from [Open Exchange Rates](http://openexchangerates.org) however any module that conforms to the `Money.ExchangeRates` behaviour can be configured.
 
+An optional callback module can be defined.  This module defines a `rates_retrieved/2` function that is invoked upon every successful retrieval of exchange rates.
+
 ##Configuration
 
 `Money` provides a set of configuration keys to customize behaviour. The default configuration is:
@@ -52,6 +54,7 @@ By default, exchange rates are retrieved from [Open Exchange Rates](http://opene
       exchange_rates_retrieve_every: 360_000,
       api_module: Money.ExchangeRates.OpenExchangeRates,
       open_exchange_rates_app_id: nil,
+      callback_module: Money.ExchangeRates.Callback
       log_failure: :warn,
       log_success: nil
 
@@ -64,6 +67,8 @@ These keys are are defined as follows:
 * `api_module` identifies the module that does the retrieval of exchange rates. This is any module that implements the `Money.ExchangeRates` behaviour.  The  default is `Money.ExchangeRates.OpenExchangeRates`
 
 * `open_exchange_rates_app_id` defines the `app_id` that is required to use the Open Exchange Rates api
+
+* `callback_module` defines a module that follows the `Money.ExchangeRates.Callback` behaviour whereby the function `rates_retrieved/2` is invoked after every successful retrieval of exchange rates.  The default is `Money.ExchangeRates.Callback`.
 
 * `log_failure` defines the log level at which api retrieval errors are logged.  The default is `:warn`
 
@@ -234,7 +239,7 @@ ex_money can be installed by:
 
     ```elixir
     def deps do
-      [{:ex_money, "~> 0.0.6"}]
+      [{:ex_money, "~> 0.0.7"}]
     end
     ```
 

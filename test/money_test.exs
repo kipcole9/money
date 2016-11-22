@@ -1,5 +1,7 @@
 defmodule MoneyTest do
   use ExUnit.Case
+  import ExUnit.CaptureIO
+
   doctest Money
 
   test "create a new money struct with a binary currency code" do
@@ -169,11 +171,23 @@ defmodule MoneyTest do
   end
 
   test "Get exchange rates" do
+    capture_io(fn ->
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(:test_retriever)
+    end)
     test_result = {:ok, %{USD: Decimal.new(1), AUD: Decimal.new(0.7), EUR: Decimal.new(1.2)}}
     assert Money.ExchangeRates.latest_rates() == test_result
   end
 
   test "Convert from USD to AUD" do
+    capture_io(fn ->
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(:test_retriever)
+    end)
     assert Money.cmp(Money.to_currency(Money.new(:USD, 100), :AUD), Money.new(:AUD, 70)) == :eq
+  end
+
+  test "Invoke callback module on successful exchange rate retrieval" do
+    assert capture_io(fn ->
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(:test_retriever)
+    end) == "Rates Retrieved\n"
   end
 end

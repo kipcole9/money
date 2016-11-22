@@ -11,7 +11,8 @@ config :ex_money,
   ecto_repos: [Money.Repo]
 
 config :ex_money,
-  exchange_rate_services: false,
+  exchange_rate_service: false,
   open_exchange_rates_retrieve_every: 360_000,
   api_module: Money.ExchangeRates.Test,
-  log_failure: :warn
+  log_failure: :warn,
+  callback_module: Money.ExchangeRates.CallbackTest
