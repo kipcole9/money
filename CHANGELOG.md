@@ -1,3 +1,9 @@
+## Changelog for Ex_Money v0.0.7 November 23, 2016
+
+### Enhancements
+
+* Add optional callback module that defines a `rates_retrieved/2` function that is invoked on each successful retrieval of exchange rates
+
 ## Changelog for Ex_Money v0.0.6 November 21, 2016
 
 ### Enhancements
