@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "0.0.9"
+  @version "0.0.10-dev"
 
   def project do
     [app: :ex_money,
@@ -47,7 +47,7 @@ defmodule Money.Mixfile do
     [
       source_ref: "v#{@version}",
       extras: ["README.md"],
-      main: "readme",
+      main: "readme"
     ]
   end
 
