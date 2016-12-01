@@ -130,12 +130,16 @@ defmodule MoneyTest do
 
   test "Split %Money{} into 4 equal parts" do
     m1 = Money.new(:USD, 100)
-    assert Money.split(m1, 4) == {Money.new(:USD, 25), Money.new(:USD, 0)}
+    {m2, m3} = Money.split(m1, 4)
+    assert Money.cmp(m2, Money.new(:USD, 25)) == :eq
+    assert Money.cmp(m3, Money.new(:USD, 0)) == :eq
   end
 
   test "Split %Money{} into 3 equal parts" do
     m1 = Money.new(:USD, 100)
-    assert Money.split(m1, 3) == {Money.new(:USD, 33.33), Money.new(:USD, 0.01)}
+    {m2, m3} = Money.split(m1, 3)
+    assert Money.cmp(m2, Money.new(:USD, 33.33)) == :eq
+    assert Money.cmp(m3, Money.new(:USD, 0.01)) == :eq
   end
 
   test "Money is rounded according to currency definition for USD" do

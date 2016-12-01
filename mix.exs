@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "0.0.7-dev"
+  @version "0.0.7"
 
   def project do
     [app: :ex_money,
@@ -31,7 +31,7 @@ defmodule Money.Mixfile do
       licenses: ["Apache 2.0"],
       links: %{"GitHub" => "https://github.com/kipcole9/money"},
       files: [
-        "lib", "config", "mix.exs", "README*", "CHANGELOG*"
+        "lib", "config", "mix.exs", "README.md", "CHANGELOG.md"
       ]
     ]
   end
@@ -45,7 +45,9 @@ defmodule Money.Mixfile do
 
   def docs do
     [
-      source_ref: "v#{@version}"
+      source_ref: "v#{@version}",
+      extras: ["README.md"],
+      main: "readme",
     ]
   end
 
@@ -56,7 +58,7 @@ defmodule Money.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 0.10.0"},
-      {:ex_cldr, "~> 0.0.5"},
+      {:ex_cldr, "~> 0.0.6"},
       {:excoveralls, "~> 0.5.6", only: :test},
       {:gen_stage, "~> 0.4", only: [:dev, :test]},
       {:ex_doc, ">= 0.0.0", only: :dev}

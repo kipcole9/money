@@ -27,7 +27,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   defp get_rates(url) do
     case HTTPoison.get(url) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        %{"base" => base, "rates" => rates} = Poison.decode!(body)
+        %{"base" => _base, "rates" => rates} = Poison.decode!(body)
 
         decimal_rates = rates
         |> Cldr.Map.atomize_keys

@@ -43,7 +43,7 @@ Money includes a process to retrieve exchange rates on a periodic basis.  These 
 
 By default, exchange rates are retrieved from [Open Exchange Rates](http://openexchangerates.org) however any module that conforms to the `Money.ExchangeRates` behaviour can be configured.
 
-##Configuration
+## Configuration
 
 `Money` provides a set of configuration keys to customize behaviour. The default configuration is:
 
@@ -86,7 +86,7 @@ Keys can also be configured to retrieve values from environment variables.  This
 
 ## Examples
 
-###Creating a %Money{} struct
+### Creating a %Money{} struct
 
      iex> Money.new(:USD, 100)
      #Money<:USD, 100>
@@ -100,7 +100,7 @@ Keys can also be configured to retrieve values from environment variables.  This
 The canonical representation of a currency code is an `atom` that is a valid
 [ISO4217](http://www.currency-iso.org/en/home/tables/table-a1.html) currency code. The amount of a `%Money{}` is represented by a `Decimal`.
 
-###Optional ~M sigil
+### Optional ~M sigil
 
 An optional sigil module is available to aid in creating %Money{} structs.  It needs to be imported before use:
 
@@ -109,7 +109,7 @@ An optional sigil module is available to aid in creating %Money{} structs.  It n
     ~M[100]USD
     #> #Money<:USD, 100>
 
-###Localised String formatting
+### Localised String formatting
 See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
 
     iex> Money.to_string Money.new("thb", 11)
@@ -123,7 +123,7 @@ See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
 
 Note that the output is influenced by the locale in effect.  By default the localed used is that returned by `Cldr.get_local/0`.  Its default value is "en".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
 
-###Arithmetic Functions
+### Arithmetic Functions
 See also the module `Money.Arithmetic`:
 
     iex> m1 = Money.new(:USD, 100)
@@ -158,7 +158,7 @@ See also the module `Money.Arithmetic`:
     iex> Money.round Money.new(:JPY, 100.678)
     #Money<:JPY, 101>
 
-###Currency Conversion
+### Currency Conversion
 A `%Money{}` struct can be converted to another currency using `Money.to_currency/3`.  For example:
 
     iex> Money.to_currency Money.new(:USD,100), :AUD
@@ -175,7 +175,7 @@ A user-defined map of exchange rates can also be supplied:
     iex(2)> Money.to_currency Money.new(:USD,100), :AUD, %{USD: Decimal.new(1.0), AUD: Decimal.new(1.3)}
     #Money<:AUD, 130>
 
-###Financial Functions
+### Financial Functions
 
 A set of financial functions are available in the module `Money.Financial`.  These are `use`d in the `Money` module. See `Money` for the available functions.
 
