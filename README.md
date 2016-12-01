@@ -1,4 +1,4 @@
-# Money
+# Introduction to Money
 
 Money implements a set of functions to store, retrieve and perform arithmetic
 on a `%Money{}` type that is composed of a currency code and a currency amount.
@@ -45,7 +45,7 @@ By default, exchange rates are retrieved from [Open Exchange Rates](http://opene
 
 An optional callback module can be defined.  This module defines a `rates_retrieved/2` function that is invoked upon every successful retrieval of exchange rates.
 
-##Configuration
+## Configuration
 
 `Money` provides a set of configuration keys to customize behaviour. The default configuration is:
 
@@ -239,7 +239,7 @@ ex_money can be installed by:
 
     ```elixir
     def deps do
-      [{:ex_money, "~> 0.0.8"}]
+      [{:ex_money, "~> 0.0.9"}]
     end
     ```
 
