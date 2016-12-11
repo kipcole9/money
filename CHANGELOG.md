@@ -1,3 +1,9 @@
+## Changelog for Ex_Money v0.0.10 December 11, 2016
+
+### Bugfixes
+
+* Update dependency for :ex_cldr to v0.0.13 since v0.0.12 was preventing compilation when Plug was loaded
+
 ## Changelog for Ex_Money v0.0.7 November 23, 2016
 
 ### Enhancements

@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "0.0.10-dev"
+  @version "0.0.10"
 
   def project do
     [app: :ex_money,
@@ -58,7 +58,7 @@ defmodule Money.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 0.10.0"},
-      {:ex_cldr, "~> 0.0.6"},
+      {:ex_cldr, "~> 0.0.13"},
       {:excoveralls, "~> 0.5.6", only: :test},
       {:gen_stage, "~> 0.4", only: [:dev, :test]},
       {:ex_doc, ">= 0.0.0", only: :dev}
