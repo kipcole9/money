@@ -1,7 +1,7 @@
 defmodule Money.Financial do
   @moduledoc false
   # Some algorithms from http://www.financeformulas.net
-  alias Cldr.Number.Math
+  alias Cldr.Math
 
   defmacro __using__(_opts) do
     quote location: :keep do
