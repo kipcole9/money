@@ -1,3 +1,19 @@
+## Changelog for Ex_Money v0.0.11 December 12, 2016
+
+### Enhancements
+
+* `:exchange_rate_service` is false by default.  This is a change from previous releases that configured the service on by default
+
+* Removed dependency on HTTPoison, uses the built-in `:httpc` module instead since the requirements are simple
+
+### Bugfixes
+
+* Updates ex_cldr to v0.0.15 which fixes error in Financial.periods()
+
+* `:open_exchange_rates_app_id` is not long reqired to be specified  in order for compilation to complete
+
+* declares Ecto as an optional dependency which should fix the compilation order and therefore result in the ecto migration Mix task and the Ecto type to be available after installation without a forced recompile/
+
 ## Changelog for Ex_Money v0.0.10 December 11, 2016
 
 ### Bugfixes

@@ -13,29 +13,17 @@ How is this opinion expressed?
 
 2. The currency code must always be a valid ISO4217 code.
 
-3. Money arithmetic can only be performed when both operands are of the
-same currency.
+3. Money arithmetic can only be performed when both operands are of the same currency.
 
 4. Money amounts are represented as a `Decimal`.
 
-5. Money can be serialised to the database as a composite Postgres type that
-includes both the amount and the currency. Therefore for Ecto serialization
-Postgres is assumed as the data store. Serialization is entirely optional.
+5. Money can be serialised to the database as a composite Postgres type that includes both the amount and the currency. Therefore for Ecto serialization Postgres is assumed as the data store. Serialization is entirely optional.
 
-6. All arithmetic functions work on a `Decimal`. No rounding occurs
-automatically (unless expressly called out for a function, as is the case for
-`Money.split/2`).
+6. All arithmetic functions work on a `Decimal`. No rounding occurs automatically (unless expressly called out for a function, as is the case for `Money.split/2`).
 
-7. Explicit rounding obeys the rounding rules for a given currency. The
-rounding rules are defined by the Unicode consortium in its CLDR repository as
-implemented by the hex package `ex_cldr`. These rules define the number of
-fractional digits for a currency and the rounding increment where appropriate.
+7. Explicit rounding obeys the rounding rules for a given currency. The rounding rules are defined by the Unicode consortium in its CLDR repository as implemented by the hex package `ex_cldr`. These rules define the number of fractional digits for a currency and the rounding increment where appropriate.
 
-8. Money output string formatting output using the hex package
-[ex_cldr](https://hex.pm/packages/ex_cldr) that correctly rounds to the
-appropriate number of fractional digits and to the correct rounding increment
-for currencies that have minimum cash increments (like the Swiss Franc and
-Australian Dollar)
+8. Money output string formatting output using the hex package [ex_cldr](https://hex.pm/packages/ex_cldr) that correctly rounds to the appropriate number of fractional digits and to the correct rounding increment for currencies that have minimum cash increments (like the Swiss Franc and Australian Dollar)
 
 ## Exchange rates and currency conversion
 
@@ -50,19 +38,20 @@ An optional callback module can be defined.  This module defines a `rates_retrie
 `Money` provides a set of configuration keys to customize behaviour. The default configuration is:
 
     config :ex_money,
-      exchange_rate_service: true,
+      exchange_rate_service: false,
       exchange_rates_retrieve_every: 360_000,
       api_module: Money.ExchangeRates.OpenExchangeRates,
       open_exchange_rates_app_id: nil,
       callback_module: Money.ExchangeRates.Callback
       log_failure: :warn,
+      log_info: :info,
       log_success: nil
 
 These keys are are defined as follows:
 
-* `exchange_rate_service` is a boolean that determines whether to start the exchange rate retrieval service.  The default it `true`.
+* `exchange_rate_service` is a boolean that determines whether to start the exchange rate retrieval service.  The default it `false`.
 
-* `exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (360,000 milliseconds)
+* `exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (300,000 milliseconds)
 
 * `api_module` identifies the module that does the retrieval of exchange rates. This is any module that implements the `Money.ExchangeRates` behaviour.  The  default is `Money.ExchangeRates.OpenExchangeRates`
 
@@ -73,6 +62,8 @@ These keys are are defined as follows:
 * `log_failure` defines the log level at which api retrieval errors are logged.  The default is `:warn`
 
 * `log_success` defines the log level at which successful api retrieval notifications are logged.  The default is `nil` which means no logging.
+
+* `log_info` defines the log level at which service startup messages are logged.  The default is `info`.
 
 Keys can also be configured to retrieve values from environment variables.  This lookup is done at runtime to facilitate deployment strategies.  If the value of a configuration key is `{:system, "some_string"}` then `"some_string"` is interpreted as an environment variable name which is passed to `System.get_env/2`.  An example configuration might be:
 
@@ -172,12 +163,12 @@ A `%Money{}` struct can be converted to another currency using `Money.to_currenc
     iex> Money.to_currency Money.new(:USD,100), :ZIP
     ** (Money.UnknownCurrencyError) The currency code :ZIP is not known
 
-    iex(1)> Money.to_currency Money.new(:USD,100), :XXX
+    iex> Money.to_currency Money.new(:USD,100), :XXX
     ** (Money.ExchangeRateError) No exchange rate is available for currency :XXX
 
 A user-defined map of exchange rates can also be supplied:
 
-    iex(2)> Money.to_currency Money.new(:USD,100), :AUD, %{USD: Decimal.new(1.0), AUD: Decimal.new(1.3)}
+    iex> Money.to_currency Money.new(:USD,100), :AUD, %{USD: Decimal.new(1.0), AUD: Decimal.new(1.3)}
     #Money<:AUD, 130>
 
 ### Financial Functions
@@ -199,18 +190,34 @@ Then migrate the database:
     07:09:28.640 [info]  execute "CREATE TYPE public.money_with_currency AS (currency_code char(3), amount numeric(20,8))"
     07:09:28.647 [info]  == Migrated in 0.0s
 
+Create your database migration with the new type (don't forget to `mix ecto.migrate` as well):
+
+```elixir
+    defmodule MoneyTest.Repo.Migrations.CreateThing do
+      use Ecto.Migration
+
+      def change do
+        create table(:things) do
+          add :amount, :money_with_currency
+          timestamps()
+        end
+      end
+    end
+```
+
 Create your schema using the `Money.Ecto.Type` ecto type:
 
+```elixir
     defmodule Ledger do
       use Ecto.Schema
 
-      @primary_key false
-      schema "ledgers" do
+      schema "things" do
         field :amount, Money.Ecto.Type
 
         timestamps()
       end
     end
+```
 
 Insert into the database:
 
@@ -239,7 +246,7 @@ ex_money can be installed by:
 
     ```elixir
     def deps do
-      [{:ex_money, "~> 0.0.9"}]
+      [{:ex_money, "~> 0.0.11"}]
     end
     ```
 
