@@ -56,7 +56,7 @@ defmodule Money do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    children = if get_env(:exchange_rate_service, true) do
+    children = if get_env(:exchange_rate_service, true) and Code.ensure_loaded?(HTTPoison) do
       [ supervisor(Money.ExchangeRates.Supervisor, []) ]
     else
       []

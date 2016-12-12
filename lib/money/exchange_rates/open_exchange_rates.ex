@@ -1,13 +1,8 @@
 defmodule Money.ExchangeRates.OpenExchangeRates do
   @behaviour Money.ExchangeRates
 
-  @app_id Money.get_env(:open_exchange_rates_app_id, "")
-  @api_module Money.get_env(:api_module, __MODULE__)
+  @app_id Money.get_env(:open_exchange_rates_app_id, "not_configured")
   @exr_url "https://openexchangerates.org/api"
-
-  if @app_id == "" and @api_module == __MODULE__ do
-    raise ArgumentError, message: "An Open Exchange Rates app_id must be configured in config.exs"
-  end
 
   @doc """
   Retrieves the latest exchange rates from Open Exchange Rates site.
