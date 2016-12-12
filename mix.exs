@@ -57,7 +57,7 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:ex_cldr, "~> 0.0.14"},
+      {:ex_cldr, "~> 0.0.15"},
       {:ecto, "~> 2.0.6", optional: true},
       {:excoveralls, "~> 0.5.6", only: :test},
       {:ex_doc, ">= 0.0.0", only: :dev}
