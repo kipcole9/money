@@ -27,6 +27,10 @@ defmodule Money.ExchangeRates.Retriever do
    end
 
    def init([]) do
+     require Logger
+
+     log(:info, "Starting exchange rate retrieval service")
+     log(:info, "Rates will be retrieved every #{div(@retrieve_every, 1000)} seconds.")
      initialize_ets_table()
      do_retrieve_rates()
      schedule_work()
@@ -46,9 +50,9 @@ defmodule Money.ExchangeRates.Retriever do
          :ets.insert(:exchange_rates, {:rates, rates})
          :ets.insert(:exchange_rates, {:last_updated, retrieved_at})
          apply(@callback_module, :rates_retrieved, [rates, retrieved_at])
-         log(:success, "#{__MODULE__}: Retrieved exchange rates successfully")
+         log(:success, "Retrieved exchange rates successfully")
        {:error, reason} ->
-         log(:failure, "#{__MODULE__}: Error retrieving exchange rates: #{inspect reason}")
+         log(:failure, "Error retrieving exchange rates: #{inspect reason}")
      end
    end
 
@@ -60,7 +64,7 @@ defmodule Money.ExchangeRates.Retriever do
      :ets.new(:exchange_rates, [:named_table, read_concurrency: true])
    end
 
-   @success_level Application.get_env(:ex_money, :log_success, nil)
+   @success_level Money.get_env(:log_success, nil)
    defp log(:success, message) do
      require Logger
 
@@ -69,7 +73,16 @@ defmodule Money.ExchangeRates.Retriever do
      end
    end
 
-   @failure_level Application.get_env(:ex_money, :log_failure, :warn)
+   @info_level Money.get_env(:log_info, :warn)
+   defp log(:info, message) do
+     require Logger
+
+     if not is_nil(@info_level) do
+       Logger.log(@info_level, message)
+     end
+   end
+
+   @failure_level Money.get_env(:log_failure, :warn)
    defp log(:failure, message) do
      require Logger
 

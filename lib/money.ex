@@ -56,8 +56,8 @@ defmodule Money do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    children = if get_env(:exchange_rate_service, true) and Code.ensure_loaded?(HTTPoison) do
-      [ supervisor(Money.ExchangeRates.Supervisor, []) ]
+    children = if start_exchange_rate_service?() do
+      [supervisor(Money.ExchangeRates.Supervisor, [])]
     else
       []
     end
@@ -66,6 +66,11 @@ defmodule Money do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Money.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  # Default is to not start the exchange rate service
+  defp start_exchange_rate_service? do
+    get_env(:exchange_rate_service, false)
   end
 
   @doc """

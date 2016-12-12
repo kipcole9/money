@@ -194,4 +194,9 @@ defmodule MoneyTest do
       {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(:test_retriever)
     end) == "Rates Retrieved\n"
   end
+
+  test "That an error is returned if there is not open exchange rates app_id configured" do
+    assert Money.ExchangeRates.OpenExchangeRates.get_latest_rates("not_configured") ==
+      {:error, "Open Exchange Rates app_id is not configured.  Rates are not retrieved."}
+  end
 end
