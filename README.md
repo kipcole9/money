@@ -257,4 +257,3 @@ ex_money can be installed by:
       [applications: [:ex_money]]
     end
     ```
-

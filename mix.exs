@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "0.0.12"
+  @version "0.0.13"
 
   def project do
     [app: :ex_money,
@@ -31,7 +31,7 @@ defmodule Money.Mixfile do
       licenses: ["Apache 2.0"],
       links: %{"GitHub" => "https://github.com/kipcole9/money"},
       files: [
-        "lib", "config", "mix.exs", "README.md", "CHANGELOG.md"
+        "lib", "config", "mix.exs", "README.md", "CHANGELOG.md, LICENSE.md"
       ]
     ]
   end
