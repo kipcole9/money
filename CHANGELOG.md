@@ -1,3 +1,13 @@
+## Changelog for Ex_Money v0.0.13 February 20, 2017
+
+### Enhancements
+
+* Updates `Ecto` dependency to `~> 2.1`
+
+### Bugfixes
+
+* Updates `ex_cldr` dependency to v0.0.18 which fixes pluralization of `%Decimal{}` types
+
 ## Changelog for Ex_Money v0.0.11 December 12, 2016
 
 ### Enhancements

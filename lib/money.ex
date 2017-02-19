@@ -173,7 +173,7 @@ defmodule Money do
       "THB1,234.00"
 
       iex> Money.to_string Money.new(:USD, 1234), format: :long
-      "1,234.00 US dollars"
+      "1,234 US dollars"
   """
   def to_string(%Money{} = money, options \\ []) do
     options = merge_options(options, [currency: money.currency])
