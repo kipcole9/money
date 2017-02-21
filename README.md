@@ -198,21 +198,30 @@ Then migrate the database:
 Create your database migration with the new type (don't forget to `mix ecto.migrate` as well):
 
 ```elixir
+defmodule MoneyTest.Repo.Migrations.CreateLedger do
+  use Ecto.Migration
 
+  def change do
+    create table(:ledgers) do
+      add :amount, :money_with_currency
+      timestamps()
+    end
+  end
+end
 ```
 
 Create your schema using the `Money.Ecto.Composite.Type` ecto type:
 
-```
-  defmodule Ledger do
-    use Ecto.Schema
+```elixir
+defmodule Ledger do
+  use Ecto.Schema
 
-    schema "ledgers" do
-      field :amount, Money.Ecto.Composite.Type
+  schema "ledgers" do
+    field :amount, Money.Ecto.Composite.Type
 
-      timestamps()
-    end
+    timestamps()
   end
+end
 ```
 
 Insert into the database:
@@ -236,30 +245,30 @@ Retrieve from the database:
 Since MySQL does not support composite types, the `:map` type is used which in MySQL is implemented as a `JSON` column.  The currency code and amount are serialised into this column.
 
 ```elixir
-  defmodule MoneyTest.Repo.Migrations.CreateLedger do
-    use Ecto.Migration
+defmodule MoneyTest.Repo.Migrations.CreateLedger do
+  use Ecto.Migration
 
-    def change do
-      create table(:ledgers) do
-        add :amount, :map
-        timestamps()
-      end
+  def change do
+    create table(:ledgers) do
+      add :amount, :map
+      timestamps()
     end
   end
+end
 ```
 
 Create your schema using the `Money.Ecto.Map.Type` ecto type:
 
 ```elixir
-  defmodule Ledger do
-    use Ecto.Schema
+defmodule Ledger do
+  use Ecto.Schema
 
-    schema "ledgers" do
-      field :amount, Money.Ecto.Map.Type
+  schema "ledgers" do
+    field :amount, Money.Ecto.Map.Type
 
-      timestamps()
-    end
+    timestamps()
   end
+end
 ```
 
 Insert into the database:
@@ -295,7 +304,7 @@ Retrieve from the database:
 3.  Serializing the amount as a string means that SQL query arithmetic and equality operators will not work as expected.  You may find that `CAST`ing the string value will restore some of that functionality.  For example:
 
 ```sql
-    CAST(JSON_EXTRACT(amount_map, '$.amount') AS DECIMAL(20, 8)) AS amount`;
+    CAST(JSON_EXTRACT(amount_map, '$.amount') AS DECIMAL(20, 8)) AS amount;
 ```
 
 ## Roadmap
@@ -308,16 +317,16 @@ ex_money can be installed by:
 
   1. Adding `ex_money` to your list of dependencies in `mix.exs`:
 
-    ```elixir
-    def deps do
-      [{:ex_money, "~> 0.0.13"}]
-    end
-    ```
+```elixir
+  def deps do
+    [{:ex_money, "~> 0.0.14"}]
+  end
+```
 
   2. Ensuring `ex_money` is started before your application:
 
-    ```elixir
-    def application do
-      [applications: [:ex_money]]
-    end
-    ```
+```elixir
+  def application do
+    [applications: [:ex_money]]
+  end
+```
