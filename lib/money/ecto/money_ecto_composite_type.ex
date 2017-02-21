@@ -42,8 +42,16 @@ defmodule Money.Ecto.Composite.Type do
       {:ok,  Money.new(money)}
     end
 
-    def cast(%{"currency" => currency, "amount" => amount}) when is_binary(currency) and is_number(amount) do
+    def cast(%{"currency" => currency, "amount" => amount})
+    when is_binary(currency) and is_number(amount) do
       with {:ok, amount} <- Decimal.new(amount) do
+        {:ok, Money.new(currency, amount)}
+      end
+    end
+
+    def cast(%{"currency" => currency, "amount" => amount})
+    when is_binary(currency) and is_binary(amount) do
+      with {:ok, amount} <- Decimal.parse(amount) do
         {:ok, Money.new(currency, amount)}
       end
     end

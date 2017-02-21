@@ -4,7 +4,7 @@ defmodule Money.Ecto.Map.Type do
     is a map.
 
     This is the required option for databases such as MySql that do not support
-    composite fields.
+    composite types.
 
     In order to preserve precision, the amount is serialized as a string since the
     json representation of a numeric value is either an integer or a float.
@@ -22,14 +22,16 @@ defmodule Money.Ecto.Map.Type do
       :map
     end
 
-    def cast(%{"currency" => currency, "amount" => amount}) when is_binary(currency) and is_number(amount) do
+    def cast(%{"currency" => currency, "amount" => amount})
+    when is_binary(currency) and is_number(amount) do
       with {:ok, amount} <- Decimal.new(amount) do
         {:ok, Money.new(currency, amount)}
       end
     end
 
-    def cast(%{"currency" => currency, "amount" => term}) when is_binary(currency) and is_binary(term) do
-      with {:ok, amount} <- Decimal.parse(term) do
+    def cast(%{"currency" => currency, "amount" => amount})
+    when is_binary(currency) and is_binary(amount) do
+      with {:ok, amount} <- Decimal.parse(amount) do
         {:ok, Money.new(currency, amount)}
       end
     end
