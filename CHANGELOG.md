@@ -1,3 +1,15 @@
+## Changelog for Ex_Money v0.0.13 February 21, 2017
+
+### Enhancements
+
+* Adds a alternative type `Money.Ecto.Map.Type` to support serializing `%Money{}` types to databases that do not support composite types but do support Ecto map types.
+
+* Renamed `Money.Ecto.Type` to `Money.Ecto.Composite.Type` to more clearly reflect the underlying implementation and to differentiate from the new map type implementation.
+
+* Renamed the migration task that creates the composite type in Postgres to `Money.Gen.Postgres.Migration` since it is only applicable to Postgres.
+
+* Supports `cast`ing maps that have both "currency" and "amount" keys into Ecto changesets which is helpful for pattern matching and changesets.
+
 ## Changelog for Ex_Money v0.0.12 February 20, 2017
 
 ### Enhancements

@@ -1,12 +1,12 @@
 if Code.ensure_loaded?(Ecto) do
-  defmodule Mix.Tasks.Money.Gen.Migration do
+  defmodule Mix.Tasks.Money.Gen.Postgres.Migration do
     use Mix.Task
 
     import Macro, only: [camelize: 1, underscore: 1]
     import Mix.Generator
     import Mix.Ecto
 
-    @shortdoc "Generates a migration to create the :money_with_currency composite database type"
+    @shortdoc "Generates a migration to create the :money_with_currency composite database type for Postgres"
 
     @moduledoc """
     Generates a migration to add a composite type called `:money_with_currency`

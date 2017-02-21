@@ -193,11 +193,11 @@ Then migrate the database:
 Create your database migration with the new type (don't forget to `mix ecto.migrate` as well):
 
 ```elixir
-    defmodule MoneyTest.Repo.Migrations.CreateThing do
+    defmodule MoneyTest.Repo.Migrations.CreateLedger do
       use Ecto.Migration
 
       def change do
-        create table(:things) do
+        create table(:ledgers) do
           add :amount, :money_with_currency
           timestamps()
         end
@@ -205,14 +205,14 @@ Create your database migration with the new type (don't forget to `mix ecto.migr
     end
 ```
 
-Create your schema using the `Money.Ecto.Type` ecto type:
+Create your schema using the `Money.Ecto.Composite.Type` ecto type:
 
 ```elixir
     defmodule Ledger do
       use Ecto.Schema
 
-      schema "things" do
-        field :amount, Money.Ecto.Type
+      schema "ledgers" do
+        field :amount, Money.Ecto.Composite.Type
 
         timestamps()
       end
@@ -221,18 +221,82 @@ Create your schema using the `Money.Ecto.Type` ecto type:
 
 Insert into the database:
 
-    Repo.insert %Ledger{amount: Money.new(:USD, 100)}
+    iex> Repo.insert %Ledger{amount: Money.new(:USD, 100)}
     [debug] QUERY OK db=4.5ms
-    INSERT INTO "ledgers" ("amount","inserted_at","updated_at") VALUES ($1,$2,$3) [{"USD", #Decimal<100>}, {{2016, 10, 7}, {23, 12, 13, 0}}, {{2016, 10, 7}, {23, 12, 13, 0}}]
+    INSERT INTO "ledgers" ("amount","inserted_at","updated_at") VALUES ($1,$2,$3)
+    [{"USD", #Decimal<100>}, {{2016, 10, 7}, {23, 12, 13, 0}}, {{2016, 10, 7}, {23, 12, 13, 0}}]
 
 Retrieve from the database:
 
-    Repo.all Ledger
+    iex> Repo.all Ledger
     [debug] QUERY OK source="ledgers" db=5.3ms decode=0.1ms queue=0.1ms
     SELECT l0."amount", l0."inserted_at", l0."updated_at" FROM "ledgers" AS l0 []
     [%Ledger{__meta__: #Ecto.Schema.Metadata<:loaded, "ledgers">, amount: #<:USD, 100.00000000>,
-      inserted_at: #Ecto.DateTime<2016-10-07 23:12:13>,
-      updated_at: #Ecto.DateTime<2016-10-07 23:12:13>}]
+      inserted_at: ~N[2017-02-21 00:15:40.979576],
+      updated_at: ~N[2017-02-21 00:15:40.991391]}]
+
+## Serializing to a MySql (or other non-Postgres) database with Ecto
+
+Since MySql does not support composite types, the `:map` type is used which in MySql is implemented as a `json` column.  The currency code and amount are serialised into this column.
+
+### Notes:
+
+1.  In order to preserve precision of the decimal amount, the amount part of the `%Money{}` struct is serialised as a string. This is done because json serializes numeric values as either `integer` or `float`, neither of which would not preserve precision of a decimal value.
+
+2.  The precision of the serialized string value of amount is affected by the setting of `Decimal.get_context`.  The default is 28 digits which should cater for your requirements.
+
+3.  Serializing the amount as a string means that SQL query arithmetic and equality operators will not work as expected.  You may find that `CAST`ing the string value will restore some of that functionality.  For example: `CAST(amount_map AS DECIMAL(20, 8)) AS amount`.
+
+```elixir
+    defmodule MoneyTest.Repo.Migrations.CreateLedger do
+      use Ecto.Migration
+
+      def change do
+        create table(:ledgers) do
+          add :amount, :map
+          timestamps()
+        end
+      end
+    end
+```
+
+Create your schema using the `Money.Ecto.Map.Type` ecto type:
+
+```elixir
+    defmodule Ledger do
+      use Ecto.Schema
+
+      schema "ledgers" do
+        field :amount, Money.Ecto.Map.Type
+
+        timestamps()
+      end
+    end
+```
+
+Insert into the database:
+
+    iex> Repo.insert %Ledger{amount_map: Money.new(:USD, 100)}
+    [debug] QUERY OK db=25.8ms
+    INSERT INTO "ledgers" ("amount_map","inserted_at","updated_at") VALUES ($1,$2,$3)
+    RETURNING "id" [%{amount: "100", currency: "USD"},
+    {{2017, 2, 21}, {0, 15, 40, 979576}}, {{2017, 2, 21}, {0, 15, 40, 991391}}]
+
+    {:ok,
+     %MoneyTest.Thing{__meta__: #Ecto.Schema.Metadata<:loaded, "ledgers">,
+      amount: nil, amount_map: #Money<:USD, 100>, id: 3,
+      inserted_at: ~N[2017-02-21 00:15:40.979576],
+      updated_at: ~N[2017-02-21 00:15:40.991391]}}
+
+Retrieve from the database:
+
+    iex> Repo.all Ledger
+    [debug] QUERY OK source="ledgers" db=16.1ms decode=0.1ms
+    SELECT t0."id", t0."amount_map", t0."inserted_at", t0."updated_at" FROM "ledgers" AS t0 []
+    [%Ledger{__meta__: #Ecto.Schema.Metadata<:loaded, "ledgers">,
+      amount_map: #Money<:USD, 100>, id: 3,
+      inserted_at: ~N[2017-02-21 00:15:40.979576],
+      updated_at: ~N[2017-02-21 00:15:40.991391]}]
 
 ## Roadmap
 
@@ -246,7 +310,7 @@ ex_money can be installed by:
 
     ```elixir
     def deps do
-      [{:ex_money, "~> 0.0.11"}]
+      [{:ex_money, "~> 0.0.13"}]
     end
     ```
 
