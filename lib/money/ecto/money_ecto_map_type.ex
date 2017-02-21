@@ -28,6 +28,10 @@ defmodule Money.Ecto.Map.Type do
       end
     end
 
+    def cast(%{"currency" => currency, "amount" => %Decimal{} = amount}) when is_binary(currency) do
+      {:ok, Money.new(currency, amount)}
+    end
+
     def cast(%Money{} = money) do
       {:ok, money}
     end
