@@ -29,8 +29,9 @@ defmodule Money.Ecto.Map.Type do
     end
 
     def cast(%{"currency" => currency, "amount" => term}) when is_binary(currency) and is_binary(term) do
-     with {:ok, amount} <- Decimal.parse(term) do
-       {:ok, Money.new(currency, amount)}
+      with {:ok, amount} <- Decimal.parse(term) do
+        {:ok, Money.new(currency, amount)}
+      end
     end
 
     def cast(%Money{} = money) do
