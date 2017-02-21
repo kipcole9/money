@@ -3,11 +3,11 @@ defmodule Money.Ecto.Map.Type do
     Implements Ecto.Type behaviour for Money, where the underlying schema type
     is a map.
 
-    This is the required option for databases such as MySql that do not support
+    This is the required option for databases such as MySQL that do not support
     composite types.
 
     In order to preserve precision, the amount is serialized as a string since the
-    json representation of a numeric value is either an integer or a float.
+    JSON representation of a numeric value is either an integer or a float.
 
     `Decimal.to_string/1` is not guaranteed to produce a string that will round-trip
     convert back to the identical number.  However given enough precision in the

@@ -235,9 +235,9 @@ Retrieve from the database:
       inserted_at: ~N[2017-02-21 00:15:40.979576],
       updated_at: ~N[2017-02-21 00:15:40.991391]}]
 
-## Serializing to a MySql (or other non-Postgres) database with Ecto
+## Serializing to a MySQL (or other non-Postgres) database with Ecto
 
-Since MySql does not support composite types, the `:map` type is used which in MySql is implemented as a `json` column.  The currency code and amount are serialised into this column.
+Since MySQL does not support composite types, the `:map` type is used which in MySQL is implemented as a `JSON` column.  The currency code and amount are serialised into this column.
 
 ### Notes:
 
