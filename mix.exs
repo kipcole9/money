@@ -31,7 +31,7 @@ defmodule Money.Mixfile do
       licenses: ["Apache 2.0"],
       links: %{"GitHub" => "https://github.com/kipcole9/money"},
       files: [
-        "lib", "config", "mix.exs", "README.md", "CHANGELOG.md, LICENSE.md"
+        "lib", "config", "mix.exs", "README.md", "CHANGELOG.md", "LICENSE.md"
       ]
     ]
   end
