@@ -27,7 +27,7 @@ How is this opinion expressed?
 
 ## Exchange rates and currency conversion
 
-Money includes a process to retrieve exchange rates on a periodic basis.  These exchange rates can then be used to support currency conversion.  This service is started by default and will attempt to retrieve exchange rates every 5 minutes.
+Money includes a process to retrieve exchange rates on a periodic basis.  These exchange rates can then be used to support currency conversion.  This service is not started by default.  If started it will attempt to retrieve exchange rates every 5 minutes.
 
 By default, exchange rates are retrieved from [Open Exchange Rates](http://openexchangerates.org) however any module that conforms to the `Money.ExchangeRates` behaviour can be configured.
 
@@ -51,7 +51,7 @@ These keys are are defined as follows:
 
 * `exchange_rate_service` is a boolean that determines whether to start the exchange rate retrieval service.  The default it `false`.
 
-* `exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (300,000 milliseconds)
+* `exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (360,000 milliseconds)
 
 * `api_module` identifies the module that does the retrieval of exchange rates. This is any module that implements the `Money.ExchangeRates` behaviour.  The  default is `Money.ExchangeRates.OpenExchangeRates`
 
@@ -76,9 +76,11 @@ Keys can also be configured to retrieve values from environment variables.  This
 
 * Fully localized formatting and rounding using [ex_cldr](https://hex.pm/packages/ex_cldr)
 
-* Provides serialization to Postgres using a composite type that keeps both the currency code and the amount together removing a source of potential error
+* Provides serialization to Postgres using a composite type and MySQL using a JSON type that keeps both the currency code and the amount together removing a source of potential error
 
-* Uses the `Decimal` type in Elixir and the Postgres `numeric` type to preserve precision
+* Uses the `Decimal` type in Elixir and the Postgres `numeric` type to preserve precision.  For MySQL the amount is serialised as a string to preserve precision that might otherwise be lost if stored as a JSON numeric type (which is either an integer or a float)
+
+* Includes a set of financial calculations (arithmetic and cash flow calculations) that follow solid rounding rules
 
 ## Examples
 
@@ -106,6 +108,7 @@ An optional sigil module is available to aid in creating %Money{} structs.  It n
     #> #Money<:USD, 100>
 
 ### Localised String formatting
+
 See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
 
     iex> Money.to_string Money.new("thb", 11)
@@ -120,6 +123,7 @@ See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
 Note that the output is influenced by the locale in effect.  By default the localed used is that returned by `Cldr.get_local/0`.  Its default value is "en".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
 
 ### Arithmetic Functions
+
 See also the module `Money.Arithmetic`:
 
     iex> m1 = Money.new(:USD, 100)
@@ -155,6 +159,7 @@ See also the module `Money.Arithmetic`:
     #Money<:JPY, 101>
 
 ### Currency Conversion
+
 A `%Money{}` struct can be converted to another currency using `Money.to_currency/3`.  For example:
 
     iex> Money.to_currency Money.new(:USD,100), :AUD
