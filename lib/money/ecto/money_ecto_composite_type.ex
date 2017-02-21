@@ -11,7 +11,7 @@ defmodule Money.Ecto.Composite.Type do
     @behaviour Ecto.Type
 
     def type do
-      :map
+      :money_with_currency
     end
 
     def blank?(_) do

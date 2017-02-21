@@ -19,7 +19,7 @@ defmodule Money.Ecto.Map.Type do
     @behaviour Ecto.Type
 
     def type() do
-      :money_with_currency_map
+      :map
     end
 
     def cast(%{"currency" => currency, "amount" => amount}) when is_binary(currency) and is_number(amount) do
