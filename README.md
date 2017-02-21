@@ -198,30 +198,21 @@ Then migrate the database:
 Create your database migration with the new type (don't forget to `mix ecto.migrate` as well):
 
 ```elixir
-    defmodule MoneyTest.Repo.Migrations.CreateLedger do
-      use Ecto.Migration
 
-      def change do
-        create table(:ledgers) do
-          add :amount, :money_with_currency
-          timestamps()
-        end
-      end
-    end
 ```
 
 Create your schema using the `Money.Ecto.Composite.Type` ecto type:
 
-```elixir
-    defmodule Ledger do
-      use Ecto.Schema
+```
+  defmodule Ledger do
+    use Ecto.Schema
 
-      schema "ledgers" do
-        field :amount, Money.Ecto.Composite.Type
+    schema "ledgers" do
+      field :amount, Money.Ecto.Composite.Type
 
-        timestamps()
-      end
+      timestamps()
     end
+  end
 ```
 
 Insert into the database:
@@ -244,39 +235,31 @@ Retrieve from the database:
 
 Since MySQL does not support composite types, the `:map` type is used which in MySQL is implemented as a `JSON` column.  The currency code and amount are serialised into this column.
 
-### Notes:
-
-1.  In order to preserve precision of the decimal amount, the amount part of the `%Money{}` struct is serialised as a string. This is done because JSON serializes numeric values as either `integer` or `float`, neither of which would not preserve precision of a decimal value.
-
-2.  The precision of the serialized string value of amount is affected by the setting of `Decimal.get_context`.  The default is 28 digits which should cater for your requirements.
-
-3.  Serializing the amount as a string means that SQL query arithmetic and equality operators will not work as expected.  You may find that `CAST`ing the string value will restore some of that functionality.  For example: `CAST(amount_map AS DECIMAL(20, 8)) AS amount`.
-
 ```elixir
-    defmodule MoneyTest.Repo.Migrations.CreateLedger do
-      use Ecto.Migration
+  defmodule MoneyTest.Repo.Migrations.CreateLedger do
+    use Ecto.Migration
 
-      def change do
-        create table(:ledgers) do
-          add :amount, :map
-          timestamps()
-        end
+    def change do
+      create table(:ledgers) do
+        add :amount, :map
+        timestamps()
       end
     end
+  end
 ```
 
 Create your schema using the `Money.Ecto.Map.Type` ecto type:
 
 ```elixir
-    defmodule Ledger do
-      use Ecto.Schema
+  defmodule Ledger do
+    use Ecto.Schema
 
-      schema "ledgers" do
-        field :amount, Money.Ecto.Map.Type
+    schema "ledgers" do
+      field :amount, Money.Ecto.Map.Type
 
-        timestamps()
-      end
+      timestamps()
     end
+  end
 ```
 
 Insert into the database:
@@ -302,6 +285,18 @@ Retrieve from the database:
       amount_map: #Money<:USD, 100>, id: 3,
       inserted_at: ~N[2017-02-21 00:15:40.979576],
       updated_at: ~N[2017-02-21 00:15:40.991391]}]
+
+### Notes:
+
+1.  In order to preserve precision of the decimal amount, the amount part of the `%Money{}` struct is serialised as a string. This is done because JSON serializes numeric values as either `integer` or `float`, neither of which would not preserve precision of a decimal value.
+
+2.  The precision of the serialized string value of amount is affected by the setting of `Decimal.get_context`.  The default is 28 digits which should cater for your requirements.
+
+3.  Serializing the amount as a string means that SQL query arithmetic and equality operators will not work as expected.  You may find that `CAST`ing the string value will restore some of that functionality.  For example:
+
+```sql
+    CAST(JSON_EXTRACT(amount_map, '$.amount') AS DECIMAL(20, 8)) AS amount`;
+```
 
 ## Roadmap
 
