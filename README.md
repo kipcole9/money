@@ -241,7 +241,7 @@ Since MySQL does not support composite types, the `:map` type is used which in M
 
 ### Notes:
 
-1.  In order to preserve precision of the decimal amount, the amount part of the `%Money{}` struct is serialised as a string. This is done because json serializes numeric values as either `integer` or `float`, neither of which would not preserve precision of a decimal value.
+1.  In order to preserve precision of the decimal amount, the amount part of the `%Money{}` struct is serialised as a string. This is done because JSON serializes numeric values as either `integer` or `float`, neither of which would not preserve precision of a decimal value.
 
 2.  The precision of the serialized string value of amount is affected by the setting of `Decimal.get_context`.  The default is 28 digits which should cater for your requirements.
 
