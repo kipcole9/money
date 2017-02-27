@@ -1,5 +1,11 @@
 ## Changelog for Ex_Money v0.0.13 February 21, 2017
 
+### Bugfixes
+
+* Bump dependency requirement for `ex_cldr` to at least 0.0.20 since 0.0.19 omits `version.json`
+
+## Changelog for Ex_Money v0.0.13 February 21, 2017
+
 ### Enhancements
 
 * Adds a alternative type `Money.Ecto.Map.Type` to support serializing `%Money{}` types to databases that do not support composite types but do support Ecto map types.
