@@ -1,4 +1,4 @@
-## Changelog for Ex_Money v0.0.13 February 21, 2017
+## Changelog for Ex_Money v0.0.14 February 27, 2017
 
 ### Bugfixes
 
