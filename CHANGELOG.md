@@ -1,3 +1,9 @@
+## Changelog for Ex_Money v0.0.15 March 23, 2017
+
+### Enhancements
+
+* Bump `ex_cldr` dependency version to 0.1.0 which includes CLDR repository version 31.0.0
+
 ## Changelog for Ex_Money v0.0.14 February 27, 2017
 
 ### Bugfixes
