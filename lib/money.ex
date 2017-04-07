@@ -51,6 +51,9 @@ defmodule Money do
 
   alias Cldr.Currency
 
+  # To force creation of the atom currency codes
+  Cldr.Currency.known_currencies
+
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
@@ -124,9 +127,13 @@ defmodule Money do
   """
   @spec new(number, binary) :: Money.t
   def new(currency_code, amount) when is_binary(currency_code) do
-    currency_code
-    |> Currency.normalize_currency_code
-    |> new(amount)
+    try do
+      currency_code
+      |> Currency.normalize_currency_code
+      |> new(amount)
+    rescue ArgumentError ->
+      raise Money.UnknownCurrencyError, "The currency code #{inspect currency_code} is not known"
+    end
   end
 
   def new(amount, currency_code) when is_binary(currency_code) do

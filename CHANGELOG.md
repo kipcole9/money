@@ -1,3 +1,9 @@
+## Changelog for Ex_Money v0.0.16 April 7, 2017
+
+### Bug Fixes
+
+* Fixes the case where an example of `Money.new("USD", 100)` could fail because the list of `atom` currency codes had not been loaded.  The list is now force-loaded at compile time.
+
 ## Changelog for Ex_Money v0.0.15 March 23, 2017
 
 ### Enhancements
