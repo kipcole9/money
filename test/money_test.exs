@@ -58,16 +58,12 @@ defmodule MoneyTest do
     assert money.amount == Decimal.new(1234)
   end
 
-  test "creating a money struct with an invalid atom currency code raises" do
-    assert_raise Money.UnknownCurrencyError, ~r/The currency code :XYZ is not known/, fn ->
-      Money.new(:XYZ, 100)
-    end
+  test "creating a money struct with an invalid atom currency code returns error tuple" do
+    assert Money.new(:XYZ, 100) == {:error, {Money.UnknownCurrencyError, "Currency :XYZ is not known"}}
   end
 
-  test "creating a money struct with an invalid binary currency code raises" do
-    assert_raise Money.UnknownCurrencyError, ~r/The currency code "ABCD" is not known/, fn ->
-      Money.new("ABCD", 100)
-    end
+  test "creating a money struct with an invalid binary currency code returns error tuple" do
+    assert Money.new("ABCD", 100) == {:error, {Money.UnknownCurrencyError, "Currency \"ABCD\" is not known"}}
   end
 
   test "string output of money is correctly formatted" do

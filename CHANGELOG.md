@@ -1,3 +1,15 @@
+## Changelog for Ex_Money v0.1.0 April 8, 2017
+
+Minor version is bumped to reflect the change in behaviour of `Money.new/2` which now returns an error tuple if the currency code is invalid rather than raising an exception.
+
+### Enhancements
+
+* `Money.new/2` now returns an error tuple of the form `{:error, {exception, message}}` if the currency code is invalid rather than the old behaviour of raising an exception.
+
+* `Money.new!/2` is added that provides the previous default behaviour of raising an exception if the currency code is invalid.
+
+* Depends on `ex_cldr` at version 0.1.1 which provides enhanced currency code validation checking that allows duplicate code in `ex_money` to be removed.
+
 ## Changelog for Ex_Money v0.0.16 April 7, 2017
 
 ### Bug Fixes

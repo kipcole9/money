@@ -102,7 +102,8 @@ defmodule Money do
   end
 
   @doc """
-  Returns a %Money{} struct from a currency code and a currency amount.
+  Returns a %Money{} struct from a currency code and a currency amount or
+  an error tuple of the form `{:error, {exception, message}}`.
 
   * `currency_code` is an ISO4217 three-character upcased binary or atom
 
@@ -124,15 +125,15 @@ defmodule Money do
 
       iex> Money.new("EUR", Decimal.new(100))
       #Money<:EUR, 100>
+
+      iex> Money.new(:XYZZ, 100)
+      {:error, {Money.UnknownCurrencyError, "Currency :XYZZ is not known"}}
   """
   @spec new(number, binary) :: Money.t
   def new(currency_code, amount) when is_binary(currency_code) do
-    try do
-      currency_code
-      |> Currency.normalize_currency_code
-      |> new(amount)
-    rescue ArgumentError ->
-      raise Money.UnknownCurrencyError, "The currency code #{inspect currency_code} is not known"
+    case code = Currency.validate_currency_code(currency_code) do
+      {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
+      _ -> new(code, amount)
     end
   end
 
@@ -140,24 +141,47 @@ defmodule Money do
     new(currency_code, amount)
   end
 
-  def new(amount, currency_code) when is_number(amount) and is_atom(currency_code) do
-    validate_currency_code!(currency_code)
-    %Money{amount: Decimal.new(amount), currency: currency_code}
-  end
-
   def new(currency_code, amount) when is_atom(currency_code) and is_number(amount) do
-    validate_currency_code!(currency_code)
-    %Money{amount: Decimal.new(amount), currency: currency_code}
+    case code = Currency.validate_currency_code(currency_code) do
+      {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
+      _ -> %Money{amount: Decimal.new(amount), currency: code}
+    end
   end
 
-  def new(%Decimal{} = amount, currency_code) when is_atom(currency_code) do
-    validate_currency_code!(currency_code)
-    %Money{amount: amount, currency: currency_code}
+  def new(amount, currency_code) when is_number(amount) and is_atom(currency_code) do
+    new(currency_code, amount)
   end
 
   def new(currency_code, %Decimal{} = amount) when is_atom(currency_code) do
-    validate_currency_code!(currency_code)
-    %Money{amount: amount, currency: currency_code}
+    case code = Currency.validate_currency_code(currency_code) do
+      {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
+      _ -> %Money{amount: amount, currency: code}
+    end
+  end
+
+  def new(%Decimal{} = amount, currency_code) when is_atom(currency_code) do
+    new(currency_code, amount)
+  end
+
+  @doc """
+  Returns a %Money{} struct from a currency code and a currency amount. Raises an
+  exception if the current code is invalid.
+
+  * `currency_code` is an ISO4217 three-character upcased binary or atom
+
+  * `amount` is an integer, float or Decimal
+
+  ## Examples
+
+      Money.new!(:XYZZ, 100)
+      ** (Money.UnknownCurrencyError) Currency :XYZZ is not known
+        (ex_money) lib/money.ex:177: Money.new!/2
+  """
+  def new!(currency_code, amount) do
+    case money = new(currency_code, amount) do
+      {:error, {exception, message}} -> raise exception, message
+      _ -> money
+    end
   end
 
   @doc """
