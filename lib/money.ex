@@ -89,16 +89,52 @@ defmodule Money do
 
   ## Example
 
-      Money.new({"USD", 100})
+      iex> Money.new({"USD", 100})
       #Money<:USD, 100>
   """
   @spec new({binary, number}) :: Money.t
-  def new(money_tuple)
-  def new({currency_code, amount}) when is_binary(currency_code) do
-    currency_code = Currency.normalize_currency_code(currency_code)
+  def new({currency_code, amount}) when is_binary(currency_code) and is_number(amount) do
+    case validate_currency_code(currency_code) do
+      {:error, {_exception, message}} ->
+        {:error, {Money.UnknownCurrencyError, message}}
+      {:ok, code} ->
+        %Money{amount: Decimal.new(amount), currency: code}
+    end
+  end
 
-    validate_currency_code!(currency_code)
-    %Money{amount: Decimal.new(amount), currency: currency_code}
+  def new({amount, currency_code}) when is_binary(currency_code) and is_number(amount) do
+    new({currency_code, amount})
+  end
+
+  @doc """
+  Returns a %Money{} struct from a tuple consistenting of a currency code and
+  a currency amount.  Raises an exception if the currency code is invalid.
+
+  * `currency_code` is an ISO4217 three-character upcased binary
+
+  * `amount` is an integer, float or Decimal
+
+  This function is typically called from Ecto when it's loading a %Money{}
+  struct from the database.
+
+  ## Example
+
+      iex> Money.new!({"USD", 100})
+      #Money<:USD, 100>
+
+      Money.new!({"NO!", 100})
+      ** (Money.UnknownCurrencyError) Currency "NO!" is not known
+          (ex_money) lib/money.ex:130: Money.new!/1
+  """
+  def new!({currency_code, amount}) when is_binary(currency_code) and is_number(amount) do
+    case money = new(currency_code, amount) do
+      {:error, {exception, message}} -> raise exception, message
+      _ -> money
+    end
+  end
+
+  def new!({amount, currency_code}) when is_binary(currency_code) and is_number(amount) do
+    new!({currency_code, amount})
   end
 
   @doc """
@@ -131,9 +167,9 @@ defmodule Money do
   """
   @spec new(number, binary) :: Money.t
   def new(currency_code, amount) when is_binary(currency_code) do
-    case code = Currency.validate_currency_code(currency_code) do
+    case validate_currency_code(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
-      _ -> new(code, amount)
+      {:ok, code} -> new(code, amount)
     end
   end
 
@@ -142,9 +178,9 @@ defmodule Money do
   end
 
   def new(currency_code, amount) when is_atom(currency_code) and is_number(amount) do
-    case code = Currency.validate_currency_code(currency_code) do
+    case validate_currency_code(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
-      _ -> %Money{amount: Decimal.new(amount), currency: code}
+      {:ok, code} -> %Money{amount: Decimal.new(amount), currency: code}
     end
   end
 
@@ -153,9 +189,9 @@ defmodule Money do
   end
 
   def new(currency_code, %Decimal{} = amount) when is_atom(currency_code) do
-    case code = Currency.validate_currency_code(currency_code) do
+    case validate_currency_code(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
-      _ -> %Money{amount: amount, currency: code}
+      {:ok, code} -> %Money{amount: amount, currency: code}
     end
   end
 
@@ -177,11 +213,26 @@ defmodule Money do
       ** (Money.UnknownCurrencyError) Currency :XYZZ is not known
         (ex_money) lib/money.ex:177: Money.new!/2
   """
-  def new!(currency_code, amount) do
+  def new!(currency_code, amount)
+  when (is_binary(currency_code) or is_atom(currency_code)) and is_number(amount) do
     case money = new(currency_code, amount) do
       {:error, {exception, message}} -> raise exception, message
       _ -> money
     end
+  end
+
+  def new!(amount, currency_code) when is_binary(currency_code) and is_number(amount) do
+    new!(currency_code, amount)
+  end
+
+  def new!(%Decimal{} = amount, currency_code)
+  when is_binary(currency_code) or is_atom(currency_code) do
+    new!(currency_code, amount)
+  end
+
+  def new!(currency_code, %Decimal{} = amount)
+  when is_binary(currency_code) or is_atom(currency_code) do
+    new!(currency_code, amount)
   end
 
   @doc """
@@ -235,12 +286,10 @@ defmodule Money do
 
   ## Helpers
 
-  defp validate_currency_code!(currency_code) do
-    if Currency.known_currency?(currency_code) do
-      currency_code
-    else
-      raise Money.UnknownCurrencyError,
-        "The currency code #{inspect currency_code} is not known"
+  def validate_currency_code(currency_code) do
+    case code = Currency.validate_currency_code(currency_code) do
+      {:error, _} = error -> error
+      _ -> {:ok, code}
     end
   end
 

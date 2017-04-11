@@ -1,3 +1,15 @@
+## Changelog for Ex_Money v0.1.1 April 11, 2017
+
+### Enhancements
+
+* Improves error handing for exchange rates and conversions in the case where either the exchange rate service is not running or there is no available rate for a given currency
+
+* Improve the error handling related to Ecto loading, dumping and casting.  This is a more robust approach to maintaining data integrity by ensuring only valid currency codes are loaded, dumped or casted.
+
+### Bug Fixes
+
+* Bump `ex_cldr` dependency to version 0.1.2.  This fixes the issue where the atoms representing value currency codes would not be loaded early enough to be available for `known_locale?/1`
+
 ## Changelog for Ex_Money v0.1.0 April 8, 2017
 
 Minor version is bumped to reflect the change in behaviour of `Money.new/2` which now returns an error tuple if the currency code is invalid rather than raising an exception.

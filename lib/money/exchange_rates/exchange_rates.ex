@@ -35,9 +35,13 @@ defmodule Money.ExchangeRates do
   * `:error` if no exchange rates are available
   """
   def latest_rates do
-    case :ets.lookup(:exchange_rates, :rates) do
-      [{:rates, rates}] -> {:ok, rates}
-      [] -> :error
+    try do
+      case :ets.lookup(:exchange_rates, :rates) do
+        [{:rates, rates}] -> {:ok, rates}
+        [] -> {:error, "No exchange rates were found"}
+      end
+    rescue
+      ArgumentError -> {:error, "No exchange rates are available"}
     end
   end
 
@@ -61,7 +65,7 @@ defmodule Money.ExchangeRates do
 
   @doc """
   Retrieves exchange rates from the configured exchange rate api module.
-  
+
   This call is the public api to retrieve results from an external api service
   or other mechanism implemented by an api module.  This method is typically
   called periodically by `Money.ExchangeRates.Retriever.handle_info/2` but can

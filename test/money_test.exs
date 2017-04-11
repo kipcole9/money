@@ -40,6 +40,18 @@ defmodule MoneyTest do
     assert money.amount == Decimal.new(1234)
   end
 
+  test "raise when creating a new money struct from a tuple with an invalid currency code" do
+    assert_raise Money.UnknownCurrencyError, "Currency \"ABCD\" is not known", fn ->
+      Money.new!({"ABCD", 1234})
+    end
+  end
+
+  test "raise when creating a new money struct from a reversed tuple with an invalid currency code" do
+    assert_raise Money.UnknownCurrencyError, "Currency \"ABCDE\" is not known", fn ->
+      Money.new!({1234, "ABCDE"})
+    end
+  end
+
   test "create a new money struct with a decimal" do
     money = Money.new(:USD, Decimal.new(1234))
     assert money.currency == :USD
