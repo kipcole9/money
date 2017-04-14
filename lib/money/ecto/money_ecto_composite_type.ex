@@ -23,7 +23,7 @@ defmodule Money.Ecto.Composite.Type do
       with {:ok, currency_code} <- Money.validate_currency_code(currency) do
         {:ok, Money.new(currency_code, amount)}
       else
-        {:error, _} = error -> error
+        error -> error
       end
     end
 
@@ -39,7 +39,7 @@ defmodule Money.Ecto.Composite.Type do
       with {:ok, currency_code} <- Money.validate_currency_code(currency) do
         {:ok, {to_string(currency_code), amount}}
       else
-        {:error, _} = error -> error
+        error -> error
       end
     end
 
@@ -63,7 +63,7 @@ defmodule Money.Ecto.Composite.Type do
            {:ok, currency_code} <- Money.validate_currency_code(currency) do
         {:ok, Money.new(currency_code, decimal_amount)}
       else
-        {:error, _} = error -> error
+        error -> error
       end
     end
 
@@ -73,7 +73,7 @@ defmodule Money.Ecto.Composite.Type do
            {:ok, currency_code} <- Money.validate_currency_code(currency) do
         {:ok, Money.new(currency_code, amount)}
       else
-        {:error, _} = error -> error
+        error -> error
       end
     end
 

@@ -51,9 +51,6 @@ defmodule Money do
 
   alias Cldr.Currency
 
-  # To force creation of the atom currency codes
-  Cldr.Currency.known_currencies
-
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
@@ -263,7 +260,7 @@ defmodule Money do
   end
 
   @doc """
-  Returns the amount part of a `Money{}` as a `Decimal`
+  Returns the amount part of a `Money` type as a `Decimal`
 
   ## Example
 
@@ -287,9 +284,9 @@ defmodule Money do
   ## Helpers
 
   def validate_currency_code(currency_code) do
-    case code = Currency.validate_currency_code(currency_code) do
+    case Currency.validate_currency_code(currency_code) do
       {:error, _} = error -> error
-      _ -> {:ok, code}
+      {:ok, code} -> {:ok, code}
     end
   end
 
