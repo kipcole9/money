@@ -1,3 +1,9 @@
+## Changelog for Ex_Money v0.1.2 April 17, 2017
+
+### Enhancements
+
+* Updated to `ex_cldr` version 0.1.3 to reflect updated CLDR repository version 30.0.1 and revised api for `Cldr.Currency.validate_currency_code/1`
+
 ## Changelog for Ex_Money v0.1.1 April 11, 2017
 
 ### Enhancements
