@@ -1,3 +1,11 @@
+## Changelog for Ex_Money v0.1.3 April 27, 2017
+
+### Enhancements
+
+* Updated to `ex_cldr` version 0.2.0
+
+* Supported only on Elixir 1.4.x
+
 ## Changelog for Ex_Money v0.1.2 April 17, 2017
 
 ### Enhancements

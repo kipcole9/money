@@ -1,12 +1,12 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "0.1.2"
+  @version "0.1.3"
 
   def project do
     [app: :ex_money,
      version: @version,
-     elixir: "~> 1.3",
+     elixir: "~> 1.4",
      name: "Money",
      source_url: "https://github.com/kipcole9/money",
      docs: docs(),
@@ -57,10 +57,10 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:ex_cldr, "~> 0.1.3"},
+      {:ex_cldr, "~> 0.2.0"},
       {:ecto, "~> 2.1", optional: true},
-      {:excoveralls, "~> 0.5.6", only: :test},
-      {:ex_doc, ">= 0.0.0", only: :dev}
+      {:ex_doc, "~> 0.15", only: :dev},
+      {:excoveralls, "~> 0.6.3", only: :test}
     ]
   end
 
