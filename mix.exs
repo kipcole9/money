@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "0.1.3"
+  @version "0.1.4"
 
   def project do
     [app: :ex_money,
@@ -29,7 +29,9 @@ defmodule Money.Mixfile do
     [
       maintainers: ["Kip Cole"],
       licenses: ["Apache 2.0"],
-      links: %{"GitHub" => "https://github.com/kipcole9/money"},
+      links: %{
+        "GitHub" => "https://github.com/kipcole9/money",
+        "Changelog" => "https://github.com/kipcole9/money/blob/v#{@version}/CHANGELOG.md"},
       files: [
         "lib", "config", "mix.exs", "README.md", "CHANGELOG.md", "LICENSE.md"
       ]
@@ -57,7 +59,7 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:ex_cldr, "~> 0.2.0"},
+      {:ex_cldr, "~> 0.4.0"},
       {:ecto, "~> 2.1", optional: true},
       {:ex_doc, "~> 0.15", only: :dev},
       {:excoveralls, "~> 0.6.3", only: :test}

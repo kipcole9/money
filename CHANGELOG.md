@@ -1,3 +1,9 @@
+## Changelog for Ex_Money v0.1.4 May 29, 2017
+
+### Enhancements
+
+* Updated to `ex_cldr` version 0.4.0
+
 ## Changelog for Ex_Money v0.1.3 April 27, 2017
 
 ### Enhancements
