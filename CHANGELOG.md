@@ -1,3 +1,9 @@
+## Changelog for Ex_Money v0.1.5 June 7,  2017
+
+### Bug Fixes
+
+* Fix missing comma in readme example configuration [Closed #10].  Thanks to Xavier Defrang.
+
 ## Changelog for Ex_Money v0.1.4 May 29, 2017
 
 ### Enhancements

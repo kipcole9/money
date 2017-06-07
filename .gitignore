@@ -21,3 +21,6 @@ erl_crash.dump
 
 # Hex build files
 *.tar
+
+# Mac stuff
+.DS_Store
