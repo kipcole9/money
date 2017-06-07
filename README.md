@@ -42,7 +42,7 @@ An optional callback module can be defined.  This module defines a `rates_retrie
       exchange_rates_retrieve_every: 360_000,
       api_module: Money.ExchangeRates.OpenExchangeRates,
       open_exchange_rates_app_id: nil,
-      callback_module: Money.ExchangeRates.Callback
+      callback_module: Money.ExchangeRates.Callback,
       log_failure: :warn,
       log_info: :info,
       log_success: nil
