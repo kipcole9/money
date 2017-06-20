@@ -184,7 +184,7 @@ A set of financial functions are available in the module `Money.Financial`.  The
 
 First generate the migration to create the custom type:
 
-    mix money.gen.migration
+    mix money.gen.postgres.migration
     * creating priv/repo/migrations
     * creating priv/repo/migrations/20161007234652_add_money_with_currency_type_to_postgres.exs
 
