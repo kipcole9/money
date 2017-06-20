@@ -1,3 +1,15 @@
+## Changelog for Ex_Money v0.1.6 June 20,  2017
+
+Update dependencies to align with the requirements for Elixir 1.4.4 (all tests are passing on this release).
+
+### Bug Fixes
+
+* Fix README reference to the postgres migration generator name which is  `money.gen.postgres.migration`.  Thanks to Andrew Phillipo
+
+### Enhancements
+
+* Make the configuration dynamic by removing a dependence on module attributes.  Thanks to Xavier Defrang
+
 ## Changelog for Ex_Money v0.1.5 June 7,  2017
 
 ### Bug Fixes

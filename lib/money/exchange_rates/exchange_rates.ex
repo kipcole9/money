@@ -24,6 +24,29 @@ defmodule Money.ExchangeRates do
   """
   @callback get_latest_rates() :: {:ok, %{}} | {:error, binary}
 
+  # Defines the configuration for the exchange rates mechanism.
+  defmodule Config do
+    defstruct retrieve_every: nil, callback_module: nil, log_levels: %{}
+  end
+
+  @default_retrieval_interval 360_000
+  @default_callback_module Money.ExchangeRates.Callback
+
+  @doc """
+  Returns the configuration for the exchange rates retriever.
+  """
+  def config do
+    %Config{
+      retrieve_every: Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval),
+      callback_module: Money.get_env(:callback_module, @default_callback_module),
+      log_levels: %{
+        success: Money.get_env(:log_success, nil),
+        info: Money.get_env(:log_info, :warn),
+        failure: Money.get_env(:log_failure, :warn)
+      }
+    }
+  end
+
   @doc """
   Return the latest exchange rates.
 

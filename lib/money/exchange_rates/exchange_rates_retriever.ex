@@ -19,58 +19,40 @@ defmodule Money.ExchangeRates.Retriever do
 
   require Logger
 
-  @default_retrieval_interval 360_000
-  @default_callback_module Money.ExchangeRates.Callback
-
-  defmodule Config do
-    defstruct retrieve_every: nil,
-              callback_module: nil,
-              log_levels: %{}
+  def start_link(name, config) do
+    GenServer.start_link(__MODULE__, config, name: name)
   end
 
-  def start_link(name) do
-    state = %Config{
-      retrieve_every: Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval),
-      callback_module: Money.get_env(:callback_module, @default_callback_module),
-      log_levels: %{
-        success: Money.get_env(:log_success, nil),
-        info: Money.get_env(:log_info, :warn),
-        failure: Money.get_env(:log_failure, :warn)
-      }
-    }
+  def init(config) do
+    log(config, :info, "Starting exchange rate retrieval service")
+    log(config, :info, "Rates will be retrieved every #{div(config.retrieve_every, 1000)} seconds.")
 
-    GenServer.start_link(__MODULE__, state, name: name)
+    initialize_ets_table()
+
+    retrieve_rates(config)
+    schedule_work(config.retrieve_every)
+
+    {:ok, config}
   end
 
-   def init(state) do
-     log(state, :info, "Starting exchange rate retrieval service")
-     log(state, :info, "Rates will be retrieved every #{div(state.retrieve_every, 1000)} seconds.")
+  def handle_info(:latest, config) do
+    retrieve_rates(config)
+    schedule_work(config.retrieve_every)
+    {:noreply, config}
+  end
 
-     initialize_ets_table()
-
-     do_retrieve_rates(state)
-     schedule_work(state.retrieve_every)
-
-     {:ok, state}
-   end
-
-   def handle_info(:latest, state) do
-     do_retrieve_rates(state)
-     schedule_work(state.retrieve_every)
-     {:noreply, state}
-   end
-
-  def do_retrieve_rates(%{callback_module: callback_module} = state) do
+  def retrieve_rates(%{callback_module: callback_module} = config) do
     case Money.ExchangeRates.get_latest_rates() do
       {:ok, rates} ->
         retrieved_at = DateTime.utc_now
         store_rates(rates, retrieved_at)
         apply(callback_module, :rates_retrieved, [rates, retrieved_at])
-        log(state, :success, "Retrieved exchange rates successfully")
+        log(config, :success, "Retrieved exchange rates successfully")
+        {:ok, rates}
       {:error, reason} ->
-        log(state, :failure, "Error retrieving exchange rates: #{inspect reason}")
+        log(config, :failure, "Error retrieving exchange rates: #{inspect reason}")
+        {:error, reason}
     end
-    state
   end
 
   defp schedule_work(delay_ms) do
