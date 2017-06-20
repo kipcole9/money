@@ -71,8 +71,7 @@ defmodule Money.ExchangeRates do
   called periodically by `Money.ExchangeRates.Retriever.handle_info/2` but can
   called at any time by other functions.
   """
-  @exchange_rate_api Money.get_env(:api_module, Money.ExchangeRates.OpenExchangeRates)
   def get_latest_rates do
-    @exchange_rate_api.get_latest_rates()
+    Money.get_env(:api_module, Money.ExchangeRates.OpenExchangeRates).get_latest_rates()
   end
 end
