@@ -1,3 +1,9 @@
+## Changelog for Ex_Money v0.1.7 June 21,  2017
+
+### Bug Fixes
+
+* Starts :inets application first so that the default exchange rate retriever can start in a release by preventing a circular start dependency between :inets and :exchange_rates_retriever.  Thanks to Peter Krenn.
+
 ## Changelog for Ex_Money v0.1.6 June 20,  2017
 
 Update dependencies to align with the requirements for Elixir 1.4.4 (all tests are passing on this release).
