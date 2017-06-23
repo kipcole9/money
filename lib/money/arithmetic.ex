@@ -15,9 +15,8 @@ defmodule Money.Arithmetic do
           #Money<:USD, 300>
       """
       @spec add(Money.t, Money.t) :: Money.t
-      def add(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
-      when code_a == code_b do
-        %Money{currency: code_a, amount: Decimal.add(amount_a, amount_b)}
+      def add(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
+        %Money{currency: same_currency, amount: Decimal.add(amount_a, amount_b)}
       end
 
       def add(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b}) do
@@ -33,9 +32,8 @@ defmodule Money.Arithmetic do
           iex> Money.sub Money.new(:USD, 200), Money.new(:USD, 100)
           #Money<:USD, 100>
       """
-      def sub(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
-      when code_a == code_b do
-        %Money{currency: code_a, amount: Decimal.sub(amount_a, amount_b)}
+      def sub(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
+        %Money{currency: same_currency, amount: Decimal.sub(amount_a, amount_b)}
       end
 
       def sub(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b}) do
@@ -101,8 +99,7 @@ defmodule Money.Arithmetic do
           false
       """
       @spec equal?(Money.t, Money.t) :: boolean
-      def equal?(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
-      when code_a == code_b do
+      def equal?(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
         Decimal.equal?(amount_a, amount_b)
       end
 
@@ -125,11 +122,18 @@ defmodule Money.Arithmetic do
 
           iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 500)
           :lt
+
+          iex> Money.cmp Money.new(:USD, 200), Money.new(:CAD, 500)
+          ** (ArgumentError) Cannot compare two %Money{} with different currencies. Received :USD and :CAD.
       """
-      def cmp(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
-      when code_a == code_b do
+      def cmp(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
         Decimal.cmp(amount_a, amount_b)
       end
+      def cmp(%Money{currency: code_a}, %Money{currency: code_b}) do
+        raise ArgumentError, message: "Cannot compare two %Money{} with different currencies. " <>
+          "Received #{inspect code_a} and #{inspect code_b}."
+      end
+
 
       @doc """
       Compares two `Money` values numerically. If the first number is greater
@@ -146,12 +150,20 @@ defmodule Money.Arithmetic do
 
           iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 500)
           -1
+
+          iex> Money.compare Money.new(:USD, 200), Money.new(:CAD, 500)
+          ** (ArgumentError) Cannot compare two %Money{} with different currencies. Received :USD and :CAD.
       """
-      def compare(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
-      when code_a == code_b do
-        Decimal.compare(amount_a, amount_b)
+      def compare(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
+        amount_a
+        |> Decimal.compare(amount_b)
         |> Decimal.to_integer
       end
+      def compare(%Money{currency: code_a}, %Money{currency: code_b}) do
+        raise ArgumentError, message: "Cannot compare two %Money{} with different currencies. " <>
+          "Received #{inspect code_a} and #{inspect code_b}."
+      end
+
 
       @doc """
       Split a `Money` value into a number of parts maintaining the currency's
@@ -189,9 +201,10 @@ defmodule Money.Arithmetic do
       """
       def split(%Money{} = money, parts) when is_integer(parts) do
         rounded_money = Money.round(money)
-        div = rounded_money
-        |> Money.div(parts)
-        |> round
+        div =
+          rounded_money
+          |> Money.div(parts)
+          |> round
 
         remainder = sub(rounded_money, mult(div, parts))
         {div, remainder}
@@ -235,7 +248,8 @@ defmodule Money.Arithmetic do
           #Money<:JPY, 124>
       """
       def round(%Money{} = money, opts \\ []) do
-        round_to_decimal_digits(money, opts)
+        money
+        |> round_to_decimal_digits(opts)
         |> round_to_nearest(opts)
       end
 
@@ -261,10 +275,11 @@ defmodule Money.Arithmetic do
         rounding_mode = Keyword.get(opts, :rounding_mode, @default_rounding_mode)
         rounding = Decimal.new(increment)
 
-        rounded_amount = money.amount
-        |> Decimal.div(rounding)
-        |> Decimal.round(0, rounding_mode)
-        |> Decimal.mult(rounding)
+        rounded_amount =
+          money.amount
+          |> Decimal.div(rounding)
+          |> Decimal.round(0, rounding_mode)
+          |> Decimal.mult(rounding)
 
         %Money{currency: money.currency, amount: rounded_amount}
       end
