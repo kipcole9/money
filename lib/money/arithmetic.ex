@@ -144,7 +144,8 @@ defmodule Money.Arithmetic do
           -1
       """
       def compare(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
-        Decimal.compare(amount_a, amount_b)
+        amount_a
+        |> Decimal.compare(amount_b)
         |> Decimal.to_integer
       end
 
@@ -184,9 +185,10 @@ defmodule Money.Arithmetic do
       """
       def split(%Money{} = money, parts) when is_integer(parts) do
         rounded_money = Money.round(money)
-        div = rounded_money
-        |> Money.div(parts)
-        |> round
+        div =
+          rounded_money
+          |> Money.div(parts)
+          |> round
 
         remainder = sub(rounded_money, mult(div, parts))
         {div, remainder}
@@ -230,7 +232,8 @@ defmodule Money.Arithmetic do
           #Money<:JPY, 124>
       """
       def round(%Money{} = money, opts \\ []) do
-        round_to_decimal_digits(money, opts)
+        money
+        |> round_to_decimal_digits(opts)
         |> round_to_nearest(opts)
       end
 
@@ -256,10 +259,11 @@ defmodule Money.Arithmetic do
         rounding_mode = Keyword.get(opts, :rounding_mode, @default_rounding_mode)
         rounding = Decimal.new(increment)
 
-        rounded_amount = money.amount
-        |> Decimal.div(rounding)
-        |> Decimal.round(0, rounding_mode)
-        |> Decimal.mult(rounding)
+        rounded_amount =
+          money.amount
+          |> Decimal.div(rounding)
+          |> Decimal.round(0, rounding_mode)
+          |> Decimal.mult(rounding)
 
         %Money{currency: money.currency, amount: rounded_amount}
       end
