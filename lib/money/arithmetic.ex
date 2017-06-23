@@ -122,10 +122,18 @@ defmodule Money.Arithmetic do
 
           iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 500)
           :lt
+
+          iex> Money.cmp Money.new(:USD, 200), Money.new(:CAD, 500)
+          ** (ArgumentError) Cannot compare two %Money{} with different currencies. Received :USD and :CAD.
       """
       def cmp(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
         Decimal.cmp(amount_a, amount_b)
       end
+      def cmp(%Money{currency: code_a}, %Money{currency: code_b}) do
+        raise ArgumentError, message: "Cannot compare two %Money{} with different currencies. " <>
+          "Received #{inspect code_a} and #{inspect code_b}."
+      end
+
 
       @doc """
       Compares two `Money` values numerically. If the first number is greater
@@ -142,12 +150,20 @@ defmodule Money.Arithmetic do
 
           iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 500)
           -1
+
+          iex> Money.compare Money.new(:USD, 200), Money.new(:CAD, 500)
+          ** (ArgumentError) Cannot compare two %Money{} with different currencies. Received :USD and :CAD.
       """
       def compare(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
         amount_a
         |> Decimal.compare(amount_b)
         |> Decimal.to_integer
       end
+      def compare(%Money{currency: code_a}, %Money{currency: code_b}) do
+        raise ArgumentError, message: "Cannot compare two %Money{} with different currencies. " <>
+          "Received #{inspect code_a} and #{inspect code_b}."
+      end
+
 
       @doc """
       Split a `Money` value into a number of parts maintaining the currency's
