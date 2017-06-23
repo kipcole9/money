@@ -27,11 +27,11 @@ How is this opinion expressed?
 
 ## Exchange rates and currency conversion
 
-Money includes a process to retrieve exchange rates on a periodic basis.  These exchange rates can then be used to support currency conversion.  This service is not started by default.  If started it will attempt to retrieve exchange rates every 5 minutes.
+Money includes a process to retrieve exchange rates on a periodic basis.  These exchange rates can then be used to support currency conversion.  This service is not started by default.  If started it will attempt to retrieve exchange rates every 5 minutes by default.
 
 By default, exchange rates are retrieved from [Open Exchange Rates](http://openexchangerates.org) however any module that conforms to the `Money.ExchangeRates` behaviour can be configured.
 
-An optional callback module can be defined.  This module defines a `rates_retrieved/2` function that is invoked upon every successful retrieval of exchange rates.
+An optional callback module can also be defined.  This module defines a `rates_retrieved/2` function that is invoked upon every successful retrieval of exchange rates.  This might be used to serialize exchange rate to a data store or to stream rates to other applications or systems.
 
 ## Configuration
 
@@ -39,7 +39,7 @@ An optional callback module can be defined.  This module defines a `rates_retrie
 
     config :ex_money,
       exchange_rate_service: false,
-      exchange_rates_retrieve_every: 360_000,
+      exchange_rates_retrieve_every: 300_000,
       api_module: Money.ExchangeRates.OpenExchangeRates,
       open_exchange_rates_app_id: nil,
       callback_module: Money.ExchangeRates.Callback,
@@ -49,9 +49,9 @@ An optional callback module can be defined.  This module defines a `rates_retrie
 
 These keys are are defined as follows:
 
-* `exchange_rate_service` is a boolean that determines whether to start the exchange rate retrieval service.  The default it `false`.
+* `exchange_rate_service` is a boolean that determines whether to automatically start the exchange rate retrieval service.  The default it `false`.
 
-* `exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (360,000 milliseconds)
+* `exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (300,000 milliseconds)
 
 * `api_module` identifies the module that does the retrieval of exchange rates. This is any module that implements the `Money.ExchangeRates` behaviour.  The  default is `Money.ExchangeRates.OpenExchangeRates`
 
@@ -72,17 +72,61 @@ Keys can also be configured to retrieve values from environment variables.  This
       exchange_rates_retrieve_every: {:system, "RETRIEVE_EVERY"},
       open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"}
 
-## Why yet another Money package?
+## The Exchange rates service process supervision and startup
 
-* Fully localized formatting and rounding using [ex_cldr](https://hex.pm/packages/ex_cldr)
+If the exchange rate service is configured to automatically start up (because the config key `exchange_rate_service` is set to `true`) then a supervisor process named `Money.ExchangeRates.Supervisor` is started which in turns starts a child `GenServer` called `Money.ExchangeRates.Retriever`.  It is `Money.ExchangeRates.Retriever` which will call the configured `api_module` to retrieve the rates.  It is also responsible for calling the configured `callback_module` after a successfull retrieval.
 
-* Provides serialization to Postgres using a composite type and MySQL using a JSON type that keeps both the currency code and the amount together removing a source of potential error
+                                         +-----------------+
+                                         |                 |
+    +-------------+    +-----------+     |   api_module    |-> External Service
+    |             |    |           |---> |                 |
+    | Supervisor  |--->| Retriever |     +-----------------+
+    |             |    |           |---> +-----------------+
+    +-------------+    +-----------+     |                 |
+                                         | callback_module |
+                                         |                 |
+                                         +-----------------+
 
-* Uses the `Decimal` type in Elixir and the Postgres `numeric` type to preserve precision.  For MySQL the amount is serialised as a string to preserve precision that might otherwise be lost if stored as a JSON numeric type (which is either an integer or a float)
+On application start, `Money.ExchangeRates.Retriever` will attempt to retrieve exchange rates in order to honour the contractual intent that exchange rates are available to a client application when it starts.  This first retrieval is done from within `Money.ExchangeRates.Retriever`'s `init/1` callback.
 
-* Includes a set of financial calculations (arithmetic and cash flow calculations) that follow solid rounding rules
+## Using Ecto or other applications from within the callback module
 
-## Examples
+If you provide your own callback module and that module depends on some other applications, like `Ecto`, already being started then automatically starting `Money.ExchangeRates.Supervisor` may not work since your `Ecto.Repo` is unlikely to have already been started.
+
+In this situation the appropriate way to configure the exchange rates retrieval service is the following:
+
+1. Set the configuration key `exchange_rate_service` to `false` to prevent automatic startup of the service.
+
+2. Configure your `api_module`, `callback_module` and any other required configuration as appropriate
+
+3. In your client application code, add the `Money.ExchangeRates.Supervisor` to the `children` configuration of your application.  For example, in an application that uses `Ecto` and where your `callback_module` is designed to save exchange rates to a database, your application may would look something like:
+
+```elixir
+defmodule Application do
+  use Application
+
+  def start(_type, _args) do
+    import Supervisor.Spec
+
+    children = [
+
+      # Start your repo first so that it is running before your
+      # exchange rates callback module is called
+      supervisor(MoneyTest.Repo, []),
+
+      # Include the Money.ExchangeRates.Supervisor in your application's
+      # supervision tree.  This supervisor will start the child process
+      # Money.ExchangeRates.Retriever
+      supervisor(Money.ExchangeRates.Supervisor, [])
+    ]
+
+    opts = [strategy: :one_for_one, name: Application.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+end
+```
+
+## API Usage Examples
 
 ### Creating a %Money{} struct
 
@@ -307,10 +351,6 @@ Retrieve from the database:
     CAST(JSON_EXTRACT(amount_map, '$.amount') AS DECIMAL(20, 8)) AS amount;
 ```
 
-## Roadmap
-
-The next phase of development will focus on additional financial functions.
-
 ## Installation
 
 ex_money can be installed by:
@@ -330,3 +370,13 @@ ex_money can be installed by:
     [applications: [:ex_money]]
   end
 ```
+
+## Why yet another Money package?
+
+* Fully localized formatting and rounding using [ex_cldr](https://hex.pm/packages/ex_cldr)
+
+* Provides serialization to Postgres using a composite type and MySQL using a JSON type that keeps both the currency code and the amount together removing a source of potential error
+
+* Uses the `Decimal` type in Elixir and the Postgres `numeric` type to preserve precision.  For MySQL the amount is serialised as a string to preserve precision that might otherwise be lost if stored as a JSON numeric type (which is either an integer or a float)
+
+* Includes a set of financial calculations (arithmetic and cash flow calculations) that follow solid rounding rules

@@ -11,11 +11,11 @@ defmodule Money.ExchangeRates do
 
       config :ex_money,
         open_exchange_rates_app_id: "app_id_string",
-        open_exchange_rates_retrieve_every: 360_000
+        open_exchange_rates_retrieve_every: 300_000
 
       config :ex_money,
         open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"},
-        open_exchange_rates_retrieve_every: 360_000
+        open_exchange_rates_retrieve_every: 300_000
   """
 
   @doc """
@@ -24,13 +24,16 @@ defmodule Money.ExchangeRates do
   """
   @callback get_latest_rates() :: {:ok, %{}} | {:error, binary}
 
+  require Logger
+
   # Defines the configuration for the exchange rates mechanism.
   defmodule Config do
     defstruct retrieve_every: nil, callback_module: nil, log_levels: %{}
   end
 
-  @default_retrieval_interval 360_000
+  @default_retrieval_interval 300_000
   @default_callback_module Money.ExchangeRates.Callback
+  @default_api_module Money.ExchangeRates.OpenExchangeRates
 
   @doc """
   Returns the configuration for the exchange rates retriever.
@@ -55,7 +58,7 @@ defmodule Money.ExchangeRates do
   * `{:ok, rates}` if exchange rates are successfully retrieved.  `rates` is a map of
   exchange rate converstion.
 
-  * `:error` if no exchange rates are available
+  * `{:error, reason}` if no exchange rates can be returned.
   """
   def latest_rates do
     try do
@@ -64,12 +67,15 @@ defmodule Money.ExchangeRates do
         [] -> {:error, "No exchange rates were found"}
       end
     rescue
-      ArgumentError -> {:error, "No exchange rates are available"}
+      ArgumentError ->
+        Logger.error "Argument error getting exchange rates from ETS table"
+        {:error, "No exchange rates are available"}
     end
   end
 
   @doc """
-  Return the timestamp of the last successful retrieval of exchange rates
+  Return the timestamp of the last successful retrieval of exchange rates or
+  `{:error, reason}` if no timestamp is known.
 
   ##Example:
 
@@ -81,8 +87,11 @@ defmodule Money.ExchangeRates do
   """
   def last_updated do
     case :ets.lookup(:exchange_rates, :last_updated) do
-      [{:last_updated, timestamp}] -> {:ok, timestamp}
-      [] -> :error
+      [{:last_updated, timestamp}] ->
+        {:ok, timestamp}
+      [] ->
+        Logger.error "Argument error getting last updated timestamp from ETS table"
+        {:error, "Last updated date is not known"}
     end
   end
 
@@ -95,6 +104,6 @@ defmodule Money.ExchangeRates do
   called at any time by other functions.
   """
   def get_latest_rates do
-    Money.get_env(:api_module, Money.ExchangeRates.OpenExchangeRates).get_latest_rates()
+    Money.get_env(:api_module, @default_api_module).get_latest_rates()
   end
 end

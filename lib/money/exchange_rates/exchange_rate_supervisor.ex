@@ -9,8 +9,6 @@ defmodule Money.ExchangeRates.Supervisor do
   end
 
   def init(:ok) do
-
-
     children = [
       worker(Money.ExchangeRates.Retriever, [Money.ExchangeRates.Retriever, ExchangeRates.config])
     ]
