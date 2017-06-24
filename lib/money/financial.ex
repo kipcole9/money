@@ -134,7 +134,7 @@ defmodule Money.Financial do
       defp do_present_value([{period, %Money{}} = flow | other_flows], interest_rate)
       when is_integer(period) and is_number(interest_rate) do
         do_present_value(flow, interest_rate)
-        |> Money.add(do_present_value(other_flows, interest_rate))
+        |> Money.add!(do_present_value(other_flows, interest_rate))
       end
 
       @doc """
@@ -166,7 +166,7 @@ defmodule Money.Financial do
       when is_integer(period) and is_number(interest_rate) do
         validate_same_currency!(investment, flows)
         present_value(flows, interest_rate)
-        |> Money.sub(investment)
+        |> Money.sub!(investment)
       end
 
       @doc """
@@ -196,7 +196,7 @@ defmodule Money.Financial do
 
       def net_present_value(%Money{} = future_value, interest_rate, periods, %Money{} = investment) do
         present_value(future_value, interest_rate, periods)
-        |> Money.sub(investment)
+        |> Money.sub!(investment)
       end
 
       @doc """

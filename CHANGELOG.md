@@ -1,3 +1,25 @@
+## Changelog for Ex_Money v0.2.0  June 25,  2017
+
+### Breaking changes
+
+Arithmetic and comparion functions now return a `{:ok, result}` tuple on success and an `{:error, reason}` tuple on error.  "Bang" methods are provided that either return a simple result or raise on error.  This change is to better align with idiomatic Elixir/Erlang behaviour.
+
+For most applications, change calls to the "bang" methods should keep the behaviour of versions in the 0.1.x releases.
+
+### Enhancements
+
+* `add/2`, `sub/2`, `mult/2`, `div/2`, `cmp/2`, `compare/2`, `convert_to/3` now return an `{:ok, result}` or `{:error, reason}` tuple that than a simple rest on success and raise an exception on error.
+
+* new methods `add!/2`, `sub!/2`, `mult!/2`, `div!/2`, `cmp!/2`, `compare!/2`, `convert_to!/3` are added the provide the original behaviour, returning a simple value or raising an exception on error.
+
+* Improved the formatting and parameter names for several functions and made several pipelines more idiomatic. Thanks to Xavier Defrang.
+
+* Documented the way to manually configure the exchange rates supervision tree.  This is useful if the configured `callback_module` depends upon other applications being started.  This would be tue, for example, if the `callback_module` uses an Ecto repo.
+
+## Bug Fixes
+
+* Changed the `config` key `open_exchange_rates_retrieve_every` to be `300_000` to align with the documented 5 minutes interval.  Thanks to Andrew Phillipo.
+
 ## Changelog for Ex_Money v0.1.7 June 21,  2017
 
 ### Bug Fixes
@@ -10,7 +32,7 @@ Update dependencies to align with the requirements for Elixir 1.4.4 (all tests a
 
 ### Bug Fixes
 
-* Fix README reference to the postgres migration generator name which is  `money.gen.postgres.migration`.  Thanks to Andrew Phillipo
+* Fix README reference to the postgres migration generator name which is  `money.gen.postgres.migration`.  Thanks to Andrew Phillipo.
 
 ### Enhancements
 

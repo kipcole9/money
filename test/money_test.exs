@@ -85,22 +85,22 @@ defmodule MoneyTest do
   end
 
   test "adding two money structs with same currency" do
-    assert Money.add(Money.new(:USD, 100), Money.new(:USD, 100)) == Money.new(:USD, 200)
+    assert Money.add!(Money.new(:USD, 100), Money.new(:USD, 100)) == Money.new(:USD, 200)
   end
 
   test "subtracting two money structs with same currency" do
-    assert Money.sub(Money.new(:USD, 100), Money.new(:USD, 40)) == Money.new(:USD, 60)
+    assert Money.sub!(Money.new(:USD, 100), Money.new(:USD, 40)) == Money.new(:USD, 60)
   end
 
   test "adding two money structs with different currency raises" do
-    assert_raise ArgumentError, ~r/Cannot add two %Money/, fn ->
-      Money.add(Money.new(:USD, 100), Money.new(:AUD, 100))
+    assert_raise ArgumentError, ~r/Cannot add monies/, fn ->
+      Money.add!(Money.new(:USD, 100), Money.new(:AUD, 100))
     end
   end
 
   test "subtracting two money structs with different currency raises" do
     assert_raise ArgumentError, ~r/Cannot subtract two %Money{}/, fn ->
-      Money.sub(Money.new(:USD, 100), Money.new(:AUD, 100))
+      Money.sub!(Money.new(:USD, 100), Money.new(:AUD, 100))
     end
   end
 
@@ -120,21 +120,21 @@ defmodule MoneyTest do
   end
 
   test "multiply a money by an integer" do
-    assert Money.mult(Money.new(:USD, 100), 2) == Money.new(:USD, 200)
+    assert Money.mult!(Money.new(:USD, 100), 2) == Money.new(:USD, 200)
   end
 
   test "multiply a money by a float" do
-    m1 = Money.mult(Money.new(:USD, 100), 2.5)
+    m1 = Money.mult!(Money.new(:USD, 100), 2.5)
     m2 = Money.new(:USD, 250)
     assert Money.equal?(m1, m2) == true
   end
 
   test "divide a money by an integer" do
-    assert Money.div(Money.new(:USD, 100), 2) == Money.new(:USD, 50)
+    assert Money.div!(Money.new(:USD, 100), 2) == Money.new(:USD, 50)
   end
 
   test "divide a money by a float" do
-    m1 = Money.div(Money.new(:USD, 100), 2.5)
+    m1 = Money.div!(Money.new(:USD, 100), 2.5)
     m2 = Money.new(:USD, 40)
     assert Money.equal?(m1, m2) == true
   end
@@ -201,7 +201,7 @@ defmodule MoneyTest do
     capture_io(fn ->
       {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(:test_retriever, ExchangeRates.config)
     end)
-    assert Money.cmp(Money.to_currency(Money.new(:USD, 100), :AUD), Money.new(:AUD, 70)) == :eq
+    assert Money.cmp(Money.to_currency!(Money.new(:USD, 100), :AUD), Money.new(:AUD, 70)) == :eq
   end
 
   test "Invoke callback module on successful exchange rate retrieval" do
@@ -213,5 +213,10 @@ defmodule MoneyTest do
   test "That an error is returned if there is not open exchange rates app_id configured" do
     assert Money.ExchangeRates.OpenExchangeRates.get_latest_rates("not_configured") ==
       {:error, "Open Exchange Rates app_id is not configured.  Rates are not retrieved."}
+  end
+
+  test "money conversion" do
+    rates = %{USD: Decimal.new(1), AUD: Decimal.new(2)}
+    assert Money.to_currency(Money.new(:USD, 100), :AUD, rates) == {:ok, Money.new(:AUD, 200)}
   end
 end

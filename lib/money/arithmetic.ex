@@ -12,35 +12,77 @@ defmodule Money.Arithmetic do
       ## Example
 
           iex> Money.add Money.new(:USD, 200), Money.new(:USD, 100)
-          #Money<:USD, 300>
+          {:ok, Money.new(:USD, 300)}
+
+          iex> Money.add Money.new(:USD, 200), Money.new(:AUD, 100)
+          {:error, {ArgumentError, "Cannot add monies with different currencies. " <>
+            "Received :USD and :AUD."}}
       """
       @spec add(Money.t, Money.t) :: Money.t
-      def add(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
-      when code_a == code_b do
-        %Money{currency: code_a, amount: Decimal.add(amount_a, amount_b)}
+      def add(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
+        {:ok, %Money{currency: same_currency, amount: Decimal.add(amount_a, amount_b)}}
       end
 
-      def add(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b}) do
-        raise ArgumentError, message: "Cannot add two %Money{} with different currencies. " <>
-          "Received #{inspect code_a} and #{inspect code_b}."
+      def add(%Money{currency: code_a}, %Money{currency: code_b}) do
+        {:error, {ArgumentError, "Cannot add monies with different currencies. " <>
+          "Received #{inspect code_a} and #{inspect code_b}."}}
+      end
+
+      @doc """
+      Add two `Money` values and raise on error.
+
+      ## Examples
+
+          iex> Money.add! Money.new(:USD, 200), Money.new(:USD, 100)
+          #Money<:USD, 300>
+
+          Money.add! Money.new(:USD, 200), Money.new(:CAD, 500)
+          ** (ArgumentError) Cannot add two %Money{} with different currencies. Received :USD and :CAD.
+      """
+      def add!(%Money{} = a, %Money{} = b) do
+        case add(a, b) do
+          {:ok, result} -> result
+          {:error, {exception, message}} -> raise exception, message
+        end
       end
 
       @doc """
       Subtract one `Money` value struct from another.
 
+      Returns either `{:ok, money}` or `{:error, reason}`.
+
       ## Example
 
           iex> Money.sub Money.new(:USD, 200), Money.new(:USD, 100)
-          #Money<:USD, 100>
+          {:ok, Money.new(:USD, 100)}
       """
-      def sub(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
-      when code_a == code_b do
-        %Money{currency: code_a, amount: Decimal.sub(amount_a, amount_b)}
+      def sub(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
+        {:ok, %Money{currency: same_currency, amount: Decimal.sub(amount_a, amount_b)}}
       end
 
       def sub(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b}) do
-        raise ArgumentError, message: "Cannot subtract two %Money{} with different currencies. " <>
-          "Received #{inspect code_a} and #{inspect code_b}."
+        {:error, {ArgumentError, "Cannot subtract two %Money{} with different currencies. " <>
+          "Received #{inspect code_a} and #{inspect code_b}."}}
+      end
+
+      @doc """
+      Subtract one `Money` value struct from another and raise on error.
+
+      Returns either `{:ok, money}` or `{:error, reason}`.
+
+      ## Examaples
+
+          iex> Money.sub! Money.new(:USD, 200), Money.new(:USD, 100)
+          #Money<:USD, 100>
+
+          Money.sub! Money.new(:USD, 200), Money.new(:CAD, 500)
+          ** (ArgumentError) Cannot subtract monies with different currencies. Received :USD and :CAD.
+      """
+      def sub!(%Money{} = a, %Money{} = b) do
+        case sub(a, b) do
+          {:ok, result} -> result
+          {:error, {exception, message}} -> raise exception, message
+        end
       end
 
       @doc """
@@ -52,18 +94,41 @@ defmodule Money.Arithmetic do
 
       > Note that multipling one %Money{} by another is not supported.
 
+      Returns either `{:ok, money}` or `{:error, reason}`.
+
       ## Example
 
-          iex> Money.mult Money.new(:USD, 200), 2
-          #Money<:USD, 400>
+          iex> Money.mult(Money.new(:USD, 200), 2)
+          {:ok, Money.new(:USD, 400)}
+
+          iex> Money.mult(Money.new(:USD, 200), "xx")
+          {:error, {ArgumentError, "Cannot multiply money by \\"xx\\""}}
       """
       @spec mult(Money.t, number) :: Money.t
       def mult(%Money{currency: code, amount: amount}, number) when is_number(number) do
-        %Money{currency: code, amount: Decimal.mult(amount, Decimal.new(number))}
+        {:ok, %Money{currency: code, amount: Decimal.mult(amount, Decimal.new(number))}}
       end
 
-      def mult(%Money{} = money, number) do
-        raise ArgumentError, message: "Cannot multiply a %Money{} by #{inspect number}"
+      def mult(%Money{} = money, other) do
+        {:error, {ArgumentError, "Cannot multiply money by #{inspect other}"}}
+      end
+
+      @doc """
+      Multiply a `Money` value by a number and raise on error.
+
+      ## Examples
+
+          iex> Money.mult!(Money.new(:USD, 200), 2)
+          #Money<:USD, 400>
+
+          Money.mult!(Money.new(:USD, 200), :invalid)
+          ** (ArgumentError) Cannot multiply money by :invalid
+      """
+      def mult!(%Money{} = money, number) do
+        case mult(money, number) do
+          {:ok, result} -> result
+          {:error, {exception, message}} -> raise exception, message
+        end
       end
 
       @doc """
@@ -78,15 +143,36 @@ defmodule Money.Arithmetic do
       ## Example
 
           iex> Money.div Money.new(:USD, 200), 2
-          #Money<:USD, 100>
+          {:ok, Money.new(:USD, 100)}
+
+          iex> Money.div(Money.new(:USD, 200), "xx")
+          {:error, {ArgumentError, "Cannot divide money by \\"xx\\""}}
       """
       @spec div(Money.t, number) :: Money.t
       def div(%Money{currency: code, amount: amount}, number) when is_number(number) do
-        %Money{currency: code, amount: Decimal.div(amount, Decimal.new(number))}
+        {:ok, %Money{currency: code, amount: Decimal.div(amount, Decimal.new(number))}}
       end
 
       def div(%Money{} = money, other) do
-        raise ArgumentError, message: "Cannot divide a %Money{} by #{inspect other}"
+        {:error, {ArgumentError, "Cannot divide money by #{inspect other}"}}
+      end
+
+      @doc """
+      Divide a `Money` value by a number and raise on error.
+
+      ## Examples
+
+          iex> Money.div Money.new(:USD, 200), 2
+          {:ok, Money.new(:USD, 100)}
+
+          Money.div(Money.new(:USD, 200), "xx")
+          ** (ArgumentError) "Cannot divide money by \\"xx\\""]}}
+      """
+      def div!(%Money{} = money, number) do
+        case Money.div(money, number) do
+          {:ok, result} -> result
+          {:error, {exception, message}} -> raise exception, message
+        end
       end
 
       @doc """
@@ -101,8 +187,7 @@ defmodule Money.Arithmetic do
           false
       """
       @spec equal?(Money.t, Money.t) :: boolean
-      def equal?(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
-      when code_a == code_b do
+      def equal?(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
         Decimal.equal?(amount_a, amount_b)
       end
 
@@ -125,10 +210,34 @@ defmodule Money.Arithmetic do
 
           iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 500)
           :lt
+
+          iex> Money.cmp Money.new(:USD, 200), Money.new(:CAD, 500)
+          {:error,
+           {ArgumentError,
+            "Cannot compare monies with different currencies. Received :USD and :CAD."}}
       """
-      def cmp(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
-      when code_a == code_b do
+      def cmp(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
         Decimal.cmp(amount_a, amount_b)
+      end
+
+      def cmp(%Money{currency: code_a}, %Money{currency: code_b}) do
+        {:error, {ArgumentError, "Cannot compare monies with different currencies. " <>
+          "Received #{inspect code_a} and #{inspect code_b}."}}
+      end
+
+      @doc """
+      Compares two `Money` values numerically and raises on error.
+
+      ## Examples
+
+          Money.cmp! Money.new(:USD, 200), Money.new(:CAD, 500)
+          ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :CAD.
+      """
+      def cmp!(%Money{} = money_1, %Money{} = money_2) do
+        case cmp(money_1, money_2) do
+          {:error, {exception, reason}} -> raise exception, reason
+          result -> result
+        end
       end
 
       @doc """
@@ -146,11 +255,36 @@ defmodule Money.Arithmetic do
 
           iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 500)
           -1
+
+          iex> Money.compare Money.new(:USD, 200), Money.new(:CAD, 500)
+          {:error,
+           {ArgumentError,
+            "Cannot compare monies with different currencies. Received :USD and :CAD."}}
       """
-      def compare(%Money{currency: code_a, amount: amount_a}, %Money{currency: code_b, amount: amount_b})
-      when code_a == code_b do
-        Decimal.compare(amount_a, amount_b)
+      def compare(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
+        amount_a
+        |> Decimal.compare(amount_b)
         |> Decimal.to_integer
+      end
+
+      def compare(%Money{currency: code_a}, %Money{currency: code_b}) do
+        {:error, {ArgumentError, "Cannot compare monies with different currencies. " <>
+          "Received #{inspect code_a} and #{inspect code_b}."}}
+      end
+
+      @doc """
+      Compares two `Money` values numerically and raises on error.
+
+      ## Examples
+
+          Money.compare! Money.new(:USD, 200), Money.new(:CAD, 500)
+          ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :CAD.
+      """
+      def compare!(%Money{} = money_1, %Money{} = money_2) do
+        case compare(money_1, money_2) do
+          {:error, {exception, reason}} -> raise exception, reason
+          result -> result
+        end
       end
 
       @doc """
@@ -189,11 +323,13 @@ defmodule Money.Arithmetic do
       """
       def split(%Money{} = money, parts) when is_integer(parts) do
         rounded_money = Money.round(money)
-        div = rounded_money
-        |> Money.div(parts)
-        |> round
 
-        remainder = sub(rounded_money, mult(div, parts))
+        div =
+          rounded_money
+          |> Money.div!(parts)
+          |> round
+
+        remainder = sub!(rounded_money, mult!(div, parts))
         {div, remainder}
       end
 
@@ -235,7 +371,8 @@ defmodule Money.Arithmetic do
           #Money<:JPY, 124>
       """
       def round(%Money{} = money, opts \\ []) do
-        round_to_decimal_digits(money, opts)
+        money
+        |> round_to_decimal_digits(opts)
         |> round_to_nearest(opts)
       end
 
@@ -261,10 +398,11 @@ defmodule Money.Arithmetic do
         rounding_mode = Keyword.get(opts, :rounding_mode, @default_rounding_mode)
         rounding = Decimal.new(increment)
 
-        rounded_amount = money.amount
-        |> Decimal.div(rounding)
-        |> Decimal.round(0, rounding_mode)
-        |> Decimal.mult(rounding)
+        rounded_amount =
+          money.amount
+          |> Decimal.div(rounding)
+          |> Decimal.round(0, rounding_mode)
+          |> Decimal.mult(rounding)
 
         %Money{currency: money.currency, amount: rounded_amount}
       end

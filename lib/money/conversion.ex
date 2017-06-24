@@ -18,13 +18,13 @@ defmodule Money.Currency.Conversion do
 
       ## Examples
 
-          iex(5)> Money.to_currency Money.new(:USD, 100) , :AUD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
-          #Money<:AUD, 73.4500>
+          Money.to_currency(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)})
+          {:ok, #Money<:AUD, 73.4500>}
 
-          iex(6)> Money.to_currency Money.new(:USD, 100) , :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+          iex> Money.to_currency Money.new(:USD, 100) , :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
           {:error, {Cldr.UnknownCurrencyError, "Currency :AUDD is not known"}}
 
-          iex(8)> Money.to_currency Money.new(:USD, 100) , :CHF, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+          iex> Money.to_currency Money.new(:USD, 100) , :CHF, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
           {:error, "No exchange rate is available for currency :CHF"}
       """
       def to_currency(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
@@ -49,11 +49,12 @@ defmodule Money.Currency.Conversion do
              {:ok, base_rate} <- get_rate(currency, rates),
              {:ok, conversion_rate} <- get_rate(to_currency, rates) do
 
-          converted_amount = amount
-          |> Decimal.div(base_rate)
-          |> Decimal.mult(conversion_rate)
+          converted_amount =
+            amount
+            |> Decimal.div(base_rate)
+            |> Decimal.mult(conversion_rate)
 
-          Money.new(to_currency, converted_amount)
+          {:ok, Money.new(to_currency, converted_amount)}
         else
           {:error, _} = error -> error
         end
@@ -63,7 +64,38 @@ defmodule Money.Currency.Conversion do
         error
       end
 
-      def get_rate(currency, rates) do
+      @doc """
+      Convert `money` from one currency to another and raises on error
+
+      ## Examples
+
+          iex> Money.to_currency! Money.new(:USD, 100) , :AUD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+          #Money<:AUD, 73.4500>
+
+          Money.to_currency! Money.new(:USD, 100) , :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+          ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
+      """
+      def to_currency!(%Money{} = money, currency) do
+        money
+        |> to_currency(currency)
+        |> do_to_currency!
+      end
+
+      def to_currency!(%Money{} = money, currency, rates) do
+        money
+        |> to_currency(currency, rates)
+        |> do_to_currency!
+      end
+
+      defp do_to_currency!(result) do
+        case result do
+          {:ok, converted} -> converted
+          {:error, {exception, reason}} -> raise exception, reason
+          {:error, reason} -> raise ArgumentError, reason
+        end
+      end
+
+      defp get_rate(currency, rates) do
         if rate = rates[currency] do
           {:ok, rate}
         else

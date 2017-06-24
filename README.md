@@ -4,8 +4,8 @@ Money implements a set of functions to store, retrieve and perform arithmetic
 on a `%Money{}` type that is composed of a currency code and a currency amount.
 
 Money is opinionated in the interests of serving as a dependable library
-that can underpin accounting and financial applications.  In its initial
-release it can be expected that this contract may not be fully met.
+that can underpin accounting and financial applications.  Before release 1.0 it
+can be expected that this contract may not be fully met.
 
 How is this opinion expressed?
 
@@ -17,7 +17,7 @@ How is this opinion expressed?
 
 4. Money amounts are represented as a `Decimal`.
 
-5. Money can be serialised to the database as a composite Postgres type that includes both the amount and the currency. Therefore for Ecto serialization Postgres is assumed as the data store. Serialization is entirely optional.
+5. Money can be serialised to the database as a composite Postgres type that includes both the amount and the currency. For MySQL, money is serialized into a json column with the amount converted to a string to preserve precision since json does not have a decimal type. Serialization is entirely optional.
 
 6. All arithmetic functions work on a `Decimal`. No rounding occurs automatically (unless expressly called out for a function, as is the case for `Money.split/2`).
 
@@ -177,14 +177,16 @@ See also the module `Money.Arithmetic`:
     #Money<:USD, 200>
 
     iex> Money.add(m1, m2)
+    {:ok, #Money<:USD, 300>}
+
+    iex> Money.add!(m1, m2)
     #Money<:USD, 300>
 
     iex> m3 = Money.new(:AUD, 300)
     #Money<:AUD, 300>
 
-    iex(11)> Money.add(m1, m3)
-    ** (ArgumentError) Cannot add two %Money{} with different currencies. Received :USD and :AUD.
-        (ex_money) lib/money.ex:46: Money.add/2
+    iex> Money.add Money.new(:USD, 200), Money.new(:AUD, 100)
+    {:error, {ArgumentError, "Cannot add monies with different currencies. Received :USD and :AUD."}}
 
     # Split a %Money{} returning the a dividend and a remainder. All
     # operations respect the number of fractional digits defined for a currency
@@ -204,15 +206,15 @@ See also the module `Money.Arithmetic`:
 
 ### Currency Conversion
 
-A `%Money{}` struct can be converted to another currency using `Money.to_currency/3`.  For example:
+A `%Money{}` struct can be converted to another currency using `Money.to_currency/3` or `Money.to_currency!/3`.  For example:
 
     iex> Money.to_currency Money.new(:USD,100), :AUD
-    #Money<:AUD, 136.4300>
+    {:ok, #Money<:AUD, 136.4300>}
 
-    iex> Money.to_currency Money.new(:USD,100), :ZIP
-    ** (Money.UnknownCurrencyError) The currency code :ZIP is not known
+    iex> Money.to_currency Money.new(:USD, 100) , :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+    {:error, {Cldr.UnknownCurrencyError, "Currency :AUDD is not known"}}
 
-    iex> Money.to_currency Money.new(:USD,100), :XXX
+    iex> Money.to_currency! Money.new(:USD,100), :XXX
     ** (Money.ExchangeRateError) No exchange rate is available for currency :XXX
 
 A user-defined map of exchange rates can also be supplied:
@@ -359,7 +361,7 @@ ex_money can be installed by:
 
 ```elixir
   def deps do
-    [{:ex_money, "~> 0.1.6"}]
+    [{:ex_money, "~> 0.2.0"}]
   end
 ```
 
