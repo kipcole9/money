@@ -171,10 +171,10 @@ Note that the output is influenced by the locale in effect.  By default the loca
 See also the module `Money.Arithmetic`:
 
     iex> m1 = Money.new(:USD, 100)
-    #Money<:USD, 100>
+    #Money<:USD, 100>}
 
     iex> m2 = Money.new(:USD, 200)
-    #Money<:USD, 200>
+    #Money<:USD, 200>}
 
     iex> Money.add(m1, m2)
     {:ok, #Money<:USD, 300>}
@@ -224,7 +224,17 @@ A user-defined map of exchange rates can also be supplied:
 
 ### Financial Functions
 
-A set of financial functions are available in the module `Money.Financial`.  These are `use`d in the `Money` module. See `Money` for the available functions.
+A set of basic financial functions are available in the module `Money.Financial`.   These functions are:
+
+* Present value: `Money.Financial.present_value/3`
+* Future value: `Money.Financial.future_value/3`
+* Interest rate: `Money.Financial.interest_rate/3`
+* Number of periods: `Money.Financial.periods/3`
+* Payment amount: `Money.Financial.payment/3`
+* Net Present Value of a set of cash flows: `Money.Financial.net_present_value/2`
+* Internal rate of return: `Money.Financial.internal_rate_of_return/1`
+
+For more detail see `Money.Financial`.
 
 ## Serializing to a Postgres database with Ecto
 

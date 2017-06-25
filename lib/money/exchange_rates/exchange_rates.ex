@@ -7,7 +7,7 @@ defmodule Money.ExchangeRates do
   a string or as a tuple `{:system, "shell variable name"}` to ease runtime
   retrieval of the `app_id`.
 
-  ##Example configurations:
+  ## Example configurations
 
       config :ex_money,
         open_exchange_rates_app_id: "app_id_string",
@@ -77,7 +77,7 @@ defmodule Money.ExchangeRates do
   Return the timestamp of the last successful retrieval of exchange rates or
   `{:error, reason}` if no timestamp is known.
 
-  ##Example:
+  ## Example
 
       Money.ExchangeRates.last_updated
       #> {:ok,

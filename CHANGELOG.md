@@ -1,3 +1,41 @@
+## Changelog for Ex_Money v0.3.0  June 26,  2017
+
+I know, its not great to have two releases with breaking changes in quick succession.  But the fact that the functions in `Money.{Arithmetic, Conversion, Financial}` where being included via
+a `__using__` macro just wasn't clean and the modules weren't so large as to be a serious issue.
+
+The refactoring moves `Money.{Arithmetic, Conversion}` functions into `Money` so there's no breaking change to the API there.  `Money.Financial` functions are kept separately and need to be invoked on that module, not on `Money` - this part is a breaking change.
+
+### Breaking changes
+
+* `Money.Financial` functions are no longer included in the `Money` module.  This means they must be invoked on `Money.Financial` rather than on `Money`.
+
+### Enhancements
+
+* Solid improvement in test coverage but still more work to do.
+
+```
+  COV  FILE                                        LINES RELEVANT   MISSED
+  0.0% lib/mix/tasks/money_postgres_migration.e       64       17       17
+ 96.6% lib/money.ex                                  809       89        3
+ 70.0% lib/money/ecto/money_ecto_composite_type       84       10        3
+  0.0% lib/money/ecto/money_ecto_map_type.ex          61        4        4
+ 50.0% lib/money/exception.ex                         15        2        1
+  0.0% lib/money/exchange_rates/callback_module       23        0        0
+  0.0% lib/money/exchange_rates/exchange_rate_s       18        3        3
+ 57.1% lib/money/exchange_rates/exchange_rates.      109        7        3
+ 80.0% lib/money/exchange_rates/exchange_rates_       81       20        4
+ 37.5% lib/money/exchange_rates/open_exchange_r       57        8        5
+ 73.0% lib/money/financial.ex                        331       37       10
+100.0% lib/money/sigil.ex                             32        3        0
+100.0% test/support/exchange_rate_callback_modu        8        1        0
+ 50.0% test/support/exchange_rate_mock.ex             26        2        1
+[TOTAL]  73.4%
+```
+
+### Bug Fixes
+
+* `Money.new!(decimal, currency)` and `Money.new!(currency, decimal)` were recursing infinitely.  This is now fixed and new tests added.
+
 ## Changelog for Ex_Money v0.2.0  June 25,  2017
 
 ### Breaking changes
