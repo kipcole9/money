@@ -28,10 +28,11 @@ defmodule Money.ExchangeRates do
 
   # Defines the configuration for the exchange rates mechanism.
   defmodule Config do
-    defstruct retrieve_every: nil, callback_module: nil, log_levels: %{}
+    defstruct retrieve_every: nil, callback_module: nil, log_levels: %{}, delay_before_first_retrieval: nil
   end
 
   @default_retrieval_interval 300_000
+  @default_delay_before_first_retrieval 100
   @default_callback_module Money.ExchangeRates.Callback
   @default_api_module Money.ExchangeRates.OpenExchangeRates
 
@@ -42,12 +43,29 @@ defmodule Money.ExchangeRates do
     %Config{
       retrieve_every: Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval),
       callback_module: Money.get_env(:callback_module, @default_callback_module),
+      delay_before_first_retrieval: Money.get_env(:delay_before_first_retrieval, @default_delay_before_first_retrieval),
       log_levels: %{
         success: Money.get_env(:log_success, nil),
         info: Money.get_env(:log_info, :warn),
         failure: Money.get_env(:log_failure, :warn)
       }
     }
+  end
+
+  @doc """
+  Forces retrieval of exchange rates
+
+  Sends a message ot the exchange rate retrieval worker to request
+  rates be retrieved.
+
+  This function does not return exchange rates, for that see
+  `Money.ExchangeRates.latest_rates/0`.
+  """
+  def retrieve() do
+    case Process.whereis(Money.ExchangeRates.Retriever) do
+      nil -> {:error, "Exchange rate service does not appear to be running"}
+      pid -> Process.send(pid, :latest, [])
+    end
   end
 
   @doc """

@@ -40,6 +40,7 @@ An optional callback module can also be defined.  This module defines a `rates_r
     config :ex_money,
       exchange_rate_service: false,
       exchange_rates_retrieve_every: 300_000,
+      delay_before_first_retrieval: 100,
       api_module: Money.ExchangeRates.OpenExchangeRates,
       open_exchange_rates_app_id: nil,
       callback_module: Money.ExchangeRates.Callback,
@@ -52,6 +53,8 @@ These keys are are defined as follows:
 * `exchange_rate_service` is a boolean that determines whether to automatically start the exchange rate retrieval service.  The default it `false`.
 
 * `exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (300,000 milliseconds)
+
+* `:delay_before_first_retrieval` defines how quickly the retrieval service makes its first request for exchange rates.  The default is 100 milliseconds.  Any value that is not a positive integer means that no first retrieval is made.  Retrieval will continue on interval defined by `:retrieve_every`
 
 * `api_module` identifies the module that does the retrieval of exchange rates. This is any module that implements the `Money.ExchangeRates` behaviour.  The  default is `Money.ExchangeRates.OpenExchangeRates`
 

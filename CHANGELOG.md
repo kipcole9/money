@@ -1,3 +1,17 @@
+## Changelog for Ex_Money v0.4.0  June 29,  2017
+
+### Breaking Change
+
+It's a breaking change but not a huge one.  `Money.ExchangeRates.Retriever` had a nasty code smell - it was retrieving rates during the initialisation of the process which had nasty side-effects if the retrieval stalled or crashed.  The new and improved strategy uses `Process.send_after/3` in the `init/1` function with a configurable delay before that first retrieval.
+
+The configuration key is `:delay_before_first_retrieval` with a default of 100 milliseconds.  If set to anything other than a positive integer then the initial retrieval is not done - retrieval commences with the next cycle of the configured `:retrieve_every` interval.
+
+For library users the key consideration here is that exchange rates cannot be assumed to be available when you application starts.
+
+### Enhncements
+
+* A new function `Money.ExchangeRates.retrieve/0` is available to force rate retrieval.
+
 ## Changelog for Ex_Money v0.3.0  June 26,  2017
 
 I know, its not great to have two releases with breaking changes in quick succession.  But the fact that the functions in `Money.{Arithmetic, Conversion, Financial}` where being included via

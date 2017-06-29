@@ -26,12 +26,16 @@ defmodule Money.ExchangeRates.Retriever do
 
   def init(config) do
     log(config, :info, "Starting exchange rate retrieval service")
-    log(config, :info, "Rates will be retrieved every #{div(config.retrieve_every, 1000)} seconds.")
+    log(config, :info, "Rates will be retrieved now and then every #{div(config.retrieve_every, 1000)} seconds.")
 
     initialize_ets_table()
 
-    retrieve_rates(config)
-    schedule_work(config.retrieve_every)
+    case config.delay_before_first_retrieval do
+      delay when is_integer(delay) and delay > 0 ->
+        schedule_work(delay)
+      _ ->
+        :ok
+    end
 
     {:ok, config}
   end
