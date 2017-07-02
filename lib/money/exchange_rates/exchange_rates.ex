@@ -63,7 +63,7 @@ defmodule Money.ExchangeRates do
   """
   def retrieve() do
     case Process.whereis(Money.ExchangeRates.Retriever) do
-      nil -> {:error, "Exchange rate service does not appear to be running"}
+      nil -> {:error, {Money.ExchangeRateError, "Exchange rate service does not appear to be running"}}
       pid -> Process.send(pid, :latest, [])
     end
   end
@@ -78,16 +78,29 @@ defmodule Money.ExchangeRates do
 
   * `{:error, reason}` if no exchange rates can be returned.
   """
+  @spec latest_rates() :: {:ok, Map.t} | {:error, {Exception.t, binary}}
   def latest_rates do
     try do
       case :ets.lookup(:exchange_rates, :rates) do
         [{:rates, rates}] -> {:ok, rates}
-        [] -> {:error, "No exchange rates were found"}
+        [] -> {:error, {Money.ExchangeRateError, "No exchange rates were found"}}
       end
     rescue
       ArgumentError ->
         Logger.error "Argument error getting exchange rates from ETS table"
-        {:error, "No exchange rates are available"}
+        {:error, {Money.ExchangeRateError, "No exchange rates are available"}}
+    end
+  end
+
+  @doc """
+  Returns `true` if exchange rates are available
+  and false otherwise.
+  """
+  @spec rates_available?() :: boolean
+  def rates_available? do
+    case latest_rates() do
+      {:ok, _} -> true
+      {:error, _} -> false
     end
   end
 
@@ -103,13 +116,14 @@ defmodule Money.ExchangeRates do
         minute: 36, month: 11, second: 6, std_offset: 0, time_zone: "Etc/UTC",
         utc_offset: 0, year: 2016, zone_abbr: "UTC"}}
   """
+  @spec last_updated() :: {:ok, DateTime.t} | {:error, {Exception.t, binary}}
   def last_updated do
     case :ets.lookup(:exchange_rates, :last_updated) do
       [{:last_updated, timestamp}] ->
         {:ok, timestamp}
       [] ->
         Logger.error "Argument error getting last updated timestamp from ETS table"
-        {:error, "Last updated date is not known"}
+        {:error, {Money.ExchangeRateError, "Last updated date is not known"}}
     end
   end
 

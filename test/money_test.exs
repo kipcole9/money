@@ -306,40 +306,52 @@ defmodule MoneyTest do
     assert Float.round(Financial.internal_rate_of_return(flows), 4) == 0.2548
   end
 
+  @sleep_timer 50
+
   test "Get exchange rates" do
-    capture_io(fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(:test_retriever, ExchangeRates.config)
-    end)
+    capture_io fn ->
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      :timer.sleep(@sleep_timer)
+    end
+
     test_result = {:ok, %{USD: Decimal.new(1), AUD: Decimal.new(0.7), EUR: Decimal.new(1.2)}}
     assert Money.ExchangeRates.latest_rates() == test_result
   end
 
   test "Convert from USD to AUD" do
-    capture_io(fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(:test_retriever, ExchangeRates.config)
-    end)
+    capture_io fn ->
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      :timer.sleep(@sleep_timer)
+    end
+
     assert Money.cmp(Money.to_currency!(Money.new(:USD, 100), :AUD), Money.new(:AUD, 70)) == :eq
   end
 
   test "Convert from USD to USD" do
-    capture_io(fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(:test_retriever, ExchangeRates.config)
-    end)
+    capture_io fn ->
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      :timer.sleep(@sleep_timer)
+    end
+
     assert Money.cmp(Money.to_currency!(Money.new(:USD, 100), :USD), Money.new(:USD, 100)) == :eq
   end
 
   test "Convert from USD to ZZZ should return an error" do
-    capture_io(fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(:test_retriever, ExchangeRates.config)
-    end)
+    capture_io fn ->
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      :timer.sleep(@sleep_timer)
+    end
+
     assert Money.to_currency(Money.new(:USD, 100), :ZZZ) ==
       {:error, {Cldr.UnknownCurrencyError, "Currency :ZZZ is not known"}}
   end
 
   test "Convert from USD to ZZZ should raise an exception" do
-    capture_io(fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(:test_retriever, ExchangeRates.config)
-    end)
+    capture_io fn ->
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      :timer.sleep(@sleep_timer)
+    end
+
     assert_raise Cldr.UnknownCurrencyError, ~r/Currency :ZZZ is not known/, fn ->
       assert Money.to_currency!(Money.new(:USD, 100), :ZZZ)
     end
@@ -347,8 +359,18 @@ defmodule MoneyTest do
 
   test "Invoke callback module on successful exchange rate retrieval" do
     assert capture_io(fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(:test_retriever, ExchangeRates.config)
-    end) == "Rates Retrieved\n"
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      :timer.sleep(@sleep_timer)
+     end) == "Rates Retrieved\n"
+  end
+
+  test "That rates_available? returns correctly" do
+    assert capture_io(fn ->
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      assert ExchangeRates.rates_available? == false
+      :timer.sleep(@sleep_timer)
+      assert ExchangeRates.rates_available? == true
+     end)
   end
 
   test "That an error is returned if there is not open exchange rates app_id configured" do

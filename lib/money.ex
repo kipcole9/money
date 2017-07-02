@@ -692,7 +692,7 @@ defmodule Money do
       {:error, {Cldr.UnknownCurrencyError, "Currency :AUDD is not known"}}
 
       iex> Money.to_currency Money.new(:USD, 100) , :CHF, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
-      {:error, "No exchange rate is available for currency :CHF"}
+      {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :CHF"}}
   """
   def to_currency(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
 
@@ -725,6 +725,10 @@ defmodule Money do
     else
       {:error, _} = error -> error
     end
+  end
+
+  def to_currency(_money, _to_currency, {:error, reason}) do
+    {:error, reason}
   end
 
   @doc """
@@ -772,7 +776,7 @@ defmodule Money do
     if rate = rates[currency] do
       {:ok, rate}
     else
-      {:error, "No exchange rate is available for currency #{inspect currency}"}
+      {:error, {Money.ExchangeRateError, "No exchange rate is available for currency #{inspect currency}"}}
     end
   end
 

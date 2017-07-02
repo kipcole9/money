@@ -26,15 +26,16 @@ defmodule Money.ExchangeRates.Retriever do
 
   def init(config) do
     log(config, :info, "Starting exchange rate retrieval service")
-    log(config, :info, "Rates will be retrieved now and then every #{div(config.retrieve_every, 1000)} seconds.")
-
     initialize_ets_table()
 
     case config.delay_before_first_retrieval do
       delay when is_integer(delay) and delay > 0 ->
+        log(config, :info, "Rates will be retrieved in #{div(delay, 1000)} seconds " <>
+                           "and then every #{div(config.retrieve_every, 1000)} seconds.")
         schedule_work(delay)
       _ ->
-        :ok
+        log(config, :info, "Rates will be retrieved every #{div(config.retrieve_every, 1000)} seconds.")
+        schedule_work(config.retrieve_every)
     end
 
     {:ok, config}
@@ -51,6 +52,7 @@ defmodule Money.ExchangeRates.Retriever do
       {:ok, rates} ->
         retrieved_at = DateTime.utc_now
         store_rates(rates, retrieved_at)
+        log(config, :success, inspect(callback_module))
         apply(callback_module, :rates_retrieved, [rates, retrieved_at])
         log(config, :success, "Retrieved exchange rates successfully")
         {:ok, rates}

@@ -1,4 +1,4 @@
-## Changelog for Ex_Money v0.4.0  June 29,  2017
+## Changelog for Ex_Money v0.4.0  July 3,  2017
 
 ### Breaking Change
 
@@ -6,11 +6,13 @@ It's a breaking change but not a huge one.  `Money.ExchangeRates.Retriever` had 
 
 The configuration key is `:delay_before_first_retrieval` with a default of 100 milliseconds.  If set to anything other than a positive integer then the initial retrieval is not done - retrieval commences with the next cycle of the configured `:retrieve_every` interval.
 
-For library users the key consideration here is that exchange rates cannot be assumed to be available when you application starts.
+For library users the key consideration here is that exchange rates cannot be assumed to be available when your application starts.
 
 ### Enhncements
 
-* A new function `Money.ExchangeRates.retrieve/0` is available to force rate retrieval.
+* A new function `Money.ExchangeRates.retrieve/0` is available to schedule rate retrieval immediately.
+
+* A new function `Money.ExchangeRates.rates_available?/0` that returns `true` if rates are available and `false` otherwise.
 
 ## Changelog for Ex_Money v0.3.0  June 26,  2017
 
