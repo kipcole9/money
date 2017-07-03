@@ -8,7 +8,7 @@ The configuration key is `:delay_before_first_retrieval` with a default of 100 m
 
 For library users the key consideration here is that exchange rates cannot be assumed to be available when your application starts.
 
-### Enhncements
+### Enhancements
 
 * A new function `Money.ExchangeRates.retrieve/0` is available to schedule rate retrieval immediately.
 
@@ -16,8 +16,7 @@ For library users the key consideration here is that exchange rates cannot be as
 
 ## Changelog for Ex_Money v0.3.0  June 26,  2017
 
-I know, its not great to have two releases with breaking changes in quick succession.  But the fact that the functions in `Money.{Arithmetic, Conversion, Financial}` where being included via
-a `__using__` macro just wasn't clean and the modules weren't so large as to be a serious issue.
+I know, its not great to have two releases with breaking changes in quick succession.  But the fact that the functions in `Money.{Arithmetic, Conversion, Financial}` were being included via a `__using__` macro just wasn't clean and the modules weren't so large as to be a serious issue.
 
 The refactoring moves `Money.{Arithmetic, Conversion}` functions into `Money` so there's no breaking change to the API there.  `Money.Financial` functions are kept separately and need to be invoked on that module, not on `Money` - this part is a breaking change.
 
