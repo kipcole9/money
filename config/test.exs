@@ -16,4 +16,6 @@ config :ex_money,
   api_module: Money.ExchangeRates.Test,
   log_failure: :warn,
   log_info: nil,
-  callback_module: Money.ExchangeRates.CallbackTest
+  callback_module: Money.ExchangeRates.CallbackTest,
+  delay_before_first_retrieval: 5
+

@@ -1,10 +1,64 @@
-## Changelog for Ex_Money v0.2.1  July 9,  2017
+## Changelog for Ex_Money v0.4.1  July 9,  2017
 
 ### Enhancements
 
 * Updates `ex_cldr` dependency to 0.4.2 which fixes an issue whereby a default locale that had not previously been installed would not compile.
 
 * Updates documentation for `Money.new/2` to make it clear that the `currency_code` and `amount` arguments can be in any order.
+
+## Changelog for Ex_Money v0.4.0  July 3,  2017
+
+### Breaking Change
+
+It's a breaking change but not a huge one.  `Money.ExchangeRates.Retriever` had a nasty code smell - it was retrieving rates during the initialisation of the process which had nasty side-effects if the retrieval stalled or crashed.  The new and improved strategy uses `Process.send_after/3` in the `init/1` function with a configurable delay before that first retrieval.
+
+The configuration key is `:delay_before_first_retrieval` with a default of 100 milliseconds.  If set to anything other than a positive integer then the initial retrieval is not done - retrieval commences with the next cycle of the configured `:retrieve_every` interval.
+
+For library users the key consideration here is that exchange rates cannot be assumed to be available when your application starts.
+
+### Enhancements
+
+* A new function `Money.ExchangeRates.retrieve/0` is available to schedule rate retrieval immediately.
+
+* A new function `Money.ExchangeRates.rates_available?/0` that returns `true` if rates are available and `false` otherwise.
+
+## Changelog for Ex_Money v0.3.0  June 26,  2017
+
+I know, its not great to have two releases with breaking changes in quick succession.  But the fact that the functions in `Money.{Arithmetic, Conversion, Financial}` were being included via a `__using__` macro just wasn't clean and the modules weren't so large as to be a serious issue.
+
+The refactoring moves `Money.{Arithmetic, Conversion}` functions into `Money` so there's no breaking change to the API there.  `Money.Financial` functions are kept separately and need to be invoked on that module, not on `Money` - this part is a breaking change.
+
+### Breaking changes
+
+* `Money.Financial` functions are no longer included in the `Money` module.  This means they must be invoked on `Money.Financial` rather than on `Money`.
+
+### Enhancements
+
+* Solid improvement in test coverage but still more work to do.
+
+```
+  COV  FILE                                        LINES RELEVANT   MISSED
+  0.0% lib/mix/tasks/money_postgres_migration.e       64       17       17
+ 96.6% lib/money.ex                                  809       89        3
+ 70.0% lib/money/ecto/money_ecto_composite_type       84       10        3
+  0.0% lib/money/ecto/money_ecto_map_type.ex          61        4        4
+ 50.0% lib/money/exception.ex                         15        2        1
+  0.0% lib/money/exchange_rates/callback_module       23        0        0
+  0.0% lib/money/exchange_rates/exchange_rate_s       18        3        3
+ 57.1% lib/money/exchange_rates/exchange_rates.      109        7        3
+ 80.0% lib/money/exchange_rates/exchange_rates_       81       20        4
+ 37.5% lib/money/exchange_rates/open_exchange_r       57        8        5
+ 73.0% lib/money/financial.ex                        331       37       10
+100.0% lib/money/sigil.ex                             32        3        0
+100.0% test/support/exchange_rate_callback_modu        8        1        0
+ 50.0% test/support/exchange_rate_mock.ex             26        2        1
+[TOTAL]  73.4%
+```
+
+### Bug Fixes
+
+* `Money.new!(decimal, currency)` and `Money.new!(currency, decimal)` were recursing infinitely.  This is now fixed and new tests added.
+>>>>>>> 95074cfc608ebc60467755fa73a5a7b6a2b54609
 
 ## Changelog for Ex_Money v0.2.0  June 25,  2017
 
