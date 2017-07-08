@@ -133,6 +133,9 @@ end
      iex> Money.new(:USD, 100)
      #Money<:USD, 100>
 
+     iex> Money.new(100, :USD)
+     #Money<:USD, 100>
+
      iex> Money.new("CHF", 130.02)
      #Money<:CHF, 130.02>
 
@@ -141,6 +144,8 @@ end
 
 The canonical representation of a currency code is an `atom` that is a valid
 [ISO4217](http://www.currency-iso.org/en/home/tables/table-a1.html) currency code. The amount of a `%Money{}` is represented by a `Decimal`.
+
+Note that the arguments to `Money.new/2` can be supplied in either order.
 
 ### Optional ~M sigil
 
@@ -361,7 +366,7 @@ ex_money can be installed by:
 
 ```elixir
   def deps do
-    [{:ex_money, "~> 0.2.0"}]
+    [{:ex_money, "~> 0.2.1"}]
   end
 ```
 

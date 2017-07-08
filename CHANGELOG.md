@@ -1,3 +1,11 @@
+## Changelog for Ex_Money v0.2.1  July 9,  2017
+
+### Enhancements
+
+* Updates `ex_cldr` dependency to 0.4.2 which fixes an issue whereby a default locale that had not previously been installed would not compile.
+
+* Updates documentation for `Money.new/2` to make it clear that the `currency_code` and `amount` arguments can be in any order.
+
 ## Changelog for Ex_Money v0.2.0  June 25,  2017
 
 ### Breaking changes

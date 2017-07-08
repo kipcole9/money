@@ -140,9 +140,15 @@ defmodule Money do
 
   * `amount` is an integer, float or Decimal
 
+  Note that the `currency_code` and `amount` arguments can be supplied in
+  either order,
+
   ## Examples
 
       iex> Money.new(:USD, 100)
+      #Money<:USD, 100>
+
+      iex> Money.new(100, :USD)
       #Money<:USD, 100>
 
       iex> Money.new("USD", 100)
