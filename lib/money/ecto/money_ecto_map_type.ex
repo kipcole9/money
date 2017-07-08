@@ -36,6 +36,10 @@ defmodule Money.Ecto.Map.Type do
       end
     end
 
+    def cast(%{currency: currency, amount: amount}) do
+      cast(%{"currency" => currency, "amount" => amount})
+    end
+
     def cast(%Money{} = money) do
       {:ok, money}
     end

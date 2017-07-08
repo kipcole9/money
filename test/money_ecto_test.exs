@@ -34,8 +34,37 @@ defmodule MoneyTest.Ecto do
     assert Money.Ecto.Composite.Type.cast %{"currency" => "USD", "amount" => 100} == Money.new(:USD, 100)
   end
 
+  test "cast a map with string keys, atom currency, and string amount" do
+    assert Money.Ecto.Composite.Type.cast %{"currency" => :USD, "amount" => "100"} == Money.new(100, :USD)
+  end
+
+  test "cast a map with string keys, atom currency, and numeric amount" do
+    assert Money.Ecto.Composite.Type.cast %{"currency" => :USD, "amount" => 100} == Money.new(100, :USD)
+  end
+
   test "cast a map with string keys and invalid currency" do
     assert Money.Ecto.Composite.Type.cast(%{"currency" => "AAA", "amount" => 100}) ==
+    {:error, {Cldr.UnknownCurrencyError, "Currency \"AAA\" is not known"}}
+  end
+
+  test "cast a map with atom keys and values" do
+    assert Money.Ecto.Composite.Type.cast %{currency: "USD", amount: "100"} == Money.new(100, :USD)
+  end
+
+  test "cast a map with atom keys and numeric amount" do
+    assert Money.Ecto.Composite.Type.cast %{currency: "USD", amount: 100} == Money.new(100, :USD)
+  end
+
+  test "cast a map with atom keys, atom currency, and numeric amount" do
+    assert Money.Ecto.Composite.Type.cast %{currency: :USD, amount: 100} == Money.new(100, :USD)
+  end
+
+  test "cast a map with atom keys, atom currency, and string amount" do
+    assert Money.Ecto.Composite.Type.cast %{currency: :USD, amount: "100"} == Money.new(100, :USD)
+  end
+
+  test "cast a map with atom keys and invalid currency" do
+    assert Money.Ecto.Composite.Type.cast(%{currency: "AAA", amount: 100}) ==
     {:error, {Cldr.UnknownCurrencyError, "Currency \"AAA\" is not known"}}
   end
 
