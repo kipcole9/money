@@ -24,6 +24,12 @@ defmodule MoneyTest do
     assert money.amount == Decimal.new(1234)
   end
 
+  test "create a new! money struct with an atom currency code" do
+    money = Money.new!(1234, :USD)
+    assert money.currency == :USD
+    assert money.amount == Decimal.new(1234)
+  end
+
   test "create a new money struct with a binary currency code with reversed params" do
     money = Money.new("USD", 1234)
     assert money.currency == :USD

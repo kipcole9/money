@@ -223,7 +223,8 @@ defmodule Money do
     end
   end
 
-  def new!(amount, currency_code) when is_binary(currency_code) and is_number(amount) do
+  def new!(amount, currency_code)
+  when (is_binary(currency_code) or is_atom(currency_code)) and is_number(amount) do
     new!(currency_code, amount)
   end
 
