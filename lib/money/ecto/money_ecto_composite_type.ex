@@ -77,6 +77,10 @@ defmodule Money.Ecto.Composite.Type do
       end
     end
 
+    def cast(%{currency: currency, amount: amount}) do
+      cast(%{"currency" => currency, "amount" => amount})
+    end
+
     def cast(_money) do
       :error
     end
