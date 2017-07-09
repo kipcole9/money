@@ -333,7 +333,7 @@ defmodule Money do
   end
 
   def sub(%Money{currency: code_a}, %Money{currency: code_b}) do
-    {:error, {ArgumentError, "Cannot subtract two %Money{} with different currencies. " <>
+    {:error, {ArgumentError, "Cannot subtract two monies with different currencies. " <>
       "Received #{inspect code_a} and #{inspect code_b}."}}
   end
 
