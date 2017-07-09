@@ -162,7 +162,7 @@ defmodule MoneyTest do
   end
 
   test "subtracting two money structs with different currency raises" do
-    assert_raise ArgumentError, ~r/Cannot subtract two %Money{}/, fn ->
+    assert_raise ArgumentError, ~r/Cannot subtract two monies/, fn ->
       Money.sub!(Money.new(:USD, 100), Money.new(:AUD, 100))
     end
   end

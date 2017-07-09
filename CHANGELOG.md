@@ -1,3 +1,13 @@
+## Changelog for Ex_Money v0.4.2  July 9,  2017
+
+### Bug Fixes
+
+* Add missing guard clause in `Money.new!/2`. Thanks to Ryan Winchester.  Fixes #20.
+
+### Enhancements
+
+* Adds support for both atom and binary map keys for casting.  Thanks to Ryan Winchester.
+
 ## Changelog for Ex_Money v0.4.1  July 9,  2017
 
 ### Enhancements
