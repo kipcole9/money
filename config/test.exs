@@ -12,7 +12,7 @@ config :ex_money,
 
 config :ex_money,
   exchange_rate_service: false,
-  open_exchange_rates_retrieve_every: 300_000,
+  exchange_rates_retrieve_every: 300_000,
   api_module: Money.ExchangeRates.Test,
   log_failure: :warn,
   log_info: nil,

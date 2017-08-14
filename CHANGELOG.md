@@ -1,3 +1,9 @@
+## Changelog for Ex_Money v0.4.3  August 14,  2017
+
+### Bug Fixes
+
+* Fix `dev.exs` and `test.exs` configuration keys for `exchange_rates_retrieve_every`
+
 ## Changelog for Ex_Money v0.4.2  July 9,  2017
 
 ### Bug Fixes
