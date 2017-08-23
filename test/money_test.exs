@@ -144,7 +144,7 @@ defmodule MoneyTest do
 
   test "string output of money is correctly formatted" do
     money = Money.new(1234, :USD)
-    assert Money.to_string(money) == "$1,234.00"
+    assert Money.to_string(money) == {:ok, "$1,234.00"}
   end
 
   test "adding two money structs with same currency" do
@@ -390,7 +390,7 @@ defmodule MoneyTest do
   end
 
   test "money to_string" do
-    assert Money.to_string(Money.new(:USD, 100)) == "$100.00"
+    assert Money.to_string(Money.new(:USD, 100)) == {:ok, "$100.00"}
   end
 
   test "create money with a sigil" do

@@ -1,3 +1,17 @@
+## Changelog for Ex_Money v0.5.0  August 24,  2017
+
+### Breaking Changes
+
+* `Money` now requires Elixir 1.5 as a minimum requirement
+
+* `Money.to_string./2` now returns either `{:ok, string}` or `{:error, reason}`.  Use `Money.to_string!/2` to return the string or raise and exception.
+
+### Enhancements
+
+* Update to [ex_cldr](https://hex.pm/packages/ex_cldr) version 0.5.2.  See the [changelog](https://github.com/kipcole9/cldr/blob/v0.5.2/CHANGELOG.md) for more information.
+
+* Add `Money.to_string!/2`
+
 ## Changelog for Ex_Money v0.4.3  August 14,  2017
 
 ### Bug Fixes

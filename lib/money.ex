@@ -249,20 +249,50 @@ defmodule Money do
   ## Examples
 
       iex> Money.to_string Money.new(:USD, 1234)
-      "$1,234.00"
+      {:ok, "$1,234.00"}
 
       iex> Money.to_string Money.new(:JPY, 1234)
-      "¥1,234"
+      {:ok, "¥1,234"}
 
       iex> Money.to_string Money.new(:THB, 1234)
-      "THB1,234.00"
+      {:ok, "THB1,234.00"}
 
       iex> Money.to_string Money.new(:USD, 1234), format: :long
-      "1,234 US dollars"
+      {:ok, "1,234 US dollars"}
+
   """
   def to_string(%Money{} = money, options \\ []) do
     options = merge_options(options, [currency: money.currency])
     Cldr.Number.to_string(money.amount, options)
+  end
+
+  @doc """
+  Returns a formatted string representation of a `Money{}` or raises if
+  there is an error.
+
+  Formatting is performed according to the rules defined by CLDR. See
+  `Cldr.Number.to_string!/2` for formatting options.  The default is to format
+  as a currency which applies the appropriate rounding and fractional digits
+  for the currency.
+
+  ## Examples
+
+      iex> Money.to_string! Money.new(:USD, 1234)
+      "$1,234.00"
+
+      iex> Money.to_string! Money.new(:JPY, 1234)
+      "¥1,234"
+
+      iex> Money.to_string! Money.new(:THB, 1234)
+      "THB1,234.00"
+
+      iex> Money.to_string! Money.new(:USD, 1234), format: :long
+      "1,234 US dollars"
+
+  """
+  def to_string!(%Money{} = money, options \\ []) do
+    options = merge_options(options, [currency: money.currency])
+    Cldr.Number.to_string!(money.amount, options)
   end
 
   @doc """
@@ -766,6 +796,30 @@ defmodule Money do
       {:ok, converted} -> converted
       {:error, {exception, reason}} -> raise exception, reason
     end
+  end
+
+  @doc """
+  Calls `Decimal.reduce/1` on the given `%Money{}`
+
+  This will reduce the coefficient and exponent of the
+  decimal amount in a standard way that may aid in
+  native comparison of `%Money{}` items.
+
+  ## Example
+
+      iex> x = %Money{currency: :USD, amount: %Decimal{sign: 1, coef: 42, exp: 0}}
+      #Money<:USD, 42>
+      iex> y = %Money{currency: :USD, amount: %Decimal{sign: 1, coef: 4200000000, exp: -8}}
+      #Money<:USD, 42.00000000>
+      iex> x == y
+      false
+      iex> y = Money.reduce(x)
+      #Money<:USD, 42>
+      iex> x == y
+      true
+  """
+  def reduce(%Money{currency: currency, amount: amount}) do
+    %Money{currency: currency, amount: Decimal.reduce(amount)}
   end
 
   def get_env(key, default \\ nil) do

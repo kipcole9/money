@@ -164,13 +164,13 @@ An optional sigil module is available to aid in creating %Money{} structs.  It n
 See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
 
     iex> Money.to_string Money.new("thb", 11)
-    "THB11.00"
+    {:ok, "THB11.00"}
 
     iex> Money.to_string Money.new("USD", 234.467)
-    "$234.47"
+    {:ok, "$234.47"}
 
     iex> Money.to_string Money.new("USD", 234.467), format: :long
-    "234.47 US dollars"
+    {:ok, "234.47 US dollars"}
 
 Note that the output is influenced by the locale in effect.  By default the localed used is that returned by `Cldr.get_local/0`.  Its default value is "en".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
 
