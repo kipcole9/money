@@ -1,3 +1,11 @@
+# Changelog
+
+## Changelog for Ex_Money v0.5.1  September 4th,  2017
+
+### Enhancements
+
+* Update to [ex_cldr](https://hex.pm/packages/ex_cldr) version 0.6.2
+
 ## Changelog for Ex_Money v0.5.0  August 24,  2017
 
 ### Breaking Changes
