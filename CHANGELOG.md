@@ -16,9 +16,9 @@
 
 ### Breaking Changes
 
-* `Money` now requires Elixir 1.5 as a minimum requirement
+* `Money` now requires Elixir 1.5 as a minimum
 
-* `Money.to_string./2` now returns either `{:ok, string}` or `{:error, reason}`.  Use `Money.to_string!/2` to return the string or raise and exception.
+* `Money.to_string./2` now returns either `{:ok, string}` or `{:error, reason}`.  Use `Money.to_string!/2` to return the string or raise an exception.
 
 ### Enhancements
 
