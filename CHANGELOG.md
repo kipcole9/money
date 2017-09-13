@@ -1,5 +1,11 @@
 # Changelog
 
+## Changelog for Ex_Money v0.5.2  September 13th,  2017
+
+### Enhancements
+
+* Make `Decimal` dependency explicit
+
 ## Changelog for Ex_Money v0.5.1  September 4th,  2017
 
 ### Enhancements
