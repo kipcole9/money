@@ -1,16 +1,22 @@
 # Changelog
 
-## Money v0.5.2 September 18th, 2017
+## Money v0.5.3 September 18th, 2017
 
 ### Enhancements
 
 * Update to [ex_cldr](https://hex.pm/packages/ex_cldr) version 0.7.0 and add [ex_cldr_numbers](https://hex.pm/packages/ex_numbers) version 0.1.0
 
-## Money v0.5.1  September 3rd,  2017
+## Money v0.5.2  September 13th,  2017
 
 ### Enhancements
 
-* Update to [ex_cldr](https://hex.pm/packages/ex_cldr)  version 0.6.1.  See the [changelog](https://github.com/kipcole9/cldr/blob/v0.6.1/CHANGELOG.md) for more information.
+* Make `Decimal` dependency explicit
+
+## Money v0.5.1  September 4th,  2017
+
+### Enhancements
+
+* Update to [ex_cldr](https://hex.pm/packages/ex_cldr) version 0.6.2
 
 ## Money v0.5.0  August 24,  2017
 
