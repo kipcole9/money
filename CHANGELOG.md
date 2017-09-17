@@ -1,4 +1,18 @@
-## Changelog for Ex_Money v0.5.0  August 24,  2017
+# Changelog
+
+## Money v0.5.2 September 18th, 2017
+
+### Enhancements
+
+* Update to [ex_cldr](https://hex.pm/packages/ex_cldr) version 0.7.0 and add [ex_cldr_numbers](https://hex.pm/packages/ex_numbers) version 0.1.0
+
+## Money v0.5.1  September 3rd,  2017
+
+### Enhancements
+
+* Update to [ex_cldr](https://hex.pm/packages/ex_cldr)  version 0.6.1.  See the [changelog](https://github.com/kipcole9/cldr/blob/v0.6.1/CHANGELOG.md) for more information.
+
+## Money v0.5.0  August 24,  2017
 
 ### Breaking Changes
 
@@ -12,13 +26,13 @@
 
 * Add `Money.to_string!/2`
 
-## Changelog for Ex_Money v0.4.3  August 14,  2017
+## Money v0.4.3  August 14,  2017
 
 ### Bug Fixes
 
 * Fix `dev.exs` and `test.exs` configuration keys for `exchange_rates_retrieve_every`
 
-## Changelog for Ex_Money v0.4.2  July 9,  2017
+## Money v0.4.2  July 9,  2017
 
 ### Bug Fixes
 
@@ -28,7 +42,7 @@
 
 * Adds support for both atom and binary map keys for casting.  Thanks to Ryan Winchester.
 
-## Changelog for Ex_Money v0.4.1  July 9,  2017
+## Money v0.4.1  July 9,  2017
 
 ### Enhancements
 
@@ -36,7 +50,7 @@
 
 * Updates documentation for `Money.new/2` to make it clear that the `currency_code` and `amount` arguments can be in any order.
 
-## Changelog for Ex_Money v0.4.0  July 3,  2017
+## Money v0.4.0  July 3,  2017
 
 ### Breaking Change
 
@@ -52,7 +66,7 @@ For library users the key consideration here is that exchange rates cannot be as
 
 * A new function `Money.ExchangeRates.rates_available?/0` that returns `true` if rates are available and `false` otherwise.
 
-## Changelog for Ex_Money v0.3.0  June 26,  2017
+## Money v0.3.0  June 26,  2017
 
 I know, its not great to have two releases with breaking changes in quick succession.  But the fact that the functions in `Money.{Arithmetic, Conversion, Financial}` were being included via a `__using__` macro just wasn't clean and the modules weren't so large as to be a serious issue.
 
@@ -90,7 +104,7 @@ The refactoring moves `Money.{Arithmetic, Conversion}` functions into `Money` so
 * `Money.new!(decimal, currency)` and `Money.new!(currency, decimal)` were recursing infinitely.  This is now fixed and new tests added.
 >>>>>>> 95074cfc608ebc60467755fa73a5a7b6a2b54609
 
-## Changelog for Ex_Money v0.2.0  June 25,  2017
+## Money v0.2.0  June 25,  2017
 
 ### Breaking changes
 
@@ -112,13 +126,13 @@ For most applications, change calls to the "bang" methods should keep the behavi
 
 * Changed the `config` key `open_exchange_rates_retrieve_every` to be `300_000` to align with the documented 5 minutes interval.  Thanks to Andrew Phillipo.
 
-## Changelog for Ex_Money v0.1.7 June 21,  2017
+## Money v0.1.7 June 21,  2017
 
 ### Bug Fixes
 
 * Starts :inets application first so that the default exchange rate retriever can start in a release by preventing a circular start dependency between :inets and :exchange_rates_retriever.  Thanks to Peter Krenn.
 
-## Changelog for Ex_Money v0.1.6 June 20,  2017
+## Money v0.1.6 June 20,  2017
 
 Update dependencies to align with the requirements for Elixir 1.4.4 (all tests are passing on this release).
 
@@ -130,19 +144,19 @@ Update dependencies to align with the requirements for Elixir 1.4.4 (all tests a
 
 * Make the configuration dynamic by removing a dependence on module attributes.  Thanks to Xavier Defrang
 
-## Changelog for Ex_Money v0.1.5 June 7,  2017
+## Money v0.1.5 June 7,  2017
 
 ### Bug Fixes
 
 * Fix missing comma in readme example configuration [Closed #10].  Thanks to Xavier Defrang.
 
-## Changelog for Ex_Money v0.1.4 May 29, 2017
+## Money v0.1.4 May 29, 2017
 
 ### Enhancements
 
 * Updated to `ex_cldr` version 0.4.0
 
-## Changelog for Ex_Money v0.1.3 April 27, 2017
+## Money v0.1.3 April 27, 2017
 
 ### Enhancements
 
@@ -150,13 +164,13 @@ Update dependencies to align with the requirements for Elixir 1.4.4 (all tests a
 
 * Supported only on Elixir 1.4.x
 
-## Changelog for Ex_Money v0.1.2 April 17, 2017
+## Money v0.1.2 April 17, 2017
 
 ### Enhancements
 
 * Updated to `ex_cldr` version 0.1.3 to reflect updated CLDR repository version 30.0.1 and revised api for `Cldr.Currency.validate_currency_code/1`
 
-## Changelog for Ex_Money v0.1.1 April 11, 2017
+## Money v0.1.1 April 11, 2017
 
 ### Enhancements
 
@@ -168,7 +182,7 @@ Update dependencies to align with the requirements for Elixir 1.4.4 (all tests a
 
 * Bump `ex_cldr` dependency to version 0.1.2.  This fixes the issue where the atoms representing value currency codes would not be loaded early enough to be available for `known_locale?/1`
 
-## Changelog for Ex_Money v0.1.0 April 8, 2017
+## Money v0.1.0 April 8, 2017
 
 Minor version is bumped to reflect the change in behaviour of `Money.new/2` which now returns an error tuple if the currency code is invalid rather than raising an exception.
 
@@ -180,25 +194,25 @@ Minor version is bumped to reflect the change in behaviour of `Money.new/2` whic
 
 * Depends on `ex_cldr` at version 0.1.1 which provides enhanced currency code validation checking that allows duplicate code in `ex_money` to be removed.
 
-## Changelog for Ex_Money v0.0.16 April 7, 2017
+## Money v0.0.16 April 7, 2017
 
 ### Bug Fixes
 
 * Fixes the case where an example of `Money.new("USD", 100)` could fail because the list of `atom` currency codes had not been loaded.  The list is now force-loaded at compile time.
 
-## Changelog for Ex_Money v0.0.15 March 23, 2017
+## Money v0.0.15 March 23, 2017
 
 ### Enhancements
 
 * Bump `ex_cldr` dependency version to 0.1.0 which includes CLDR repository version 31.0.0
 
-## Changelog for Ex_Money v0.0.14 February 27, 2017
+## Money v0.0.14 February 27, 2017
 
 ### Bugfixes
 
 * Bump dependency requirement for `ex_cldr` to at least 0.0.20 since 0.0.19 omits `version.json`
 
-## Changelog for Ex_Money v0.0.13 February 21, 2017
+## Money v0.0.13 February 21, 2017
 
 ### Enhancements
 
@@ -210,7 +224,7 @@ Minor version is bumped to reflect the change in behaviour of `Money.new/2` whic
 
 * Supports `cast`ing maps that have both "currency" and "amount" keys into Ecto changesets which is helpful for pattern matching and changesets.
 
-## Changelog for Ex_Money v0.0.12 February 20, 2017
+## Money v0.0.12 February 20, 2017
 
 ### Enhancements
 
@@ -220,7 +234,7 @@ Minor version is bumped to reflect the change in behaviour of `Money.new/2` whic
 
 * Updates `ex_cldr` dependency to v0.0.18 which fixes pluralization of `%Decimal{}` types
 
-## Changelog for Ex_Money v0.0.11 December 12, 2016
+## Money v0.0.11 December 12, 2016
 
 ### Enhancements
 
@@ -236,19 +250,19 @@ Minor version is bumped to reflect the change in behaviour of `Money.new/2` whic
 
 * declares Ecto as an optional dependency which should fix the compilation order and therefore result in the ecto migration Mix task and the Ecto type to be available after installation without a forced recompile/
 
-## Changelog for Ex_Money v0.0.10 December 11, 2016
+## Money v0.0.10 December 11, 2016
 
 ### Bugfixes
 
 * Update dependency for :ex_cldr to v0.0.13 since v0.0.12 was preventing compilation when Plug was loaded
 
-## Changelog for Ex_Money v0.0.7 November 23, 2016
+## Money v0.0.7 November 23, 2016
 
 ### Enhancements
 
 * Add optional callback module that defines a `rates_retrieved/2` function that is invoked on each successful retrieval of exchange rates
 
-## Changelog for Ex_Money v0.0.6 November 21, 2016
+## Money v0.0.6 November 21, 2016
 
 ### Enhancements
 
@@ -262,7 +276,7 @@ Minor version is bumped to reflect the change in behaviour of `Money.new/2` whic
 
 * Add exchange rate retrieval and currency conversion support
 
-## Changelog for Ex_Money v0.0.5 October 8, 2016
+## Money v0.0.5 October 8, 2016
 
 ### Enhancements
 
@@ -272,7 +286,7 @@ Minor version is bumped to reflect the change in behaviour of `Money.new/2` whic
 
 * Adds the `Phoenix.HTML.Safe` protocol implementation
 
-## Changelog for Ex_Money v0.0.4 October 8, 2016
+## Money v0.0.4 October 8, 2016
 
 ### Bug Fixes
 
