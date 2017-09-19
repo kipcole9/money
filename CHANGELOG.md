@@ -12,7 +12,7 @@
 
 * Add `@enforce_keys [:currency, :amount]`. Closes #27  (thanks to @lostkobrakai)
 
-* Wrap `Money.Ecto.Composite.Type` and `Money.Ecot.Map.Type` in `Code.ensure_loaded?1` rather than just wrapping the functions. Closes #28 * (thanks to @lostkobrakai)
+* Wrap `Money.Ecto.Composite.Type` and `Money.Ecto.Map.Type` in `Code.ensure_loaded?1` rather than just wrapping the functions. Closes #28 * (thanks to @lostkobrakai)
 
 ## Money v0.5.3 September 18th, 2017
 
