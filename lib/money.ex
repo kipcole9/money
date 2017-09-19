@@ -37,7 +37,7 @@ defmodule Money do
   Money is composed of an atom representation of an ISO4217 currency code and
   a `Decimal` representation of an amount.
   """
-  @type t :: %Money{currency: atom, amount: Decimal}
+  @type t :: %Money{currency: atom, amount: Decimal.t}
   defstruct currency: nil, amount: nil
   import Kernel, except: [round: 1, div: 1]
 

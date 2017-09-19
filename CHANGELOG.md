@@ -1,5 +1,11 @@
 # Changelog
 
+## Money v0.5.4 September _th, 2017
+
+### Bug Fixes
+
+* Fix typespec for `%Money{}` to use `Decimal.t`
+
 ## Money v0.5.3 September 18th, 2017
 
 ### Enhancements
