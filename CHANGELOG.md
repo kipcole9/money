@@ -4,7 +4,9 @@
 
 ### Bug Fixes
 
-* Fix typespec for `%Money{}` to use `Decimal.t`
+* Fix typespec for `%Money{}` to use `Decimal.t` .  Closes #26 (thanks to @lostkobrakai)
+
+* Add `@enforce_keys [:currency, :amount]`. Closes #27  (thanks to @lostkobrakai)
 
 ## Money v0.5.3 September 18th, 2017
 
