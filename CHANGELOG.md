@@ -2,11 +2,17 @@
 
 ## Money v0.5.4 September _th, 2017
 
+### Enhancements
+
+* Move supervisor to new module `Money.Application`.  Closed #29 (thanks to @lostkobrakai)
+
 ### Bug Fixes
 
 * Fix typespec for `%Money{}` to use `Decimal.t` .  Closes #26 (thanks to @lostkobrakai)
 
 * Add `@enforce_keys [:currency, :amount]`. Closes #27  (thanks to @lostkobrakai)
+
+* Wrap `Money.Ecto.Composite.Type` and `Money.Ecot.Map.Type` in `Code.ensure_loaded?1` rather than just wrapping the functions. Closes #28 * (thanks to @lostkobrakai)
 
 ## Money v0.5.3 September 18th, 2017
 
