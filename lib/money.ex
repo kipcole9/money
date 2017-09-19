@@ -38,7 +38,9 @@ defmodule Money do
   a `Decimal` representation of an amount.
   """
   @type t :: %Money{currency: atom, amount: Decimal.t}
+  @enforce_keys [:currency, :amount]
   defstruct currency: nil, amount: nil
+
   import Kernel, except: [round: 1, div: 1]
 
   # Default mode for rounding is :half_even, also known
