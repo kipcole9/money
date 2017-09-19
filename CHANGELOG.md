@@ -1,6 +1,10 @@
 # Changelog
 
-## Money v0.5.4 September _th, 2017
+## Money v0.6.0 September 20th, 2017
+
+### Breaking Changes
+
+* The tuple form of `Money.new/1` has been renamed to `Money.from_tuple/1` to better align with the standard lib and to make clearer that the primary public api for creating a Money struct is `Money.new/2` Closes #30 (thanks to @lostkobrakai)
 
 ### Enhancements
 
@@ -38,7 +42,7 @@
 
 * `Money` now requires Elixir 1.5 as a minimum requirement
 
-* `Money.to_string./2` now returns either `{:ok, string}` or `{:error, reason}`.  Use `Money.to_string!/2` to return the string or raise and exception.
+* `Money.to_string./2` now returns either `{:ok, string}` or `{:error, reason}`.  Use `Money.to_string!/2` to return the string or raise an exception.
 
 ### Enhancements
 

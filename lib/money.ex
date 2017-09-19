@@ -50,70 +50,6 @@ defmodule Money do
   alias Cldr.Currency
 
   @doc """
-  Returns a %Money{} struct from a tuple consistenting of a currency code and
-  a currency amount.  The format of the argument is a 2-tuple where:
-
-  * `currency_code` is an ISO4217 three-character upcased binary
-
-  * `amount` is an integer, float or Decimal
-
-  This function is typically called from Ecto when it's loading a %Money{}
-  struct from the database.
-
-  ## Example
-
-      iex> Money.new({"USD", 100})
-      #Money<:USD, 100>
-
-      iex> Money.new({100, "USD"})
-      #Money<:USD, 100>
-  """
-  @spec new({binary, number}) :: Money.t
-  def new({currency_code, amount}) when is_binary(currency_code) and is_number(amount) do
-    case validate_currency_code(currency_code) do
-      {:error, {_exception, message}} ->
-        {:error, {Money.UnknownCurrencyError, message}}
-      {:ok, code} ->
-        %Money{amount: Decimal.new(amount), currency: code}
-    end
-  end
-
-  def new({amount, currency_code}) when is_binary(currency_code) and is_number(amount) do
-    new({currency_code, amount})
-  end
-
-  @doc """
-  Returns a %Money{} struct from a tuple consistenting of a currency code and
-  a currency amount.  Raises an exception if the currency code is invalid.
-
-  * `currency_code` is an ISO4217 three-character upcased binary
-
-  * `amount` is an integer, float or Decimal
-
-  This function is typically called from Ecto when it's loading a %Money{}
-  struct from the database.
-
-  ## Example
-
-      iex> Money.new!({"USD", 100})
-      #Money<:USD, 100>
-
-      Money.new!({"NO!", 100})
-      ** (Money.UnknownCurrencyError) Currency "NO!" is not known
-          (ex_money) lib/money.ex:130: Money.new!/1
-  """
-  def new!({currency_code, amount}) when is_binary(currency_code) and is_number(amount) do
-    case money = new(currency_code, amount) do
-      {:error, {exception, message}} -> raise exception, message
-      _ -> money
-    end
-  end
-
-  def new!({amount, currency_code}) when is_binary(currency_code) and is_number(amount) do
-    new!({currency_code, amount})
-  end
-
-  @doc """
   Returns a %Money{} struct from a currency code and a currency amount or
   an error tuple of the form `{:error, {exception, message}}`.
 
@@ -216,6 +152,72 @@ defmodule Money do
   def new!(currency_code, %Decimal{} = amount)
   when is_binary(currency_code) or is_atom(currency_code) do
     new!(currency_code, amount)
+  end
+
+  @doc """
+  Returns a %Money{} struct from a tuple consistenting of a currency code and
+  a currency amount.  The format of the argument is a 2-tuple where:
+
+  * `currency_code` is an ISO4217 three-character upcased binary
+
+  * `amount` is an integer, float or Decimal
+
+  This function is typically called from Ecto when it's loading a %Money{}
+  struct from the database.
+
+  ## Example
+
+      iex> Money.from_tuple({"USD", 100})
+      #Money<:USD, 100>
+
+      iex> Money.from_tuple({100, "USD"})
+      #Money<:USD, 100>
+
+  """
+  @spec from_tuple({binary, number}) :: Money.t
+  def from_tuple({currency_code, amount}) when is_binary(currency_code) and is_number(amount) do
+    case validate_currency_code(currency_code) do
+      {:error, {_exception, message}} ->
+        {:error, {Money.UnknownCurrencyError, message}}
+      {:ok, code} ->
+        %Money{amount: Decimal.new(amount), currency: code}
+    end
+  end
+
+  def from_tuple({amount, currency_code}) when is_binary(currency_code) and is_number(amount) do
+    from_tuple({currency_code, amount})
+  end
+
+  @doc """
+  Returns a %Money{} struct from a tuple consistenting of a currency code and
+  a currency amount.  Raises an exception if the currency code is invalid.
+
+  * `currency_code` is an ISO4217 three-character upcased binary
+
+  * `amount` is an integer, float or Decimal
+
+  This function is typically called from Ecto when it's loading a %Money{}
+  struct from the database.
+
+  ## Example
+
+      iex> Money.from_tuple!({"USD", 100})
+      #Money<:USD, 100>
+
+      Money.from_tuple!({"NO!", 100})
+      ** (Money.UnknownCurrencyError) Currency "NO!" is not known
+          (ex_money) lib/money.ex:130: Money.new!/1
+
+  """
+  def from_tuple!({currency_code, amount}) when is_binary(currency_code) and is_number(amount) do
+    case money = new(currency_code, amount) do
+      {:error, {exception, message}} -> raise exception, message
+      _ -> money
+    end
+  end
+
+  def from_tuple!({amount, currency_code}) when is_binary(currency_code) and is_number(amount) do
+    from_tuple!({currency_code, amount})
   end
 
   @doc """

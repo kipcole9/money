@@ -49,13 +49,13 @@ defmodule MoneyTest do
   end
 
   test "create a new money struct from a tuple" do
-    money = Money.new({"USD", 1234})
+    money = Money.from_tuple({"USD", 1234})
     assert money.currency == :USD
     assert money.amount == Decimal.new(1234)
   end
 
   test "create a new! money struct from a tuple with bang method" do
-    money = Money.new!({"USD", 1234})
+    money = Money.from_tuple!({"USD", 1234})
     assert money.currency == :USD
     assert money.amount == Decimal.new(1234)
   end
@@ -94,13 +94,13 @@ defmodule MoneyTest do
 
   test "raise when creating a new money struct from a tuple with an invalid currency code" do
     assert_raise Money.UnknownCurrencyError, "Currency \"ABCD\" is not known", fn ->
-      Money.new!({"ABCD", 1234})
+      Money.from_tuple!({"ABCD", 1234})
     end
   end
 
   test "raise when creating a new money struct from invalid input" do
     assert_raise Money.UnknownCurrencyError, "Currency \"ABCDE\" is not known", fn ->
-      Money.new!({1234, "ABCDE"})
+      Money.from_tuple!({1234, "ABCDE"})
     end
 
     assert_raise Money.UnknownCurrencyError, "Currency \"ABCDE\" is not known", fn ->
