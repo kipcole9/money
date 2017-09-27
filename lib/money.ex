@@ -707,6 +707,9 @@ defmodule Money do
       Money.to_currency(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)})
       {:ok, #Money<:AUD, 73.4500>}
 
+      Money.to_currency(Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.new(0.7345)})
+      {:ok, #Money<:AUD, 73.4500>}
+
       iex> Money.to_currency Money.new(:USD, 100) , :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
       {:error, {Cldr.UnknownCurrencyError, "Currency :AUDD is not known"}}
 
@@ -756,6 +759,9 @@ defmodule Money do
   ## Examples
 
       iex> Money.to_currency! Money.new(:USD, 100) , :AUD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+      #Money<:AUD, 73.4500>
+
+      iex> Money.to_currency! Money.new("USD", 100) , "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.new(0.7345)}
       #Money<:AUD, 73.4500>
 
       Money.to_currency! Money.new(:USD, 100) , :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
@@ -814,13 +820,14 @@ defmodule Money do
   end
 
   ## Helpers
-
   defp get_rate(currency, rates) do
-    if rate = rates[currency] do
-      {:ok, rate}
-    else
-      {:error, {Money.ExchangeRateError, "No exchange rate is available for currency #{inspect currency}"}}
-    end
+    rates
+    |> Map.take([currency, Atom.to_string(currency)])
+    |> Map.values
+    |> case do
+         [rate] -> {:ok, rate}
+         _      -> {:error, {Money.ExchangeRateError, "No exchange rate is available for currency #{inspect currency}"}}
+       end
   end
 
   def validate_currency_code(currency_code) do
