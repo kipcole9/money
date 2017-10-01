@@ -72,7 +72,7 @@ defmodule Money.Mixfile do
       {:ex_cldr_numbers, "~> 0.1.0"},
       {:decimal, "~> 1.4"},
       {:ecto, "~> 2.1", optional: true},
-      {:ex_doc, github: "elixir-lang/ex_doc", branch: "master", only: :dev},
+      {:ex_doc, "~> 0.17", only: :dev},
       {:excoveralls, "~> 0.6.3", only: :test}
     ]
   end
