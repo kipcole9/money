@@ -1,5 +1,6 @@
-defmodule Money.Ecto.Map.Type do
-  @moduledoc """
+if Code.ensure_loaded?(Ecto.Type) do
+  defmodule Money.Ecto.Map.Type do
+    @moduledoc """
     Implements Ecto.Type behaviour for Money, where the underlying schema type
     is a map.
 
@@ -13,9 +14,8 @@ defmodule Money.Ecto.Map.Type do
     convert back to the identical number.  However given enough precision in the
     `Decimal.get_context/0` then round trip conversion should be expected.  The default
     precision in the context is 28 digits.
-  """
+    """
 
-  if Code.ensure_loaded?(Ecto.Type) do
     @behaviour Ecto.Type
 
     def type() do

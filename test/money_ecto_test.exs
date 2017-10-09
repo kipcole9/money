@@ -26,6 +26,10 @@ defmodule MoneyTest.Ecto do
     assert Money.Ecto.Composite.Type.cast Money.new(:USD, 100) == Money.new(:USD, 100)
   end
 
+  test "cast a money tuple" do
+    assert Money.Ecto.Composite.Type.cast {:USD, Decimal.new(100)} == Money.new(:USD, 100)
+  end
+
   test "cast a map with string keys and values" do
     assert Money.Ecto.Composite.Type.cast %{"currency" => "USD", "amount" => "100"} == Money.new(:USD, 100)
   end

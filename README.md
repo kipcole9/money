@@ -25,6 +25,10 @@ How is this opinion expressed?
 
 8. Money output string formatting output using the hex package [ex_cldr](https://hex.pm/packages/ex_cldr) that correctly rounds to the appropriate number of fractional digits and to the correct rounding increment for currencies that have minimum cash increments (like the Swiss Franc and Australian Dollar)
 
+## Prerequisities
+
+* `ex_money` is supported on Elixir 1.5 and later only
+
 ## Exchange rates and currency conversion
 
 Money includes a process to retrieve exchange rates on a periodic basis.  These exchange rates can then be used to support currency conversion.  This service is not started by default.  If started it will attempt to retrieve exchange rates every 5 minutes by default.
@@ -172,7 +176,7 @@ See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
     iex> Money.to_string Money.new("USD", 234.467), format: :long
     {:ok, "234.47 US dollars"}
 
-Note that the output is influenced by the locale in effect.  By default the localed used is that returned by `Cldr.get_local/0`.  Its default value is "en".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
+Note that the output is influenced by the locale in effect.  By default the localed used is that returned by `Cldr.get_current_local/0`.  Its default value is "en".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
 
 ### Arithmetic Functions
 
@@ -379,15 +383,7 @@ ex_money can be installed by:
 
 ```elixir
   def deps do
-    [{:ex_money, "~> 0.5.1"}]
-  end
-```
-
-  2. Ensuring `ex_money` is started before your application:
-
-```elixir
-  def application do
-    [applications: [:ex_money]]
+    [{:ex_money, "~> 0.6.0"}]
   end
 ```
 

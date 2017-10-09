@@ -1,13 +1,13 @@
-defmodule Money.Ecto.Composite.Type do
-  @moduledoc """
-  Implements the Ecto.Type behaviour for a user-defined Postgres composite type
-  called `:money_with_currency`.
+if Code.ensure_loaded?(Ecto.Type) do
+  defmodule Money.Ecto.Composite.Type do
+    @moduledoc """
+    Implements the Ecto.Type behaviour for a user-defined Postgres composite type
+    called `:money_with_currency`.
 
-  This is the preferred option for Postgres database since the serialized money
-  amount is stored as a number,
-  """
+    This is the preferred option for Postgres database since the serialized money
+    amount is stored as a number,
+    """
 
-  if Code.ensure_loaded?(Ecto.Type) do
     @behaviour Ecto.Type
 
     def type do
@@ -54,7 +54,7 @@ defmodule Money.Ecto.Composite.Type do
 
     def cast({currency, amount} = money)
     when (is_binary(currency) or is_atom(currency)) and is_number(amount) do
-      {:ok, Money.new(money)}
+      {:ok, Money.from_tuple(money)}
     end
 
     def cast(%{"currency" => currency, "amount" => amount})
