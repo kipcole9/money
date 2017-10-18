@@ -50,7 +50,15 @@ defmodule Money.Mixfile do
     [
       source_ref: "v#{@version}",
       extras: ["README.md", "CHANGELOG.md"],
-      main: "readme"
+      main: "readme",
+      groups_for_modules: groups_for_modules()
+    ]
+  end
+  
+  defp groups_for_modules do
+    [
+      "Exchange Rates": ~r/^Money.ExchangeRates.?/,
+      "Ecto": ~r/^Money.Ecto.?/
     ]
   end
 
@@ -64,7 +72,7 @@ defmodule Money.Mixfile do
       {:ex_cldr_numbers, "~> 0.1.0"},
       {:decimal, "~> 1.4"},
       {:ecto, "~> 2.1", optional: true},
-      {:ex_doc, "~> 0.15", only: :dev},
+      {:ex_doc, "~> 0.17", only: :dev},
       {:excoveralls, "~> 0.6.3", only: :test}
     ]
   end
