@@ -82,6 +82,7 @@ defmodule Money do
 
       iex> Money.new(:XYZZ, 100)
       {:error, {Money.UnknownCurrencyError, "Currency :XYZZ is not known"}}
+
   """
   @spec new(number, binary) :: Money.t
   def new(currency_code, amount) when is_binary(currency_code) do
@@ -130,6 +131,7 @@ defmodule Money do
       Money.new!(:XYZZ, 100)
       ** (Money.UnknownCurrencyError) Currency :XYZZ is not known
         (ex_money) lib/money.ex:177: Money.new!/2
+
   """
   def new!(currency_code, amount)
   when (is_binary(currency_code) or is_atom(currency_code)) do
@@ -285,6 +287,7 @@ defmodule Money do
       iex> m = Money.new("USD", 100)
       iex> Money.to_decimal(m)
       #Decimal<100>
+
   """
   def to_decimal(%Money{amount: amount}) do
     amount
@@ -301,6 +304,7 @@ defmodule Money do
       iex> Money.add Money.new(:USD, 200), Money.new(:AUD, 100)
       {:error, {ArgumentError, "Cannot add monies with different currencies. " <>
         "Received :USD and :AUD."}}
+
   """
   @spec add(Money.t, Money.t) :: Money.t
   def add(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
@@ -322,6 +326,7 @@ defmodule Money do
 
       Money.add! Money.new(:USD, 200), Money.new(:CAD, 500)
       ** (ArgumentError) Cannot add two %Money{} with different currencies. Received :USD and :CAD.
+
   """
   def add!(%Money{} = a, %Money{} = b) do
     case add(a, b) do
@@ -339,6 +344,7 @@ defmodule Money do
 
       iex> Money.sub Money.new(:USD, 200), Money.new(:USD, 100)
       {:ok, Money.new(:USD, 100)}
+
   """
   def sub(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
     {:ok, %Money{currency: same_currency, amount: Decimal.sub(amount_a, amount_b)}}
@@ -361,6 +367,7 @@ defmodule Money do
 
       Money.sub! Money.new(:USD, 200), Money.new(:CAD, 500)
       ** (ArgumentError) Cannot subtract monies with different currencies. Received :USD and :CAD.
+
   """
   def sub!(%Money{} = a, %Money{} = b) do
     case sub(a, b) do
@@ -387,6 +394,7 @@ defmodule Money do
 
       iex> Money.mult(Money.new(:USD, 200), "xx")
       {:error, {ArgumentError, "Cannot multiply money by \\"xx\\""}}
+
   """
   @spec mult(Money.t, number) :: Money.t
   def mult(%Money{currency: code, amount: amount}, number) when is_number(number) do
@@ -407,6 +415,7 @@ defmodule Money do
 
       Money.mult!(Money.new(:USD, 200), :invalid)
       ** (ArgumentError) Cannot multiply money by :invalid
+
   """
   def mult!(%Money{} = money, number) do
     case mult(money, number) do
@@ -431,6 +440,7 @@ defmodule Money do
 
       iex> Money.div(Money.new(:USD, 200), "xx")
       {:error, {ArgumentError, "Cannot divide money by \\"xx\\""}}
+
   """
   @spec div(Money.t, number) :: Money.t
   def div(%Money{currency: code, amount: amount}, number) when is_number(number) do
@@ -451,6 +461,7 @@ defmodule Money do
 
       Money.div(Money.new(:USD, 200), "xx")
       ** (ArgumentError) "Cannot divide money by \\"xx\\""]}}
+
   """
   def div!(%Money{} = money, number) do
     case Money.div(money, number) do
@@ -469,6 +480,7 @@ defmodule Money do
 
       iex> Money.equal? Money.new(:USD, 200), Money.new(:USD, 100)
       false
+
   """
   @spec equal?(Money.t, Money.t) :: boolean
   def equal?(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
@@ -499,6 +511,7 @@ defmodule Money do
       {:error,
        {ArgumentError,
         "Cannot compare monies with different currencies. Received :USD and :CAD."}}
+
   """
   def cmp(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
     Decimal.cmp(amount_a, amount_b)
@@ -516,6 +529,7 @@ defmodule Money do
 
       Money.cmp! Money.new(:USD, 200), Money.new(:CAD, 500)
       ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :CAD.
+
   """
   def cmp!(%Money{} = money_1, %Money{} = money_2) do
     case cmp(money_1, money_2) do
@@ -544,6 +558,7 @@ defmodule Money do
       {:error,
        {ArgumentError,
         "Cannot compare monies with different currencies. Received :USD and :CAD."}}
+
   """
   def compare(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
     amount_a
@@ -563,6 +578,7 @@ defmodule Money do
 
       Money.compare! Money.new(:USD, 200), Money.new(:CAD, 500)
       ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :CAD.
+
   """
   def compare!(%Money{} = money_1, %Money{} = money_2) do
     case compare(money_1, money_2) do
@@ -604,6 +620,7 @@ defmodule Money do
 
       Money.split Money.new(123.7, :USD), 9
       {$13.74, $0.04}
+
   """
   def split(%Money{} = money, parts) when is_integer(parts) do
     rounded_money = Money.round(money)
@@ -653,6 +670,7 @@ defmodule Money do
 
       Money.round Money.new(123.7456, :JPY)
       #Money<:JPY, 124>
+
   """
   def round(%Money{} = money, opts \\ []) do
     money
@@ -698,8 +716,8 @@ defmodule Money do
 
   * `to_currency` is a valid currency code into which the `money` is converted
 
-  * `rates` is a `Map` of currency rates where the map key is an upcase
-  atom and the value is a Decimal conversion factor.  The default is the
+  * `rates` is a `Map` of currency rates where the map key is an upcased
+  atom or string and the value is a Decimal conversion factor.  The default is the
   latest available exchange rates returned from `Money.ExchangeRates.latest_rates()`
 
   ## Examples
@@ -715,6 +733,7 @@ defmodule Money do
 
       iex> Money.to_currency Money.new(:USD, 100) , :CHF, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
       {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :CHF"}}
+
   """
   def to_currency(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
 
@@ -725,7 +744,9 @@ defmodule Money do
 
   def to_currency(%Money{currency: currency} = money, to_currency, %{} = rates)
   when is_atom(to_currency) or is_binary(to_currency) do
-    with {:ok, to_code} <- Money.validate_currency_code(to_currency) do
+    with \
+      {:ok, to_code} <- Money.validate_currency_code(to_currency)
+    do
       if currency == to_code, do: money, else: to_currency(money, to_currency, {:ok, rates})
     else
       {:error, _} = error -> error
@@ -734,10 +755,11 @@ defmodule Money do
 
   def to_currency(%Money{currency: from_currency, amount: amount}, to_currency, {:ok, rates})
   when is_atom(to_currency) or is_binary(to_currency) do
-    with {:ok, currency_code} <- Money.validate_currency_code(to_currency),
-         {:ok, base_rate} <- get_rate(from_currency, rates),
-         {:ok, conversion_rate} <- get_rate(currency_code, rates) do
-
+    with \
+      {:ok, currency_code} <- Money.validate_currency_code(to_currency),
+      {:ok, base_rate} <- get_rate(from_currency, rates),
+      {:ok, conversion_rate} <- get_rate(currency_code, rates)
+    do
       converted_amount =
         amount
         |> Decimal.div(base_rate)
@@ -766,6 +788,7 @@ defmodule Money do
 
       Money.to_currency! Money.new(:USD, 100) , :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
       ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
+
   """
   def to_currency!(%Money{} = money, currency) do
     money
@@ -805,6 +828,7 @@ defmodule Money do
       #Money<:USD, 42>
       iex> x == y
       true
+
   """
   def reduce(%Money{currency: currency, amount: amount}) do
     %Money{currency: currency, amount: Decimal.reduce(amount)}
