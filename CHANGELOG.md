@@ -1,5 +1,15 @@
 # Changelog
 
+## Money v0.6.1 October 18th, 2017
+
+### Enhancements
+
+* Upgrade to `ex_doc` in support of module grouping. (thanks to @lostkobrakai)
+
+* Add support for string keys in conversion maps. (thanks to @schultzer)
+
+* Update dependencies to those that don't warn on Elixir 1.5
+
 ## Money v0.6.0 September 20th, 2017
 
 ### Breaking Changes
@@ -12,7 +22,7 @@
 
 ### Bug Fixes
 
-* Fix typespec for `%Money{}` to use `Decimal.t` .  Closes #26 (thanks to @lostkobrakai)
+* Fix typespec for `%Money{}` to use `Decimal.t`.  Closes #26 (thanks to @lostkobrakai)
 
 * Add `@enforce_keys [:currency, :amount]`. Closes #27  (thanks to @lostkobrakai)
 
