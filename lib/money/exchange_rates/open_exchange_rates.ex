@@ -32,6 +32,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   defp get_rates(_url, @dummy_app_id) do
     {:error, "Open Exchange Rates app_id is not configured.  Rates are not retrieved."}
   end
+
   defp get_rates(url, app_id) do
     get_rates(url <> "/latest.json?app_id=" <> app_id)
   end
@@ -44,6 +45,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
         decimal_rates = rates
         |> Cldr.Map.atomize_keys
         |> Enum.map(fn {k, v} -> {k, Decimal.new(v)} end)
+        |> Enum.into(%{})
 
         {:ok, decimal_rates}
 

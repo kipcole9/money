@@ -38,6 +38,8 @@ defmodule Money do
   a `Decimal` representation of an amount.
   """
   @type t :: %Money{currency: atom, amount: Decimal.t}
+  @type currency_code :: atom
+
   @enforce_keys [:currency, :amount]
   defstruct currency: nil, amount: nil
 
@@ -289,6 +291,7 @@ defmodule Money do
       #Decimal<100>
 
   """
+  @spec to_decimal(Money.t) :: Decimal.t
   def to_decimal(%Money{amount: amount}) do
     amount
   end
@@ -346,6 +349,7 @@ defmodule Money do
       {:ok, Money.new(:USD, 100)}
 
   """
+  @spec sub(Money.t, Money.t) :: {:ok, Money.t} | {:error, {Exception.t, String.t}}
   def sub(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
     {:ok, %Money{currency: same_currency, amount: Decimal.sub(amount_a, amount_b)}}
   end
@@ -396,9 +400,13 @@ defmodule Money do
       {:error, {ArgumentError, "Cannot multiply money by \\"xx\\""}}
 
   """
-  @spec mult(Money.t, number) :: Money.t
+  @spec mult(Money.t, Cldr.Math.number_or_decimal) :: Money.t
   def mult(%Money{currency: code, amount: amount}, number) when is_number(number) do
     {:ok, %Money{currency: code, amount: Decimal.mult(amount, Decimal.new(number))}}
+  end
+
+  def mult(%Money{currency: code, amount: amount}, %Decimal{} = number) do
+    {:ok, %Money{currency: code, amount: Decimal.mult(amount, number)}}
   end
 
   def mult(%Money{}, other) do
@@ -442,9 +450,13 @@ defmodule Money do
       {:error, {ArgumentError, "Cannot divide money by \\"xx\\""}}
 
   """
-  @spec div(Money.t, number) :: Money.t
+  @spec div(Money.t, Cldr.Math.number_or_decimal) :: Money.t
   def div(%Money{currency: code, amount: amount}, number) when is_number(number) do
     {:ok, %Money{currency: code, amount: Decimal.div(amount, Decimal.new(number))}}
+  end
+
+  def div(%Money{currency: code, amount: amount}, %Decimal{} = number) do
+    {:ok, %Money{currency: code, amount: Decimal.div(amount, number)}}
   end
 
   def div(%Money{}, other) do
@@ -513,6 +525,7 @@ defmodule Money do
         "Cannot compare monies with different currencies. Received :USD and :CAD."}}
 
   """
+  @spec cmp(Money.t, Money.t) :: :gt | :eq | :lt | {:error, {Exception.t, String.t}}
   def cmp(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
     Decimal.cmp(amount_a, amount_b)
   end
@@ -560,6 +573,7 @@ defmodule Money do
         "Cannot compare monies with different currencies. Received :USD and :CAD."}}
 
   """
+  @spec compare(Money.t, Money.t) :: -1 | 0 | 1 | {:error, {Exception.t, String.t}}
   def compare(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
     amount_a
     |> Decimal.compare(amount_b)
@@ -622,6 +636,7 @@ defmodule Money do
       {$13.74, $0.04}
 
   """
+  @spec split(Money.t, non_neg_integer) :: {Money.t, Money.t}
   def split(%Money{} = money, parts) when is_integer(parts) do
     rounded_money = Money.round(money)
 
@@ -672,6 +687,7 @@ defmodule Money do
       #Money<:JPY, 124>
 
   """
+  @spec round(Money.t, Keyword.t):: Money.t
   def round(%Money{} = money, opts \\ []) do
     money
     |> round_to_decimal_digits(opts)
@@ -735,6 +751,7 @@ defmodule Money do
       {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :CHF"}}
 
   """
+  @spec to_currency(Money.t, Money.currency_code, Map.t) :: {:ok, Map.t} | {:error, {Exception.t, String.t}}
   def to_currency(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
 
   def to_currency(%Money{currency: currency} = money, to_currency, _rates)

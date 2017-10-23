@@ -1,5 +1,15 @@
 # Changelog
 
+## Money v0.6.2 October 24th, 2017
+
+### Bug Fixes
+
+* Open Exchange Rates retriever now returns a map as documented (it was returning a list).  Closes #33.
+
+### Enhancements
+
+* `Money.mult/2` and `Money.div/2` now support multiplying and dividing by a `Decimal` in addition to a float or integer.
+
 ## Money v0.6.1 October 18th, 2017
 
 ### Enhancements

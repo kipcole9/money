@@ -186,6 +186,10 @@ defmodule MoneyTest do
     assert Money.mult!(Money.new(:USD, 100), 2) == Money.new(:USD, 200)
   end
 
+  test "multiply a money by an decimal" do
+    assert Money.mult!(Money.new(:USD, 100), Decimal.new(2)) == Money.new(:USD, 200)
+  end
+
   test "multiply a money by a float" do
     m1 = Money.mult!(Money.new(:USD, 100), 2.5)
     m2 = Money.new(:USD, 250)
@@ -200,6 +204,10 @@ defmodule MoneyTest do
 
   test "divide a money by an integer" do
     assert Money.div!(Money.new(:USD, 100), 2) == Money.new(:USD, 50)
+  end
+
+  test "divide a money by an decimal" do
+    assert Money.div!(Money.new(:USD, 100), Decimal.new(2)) == Money.new(:USD, 50)
   end
 
   test "divide a money by a float" do
@@ -397,5 +405,12 @@ defmodule MoneyTest do
     import Money.Sigil
     m = ~M[100]USD
     assert m == Money.new!(:USD, 100)
+  end
+
+  if System.get_env("OPEN_EXCHANGE_RATES_APP_ID") do
+    test "That the Open Exchange Rates retriever returns a map" do
+      {:ok, rates} = Money.ExchangeRates.OpenExchangeRates.get_latest_rates(System.get_env("OPEN_EXCHANGE_RATES_APP_ID"))
+      assert is_map(rates)
+    end
   end
 end
