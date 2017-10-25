@@ -388,16 +388,18 @@ defmodule MoneyTest do
      end)
   end
 
-  test "That an error is returned if there is not open exchange rates app_id configured" do
+  test "That an error is returned if there is no open exchange rates app_id configured" do
     Application.put_env(:ex_money, :open_exchange_rates_app_id, nil)
     assert Money.ExchangeRates.OpenExchangeRates.get_latest_rates(Money.ExchangeRates.config) ==
       {:error, "Open Exchange Rates app_id is not configured.  Rates are not retrieved."}
   end
 
-  test "That the Open Exchange Rates retriever returns a map" do
-    Application.put_env(:ex_money, :open_exchange_rates_app_id, System.get_env("OPEN_EXCHANGE_RATES_APP_ID"))
-    {:ok, rates} = Money.ExchangeRates.OpenExchangeRates.get_latest_rates(Money.ExchangeRates.config)
-    assert is_map(rates)
+  if System.get_env("OPEN_EXCHANGE_RATES_APP_ID") do
+    test "That the Open Exchange Rates retriever returns a map" do
+      Application.put_env(:ex_money, :open_exchange_rates_app_id, System.get_env("OPEN_EXCHANGE_RATES_APP_ID"))
+      {:ok, rates} = Money.ExchangeRates.OpenExchangeRates.get_latest_rates(Money.ExchangeRates.config)
+      assert is_map(rates)
+    end
   end
 
   test "money conversion" do
