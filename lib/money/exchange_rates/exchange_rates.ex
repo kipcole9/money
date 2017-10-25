@@ -22,28 +22,34 @@ defmodule Money.ExchangeRates do
   Defines the behaviour to retrieve exchange rates from an external
   data source
   """
-  @callback get_latest_rates() :: {:ok, %{}} | {:error, binary}
+  @callback get_latest_rates(Money.Config.t) :: {:ok, %{}} | {:error, binary}
 
   require Logger
-
-  # Defines the configuration for the exchange rates mechanism.
-  defmodule Config do
-    defstruct retrieve_every: nil, callback_module: nil, log_levels: %{}, delay_before_first_retrieval: nil
-  end
 
   @default_retrieval_interval 300_000
   @default_delay_before_first_retrieval 100
   @default_callback_module Money.ExchangeRates.Callback
   @default_api_module Money.ExchangeRates.OpenExchangeRates
 
+  # Defines the configuration for the exchange rates mechanism.
+  defmodule Config do
+    defstruct retrieve_every: nil, api_module: nil, callback_module: nil,
+              log_levels: %{}, delay_before_first_retrieval: nil
+  end
+
   @doc """
   Returns the configuration for the exchange rates retriever.
   """
   def config do
     %Config{
-      retrieve_every: Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval),
-      callback_module: Money.get_env(:callback_module, @default_callback_module),
-      delay_before_first_retrieval: Money.get_env(:delay_before_first_retrieval, @default_delay_before_first_retrieval),
+      api_module:
+        Money.get_env(:api_module, @default_api_module, :module),
+      callback_module:
+        Money.get_env(:callback_module, @default_callback_module, :module),
+      retrieve_every:
+        Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval, :integer),
+      delay_before_first_retrieval:
+        Money.get_env(:delay_before_first_retrieval, @default_delay_before_first_retrieval, :integer),
       log_levels: %{
         success: Money.get_env(:log_success, nil),
         info: Money.get_env(:log_info, :warn),
@@ -74,7 +80,7 @@ defmodule Money.ExchangeRates do
   Returns:
 
   * `{:ok, rates}` if exchange rates are successfully retrieved.  `rates` is a map of
-  exchange rate converstion.
+  exchange rates.
 
   * `{:error, reason}` if no exchange rates can be returned.
   """
@@ -115,6 +121,7 @@ defmodule Money.ExchangeRates do
        %DateTime{calendar: Calendar.ISO, day: 20, hour: 12, microsecond: {731942, 6},
         minute: 36, month: 11, second: 6, std_offset: 0, time_zone: "Etc/UTC",
         utc_offset: 0, year: 2016, zone_abbr: "UTC"}}
+
   """
   @spec last_updated() :: {:ok, DateTime.t} | {:error, {Exception.t, binary}}
   def last_updated do
@@ -135,7 +142,7 @@ defmodule Money.ExchangeRates do
   called periodically by `Money.ExchangeRates.Retriever.handle_info/2` but can
   called at any time by other functions.
   """
-  def get_latest_rates do
-    Money.get_env(:api_module, @default_api_module).get_latest_rates()
+  def get_latest_rates(config \\ config()) do
+    config.api_module.get_latest_rates(config)
   end
 end

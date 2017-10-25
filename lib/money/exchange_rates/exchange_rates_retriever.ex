@@ -84,4 +84,4 @@ defmodule Money.ExchangeRates.Retriever do
     end
   end
 
- end
+end

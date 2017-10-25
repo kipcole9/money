@@ -5,6 +5,7 @@ defmodule MoneyTest do
   alias Money.Financial
 
   doctest Money
+  doctest Money.ExchangeRates
 
   test "create a new money struct with a binary currency code" do
     money = Money.new(1234, "USD")
@@ -388,8 +389,15 @@ defmodule MoneyTest do
   end
 
   test "That an error is returned if there is not open exchange rates app_id configured" do
-    assert Money.ExchangeRates.OpenExchangeRates.get_latest_rates("not_configured") ==
+    Application.put_env(:ex_money, :open_exchange_rates_app_id, nil)
+    assert Money.ExchangeRates.OpenExchangeRates.get_latest_rates(Money.ExchangeRates.config) ==
       {:error, "Open Exchange Rates app_id is not configured.  Rates are not retrieved."}
+  end
+
+  test "That the Open Exchange Rates retriever returns a map" do
+    Application.put_env(:ex_money, :open_exchange_rates_app_id, System.get_env("OPEN_EXCHANGE_RATES_APP_ID"))
+    {:ok, rates} = Money.ExchangeRates.OpenExchangeRates.get_latest_rates(Money.ExchangeRates.config)
+    assert is_map(rates)
   end
 
   test "money conversion" do
@@ -405,12 +413,5 @@ defmodule MoneyTest do
     import Money.Sigil
     m = ~M[100]USD
     assert m == Money.new!(:USD, 100)
-  end
-
-  if System.get_env("OPEN_EXCHANGE_RATES_APP_ID") do
-    test "That the Open Exchange Rates retriever returns a map" do
-      {:ok, rates} = Money.ExchangeRates.OpenExchangeRates.get_latest_rates(System.get_env("OPEN_EXCHANGE_RATES_APP_ID"))
-      assert is_map(rates)
-    end
   end
 end

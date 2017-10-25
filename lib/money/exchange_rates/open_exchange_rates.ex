@@ -14,27 +14,27 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   * `{:error, reason}` if rates cannot be retrieved
 
   Typically this function is called by the exchange rates retrieval
-  service althouhg it can be called outside that context as
+  service although it can be called outside that context as
   required.
   """
 
-  @dummy_app_id "not_configured"
   @open_exchange_rate_url "https://openexchangerates.org/api"
 
-  @spec get_latest_rates(String.t) :: {:ok, Map.t} | {:error, String.t}
-  def get_latest_rates(app_id \\ @dummy_app_id) do
+  @spec get_latest_rates(Money.ExchangeRates.Config.t) :: {:ok, Map.t} | {:error, String.t}
+  def get_latest_rates(_config) do
     url    = Money.get_env(:open_exchange_rates_url, @open_exchange_rate_url)
-    app_id = Money.get_env(:open_exchange_rates_app_id, app_id)
+    app_id = Money.get_env(:open_exchange_rates_app_id, nil)
 
     get_rates(url, app_id)
   end
 
-  defp get_rates(_url, @dummy_app_id) do
+  defp get_rates(_url, nil) do
     {:error, "Open Exchange Rates app_id is not configured.  Rates are not retrieved."}
   end
 
+  @latest_rates "/latest.json"
   defp get_rates(url, app_id) do
-    get_rates(url <> "/latest.json?app_id=" <> app_id)
+    get_rates(url <> @latest_rates <> "?app_id=" <> app_id)
   end
 
   defp get_rates(url) do

@@ -1,5 +1,11 @@
 # Changelog
 
+## Money 0.7.0 October 25th, 2017
+
+### Enhancements
+
+* Update to [ex_cldr](https://hex.pm/packages/ex_cldr) version 0.8.0 for compatibility with the new `%Cldr.LanguageTag{}` representation of a locale
+
 ## Money v0.6.2 October 24th, 2017
 
 ### Bug Fixes

@@ -847,20 +847,51 @@ defmodule Money do
       true
 
   """
+  @spec reduce(Money.t) :: Money.t
   def reduce(%Money{currency: currency, amount: amount}) do
     %Money{currency: currency, amount: Decimal.reduce(amount)}
   end
 
+  ## Helpers
+
+  @doc false
   def get_env(key, default \\ nil) do
     case env = Application.get_env(:ex_money, key, default) do
       {:system, env_key} ->
-        System.get_env(env_key)
+        System.get_env(env_key) || default
       _ ->
         env
     end
   end
 
-  ## Helpers
+  def get_env(key, default, :integer) do
+    key
+    |> get_env(default)
+    |> to_integer
+  end
+
+  def get_env(key, default, :module) do
+    key
+    |> get_env(default)
+    |> to_module
+  end
+
+  defp to_integer(nil), do: nil
+  defp to_integer(n) when is_integer(n), do: n
+  defp to_integer(n) when is_binary(n), do: String.to_integer(n)
+
+  defp to_module(nil), do: nil
+  defp to_module(module_name) when is_atom(module_name), do: module_name
+  defp to_module(module_name) when is_binary(module_name) do
+    module = Module.concat([module_name])
+
+    if Code.ensure_loaded?(module) do
+      module
+    else
+      raise ArgumentError, "The module #{inspect module_name} is not known"
+    end
+  end
+
   defp get_rate(currency, rates) do
     rates
     |> Map.take([currency, Atom.to_string(currency)])
