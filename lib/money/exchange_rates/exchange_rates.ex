@@ -1,21 +1,105 @@
 defmodule Money.ExchangeRates do
   @moduledoc """
-  Implements functions to retrieve exchange rates from Open Exchange Rates.
+  Implements functions to retrieve exchange rates from an
+  exchange rate service.
 
-  An `app_id` is required and is configured in `config.exs` of the appropriate
-  environment configuration file.  The `app_id` can be configured as either
-  a string or as a tuple `{:system, "shell variable name"}` to ease runtime
-  retrieval of the `app_id`.
+  Configuration for the exchange rate service is defined
+  in a `Money.ExchangeRates.Config` struct.  A default
+  configuration is retrieved by `Money.ExchangeRates.default_config/0`.
 
-  ## Example configurations
-
-      config :ex_money,
-        open_exchange_rates_app_id: "app_id_string",
-        open_exchange_rates_retrieve_every: 300_000
+  The default configuration is:
 
       config :ex_money,
-        open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"},
-        open_exchange_rates_retrieve_every: 300_000
+        exchange_rate_service: false,
+        exchange_rates_retrieve_every: 300_000,
+        delay_before_first_retrieval: 100,
+        api_module: Money.ExchangeRates.OpenExchangeRates,
+        open_exchange_rates_app_id: nil,
+        callback_module: Money.ExchangeRates.Callback,
+        log_failure: :warn,
+        log_info: :info,
+        log_success: nil
+
+  These keys are are defined as follows:
+
+  * `:exchange_rate_service` is a boolean that determines whether to
+    automatically start the exchange rate retrieval service.
+    The default it false.
+
+  * `:exchange_rates_retrieve_every` defines how often the exchange
+    rates are retrieved in milliseconds. The default is 5 minutes
+    (300,000 milliseconds)
+
+  * `:delay_before_first_retrieval` defines how quickly the
+    retrieval service makes its first request for exchange rates.
+    The default is 100 milliseconds. Any value that is not a
+    positive integer means that no first retrieval is made.
+    Retrieval will continue on interval defined by `:retrieve_every`
+
+  * `:api_module` identifies the module that does the retrieval of
+    exchange rates. This is any module that implements the
+    `Money.ExchangeRates` behaviour. The default is
+    `Money.ExchangeRates.OpenExchangeRates`
+
+  * `:callback_module` defines a module that follows the
+    Money.ExchangeRates.Callback behaviour whereby the function
+    `rates_retrieved/2` is invoked after every successful retrieval
+    of exchange rates. The default is `Money.ExchangeRates.Callback`.
+
+  * `:log_failure` defines the log level at which api retrieval
+    errors are logged. The default is `:warn`
+
+  * `:log_success` defines the log level at which successful api
+    retrieval notifications are logged. The default is `nil` which
+    means no logging.
+
+  * `:log_info` defines the log level at which service startup messages
+    are logged. The default is `:info`.
+    
+  * `:retriever_options` is available for exchange rate retriever
+    module developers as a place to add retriever-specific configuration
+    information.  This information should be added in the `init/1`
+    callback in the retriever module.  See `Money.ExchangeRates.OpenExchangeRates.init/1`
+    for an example.
+
+  Keys can also be configured to retrieve values from environment
+  variables. This lookup is done at runtime to facilitate deployment
+  strategies. If the value of a configuration key is
+  `{:system, "some_string"}` then "some_string" is interpreted as
+  an environment variable name which is passed to System.get_env/2.
+  An example configuration might be:
+
+      config :ex_money,
+        exchange_rate_service: {:system, "RATE_SERVICE"},
+        exchange_rates_retrieve_every: {:system, "RETRIEVE_EVERY"},
+        open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"}
+
+  ## Open Exchange Rates
+
+  If you plan to use the provided Open Exchange Rates module
+  to retrieve exchange rates then you should also provide the addition
+  configuration key for `app_id`:
+
+      config :ex_money,
+        open_exchange_rates_app_id: "your_app_id"
+
+  or configure it via environment variable:
+
+      config :ex_money,
+        open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"}
+
+  The default exchange rate retrieval module is provided in
+  `Money.ExchangeRates.OpenExchangeRates` which can be used
+  as a example to implement your own retrieval module for
+  other services.
+
+  ## Managing the configuration at runtime
+
+  During exchange rate service startup, the function `init/1` is called
+  on the configuration exchange rate retrieval module.  This module is
+  expected to return an updated configuration allowing a develop to customise
+  how the configuration is to be managed.  See the implementation at
+  `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
   """
 
   @doc """
@@ -23,6 +107,7 @@ defmodule Money.ExchangeRates do
   data source
   """
   @callback get_latest_rates(Money.Config.t) :: {:ok, %{}} | {:error, binary}
+  @callback init(Monet.Config.t) :: Money.Config.t
 
   require Logger
 
@@ -34,13 +119,14 @@ defmodule Money.ExchangeRates do
   # Defines the configuration for the exchange rates mechanism.
   defmodule Config do
     defstruct retrieve_every: nil, api_module: nil, callback_module: nil,
-              log_levels: %{}, delay_before_first_retrieval: nil
+              log_levels: %{}, delay_before_first_retrieval: nil,
+              retriever_options: nil
   end
 
   @doc """
-  Returns the configuration for the exchange rates retriever.
+  Returns the default configuration for the exchange rates retriever.
   """
-  def config do
+  def default_config do
     %Config{
       api_module:
         Money.get_env(:api_module, @default_api_module, :module),
@@ -142,7 +228,7 @@ defmodule Money.ExchangeRates do
   called periodically by `Money.ExchangeRates.Retriever.handle_info/2` but can
   called at any time by other functions.
   """
-  def get_latest_rates(config \\ config()) do
+  def get_latest_rates(config \\ default_config()) do
     config.api_module.get_latest_rates(config)
   end
 end

@@ -27,14 +27,14 @@ defmodule Money.ExchangeRates.Retriever do
   def init(config) do
     log(config, :info, "Starting exchange rate retrieval service")
     initialize_ets_table()
+    config = config.api_module.init(config)
 
     case config.delay_before_first_retrieval do
       delay when is_integer(delay) and delay > 0 ->
-        log(config, :info, "Rates will be retrieved in #{div(delay, 1000)} seconds " <>
-                           "and then every #{div(config.retrieve_every, 1000)} seconds.")
+        log(config, :info, log_init_message(delay, config.retrieve_every))
         schedule_work(delay)
       _ ->
-        log(config, :info, "Rates will be retrieved every #{div(config.retrieve_every, 1000)} seconds.")
+        log(config, :info, log_init_message(config.retrieve_every))
         schedule_work(config.retrieve_every)
     end
 
@@ -42,17 +42,16 @@ defmodule Money.ExchangeRates.Retriever do
   end
 
   def handle_info(:latest, config) do
-    retrieve_rates(config)
+    retrieve_latest_rates(config)
     schedule_work(config.retrieve_every)
     {:noreply, config}
   end
 
-  def retrieve_rates(%{callback_module: callback_module} = config) do
-    case ExchangeRates.get_latest_rates() do
+  def retrieve_latest_rates(%{callback_module: callback_module} = config) do
+    case ExchangeRates.get_latest_rates(config) do
       {:ok, rates} ->
         retrieved_at = DateTime.utc_now
         store_rates(rates, retrieved_at)
-        log(config, :success, inspect(callback_module))
         apply(callback_module, :rates_retrieved, [rates, retrieved_at])
         log(config, :success, "Retrieved exchange rates successfully")
         {:ok, rates}
@@ -84,4 +83,17 @@ defmodule Money.ExchangeRates.Retriever do
     end
   end
 
+  defp log_init_message(delay, every) when delay < 1_000 do
+    "Rates will be retrieved in #{delay} milliseconds " <>
+    "and then every #{div(every, 1000)} seconds."
+  end
+
+  defp log_init_message(delay, every) do
+    "Rates will be retrieved in #{div(delay, 1000)} seconds " <>
+    "and then every #{div(every, 1000)} seconds."
+  end
+
+  defp log_init_message(every) do
+    "Rates will be retrieved every #{div(every, 1000)} seconds."
+  end
 end

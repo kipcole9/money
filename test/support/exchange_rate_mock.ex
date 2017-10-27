@@ -6,6 +6,13 @@ defmodule Money.ExchangeRates.Test do
 
   @latest_endpoint "/latest.json"
   @latest_url @exr_url <> @latest_endpoint <> "?app_id=" <> @app_id
+  def init(config) do
+    url    = @latest_url
+    app_id = @app_id
+
+    Map.put(config, :retriever_options, %{url: url, app_id: app_id})
+  end
+
   def get_latest_rates(_config) do
     get_rates(@latest_url)
   end

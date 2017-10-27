@@ -1,11 +1,58 @@
 defmodule Money.ExchangeRates.OpenExchangeRates do
+  @moduledoc """
+  Implements the `Money.ExchangeRates` for the Open Exchange
+  Rates service.
+
+  ## Required configuration:
+
+  The configuration key `:open_exchange_rates_app_id` should be
+  set to your `app_id`.  for example:
+
+      config :ex_money,
+        open_exchange_rates_app_id: "your_app_id"
+
+  or configure it via environment variable:
+
+      config :ex_money,
+        open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"}
+
+  It is also possible to configure an alternative base url for this
+  service in case it changes in the future. For example:
+
+      config :ex_money,
+        open_exchange_rates_app_id: "your_app_id"
+        open_exchange_rates_url: "https://openexchangerates.org/alternative_api"
+
+  """
   @behaviour Money.ExchangeRates
+
+  @open_exchange_rate_url "https://openexchangerates.org/api"
+
+  @doc """
+  Update the retriever configuration to include the requirements
+  for Open Exchange Rates.  This function is invoked when the
+  exchange rate service starts up, just after the ets table
+  :exchange_rates is created.
+
+  * `default_config` is the configuration returned by `Money.ExchangeRates.default_config/0`
+
+  Returns the configuration either unchanged or updated with
+  additional configuration specific to this exchange
+  rates retrieval module.
+  """
+  def init(default_config) do
+    url    = Money.get_env(:open_exchange_rates_url, @open_exchange_rate_url)
+    app_id = Money.get_env(:open_exchange_rates_app_id, nil)
+
+    Map.put(default_config, :retriever_options, %{url: url, app_id: app_id})
+  end
 
   @doc """
   Retrieves the latest exchange rates from Open Exchange Rates site.
 
-  * `app_id` is a valid Open Exchange Rates app_id.  Defaults to the
-  configured `app_id` in `config.exs`
+  * `config` is the retrieval configuration. When invoked from the
+  exchange rates services this will be the config returned from
+  `Money.ExchangeRates.OpenExchangeRates.config/1`
 
   Returns:
 
@@ -17,13 +64,10 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   service although it can be called outside that context as
   required.
   """
-
-  @open_exchange_rate_url "https://openexchangerates.org/api"
-
   @spec get_latest_rates(Money.ExchangeRates.Config.t) :: {:ok, Map.t} | {:error, String.t}
-  def get_latest_rates(_config) do
-    url    = Money.get_env(:open_exchange_rates_url, @open_exchange_rate_url)
-    app_id = Money.get_env(:open_exchange_rates_app_id, nil)
+  def get_latest_rates(config) do
+    url = config.retriever_options.url
+    app_id = config.retriever_options.app_id
 
     get_rates(url, app_id)
   end
