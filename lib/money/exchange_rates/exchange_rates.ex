@@ -123,7 +123,7 @@ defmodule Money.ExchangeRates do
 
   The callback is expected to return a `%Money.ExchangeRates.Config{}` struct
   which may have been updated.  The configuration key `:retriever_options` is
-  available for any service-specific configuration`.
+  available for any service-specific configuration.
   """
   @callback init(config :: Money.Config.t) :: Money.Config.t
   @optional_callbacks init: 1
