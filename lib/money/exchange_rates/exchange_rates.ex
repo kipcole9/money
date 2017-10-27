@@ -1,11 +1,11 @@
 defmodule Money.ExchangeRates do
   @moduledoc """
-  Implements functions to retrieve exchange rates from an
-  exchange rate service.
+  Implements a behaviour and functions to retrieve exchange rates
+  from an exchange rate service.
 
   Configuration for the exchange rate service is defined
   in a `Money.ExchangeRates.Config` struct.  A default
-  configuration is retrieved by `Money.ExchangeRates.default_config/0`.
+  configuration is returned by `Money.ExchangeRates.default_config/0`.
 
   The default configuration is:
 
@@ -14,7 +14,6 @@ defmodule Money.ExchangeRates do
         exchange_rates_retrieve_every: 300_000,
         delay_before_first_retrieval: 100,
         api_module: Money.ExchangeRates.OpenExchangeRates,
-        open_exchange_rates_app_id: nil,
         callback_module: Money.ExchangeRates.Callback,
         log_failure: :warn,
         log_info: :info,
@@ -55,7 +54,7 @@ defmodule Money.ExchangeRates do
 
   * `:log_info` defines the log level at which service startup messages
     are logged. The default is `:info`.
-    
+
   * `:retriever_options` is available for exchange rate retriever
     module developers as a place to add retriever-specific configuration
     information.  This information should be added in the `init/1`
@@ -67,17 +66,17 @@ defmodule Money.ExchangeRates do
   strategies. If the value of a configuration key is
   `{:system, "some_string"}` then "some_string" is interpreted as
   an environment variable name which is passed to System.get_env/2.
+
   An example configuration might be:
 
       config :ex_money,
         exchange_rate_service: {:system, "RATE_SERVICE"},
         exchange_rates_retrieve_every: {:system, "RETRIEVE_EVERY"},
-        open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"}
 
   ## Open Exchange Rates
 
   If you plan to use the provided Open Exchange Rates module
-  to retrieve exchange rates then you should also provide the addition
+  to retrieve exchange rates then you should also provide the additional
   configuration key for `app_id`:
 
       config :ex_money,
@@ -97,17 +96,37 @@ defmodule Money.ExchangeRates do
 
   During exchange rate service startup, the function `init/1` is called
   on the configuration exchange rate retrieval module.  This module is
-  expected to return an updated configuration allowing a develop to customise
-  how the configuration is to be managed.  See the implementation at
-  `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
+  expected to return an updated configuration allowing a developer to
+  customise how the configuration is to be managed.  See the implementation
+  at `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
   """
 
   @doc """
-  Defines the behaviour to retrieve exchange rates from an external
-  data source
+  Invoked to return the latest exchange rates from the configured
+  exchange rate retrieval service.
+
+  * `config` is an `%Money.ExchangeRataes.Config{}` struct
+
+  Returns `{:ok, map_of_rates}` or `{:error, reason}`
+
   """
-  @callback get_latest_rates(Money.Config.t) :: {:ok, %{}} | {:error, binary}
-  @callback init(Monet.Config.t) :: Money.Config.t
+  @callback get_latest_rates(config :: Money.Config.t) :: {:ok, Map.t} | {:error, binary}
+
+  @doc """
+  Given the default configuration, returns an updated configuration at runtime
+  during exchange rates service startup.
+
+  This callback is optional.  If the callback is not defined, the default
+  configuration returned by `Money.ExchangeRates.default_config/0` is used.
+
+  * `config` is the configuration returned by `Money.ExchangeRates.default_config/0`
+
+  The callback is expected to return a `%Money.ExchangeRates.Config{}` struct
+  which may have been updated.  The configuration key `:retriever_options` is
+  available for any service-specific configuration`.
+  """
+  @callback init(config :: Money.Config.t) :: Money.Config.t
+  @optional_callbacks init: 1
 
   require Logger
 

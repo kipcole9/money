@@ -27,7 +27,11 @@ defmodule Money.ExchangeRates.Retriever do
   def init(config) do
     log(config, :info, "Starting exchange rate retrieval service")
     initialize_ets_table()
-    config = config.api_module.init(config)
+    config = if function_exported?(config.api_module, :init, 1) do
+      config.api_module.init(config)
+    else
+      config
+    end
 
     case config.delay_before_first_retrieval do
       delay when is_integer(delay) and delay > 0 ->
