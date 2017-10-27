@@ -1,5 +1,11 @@
 # Changelog
 
+## Money 0.8.0 October 27th, 2017
+
+### Breaking Change
+
+* Configuration for the exchange rates retrieval service is now better managed through a `Money.ExchangeRates.Config` struct.  This change will only affect developers of exchange rate service retrieval modules.  There is no change to the public API.  See the implementation in `Money.ExchangeRates.OpenExchangeRates` for an example.
+
 ## Money 0.7.0 October 25th, 2017
 
 ### Enhancements
