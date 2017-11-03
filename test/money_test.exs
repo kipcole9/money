@@ -1,6 +1,7 @@
 defmodule MoneyTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
+
   alias Money.ExchangeRates
   alias Money.Financial
 
@@ -391,6 +392,7 @@ defmodule MoneyTest do
   test "That an error is returned if there is no open exchange rates app_id configured" do
     Application.put_env(:ex_money, :open_exchange_rates_app_id, nil)
     config = Money.ExchangeRates.OpenExchangeRates.init(Money.ExchangeRates.default_config)
+    config = Map.put(config, :log_levels, %{failure: :nil, info: nil, success: nil})
     assert Money.ExchangeRates.OpenExchangeRates.get_latest_rates(config) ==
       {:error, "Open Exchange Rates app_id is not configured.  Rates are not retrieved."}
   end
@@ -399,6 +401,7 @@ defmodule MoneyTest do
     test "That the Open Exchange Rates retriever returns a map" do
       Application.put_env(:ex_money, :open_exchange_rates_app_id, System.get_env("OPEN_EXCHANGE_RATES_APP_ID"))
       config = Money.ExchangeRates.OpenExchangeRates.init(Money.ExchangeRates.default_config)
+      config = Map.put(config, :log_levels, %{failure: :nil, info: nil, success: nil})
       {:ok, rates} = Money.ExchangeRates.OpenExchangeRates.get_latest_rates(config)
       assert is_map(rates)
     end

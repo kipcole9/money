@@ -26,6 +26,8 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   """
   @behaviour Money.ExchangeRates
 
+  alias Money.ExchangeRates.Retriever
+
   @open_exchange_rate_url "https://openexchangerates.org/api"
 
   @doc """
@@ -69,11 +71,17 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
     url = config.retriever_options.url
     app_id = config.retriever_options.app_id
 
-    get_rates(url, app_id)
+    case get_rates(url, app_id) do
+      {:ok, rates} ->
+        {:ok, rates}
+      {:error, reason} ->
+        Retriever.log(config, :failure, app_id_not_configured())
+        {:error, reason}
+    end
   end
 
   defp get_rates(_url, nil) do
-    {:error, "Open Exchange Rates app_id is not configured.  Rates are not retrieved."}
+    {:error, app_id_not_configured()}
   end
 
   @latest_rates "/latest.json"
@@ -99,5 +107,9 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
       {:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}} ->
         {:error, sys_message}
     end
+  end
+
+  defp app_id_not_configured do
+    "Open Exchange Rates app_id is not configured.  Rates are not retrieved."
   end
 end

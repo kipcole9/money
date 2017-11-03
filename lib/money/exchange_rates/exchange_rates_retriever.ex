@@ -28,6 +28,7 @@ defmodule Money.ExchangeRates.Retriever do
     log(config, :info, "Starting exchange rate retrieval service")
     initialize_ets_table()
     config = if function_exported?(config.api_module, :init, 1) do
+      log(config, :info, "Initializing retrieval module #{inspect config.api_module}")
       config.api_module.init(config)
     else
       config
@@ -78,7 +79,7 @@ defmodule Money.ExchangeRates.Retriever do
     :ets.insert(:exchange_rates, {:last_updated, retrieved_at})
   end
 
-  defp log(%{log_levels: log_levels}, key, message) do
+  def log(%{log_levels: log_levels}, key, message) do
     case Map.get(log_levels, key) do
       nil ->
         nil
