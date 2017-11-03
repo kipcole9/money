@@ -383,7 +383,7 @@ ex_money can be installed by:
 
 ```elixir
   def deps do
-    [{:ex_money, "~> 0.7.0"}]
+    [{:ex_money, "~> 0.7.1"}]
   end
 ```
 

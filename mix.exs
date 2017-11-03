@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "0.7.0"
+  @version "0.7.1"
 
   def project do
     [app: :ex_money,
@@ -68,12 +68,11 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:ex_cldr, "~> 0.8.0"},
-      {:ex_cldr_numbers, "~> 0.2.0"},
+      {:ex_cldr, "~> 0.11.0"},
+      {:ex_cldr_numbers, "~> 0.3.1"},
       {:decimal, "~> 1.4"},
       {:ecto, "~> 2.1", optional: true},
-      {:ex_doc, "~> 0.18", only: :dev},
-      {:excoveralls, "~> 0.7.4", only: :test}
+      {:ex_doc, "~> 0.18", only: :dev}
     ]
   end
 

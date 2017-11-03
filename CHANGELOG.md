@@ -1,5 +1,15 @@
 # Changelog
 
+## Money v0.7.1 November 3rd, 2017
+
+### Enhancements
+
+* Update to [ex_cldr](https://hex.pm/packages/ex_cldr) version 0.11.0 in which the term `territory` is preferred over `region
+
+* From ex_cldr version 0.10.0, ex_cldr is based upon CLDR data version 32 which includes two additional currencies:
+  * Added currency CNH
+  * Added currency changes from STD to STN, and PHP based on iso-4217 amendment
+
 ## Money 0.7.0 October 25th, 2017
 
 ### Enhancements
