@@ -1,6 +1,6 @@
 # Changelog
 
-## Money v0.7.1 November 3rd, 2017
+## Money v0.8.1 November 3rd, 2017
 
 ### Enhancements
 
@@ -9,6 +9,12 @@
 * From ex_cldr version 0.10.0, ex_cldr is based upon CLDR data version 32 which includes two additional currencies:
   * Added currency CNH
   * Added currency changes from STD to STN, and PHP based on iso-4217 amendment
+
+## Money 0.8.0 October 27th, 2017
+
+### Breaking Change
+
+* Configuration for the exchange rates retrieval service is now better managed through a `Money.ExchangeRates.Config` struct.  This change will only affect developers of exchange rate service retrieval modules.  There is no change to the public API.  See the implementation in `Money.ExchangeRates.OpenExchangeRates` for an example.
 
 ## Money 0.7.0 October 25th, 2017
 

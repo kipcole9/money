@@ -21,7 +21,7 @@ How is this opinion expressed?
 
 6. All arithmetic functions work on a `Decimal`. No rounding occurs automatically (unless expressly called out for a function, as is the case for `Money.split/2`).
 
-7. Explicit rounding obeys the rounding rules for a given currency. The rounding rules are defined by the Unicode consortium in its CLDR repository as implemented by the hex package `ex_cldr`. These rules define the number of fractional digits for a currency and the rounding increment where appropriate.
+7. Explicit rounding obeys the rounding rules for a given currency. The rounding rules are defined by the Unicode consortium in its CLDR repository as implemented by the hex package [ex_cldr](https://hex.pm/packages/ex_cldr). These rules define the number of fractional digits for a currency and the rounding increment where appropriate.
 
 8. Money output string formatting output using the hex package [ex_cldr](https://hex.pm/packages/ex_cldr) that correctly rounds to the appropriate number of fractional digits and to the correct rounding increment for currencies that have minimum cash increments (like the Swiss Franc and Australian Dollar)
 
@@ -46,23 +46,21 @@ An optional callback module can also be defined.  This module defines a `rates_r
       exchange_rates_retrieve_every: 300_000,
       delay_before_first_retrieval: 100,
       api_module: Money.ExchangeRates.OpenExchangeRates,
-      open_exchange_rates_app_id: nil,
       callback_module: Money.ExchangeRates.Callback,
+      retriever_options: nil
       log_failure: :warn,
       log_info: :info,
       log_success: nil
 
-These keys are are defined as follows:
+### Configuration key definitions
 
-* `exchange_rate_service` is a boolean that determines whether to automatically start the exchange rate retrieval service.  The default it `false`.
+* `:exchange_rate_service` is a boolean that determines whether to automatically start the exchange rate retrieval service.  The default it `false`.
 
-* `exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (300,000 milliseconds)
+* `:exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (300,000 milliseconds)
 
 * `:delay_before_first_retrieval` defines how quickly the retrieval service makes its first request for exchange rates.  The default is 100 milliseconds.  Any value that is not a positive integer means that no first retrieval is made.  Retrieval will continue on interval defined by `:retrieve_every`
 
-* `api_module` identifies the module that does the retrieval of exchange rates. This is any module that implements the `Money.ExchangeRates` behaviour.  The  default is `Money.ExchangeRates.OpenExchangeRates`
-
-* `open_exchange_rates_app_id` defines the `app_id` that is required to use the Open Exchange Rates api
+* `:api_module` identifies the module that does the retrieval of exchange rates. This is any module that implements the `Money.ExchangeRates` behaviour.  The  default is `Money.ExchangeRates.OpenExchangeRates`
 
 * `callback_module` defines a module that follows the `Money.ExchangeRates.Callback` behaviour whereby the function `rates_retrieved/2` is invoked after every successful retrieval of exchange rates.  The default is `Money.ExchangeRates.Callback`.
 
@@ -71,6 +69,30 @@ These keys are are defined as follows:
 * `log_success` defines the log level at which successful api retrieval notifications are logged.  The default is `nil` which means no logging.
 
 * `log_info` defines the log level at which service startup messages are logged.  The default is `info`.
+
+* `:retriever_options` is available for exchange rate retriever module developers as a place to add retriever-specific configuration information.  This information should be added in the `init/1` callback in the retriever module.  See `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
+
+### Open Exchange Rates configuration
+
+If you plan to use the provided Open Exchange Rates module to retrieve exchange rates then you should also provide the addition
+  configuration key for `app_id`:
+
+      config :ex_money,
+        open_exchange_rates_app_id: "your_app_id"
+
+  or configure it via environment variable, for example:
+
+      config :ex_money,
+        open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"}
+
+  The default exchange rate retrieval module is provided in `Money.ExchangeRates.OpenExchangeRates` which can be used
+  as a example to implement your own retrieval module for  other services.
+
+### Managing the configuration at runtime
+
+  During exchange rate service startup, the function `init/1` is called on the configuration exchange rate retrieval module.  This module is expected to return an updated configuration allowing a develop to customise how the configuration is to be managed.  See the implementation at `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
+
+### Using Environment Variables in the configuration
 
 Keys can also be configured to retrieve values from environment variables.  This lookup is done at runtime to facilitate deployment strategies.  If the value of a configuration key is `{:system, "some_string"}` then `"some_string"` is interpreted as an environment variable name which is passed to `System.get_env/2`.  An example configuration might be:
 
@@ -94,7 +116,7 @@ If the exchange rate service is configured to automatically start up (because th
                                          |                 |
                                          +-----------------+
 
-On application start, `Money.ExchangeRates.Retriever` will attempt to retrieve exchange rates in order to honour the contractual intent that exchange rates are available to a client application when it starts.  This first retrieval is done from within `Money.ExchangeRates.Retriever`'s `init/1` callback.
+On application start (or manual start if `:exchange_rate_service` is set to `false`), `Money.ExchangeRates.Retriever` will schedule the first retrieval to be executed after `:delay_before_first_retrieval` milliseconds and then each `:exchange_rates_retrieve_every` milliseconds thereafter.
 
 ## Using Ecto or other applications from within the callback module
 
@@ -383,7 +405,7 @@ ex_money can be installed by:
 
 ```elixir
   def deps do
-    [{:ex_money, "~> 0.7.1"}]
+    [{:ex_money, "~> 0.8.1"}]
   end
 ```
 

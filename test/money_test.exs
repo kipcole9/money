@@ -325,7 +325,7 @@ defmodule MoneyTest do
 
   test "Get exchange rates" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
       :timer.sleep(@sleep_timer)
     end
 
@@ -335,7 +335,7 @@ defmodule MoneyTest do
 
   test "Convert from USD to AUD" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
       :timer.sleep(@sleep_timer)
     end
 
@@ -344,7 +344,7 @@ defmodule MoneyTest do
 
   test "Convert from USD to USD" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
       :timer.sleep(@sleep_timer)
     end
 
@@ -353,7 +353,7 @@ defmodule MoneyTest do
 
   test "Convert from USD to ZZZ should return an error" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
       :timer.sleep(@sleep_timer)
     end
 
@@ -363,7 +363,7 @@ defmodule MoneyTest do
 
   test "Convert from USD to ZZZ should raise an exception" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
       :timer.sleep(@sleep_timer)
     end
 
@@ -374,14 +374,14 @@ defmodule MoneyTest do
 
   test "Invoke callback module on successful exchange rate retrieval" do
     assert capture_io(fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
       :timer.sleep(@sleep_timer)
      end) == "Rates Retrieved\n"
   end
 
   test "That rates_available? returns correctly" do
     assert capture_io(fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.config)
+      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
       assert ExchangeRates.rates_available? == false
       :timer.sleep(@sleep_timer)
       assert ExchangeRates.rates_available? == true
@@ -390,14 +390,16 @@ defmodule MoneyTest do
 
   test "That an error is returned if there is no open exchange rates app_id configured" do
     Application.put_env(:ex_money, :open_exchange_rates_app_id, nil)
-    assert Money.ExchangeRates.OpenExchangeRates.get_latest_rates(Money.ExchangeRates.config) ==
+    config = Money.ExchangeRates.OpenExchangeRates.init(Money.ExchangeRates.default_config)
+    assert Money.ExchangeRates.OpenExchangeRates.get_latest_rates(config) ==
       {:error, "Open Exchange Rates app_id is not configured.  Rates are not retrieved."}
   end
 
   if System.get_env("OPEN_EXCHANGE_RATES_APP_ID") do
     test "That the Open Exchange Rates retriever returns a map" do
       Application.put_env(:ex_money, :open_exchange_rates_app_id, System.get_env("OPEN_EXCHANGE_RATES_APP_ID"))
-      {:ok, rates} = Money.ExchangeRates.OpenExchangeRates.get_latest_rates(Money.ExchangeRates.config)
+      config = Money.ExchangeRates.OpenExchangeRates.init(Money.ExchangeRates.default_config)
+      {:ok, rates} = Money.ExchangeRates.OpenExchangeRates.get_latest_rates(config)
       assert is_map(rates)
     end
   end
