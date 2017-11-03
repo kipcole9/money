@@ -4,7 +4,7 @@
 
 ### Enhancements
 
-* Update to [ex_cldr](https://hex.pm/packages/ex_cldr) version 0.11.0 in which the term `territory` is preferred over `region
+* Update to [ex_cldr](https://hex.pm/packages/ex_cldr) version 0.11.0 in which the term `territory` is preferred over `region`
 
 * From ex_cldr version 0.10.0, ex_cldr is based upon CLDR data version 32 which includes two additional currencies:
   * Added currency CNH
