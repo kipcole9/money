@@ -71,7 +71,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
     url = config.retriever_options.url
     app_id = config.retriever_options.app_id
 
-    case get_rates(url, app_id) do
+    case retrieve_latest_rates(url, app_id) do
       {:ok, rates} ->
         {:ok, rates}
       {:error, reason} ->
@@ -80,16 +80,16 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
     end
   end
 
-  defp get_rates(_url, nil) do
+  defp retrieve_latest_rates(_url, nil) do
     {:error, app_id_not_configured()}
   end
 
   @latest_rates "/latest.json"
-  defp get_rates(url, app_id) do
-    get_rates(url <> @latest_rates <> "?app_id=" <> app_id)
+  defp retrieve_latest_rates(url, app_id) do
+    retrieve_rates(url <> @latest_rates <> "?app_id=" <> app_id)
   end
 
-  defp get_rates(url) do
+  defp retrieve_rates(url) do
     case :httpc.request(String.to_charlist(url)) do
       {:ok, {{_version, 200, 'OK'}, _headers, body}} ->
         %{"base" => _base, "rates" => rates} = Poison.decode!(body)
