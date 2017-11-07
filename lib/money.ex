@@ -51,6 +51,8 @@ defmodule Money do
 
   alias Cldr.Currency
 
+  defdelegate validate_currency(currency_code), to: Cldr
+
   @doc """
   Returns a %Money{} struct from a currency code and a currency amount or
   an error tuple of the form `{:error, {exception, message}}`.
@@ -83,12 +85,12 @@ defmodule Money do
       #Money<:EUR, 100>
 
       iex> Money.new(:XYZZ, 100)
-      {:error, {Money.UnknownCurrencyError, "Currency :XYZZ is not known"}}
+      {:error, {Money.UnknownCurrencyError, "The currency :XYZZ is invalid"}}
 
   """
   @spec new(number, binary) :: Money.t
   def new(currency_code, amount) when is_binary(currency_code) do
-    case validate_currency_code(currency_code) do
+    case validate_currency(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
       {:ok, code} -> new(code, amount)
     end
@@ -99,7 +101,7 @@ defmodule Money do
   end
 
   def new(currency_code, amount) when is_atom(currency_code) and is_number(amount) do
-    case validate_currency_code(currency_code) do
+    case validate_currency(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
       {:ok, code} -> %Money{amount: Decimal.new(amount), currency: code}
     end
@@ -110,7 +112,7 @@ defmodule Money do
   end
 
   def new(currency_code, %Decimal{} = amount) when is_atom(currency_code) do
-    case validate_currency_code(currency_code) do
+    case validate_currency(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
       {:ok, code} -> %Money{amount: amount, currency: code}
     end
@@ -180,7 +182,7 @@ defmodule Money do
   """
   @spec from_tuple({binary, number}) :: Money.t
   def from_tuple({currency_code, amount}) when is_binary(currency_code) and is_number(amount) do
-    case validate_currency_code(currency_code) do
+    case validate_currency(currency_code) do
       {:error, {_exception, message}} ->
         {:error, {Money.UnknownCurrencyError, message}}
       {:ok, code} ->
@@ -745,7 +747,7 @@ defmodule Money do
       {:ok, #Money<:AUD, 73.4500>}
 
       iex> Money.to_currency Money.new(:USD, 100) , :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
-      {:error, {Cldr.UnknownCurrencyError, "Currency :AUDD is not known"}}
+      {:error, {Cldr.UnknownCurrencyError, "The currency :AUDD is invalid"}}
 
       iex> Money.to_currency Money.new(:USD, 100) , :CHF, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
       {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :CHF"}}
@@ -762,7 +764,7 @@ defmodule Money do
   def to_currency(%Money{currency: currency} = money, to_currency, %{} = rates)
   when is_atom(to_currency) or is_binary(to_currency) do
     with \
-      {:ok, to_code} <- Money.validate_currency_code(to_currency)
+      {:ok, to_code} <- Money.validate_currency(to_currency)
     do
       if currency == to_code, do: money, else: to_currency(money, to_currency, {:ok, rates})
     else
@@ -773,7 +775,7 @@ defmodule Money do
   def to_currency(%Money{currency: from_currency, amount: amount}, to_currency, {:ok, rates})
   when is_atom(to_currency) or is_binary(to_currency) do
     with \
-      {:ok, currency_code} <- Money.validate_currency_code(to_currency),
+      {:ok, currency_code} <- Money.validate_currency(to_currency),
       {:ok, base_rate} <- get_rate(from_currency, rates),
       {:ok, conversion_rate} <- get_rate(currency_code, rates)
     do
@@ -900,13 +902,6 @@ defmodule Money do
          [rate] -> {:ok, rate}
          _      -> {:error, {Money.ExchangeRateError, "No exchange rate is available for currency #{inspect currency}"}}
        end
-  end
-
-  def validate_currency_code(currency_code) do
-    case Currency.validate_currency_code(currency_code) do
-      {:error, _} = error -> error
-      {:ok, code} -> {:ok, code}
-    end
   end
 
   defp merge_options(options, required) do

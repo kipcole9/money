@@ -95,25 +95,25 @@ defmodule MoneyTest do
   end
 
   test "raise when creating a new money struct from a tuple with an invalid currency code" do
-    assert_raise Money.UnknownCurrencyError, "Currency \"ABCD\" is not known", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCD\" is invalid", fn ->
       Money.from_tuple!({"ABCD", 1234})
     end
   end
 
   test "raise when creating a new money struct from invalid input" do
-    assert_raise Money.UnknownCurrencyError, "Currency \"ABCDE\" is not known", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
       Money.from_tuple!({1234, "ABCDE"})
     end
 
-    assert_raise Money.UnknownCurrencyError, "Currency \"ABCDE\" is not known", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
       Money.new!("ABCDE", 100)
     end
 
-    assert_raise Money.UnknownCurrencyError, "Currency \"ABCDE\" is not known", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
       Money.new!(Decimal.new(100),  "ABCDE")
     end
 
-    assert_raise Money.UnknownCurrencyError, "Currency \"ABCDE\" is not known", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
       Money.new!("ABCDE", Decimal.new(100))
     end
   end
@@ -137,11 +137,11 @@ defmodule MoneyTest do
   end
 
   test "creating a money struct with an invalid atom currency code returns error tuple" do
-    assert Money.new(:XYZ, 100) == {:error, {Money.UnknownCurrencyError, "Currency :XYZ is not known"}}
+    assert Money.new(:XYZ, 100) == {:error, {Money.UnknownCurrencyError, "The currency :XYZ is invalid"}}
   end
 
   test "creating a money struct with an invalid binary currency code returns error tuple" do
-    assert Money.new("ABCD", 100) == {:error, {Money.UnknownCurrencyError, "Currency \"ABCD\" is not known"}}
+    assert Money.new("ABCD", 100) == {:error, {Money.UnknownCurrencyError, "The currency \"ABCD\" is invalid"}}
   end
 
   test "string output of money is correctly formatted" do
@@ -359,7 +359,7 @@ defmodule MoneyTest do
     end
 
     assert Money.to_currency(Money.new(:USD, 100), :ZZZ) ==
-      {:error, {Cldr.UnknownCurrencyError, "Currency :ZZZ is not known"}}
+      {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
   end
 
   test "Convert from USD to ZZZ should raise an exception" do
@@ -368,7 +368,7 @@ defmodule MoneyTest do
       :timer.sleep(@sleep_timer)
     end
 
-    assert_raise Cldr.UnknownCurrencyError, ~r/Currency :ZZZ is not known/, fn ->
+    assert_raise Cldr.UnknownCurrencyError, ~r/The currency :ZZZ is invalid/, fn ->
       assert Money.to_currency!(Money.new(:USD, 100), :ZZZ)
     end
   end

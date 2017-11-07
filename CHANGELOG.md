@@ -1,5 +1,11 @@
 # Changelog
 
+## Money v0.8.2 November 8th, 2017
+
+### Enhancements
+
+* Update to [ex_cldr](https://hex.pm/packages/ex_cldr) version 0.12.0
+
 ## Money v0.8.1 November 3rd, 2017
 
 ### Enhancements
