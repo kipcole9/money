@@ -142,11 +142,10 @@ defmodule Money.ExchangeRates do
   retriever module.
   """
   def config do
-    api_module = default_config.api_module
-    {:module, ^api_module} = Code.ensure_loaded(api_module)
+    api_module = default_config().api_module
 
-    if function_exported?(default_config().api_module, :init, 1) do
-      config = default_config().api_module.init(default_config())
+    if Code.ensure_loaded?(api_module) and function_exported?(api_module, :init, 1) do
+      config = api_module.init(default_config())
       Retriever.log(config, :info, "Initialized retrieval module #{inspect config.api_module}")
       config
     else
