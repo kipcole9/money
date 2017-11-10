@@ -1,5 +1,11 @@
 # Changelog
 
+## Money v0.8.3 November 10th, 2017
+
+### Bug fixes
+
+* Remove spurious log message "app_id not configured" when there is an error on retrieval. A message is already logged when there's a retrieval error.
+
 ## Money v0.8.2 November 8th, 2017
 
 ### Enhancements
