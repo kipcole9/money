@@ -137,11 +137,14 @@ defmodule Money.ExchangeRates do
   @default_api_module Money.ExchangeRates.OpenExchangeRates
 
   @doc """
-  Retiurns the configuratio for `ex_money` including the
+  Returns the configuration for `ex_money` including the
   configuration merged from the configured exchange rates
   retriever module.
   """
   def config do
+    api_module = default_config.api_module
+    {:module, ^api_module} = Code.ensure_loaded(api_module)
+
     if function_exported?(default_config().api_module, :init, 1) do
       config = default_config().api_module.init(default_config())
       Retriever.log(config, :info, "Initialized retrieval module #{inspect config.api_module}")
