@@ -1,5 +1,11 @@
 # Changelog
 
+## Money v0.8.4 November 10th, 2017
+
+### Bug fixes
+
+* Fixed a configuration issue whereby a race condition could prevent the configuration being valid before the first request to retrieve exchange rates.  Fixes #35.
+
 ## Money v0.8.3 November 10th, 2017
 
 ### Bug fixes
