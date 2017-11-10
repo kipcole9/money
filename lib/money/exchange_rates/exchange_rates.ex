@@ -129,11 +129,27 @@ defmodule Money.ExchangeRates do
   @optional_callbacks init: 1
 
   require Logger
+  alias Money.ExchangeRates.Retriever
 
   @default_retrieval_interval 300_000
   @default_delay_before_first_retrieval 100
   @default_callback_module Money.ExchangeRates.Callback
   @default_api_module Money.ExchangeRates.OpenExchangeRates
+
+  @doc """
+  Retiurns the configuratio for `ex_money` including the
+  configuration merged from the configured exchange rates
+  retriever module.
+  """
+  def config do
+    if function_exported?(default_config().api_module, :init, 1) do
+      config = default_config().api_module.init(default_config())
+      Retriever.log(config, :info, "Initialized retrieval module #{inspect config.api_module}")
+      config
+    else
+      default_config()
+    end
+  end
 
   # Defines the configuration for the exchange rates mechanism.
   defmodule Config do
