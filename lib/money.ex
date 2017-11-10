@@ -883,15 +883,9 @@ defmodule Money do
   defp to_integer(n) when is_binary(n), do: String.to_integer(n)
 
   defp to_module(nil), do: nil
-  defp to_module(module_name) when is_atom(module_name), do: module_name
+  defp to_module(module_name) when is_atom(module_name) , do: module_name
   defp to_module(module_name) when is_binary(module_name) do
-    module = Module.concat([module_name])
-
-    if Code.ensure_loaded?(module) do
-      module
-    else
-      raise ArgumentError, "The module #{inspect module_name} is not known"
-    end
+    Module.concat([module_name])
   end
 
   defp get_rate(currency, rates) do
