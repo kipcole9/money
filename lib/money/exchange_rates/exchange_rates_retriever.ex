@@ -89,16 +89,28 @@ defmodule Money.ExchangeRates.Retriever do
   end
 
   defp log_init_message(delay, every) when delay < 1_000 do
+    {every, plural_every} = seconds(every)
+
     "Rates will be retrieved in #{delay} milliseconds " <>
-    "and then every #{div(every, 1000)} seconds."
+    "and then every #{every} #{plural_every}."
   end
 
   defp log_init_message(delay, every) do
-    "Rates will be retrieved in #{div(delay, 1000)} seconds " <>
-    "and then every #{div(every, 1000)} seconds."
+    {delay, plural_delay} = seconds(delay)
+    {every, plural_every} = seconds(every)
+
+    "Rates will be retrieved in #{delay} #{plural_delay} " <>
+    "and then every #{every} #{plural_every}."
   end
 
   defp log_init_message(every) do
-    "Rates will be retrieved every #{div(every, 1000)} seconds."
+    {every, plural_every} = seconds(every)
+    "Rates will be retrieved every #{every} #{plural_every}."
+  end
+
+  defp seconds(milliseconds) do
+    seconds = div(milliseconds, 1000)
+    plural = if seconds == 1, do: "second", else: "seconds"
+    {seconds, plural}
   end
 end

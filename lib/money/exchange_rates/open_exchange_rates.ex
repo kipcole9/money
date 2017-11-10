@@ -26,8 +26,6 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   """
   @behaviour Money.ExchangeRates
 
-  alias Money.ExchangeRates.Retriever
-
   @open_exchange_rate_url "https://openexchangerates.org/api"
 
   @doc """
@@ -45,7 +43,6 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   def init(default_config) do
     url    = Money.get_env(:open_exchange_rates_url, @open_exchange_rate_url)
     app_id = Money.get_env(:open_exchange_rates_app_id, nil)
-
     Map.put(default_config, :retriever_options, %{url: url, app_id: app_id})
   end
 
@@ -70,14 +67,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   def get_latest_rates(config) do
     url = config.retriever_options.url
     app_id = config.retriever_options.app_id
-
-    case retrieve_latest_rates(url, app_id) do
-      {:ok, rates} ->
-        {:ok, rates}
-      {:error, reason} ->
-        Retriever.log(config, :failure, app_id_not_configured())
-        {:error, reason}
-    end
+    retrieve_latest_rates(url, app_id)
   end
 
   defp retrieve_latest_rates(_url, nil) do
