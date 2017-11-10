@@ -1,5 +1,11 @@
 # Changelog
 
+## Money v0.8.5 November 11th, 2017
+
+### Bug fixes
+
+* Ensures that the api_module for the exchange rate service is loaded before checking if it has an `init/1` module.  Properly fixes #35.  Thanks to @blaketan.
+
 ## Money v0.8.4 November 10th, 2017
 
 ### Bug fixes
