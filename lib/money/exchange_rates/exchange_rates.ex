@@ -249,8 +249,10 @@ defmodule Money.ExchangeRates do
   end
 
   def retrieve_historic(%{year: year, month: month, day: day}) do
-    {:ok, date} = Date.new(year, month, day)
-    retrieve_historic(date)
+    case Date.new(year, month, day) do
+      {:ok, date} -> retrieve_historic(date)
+      error -> error
+    end
   end
 
   def retrieve_historic(%Date.Range{first: from, last: to}) do
@@ -291,9 +293,12 @@ defmodule Money.ExchangeRates do
   end
 
   def retrieve_historic(%{year: y1, month: m1, day: d1}, %{year: y2, month: m2, day: d2}) do
-    {:ok, from} = Date.new(y1, m1, d1)
-    {:ok, to} = Date.new(y2, m2, d2)
-    retrieve_historic(from, to)
+    with \
+      {:ok, from} <- Date.new(y1, m1, d1),
+      {:ok, to} <- Date.new(y2, m2, d2)
+    do
+      retrieve_historic(from, to)
+    end
   end
 
   @doc """
