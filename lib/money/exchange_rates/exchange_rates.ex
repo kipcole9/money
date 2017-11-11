@@ -216,10 +216,14 @@ defmodule Money.ExchangeRates do
   Forces retrieval of historic exchange rates for a single date
 
   * `date` is a date returned by `Date.new/3` or any struct with the
-    elements `:year`, `:month` and `:day`.
+    elements `:year`, `:month` and `:day` or
+
+  * a `Date.Range.t` created by `Date.range/2` that specifies a
+    range of dates to retrieve
 
   Sends a message ot the exchange rate retrieval worker to request
-  historic rates for a specified date be retrieved and stored.
+  historic rates for a specified date or range be retrieved and
+  stored.
 
   This function does not return exchange rates, for that see
   `Money.ExchangeRates.latest_rates/0` or
@@ -237,8 +241,12 @@ defmodule Money.ExchangeRates do
     retrieve_historic(date)
   end
 
+  def retrieve_historic(%Date.Range{first: from, last: to}) do
+    retrieve_historic(from, to)
+  end
+
   @doc """
-  Forces retrieval of historic exchange rates for a date range
+  Forces retrieval of historic exchange rates for a range of dates
 
   * `from` is a date returned by `Date.new/3` or any struct with the
     elements `:year`, `:month` and `:day`.
