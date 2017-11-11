@@ -201,6 +201,12 @@ defmodule Money.ExchangeRates do
   Sends a message ot the exchange rate retrieval worker to request
   current rates be retrieved and stored.
 
+  Returns:
+
+  * `:ok` if exchange rates request is successfully sent.
+
+  * `{:error, reason}` if the request cannot be send.
+
   This function does not return exchange rates, for that see
   `Money.ExchangeRates.latest_rates/0` or
   `Money.ExchangeRates.historic_rates/1`.
@@ -220,6 +226,12 @@ defmodule Money.ExchangeRates do
 
   * a `Date.Range.t` created by `Date.range/2` that specifies a
     range of dates to retrieve
+
+  Returns:
+
+  * `:ok` if exchange rates request is successfully sent.
+
+  * `{:error, reason}` if the request cannot be send.
 
   Sends a message ot the exchange rate retrieval worker to request
   historic rates for a specified date or range be retrieved and
@@ -253,6 +265,12 @@ defmodule Money.ExchangeRates do
 
   * `to` is a date returned by `Date.new/3` or any struct with the
     elements `:year`, `:month` and `:day`.
+
+  Returns:
+
+  * `:ok` if exchange rates request is successfully sent.
+
+  * `{:error, reason}` if the request cannot be send.
 
   Sends a message to the exchange rate retrieval worker for each
   date in the range `from`..`to` to request historic rates be
