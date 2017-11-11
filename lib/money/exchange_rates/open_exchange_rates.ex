@@ -79,6 +79,49 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
     retrieve_rates(url <> @latest_rates <> "?app_id=" <> app_id)
   end
 
+  @doc """
+  Retrieves the historic exchange rates from Open Exchange Rates site.
+
+  * `date` is a date returned by `Date.new/3` or any struct with the
+    elements `:year`, `:month` and `:day`.
+
+  * `config` is the retrieval configuration. When invoked from the
+    exchange rates services this will be the config returned from
+    `Money.ExchangeRates.OpenExchangeRates.config/1`
+
+  Returns:
+
+  * `{:ok, rates}` if the rates can be retrieved
+
+  * `{:error, reason}` if rates cannot be retrieved
+
+  Typically this function is called by the exchange rates retrieval
+  service although it can be called outside that context as
+  required.
+  """
+  def get_historic_rates(date, config) do
+    url = config.retriever_options.url
+    app_id = config.retriever_options.app_id
+    retrieve_historic_rates(date, url, app_id)
+  end
+
+  defp retrieve_historic_rates(_date, _url, nil) do
+    {:error, app_id_not_configured()}
+  end
+
+  @historic_rates "/historical/"
+  defp retrieve_historic_rates(%Date{calendar: Calendar.ISO} = date, url, app_id) do
+    date_string = Date.to_string(date)
+    retrieve_rates(url <> @historic_rates <> "#{date_string}.json" <> "?app_id=" <> app_id)
+  end
+
+  defp retrieve_historic_rates(%{year: year, month: month, day: day}, url, app_id)  do
+    case Date.new(year, month, day) do
+      {:ok, date} -> retrieve_historic_rates(date, url, app_id)
+      error -> error
+    end
+  end
+
   defp retrieve_rates(url) do
     case :httpc.request(String.to_charlist(url)) do
       {:ok, {{_version, 200, 'OK'}, _headers, body}} ->

@@ -12,9 +12,9 @@ defmodule Money.ExchangeRates do
       config :ex_money,
         exchange_rate_service: false,
         exchange_rates_retrieve_every: 300_000,
-        delay_before_first_retrieval: 100,
         api_module: Money.ExchangeRates.OpenExchangeRates,
         callback_module: Money.ExchangeRates.Callback,
+        preload_historic_rates: nil
         log_failure: :warn,
         log_info: :info,
         log_success: nil
@@ -29,12 +29,6 @@ defmodule Money.ExchangeRates do
     rates are retrieved in milliseconds. The default is 5 minutes
     (300,000 milliseconds)
 
-  * `:delay_before_first_retrieval` defines how quickly the
-    retrieval service makes its first request for exchange rates.
-    The default is 100 milliseconds. Any value that is not a
-    positive integer means that no first retrieval is made.
-    Retrieval will continue on interval defined by `:retrieve_every`
-
   * `:api_module` identifies the module that does the retrieval of
     exchange rates. This is any module that implements the
     `Money.ExchangeRates` behaviour. The default is
@@ -44,6 +38,13 @@ defmodule Money.ExchangeRates do
     Money.ExchangeRates.Callback behaviour whereby the function
     `rates_retrieved/2` is invoked after every successful retrieval
     of exchange rates. The default is `Money.ExchangeRates.Callback`.
+
+  * `:preload_historic_rates` defines a date or a date range,
+    that will be requested when the exchange rate service starts up.
+    The date or date range should be specified as either a `Date.t`
+    or a `Date.Range.t` or a tuple of `{Date.t, Date.t}` representing
+    the `from` and `to` dates for the rates to be retrieved. The
+    default is `nil` meaning no historic rates are preloaded.
 
   * `:log_failure` defines the log level at which api retrieval
     errors are logged. The default is `:warn`
@@ -110,7 +111,20 @@ defmodule Money.ExchangeRates do
   Returns `{:ok, map_of_rates}` or `{:error, reason}`
 
   """
-  @callback get_latest_rates(config :: Money.Config.t) :: {:ok, Map.t} | {:error, binary}
+  @callback get_latest_rates(config :: Money.Config.t) ::
+    {:ok, Map.t} | {:error, binary}
+
+  @doc """
+  Invoked to return the historic exchange rates from the configured
+  exchange rate retrieval service.
+
+  * `config` is an `%Money.ExchangeRataes.Config{}` struct
+
+  Returns `{:ok, map_of_historic_rates}` or `{:error, reason}`
+
+  """
+  @callback get_historic_rates(Date.t, config :: Money.Config.t) ::
+    {:ok, Map.t} | {:error, binary}
 
   @doc """
   Given the default configuration, returns an updated configuration at runtime
@@ -129,10 +143,8 @@ defmodule Money.ExchangeRates do
   @optional_callbacks init: 1
 
   require Logger
-  alias Money.ExchangeRates.Retriever
 
   @default_retrieval_interval 300_000
-  @default_delay_before_first_retrieval 100
   @default_callback_module Money.ExchangeRates.Callback
   @default_api_module Money.ExchangeRates.OpenExchangeRates
 
@@ -145,9 +157,7 @@ defmodule Money.ExchangeRates do
     api_module = default_config().api_module
 
     if function_exported?(api_module, :init, 1) do
-      config = api_module.init(default_config())
-      Retriever.log(config, :info, "Initialized retrieval module #{inspect api_module}")
-      config
+      api_module.init(default_config())
     else
       default_config()
     end
@@ -155,8 +165,12 @@ defmodule Money.ExchangeRates do
 
   # Defines the configuration for the exchange rates mechanism.
   defmodule Config do
-    defstruct retrieve_every: nil, api_module: nil, callback_module: nil,
-              log_levels: %{}, delay_before_first_retrieval: nil,
+    defstruct retrieve_every: nil,
+              api_module: nil,
+              callback_module: nil,
+              log_levels: %{},
+              delay_before_first_retrieval: nil,
+              preload_historic_rates: nil,
               retriever_options: nil
   end
 
@@ -169,10 +183,10 @@ defmodule Money.ExchangeRates do
         Money.get_env(:api_module, @default_api_module, :module),
       callback_module:
         Money.get_env(:callback_module, @default_callback_module, :module),
+      preload_historic_rates:
+        Money.get_env(:preload_historic_rates, nil),
       retrieve_every:
         Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval, :integer),
-      delay_before_first_retrieval:
-        Money.get_env(:delay_before_first_retrieval, @default_delay_before_first_retrieval, :integer),
       log_levels: %{
         success: Money.get_env(:log_success, nil),
         info: Money.get_env(:log_info, :warn),
@@ -182,19 +196,78 @@ defmodule Money.ExchangeRates do
   end
 
   @doc """
-  Forces retrieval of exchange rates
+  Forces retrieval of the latest exchange rates
 
   Sends a message ot the exchange rate retrieval worker to request
-  rates be retrieved.
+  current rates be retrieved and stored.
 
   This function does not return exchange rates, for that see
-  `Money.ExchangeRates.latest_rates/0`.
+  `Money.ExchangeRates.latest_rates/0` or
+  `Money.ExchangeRates.historic_rates/1`.
   """
-  def retrieve() do
+  def retrieve_latest() do
     case Process.whereis(Money.ExchangeRates.Retriever) do
-      nil -> {:error, {Money.ExchangeRateError, "Exchange rate service does not appear to be running"}}
-      pid -> Process.send(pid, :latest, [])
+      nil -> {:error, exchange_rate_service_error()}
+      pid -> Process.send(pid, :latest_rates, [])
     end
+  end
+
+  @doc """
+  Forces retrieval of historic exchange rates for a single date
+
+  * `date` is a date returned by `Date.new/3` or any struct with the
+    elements `:year`, `:month` and `:day`.
+
+  Sends a message ot the exchange rate retrieval worker to request
+  historic rates for a specified date be retrieved and stored.
+
+  This function does not return exchange rates, for that see
+  `Money.ExchangeRates.latest_rates/0` or
+  `Money.ExchangeRates.historic_rates/1`.
+  """
+  def retrieve_historic(%Date{calendar: Calendar.ISO} = date) do
+    case Process.whereis(Money.ExchangeRates.Retriever) do
+      nil -> {:error, exchange_rate_service_error()}
+      pid -> Process.send(pid, {:historic_rates, date}, [])
+    end
+  end
+
+  def retrieve_historic(%{year: year, month: month, day: day}) do
+    {:ok, date} = Date.new(year, month, day)
+    retrieve_historic(date)
+  end
+
+  @doc """
+  Forces retrieval of historic exchange rates for a date range
+
+  * `from` is a date returned by `Date.new/3` or any struct with the
+    elements `:year`, `:month` and `:day`.
+
+  * `to` is a date returned by `Date.new/3` or any struct with the
+    elements `:year`, `:month` and `:day`.
+
+  Sends a message to the exchange rate retrieval worker for each
+  date in the range `from`..`to` to request historic rates be
+  retrieved and stored.
+
+  This function does not return exchange rates, for that see
+  `Money.ExchangeRates.latest_rates/0` or
+  `Money.ExchangeRates.historic_rates/1`.
+  """
+  def retrieve_historic(%Date{calendar: Calendar.ISO} = from, %Date{calendar: Calendar.ISO} = to) do
+    case Process.whereis(Money.ExchangeRates.Retriever) do
+      nil -> {:error, exchange_rate_service_error()}
+      pid ->
+        for date <- Date.range(from, to) do
+          Process.send(pid, {:historic_rates, date}, [])
+        end
+    end
+  end
+
+  def retrieve_historic(%{year: y1, month: m1, day: d1}, %{year: y2, month: m2, day: d2}) do
+    {:ok, from} = Date.new(y1, m1, d1)
+    {:ok, to} = Date.new(y2, m2, d2)
+    retrieve_historic(from, to)
   end
 
   @doc """
@@ -203,15 +276,20 @@ defmodule Money.ExchangeRates do
   Returns:
 
   * `{:ok, rates}` if exchange rates are successfully retrieved.  `rates` is a map of
-  exchange rates.
+    exchange rates.
 
   * `{:error, reason}` if no exchange rates can be returned.
+
+  This function looks up the latest exchange rates in a an ETS table
+  called `:exchange_rates`.  The actual retrieval of rates is requested
+  through `Money.ExchangeRates.retrieve_latest_rates/0`.
+
   """
   @spec latest_rates() :: {:ok, Map.t} | {:error, {Exception.t, binary}}
   def latest_rates do
     try do
-      case :ets.lookup(:exchange_rates, :rates) do
-        [{:rates, rates}] -> {:ok, rates}
+      case :ets.lookup(:exchange_rates, :latest_rates) do
+        [{:latest_rates, rates}] -> {:ok, rates}
         [] -> {:error, {Money.ExchangeRateError, "No exchange rates were found"}}
       end
     rescue
@@ -222,11 +300,53 @@ defmodule Money.ExchangeRates do
   end
 
   @doc """
-  Returns `true` if exchange rates are available
+  Return historic exchange rates.
+
+  * `date` is a date returned by `Date.new/3` or any struct with the
+    elements `:year`, `:month` and `:day`.
+
+  Returns:
+
+  * `{:ok, rates}` if exchange rates are successfully retrieved.  `rates` is a map of
+  exchange rates.
+
+  * `{:error, reason}` if no exchange rates can be returned.
+
+  Note; all dates are assumed to be in the Calendar.ISO calendar
+
+  This function looks up the historic exchange rates in a an ETS table
+  called `:exchange_rates`.  The actual retrieval of rates is requested
+  through `Money.ExchangeRates.retrieve_historic_rates/1`.
+
+  """
+  def historic_rates(%Date{calendar: Calendar.ISO} = date) do
+    try do
+      case :ets.lookup(:exchange_rates, date) do
+        [{_date, rates}] ->
+          {:ok, rates}
+        [] ->
+          {:error, {Money.ExchangeRateError,
+            "No exchange rates for #{Date.to_string(date)} were found"}}
+      end
+    rescue
+      ArgumentError ->
+        Logger.error "Argument error getting historic exchange rates from ETS table"
+        {:error, {Money.ExchangeRateError,
+          "No exchange rates for #{Date.to_string(date)} are available"}}
+    end
+  end
+
+  def historic_rates(%{year: year, month: month, day: day}) do
+    {:ok, date} = Date.new(year, month, day)
+    historic_rates(date)
+  end
+
+  @doc """
+  Returns `true` if the latest exchange rates are available
   and false otherwise.
   """
-  @spec rates_available?() :: boolean
-  def rates_available? do
+  @spec latest_rates_available?() :: boolean
+  def latest_rates_available? do
     case latest_rates() do
       {:ok, _} -> true
       {:error, _} -> false
@@ -258,14 +378,30 @@ defmodule Money.ExchangeRates do
   end
 
   @doc """
-  Retrieves exchange rates from the configured exchange rate api module.
+  Retrieves the latest exchange rates from the configured exchange
+  rate api module.
 
   This call is the public api to retrieve results from an external api service
   or other mechanism implemented by an api module.  This method is typically
   called periodically by `Money.ExchangeRates.Retriever.handle_info/2` but can
   called at any time by other functions.
   """
-  def get_latest_rates(config \\ default_config()) do
+  def get_latest_rates(config \\ config()) do
     config.api_module.get_latest_rates(config)
+  end
+
+  @doc """
+  Retrieves historic exchange rates from the configured exchange
+  rate api module.
+
+  This call is the public api to retrieve results from an external api service
+  or other mechanism implemented by an api module.
+  """
+  def get_historic_rates(%{year: _, month: _, day: _} = date, config \\ config()) do
+    config.api_module.get_historic_rates(date, config)
+  end
+
+  defp exchange_rate_service_error do
+    {Money.ExchangeRateError, "Exchange rate service does not appear to be running"}
   end
 end

@@ -1,5 +1,23 @@
 # Changelog
 
+## Money v0.9.0 November __th, 2017
+
+### Breaking changes
+
+* Various functions that used to have `rates` as part of their name are now changed to include `latest_rates` in their names to differentiate from the historic rates functions.
+
+* The configuration option `:delay_before_first_retrieval` is deprecated and is no longer in effect. The latest exchange rates are retrieved immediately after the exchange rates service starts.
+
+### Enhancements
+
+Adds support for historic exchange rates (not just current exchange rates).
+
+* Add `Money.ExchangeRates.retrieve_historic/1` and `Money.ExchangeRates.retrieve_historic/2` to retrieve historic rates for a single date or for a date range.  Note that in the current implementation one request is made to the configured exchange rates service for each date in a date range.
+
+* Add `Money.ExchangeRates.historic_rates/1` which returns the exchange rates for a given date.  This is the companion to the current `Money.ExchangeRates.latest_rates/0` function.
+
+* Add a new @callback `Money.ExchangeRates.get_historic_rates/2` that should be implemented in a callback module.  This function is called after the successful retrieval of historic exchange rates.  The callback has been implemented for the default `Money.ExchangeRates.Callback` module.
+
 ## Money v0.8.5 November 11th, 2017
 
 ### Bug fixes

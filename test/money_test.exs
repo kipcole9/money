@@ -1,6 +1,7 @@
 defmodule MoneyTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
+  import Money.ExchangeRatesTestHelper
 
   alias Money.ExchangeRates
   alias Money.Financial
@@ -326,7 +327,7 @@ defmodule MoneyTest do
 
   test "Get exchange rates" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
+      {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
     end
 
@@ -336,7 +337,7 @@ defmodule MoneyTest do
 
   test "Convert from USD to AUD" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
+      {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
     end
 
@@ -345,7 +346,7 @@ defmodule MoneyTest do
 
   test "Convert from USD to USD" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
+      {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
     end
 
@@ -354,7 +355,7 @@ defmodule MoneyTest do
 
   test "Convert from USD to ZZZ should return an error" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
+      {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
     end
 
@@ -364,7 +365,7 @@ defmodule MoneyTest do
 
   test "Convert from USD to ZZZ should raise an exception" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
+      {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
     end
 
@@ -373,19 +374,41 @@ defmodule MoneyTest do
     end
   end
 
+  test "Convert from USD to AUD using historic rates" do
+    capture_io fn ->
+      {:ok, _pid} = start_service()
+      :timer.sleep(@sleep_timer)
+    end
+
+    assert Money.to_currency!(Money.new(:USD, 100), :AUD,
+      ExchangeRates.historic_rates(~D[2017-01-01])) |> Money.round ==
+      Money.new(:AUD, Decimal.new(71.43))
+  end
+
+  test "Convert from USD to AUD using historic rates that aren't available" do
+    capture_io fn ->
+      {:ok, _pid} = start_service()
+      :timer.sleep(@sleep_timer)
+    end
+
+    assert Money.to_currency(Money.new(:USD, 100), :AUD,
+      ExchangeRates.historic_rates(~D[2017-02-01])) ==
+       {:error, {Money.ExchangeRateError, "No exchange rates for 2017-02-01 were found"}}
+  end
+
   test "Invoke callback module on successful exchange rate retrieval" do
     assert capture_io(fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
+      {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
-     end) == "Rates Retrieved\n"
+     end) == "Historic Rates Retrieved\nHistoric Rates Retrieved\nLatest Rates Retrieved\n"
   end
 
   test "That rates_available? returns correctly" do
     assert capture_io(fn ->
       {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
-      assert ExchangeRates.rates_available? == false
+      assert ExchangeRates.latest_rates_available? == false
       :timer.sleep(@sleep_timer)
-      assert ExchangeRates.rates_available? == true
+      assert ExchangeRates.latest_rates_available? == true
      end)
   end
 
