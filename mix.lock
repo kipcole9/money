@@ -1,10 +1,12 @@
-%{"certifi": {:hex, :certifi, "2.0.0", "a0c0e475107135f76b8c1d5bc7efb33cd3815cb3cf3dea7aefdd174dabead064", [:rebar3], []},
+%{
+  "abnf2": {:hex, :abnf2, "0.1.2", "6f8792b8ac3288dba5fc889c2bceae9fe78f74e1a7b36bea9726ffaa9d7bef95", [:mix], []},
+  "certifi": {:hex, :certifi, "2.0.0", "a0c0e475107135f76b8c1d5bc7efb33cd3815cb3cf3dea7aefdd174dabead064", [:rebar3], []},
   "decimal": {:hex, :decimal, "1.4.1", "ad9e501edf7322f122f7fc151cce7c2a0c9ada96f2b0155b8a09a795c2029770", [:mix], []},
   "earmark": {:hex, :earmark, "1.2.3", "206eb2e2ac1a794aa5256f3982de7a76bf4579ff91cb28d0e17ea2c9491e46a4", [:mix], []},
   "ecto": {:hex, :ecto, "2.2.6", "3fd1067661d6d64851a0d4db9acd9e884c00d2d1aa41cc09da687226cf894661", [:mix], [{:db_connection, "~> 1.1", [hex: :db_connection, optional: true]}, {:decimal, "~> 1.2", [hex: :decimal, optional: false]}, {:mariaex, "~> 0.8.0", [hex: :mariaex, optional: true]}, {:poison, "~> 2.2 or ~> 3.0", [hex: :poison, optional: true]}, {:poolboy, "~> 1.5", [hex: :poolboy, optional: false]}, {:postgrex, "~> 0.13.0", [hex: :postgrex, optional: true]}, {:sbroker, "~> 1.0", [hex: :sbroker, optional: true]}]},
   "ex_abnf": {:hex, :ex_abnf, "0.3.0", "07847d0d6cb75b779948520d02cba80eb855e18acb1aa8d43b1e370ef31afbcb", [:mix], []},
-  "ex_cldr": {:hex, :ex_cldr, "0.12.2", "0c9ca51c8cca6d903b7632461cfc11b5bef67f441daeb4a7eb467548236ec3d5", [:mix], [{:decimal, "~> 1.4.1", [hex: :decimal, repo: "hexpm", optional: false]}, {:ex_abnf, "~> 0.3.0", [hex: :ex_abnf, repo: "hexpm", optional: false]}, {:flow, "~> 0.11", [hex: :flow, repo: "hexpm", optional: false]}, {:gen_stage, "~> 0.12.2", [hex: :gen_stage, repo: "hexpm", optional: false]}, {:gettext, "~> 0.13.0", [hex: :gettext, repo: "hexpm", optional: true]}, {:poison, "~> 2.1 or ~> 3.0", [hex: :poison, repo: "hexpm", optional: false]}], "hexpm"},
-  "ex_cldr_numbers": {:hex, :ex_cldr_numbers, "0.3.2", "1745c1b1eb45189d74e1a678e1576ccbe1990a60bde5b6c271d5bd81f578e894", [:mix], [{:decimal, "~> 1.4.1", [hex: :decimal, optional: false]}, {:ex_cldr, "~> 0.12.0", [hex: :ex_cldr, optional: false]}, {:poison, "~> 2.1 or ~> 3.1", [hex: :poison, optional: false]}]},
+  "ex_cldr": {:hex, :ex_cldr, "0.13.0", "5c11bc81ed3484b7eb125c09f1e24f86cb094952d4c0ee6b9bc8671959de4a44", [:mix], [{:abnf2, "~> 0.1", [hex: :abnf2, optional: false]}, {:decimal, "~> 1.4.1", [hex: :decimal, optional: false]}, {:flow, "~> 0.11", [hex: :flow, optional: false]}, {:gen_stage, "~> 0.12.2", [hex: :gen_stage, optional: false]}, {:gettext, "~> 0.13.0", [hex: :gettext, optional: true]}, {:poison, "~> 2.1 or ~> 3.0", [hex: :poison, optional: false]}]},
+  "ex_cldr_numbers": {:hex, :ex_cldr_numbers, "0.3.3", "cc9820fb40cb7e6f3fa8dfba4110bf084bf3ce7c7f3f91e833d116466e2fbc11", [:mix], [{:decimal, "~> 1.4", [hex: :decimal, optional: false]}, {:ex_cldr, "~> 0.13", [hex: :ex_cldr, optional: false]}, {:poison, "~> 2.1 or ~> 3.1", [hex: :poison, optional: false]}]},
   "ex_doc": {:hex, :ex_doc, "0.18.1", "37c69d2ef62f24928c1f4fdc7c724ea04aecfdf500c4329185f8e3649c915baf", [:mix], [{:earmark, "~> 1.1", [hex: :earmark, optional: false]}]},
   "excoveralls": {:hex, :excoveralls, "0.7.4", "3d84b2f15a0e593159f74b19f83794b464b34817183d27965bdc6c462de014f9", [:mix], [{:exjsx, ">= 3.0.0", [hex: :exjsx, optional: false]}, {:hackney, ">= 0.12.0", [hex: :hackney, optional: false]}]},
   "exjsx": {:hex, :exjsx, "4.0.0", "60548841e0212df401e38e63c0078ec57b33e7ea49b032c796ccad8cde794b5c", [:mix], [{:jsx, "~> 2.8.0", [hex: :jsx, optional: false]}]},
@@ -16,6 +18,7 @@
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [], []},
   "mimerl": {:hex, :mimerl, "1.0.2", "993f9b0e084083405ed8252b99460c4f0563e41729ab42d9074fd5e52439be88", [], []},
   "poison": {:hex, :poison, "3.1.0", "d9eb636610e096f86f25d9a46f35a9facac35609a7591b3be3326e99a0484665", [:mix], []},
-  "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [], []},
+  "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], []},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [], []},
-  "unicode_util_compat": {:hex, :unicode_util_compat, "0.3.1", "a1f612a7b512638634a603c8f401892afbf99b8ce93a45041f8aaca99cadb85e", [:rebar3], []}}
+  "unicode_util_compat": {:hex, :unicode_util_compat, "0.3.1", "a1f612a7b512638634a603c8f401892afbf99b8ce93a45041f8aaca99cadb85e", [:rebar3], []},
+}

@@ -1,6 +1,6 @@
 # Changelog
 
-## Money v0.9.0 November __th, 2017
+## Money v0.9.0 November 12th, 2017
 
 ### Breaking changes
 
@@ -17,6 +17,8 @@ Adds support for historic exchange rates (not just current exchange rates).
 * Add `Money.ExchangeRates.historic_rates/1` which returns the exchange rates for a given date.  This is the companion to the current `Money.ExchangeRates.latest_rates/0` function.
 
 * Add a new @callback `Money.ExchangeRates.get_historic_rates/2` that should be implemented in a callback module.  This function is called after the successful retrieval of historic exchange rates.  The callback has been implemented for the default `Money.ExchangeRates.Callback` module.
+
+* Update to [ex_cldr](https://hex.pm/packages/ex_cldr) version 0.13.0
 
 ## Money v0.8.5 November 11th, 2017
 
