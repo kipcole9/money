@@ -1,36 +1,37 @@
 defmodule Money do
   @moduledoc """
-  Money implements a set of functions to store, retrieve and perform arithmetic
-  on a %Money{} type that is composed of a currency code and a currency amount.
+  Money implements a set of functions to store, retrieve, convert and perform
+  arithmetic on a `Money.t` type that is composed of a currency code and
+  a decimal currency amount.
 
   Money is very opinionated in the interests of serving as a dependable library
-  that can underpin accounting and financial applications.  In its initial
-  release it can be expected that this contract may not be fully met.
+  that can underpin accounting and financial applications.
 
-  How is this opinion expressed:
+  This opinion expressed by ensuring that:
 
   1. Money must always have both a amount and a currency code.
 
   2. The currency code must always be valid.
 
   3. Money arithmetic can only be performed when both operands are of the
-  same currency.
+     same currency.
 
   4. Money amounts are represented as a `Decimal`.
 
   5. Money is serialised to the database as a custom Postgres composite type
-  that includes both the amount and the currency. Therefore for Ecto
-  serialization Postgres is assumed as the data store. Serialization is
-  entirely optional and Ecto is not a package dependency.
+     that includes both the amount and the currency. Therefore for Ecto
+     serialization Postgres is assumed as the data store. Serialization is
+     entirely optional and Ecto is not a package dependency.
 
   6. All arithmetic functions work in fixed point decimal.  No rounding
-  occurs automatically (unless expressly called out for a function).
+     occurs automatically (unless expressly called out for a function).
 
   7. Explicit rounding obeys the rounding rules for a given currency.  The
-  rounding rules are defined by the Unicode consortium in its CLDR
-  repository as implemented by the hex package `ex_cldr`.  These rules
-  define the number of fractional digits for a currency and the rounding
-  increment where appropriate.
+     rounding rules are defined by the Unicode consortium in its CLDR
+     repository as implemented by the hex package `ex_cldr`.  These rules
+     define the number of fractional digits for a currency and the rounding
+     increment where appropriate.
+
   """
 
   @typedoc """
@@ -56,6 +57,8 @@ defmodule Money do
   @doc """
   Returns a %Money{} struct from a currency code and a currency amount or
   an error tuple of the form `{:error, {exception, message}}`.
+
+  ## Options
 
   * `currency_code` is an ISO4217 three-character upcased binary or atom
 
@@ -126,6 +129,8 @@ defmodule Money do
   Returns a %Money{} struct from a currency code and a currency amount. Raises an
   exception if the current code is invalid.
 
+  ## Options
+
   * `currency_code` is an ISO4217 three-character upcased binary or atom
 
   * `amount` is an integer, float or Decimal
@@ -164,6 +169,8 @@ defmodule Money do
   Returns a %Money{} struct from a tuple consistenting of a currency code and
   a currency amount.  The format of the argument is a 2-tuple where:
 
+  ## Options
+
   * `currency_code` is an ISO4217 three-character upcased binary
 
   * `amount` is an integer, float or Decimal
@@ -197,6 +204,8 @@ defmodule Money do
   @doc """
   Returns a %Money{} struct from a tuple consistenting of a currency code and
   a currency amount.  Raises an exception if the currency code is invalid.
+
+  ## Options
 
   * `currency_code` is an ISO4217 three-character upcased binary
 
@@ -233,6 +242,17 @@ defmodule Money do
   `Cldr.Number.to_string/2` for formatting options.  The default is to format
   as a currency which applies the appropriate rounding and fractional digits
   for the currency.
+
+  ## Options
+
+  * `money_1` is any valid `Money.t` type returned
+    by `Money.new/2`
+
+  ## Returns
+
+  * `{:ok, string}` or
+
+  * `{:error, reason}`
 
   ## Examples
 
@@ -286,6 +306,15 @@ defmodule Money do
   @doc """
   Returns the amount part of a `Money` type as a `Decimal`
 
+  ## Options
+
+  * `money` is any valid `Money.t` type returned
+    by `Money.new/2`
+
+  ## Returns
+
+  * a `Decimal.t`
+
   ## Example
 
       iex> m = Money.new("USD", 100)
@@ -293,13 +322,24 @@ defmodule Money do
       #Decimal<100>
 
   """
-  @spec to_decimal(Money.t) :: Decimal.t
+  @spec to_decimal(money :: Money.t) :: Decimal.t
   def to_decimal(%Money{amount: amount}) do
     amount
   end
 
   @doc """
   Add two `Money` values.
+
+  ## Options
+
+  * `money_1` and `money_2` are any valid `Money.t` types returned
+    by `Money.new/2`
+
+  ## Returns
+
+  * `{:ok, money}` or
+
+  * `{:error, reason}`
 
   ## Example
 
@@ -311,7 +351,7 @@ defmodule Money do
         "Received :USD and :AUD."}}
 
   """
-  @spec add(Money.t, Money.t) :: Money.t
+  @spec add(money_1 :: Money.t, money_2 :: Money.t) :: Money.t
   def add(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
     {:ok, %Money{currency: same_currency, amount: Decimal.add(amount_a, amount_b)}}
   end
@@ -324,6 +364,17 @@ defmodule Money do
   @doc """
   Add two `Money` values and raise on error.
 
+  ## Options
+
+  * `money_1` and `money_2` are any valid `Money.t` types returned
+    by `Money.new/2`
+
+  ## Returns
+
+  * `{:ok, money}` or
+
+  * raises an exception
+
   ## Examples
 
       iex> Money.add! Money.new(:USD, 200), Money.new(:USD, 100)
@@ -333,8 +384,8 @@ defmodule Money do
       ** (ArgumentError) Cannot add two %Money{} with different currencies. Received :USD and :CAD.
 
   """
-  def add!(%Money{} = a, %Money{} = b) do
-    case add(a, b) do
+  def add!(%Money{} = money_1, %Money{} = money_2) do
+    case add(money_1, money_2) do
       {:ok, result} -> result
       {:error, {exception, message}} -> raise exception, message
     end
@@ -343,7 +394,16 @@ defmodule Money do
   @doc """
   Subtract one `Money` value struct from another.
 
-  Returns either `{:ok, money}` or `{:error, reason}`.
+  ## Options
+
+  * `money_1` and `money_2` are any valid `Money.t` types returned
+    by `Money.new/2`
+
+  ## Returns
+
+  * `{:ok, money}` or
+
+  * `{:error, reason}`
 
   ## Example
 
@@ -351,7 +411,9 @@ defmodule Money do
       {:ok, Money.new(:USD, 100)}
 
   """
-  @spec sub(Money.t, Money.t) :: {:ok, Money.t} | {:error, {Exception.t, String.t}}
+  @spec sub(money_1 :: Money.t, money_2 :: Money.t)
+      :: {:ok, Money.t} | {:error, {Exception.t, String.t}}
+
   def sub(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
     {:ok, %Money{currency: same_currency, amount: Decimal.sub(amount_a, amount_b)}}
   end
@@ -366,7 +428,18 @@ defmodule Money do
 
   Returns either `{:ok, money}` or `{:error, reason}`.
 
-  ## Examaples
+  ## Options
+
+  * `money_1` and `money_2` are any valid `Money.t` types returned
+    by `Money.new/2`
+
+  ## Returns
+
+  * a `Money.t` struct or
+
+  * raises an exception
+
+  ## Examples
 
       iex> Money.sub! Money.new(:USD, 200), Money.new(:USD, 100)
       #Money<:USD, 100>
@@ -375,6 +448,8 @@ defmodule Money do
       ** (ArgumentError) Cannot subtract monies with different currencies. Received :USD and :CAD.
 
   """
+  @spec sub!(money_1 :: Money.t, money_2 :: Money.t) :: Money.t | none()
+
   def sub!(%Money{} = a, %Money{} = b) do
     case sub(a, b) do
       {:ok, result} -> result
@@ -385,13 +460,20 @@ defmodule Money do
   @doc """
   Multiply a `Money` value by a number.
 
-  * `money` is a %Money{} struct
+  ## Options
 
-  * `number` is an integer or float
+  * `money` is any valid `Money.t` type returned
+    by `Money.new/2`
+
+  * `number` is an integer, float or `Decimal.t`
 
   > Note that multipling one %Money{} by another is not supported.
 
-  Returns either `{:ok, money}` or `{:error, reason}`.
+  ## Returns
+
+  * `{:ok, money}` or
+
+  * `{:error, reason}`
 
   ## Example
 
@@ -418,6 +500,19 @@ defmodule Money do
   @doc """
   Multiply a `Money` value by a number and raise on error.
 
+  ## Options
+
+  * `money` is any valid `Money.t` types returned
+    by `Money.new/2`
+
+  * `number` is an integer, float or `Decimal.t`
+
+  ## Returns
+
+  * a `Money.t` or
+
+  * raises an exception
+
   ## Examples
 
       iex> Money.mult!(Money.new(:USD, 200), 2)
@@ -427,6 +522,7 @@ defmodule Money do
       ** (ArgumentError) Cannot multiply money by :invalid
 
   """
+  @spec mult!(Money.t, Cldr.Math.number_or_decimal) :: Money.t | none()
   def mult!(%Money{} = money, number) do
     case mult(money, number) do
       {:ok, result} -> result
@@ -437,11 +533,20 @@ defmodule Money do
   @doc """
   Divide a `Money` value by a number.
 
-  * `money` is a %Money{} struct
+  ## Options
 
-  * `number` is an integer or float
+  * `money` is any valid `Money.t` types returned
+    by `Money.new/2`
+
+  * `number` is an integer, float or `Decimal.t`
 
   > Note that dividing one %Money{} by another is not supported.
+
+  ## Returns
+
+  * `{:ok, money}` or
+
+  * `{:error, reason}`
 
   ## Example
 
@@ -468,6 +573,19 @@ defmodule Money do
   @doc """
   Divide a `Money` value by a number and raise on error.
 
+  ## Options
+
+  * `money` is any valid `Money.t` types returned
+    by `Money.new/2`
+
+  * `number` is an integer, float or `Decimal.t`
+
+  ## Returns
+
+  * a `Money.t` struct or
+
+  * raises an exception
+
   ## Examples
 
       iex> Money.div Money.new(:USD, 200), 2
@@ -487,6 +605,15 @@ defmodule Money do
   @doc """
   Returns a boolean indicating if two `Money` values are equal
 
+  ## Options
+
+  * `money_1` and `money_2` are any valid `Money.t` types returned
+    by `Money.new/2`
+
+  ## Returns
+
+  * `true` or `false`
+
   ## Example
 
       iex> Money.equal? Money.new(:USD, 200), Money.new(:USD, 200)
@@ -496,7 +623,7 @@ defmodule Money do
       false
 
   """
-  @spec equal?(Money.t, Money.t) :: boolean
+  @spec equal?(money_1 :: Money.t, money_2 :: Money.t) :: boolean
   def equal?(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
     Decimal.equal?(amount_a, amount_b)
   end
@@ -509,6 +636,17 @@ defmodule Money do
   Compares two `Money` values numerically. If the first number is greater
   than the second :gt is returned, if less than :lt is returned, if both
   numbers are equal :eq is returned.
+
+  ## Options
+
+  * `money_1` and `money_2` are any valid `Money.t` types returned
+    by `Money.new/2`
+
+  ## Returns
+
+  *  `:gt` | `:eq` | `:lt` or
+
+  * `{:error, {Exception.t, String.t}}`
 
   ## Examples
 
@@ -527,7 +665,7 @@ defmodule Money do
         "Cannot compare monies with different currencies. Received :USD and :CAD."}}
 
   """
-  @spec cmp(Money.t, Money.t) :: :gt | :eq | :lt | {:error, {Exception.t, String.t}}
+  @spec cmp(money_1 :: Money.t, money_2 :: Money.t) :: :gt | :eq | :lt | {:error, {Exception.t, String.t}}
   def cmp(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
     Decimal.cmp(amount_a, amount_b)
   end
@@ -539,6 +677,17 @@ defmodule Money do
 
   @doc """
   Compares two `Money` values numerically and raises on error.
+
+  ## Options
+
+  * `money_1` and `money_2` are any valid `Money.t` types returned
+    by `Money.new/2`
+
+  ## Returns
+
+  *  `:gt` | `:eq` | `:lt` or
+
+  * raises an exception
 
   ## Examples
 
@@ -558,6 +707,17 @@ defmodule Money do
   than the second #Integer<1> is returned, if less than Integer<-1> is
   returned. Otherwise, if both numbers are equal Integer<0> is returned.
 
+  ## Options
+
+  * `money_1` and `money_2` are any valid `Money.t` types returned
+    by `Money.new/2`
+
+  ## Returns
+
+  *  `-1` | `0` | `1` or
+
+  * `{:error, {Exception.t, String.t}}`
+
   ## Examples
 
       iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 100)
@@ -575,7 +735,7 @@ defmodule Money do
         "Cannot compare monies with different currencies. Received :USD and :CAD."}}
 
   """
-  @spec compare(Money.t, Money.t) :: -1 | 0 | 1 | {:error, {Exception.t, String.t}}
+  @spec compare(money_1 :: Money.t, money_2 :: Money.t) :: -1 | 0 | 1 | {:error, {Exception.t, String.t}}
   def compare(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
     amount_a
     |> Decimal.compare(amount_b)
@@ -589,6 +749,17 @@ defmodule Money do
 
   @doc """
   Compares two `Money` values numerically and raises on error.
+
+  ## Options
+
+  * `money_1` and `money_2` are any valid `Money.t` types returned
+    by `Money.new/2`
+
+  ## Returns
+
+  *  `-1` | `0` | `1` or
+
+  * raises an exception
 
   ## Examples
 
@@ -607,6 +778,8 @@ defmodule Money do
   Split a `Money` value into a number of parts maintaining the currency's
   precision and rounding and ensuring that the parts sum to the original
   amount.
+
+  ## Options
 
   * `money` is a `%Money{}` struct
 
@@ -654,6 +827,8 @@ defmodule Money do
   @doc """
   Round a `Money` value into the acceptable range for the defined currency.
 
+  ## Options
+
   * `money` is a `%Money{}` struct
 
   * `opts` is a keyword list with the following keys:
@@ -697,17 +872,19 @@ defmodule Money do
   end
 
   defp round_to_decimal_digits(%Money{currency: code, amount: amount}, opts) do
-    rounding_mode = Keyword.get(opts, :rounding_mode, @default_rounding_mode)
-    currency = Currency.for_code(code)
-    rounding = if opts[:cash], do: currency.cash_digits, else: currency.digits
-    rounded_amount = Decimal.round(amount, rounding, rounding_mode)
-    %Money{currency: code, amount: rounded_amount}
+    with {:ok, currency} <- Currency.currency_for_code(code) do
+      rounding_mode = Keyword.get(opts, :rounding_mode, @default_rounding_mode)
+      rounding = if opts[:cash], do: currency.cash_digits, else: currency.digits
+      rounded_amount = Decimal.round(amount, rounding, rounding_mode)
+      %Money{currency: code, amount: rounded_amount}
+    end
   end
 
   defp round_to_nearest(%Money{currency: code} = money, opts) do
-    currency  = Currency.for_code(code)
-    increment = if opts[:cash], do: currency.cash_rounding, else: currency.rounding
-    do_round_to_nearest(money, increment, opts)
+    with {:ok, currency} <- Currency.currency_for_code(code) do
+      increment = if opts[:cash], do: currency.cash_rounding, else: currency.rounding
+      do_round_to_nearest(money, increment, opts)
+    end
   end
 
   defp do_round_to_nearest(money, 0, _opts) do
@@ -730,13 +907,15 @@ defmodule Money do
   @doc """
   Convert `money` from one currency to another.
 
-  * `money` is a %Money{} struct
+  ## Options
+
+  * `money` is any `Money.t` struct returned by `Cldr.Currency.new/2`
 
   * `to_currency` is a valid currency code into which the `money` is converted
 
   * `rates` is a `Map` of currency rates where the map key is an upcased
-  atom or string and the value is a Decimal conversion factor.  The default is the
-  latest available exchange rates returned from `Money.ExchangeRates.latest_rates()`
+    atom or string and the value is a Decimal conversion factor.  The default is the
+    latest available exchange rates returned from `Money.ExchangeRates.latest_rates()`
 
   ## Examples
 
@@ -764,7 +943,7 @@ defmodule Money do
   def to_currency(%Money{currency: currency} = money, to_currency, %{} = rates)
   when is_atom(to_currency) or is_binary(to_currency) do
     with \
-      {:ok, to_code} <- Money.validate_currency(to_currency)
+      {:ok, to_code} <- validate_currency(to_currency)
     do
       if currency == to_code, do: money, else: to_currency(money, to_currency, {:ok, rates})
     else
@@ -775,7 +954,7 @@ defmodule Money do
   def to_currency(%Money{currency: from_currency, amount: amount}, to_currency, {:ok, rates})
   when is_atom(to_currency) or is_binary(to_currency) do
     with \
-      {:ok, currency_code} <- Money.validate_currency(to_currency),
+      {:ok, currency_code} <- validate_currency(to_currency),
       {:ok, base_rate} <- get_rate(from_currency, rates),
       {:ok, conversion_rate} <- get_rate(currency_code, rates)
     do
@@ -796,6 +975,16 @@ defmodule Money do
 
   @doc """
   Convert `money` from one currency to another and raises on error
+
+  ## Options
+
+  * `money` is any `Money.t` struct returned by `Cldr.Currency.new/2`
+
+  * `to_currency` is a valid currency code into which the `money` is converted
+
+  * `rates` is a `Map` of currency rates where the map key is an upcased
+    atom or string and the value is a Decimal conversion factor.  The default is the
+    latest available exchange rates returned from `Money.ExchangeRates.latest_rates()`
 
   ## Examples
 
@@ -896,13 +1085,6 @@ defmodule Money do
          [rate] -> {:ok, rate}
          _      -> {:error, {Money.ExchangeRateError, "No exchange rate is available for currency #{inspect currency}"}}
        end
-  end
-
-  def validate_currency_code(currency_code) do
-    case Cldr.validate_currency(currency_code) do
-      {:error, _} = error -> error
-      {:ok, code} -> {:ok, code}
-    end
   end
 
   defp merge_options(options, required) do
