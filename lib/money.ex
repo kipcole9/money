@@ -903,7 +903,7 @@ defmodule Money do
   end
 
   def validate_currency_code(currency_code) do
-    case Currency.validate_currency_code(currency_code) do
+    case Cldr.validate_currency(currency_code) do
       {:error, _} = error -> error
       {:ok, code} -> {:ok, code}
     end

@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "0.8.1"
+  @version "1.0.0-rc.0"
 
   def project do
     [app: :ex_money,
@@ -49,7 +49,7 @@ defmodule Money.Mixfile do
   def docs do
     [
       source_ref: "v#{@version}",
-      extras: ["README.md", "CHANGELOG.md"],
+      extras: ["README.md", "CHANGELOG.md", "LICENSE.md"],
       main: "readme",
       groups_for_modules: groups_for_modules()
     ]
@@ -68,8 +68,8 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:ex_cldr, "~> 0.11.0"},
-      {:ex_cldr_numbers, "~> 0.3.1"},
+      {:ex_cldr, "~> 1.0.0-rc or ~> 1.0"},
+      {:ex_cldr_numbers, "~> 1.0.0-rc or ~> 1.0"},
       {:decimal, "~> 1.4"},
       {:ecto, "~> 2.1", optional: true},
       {:ex_doc, "~> 0.18", only: :dev}
