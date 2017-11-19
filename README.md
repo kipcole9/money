@@ -44,10 +44,10 @@ An optional callback module can also be defined.  This module defines a `rates_r
     config :ex_money,
       exchange_rate_service: false,
       exchange_rates_retrieve_every: 300_000,
-      delay_before_first_retrieval: 100,
       api_module: Money.ExchangeRates.OpenExchangeRates,
       callback_module: Money.ExchangeRates.Callback,
-      retriever_options: nil
+      preload_historic_rates: nil,
+      retriever_options: nil,
       log_failure: :warn,
       log_info: :info,
       log_success: nil
@@ -56,21 +56,31 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
 * `:exchange_rate_service` is a boolean that determines whether to automatically start the exchange rate retrieval service.  The default it `false`.
 
-* `:exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (300,000 milliseconds)
+* `:exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (300,000 milliseconds).
 
-* `:delay_before_first_retrieval` defines how quickly the retrieval service makes its first request for exchange rates.  The default is 100 milliseconds.  Any value that is not a positive integer means that no first retrieval is made.  Retrieval will continue on interval defined by `:retrieve_every`
+* `:api_module` identifies the module that does the retrieval of exchange rates. This is any module that implements the `Money.ExchangeRates` behaviour.  The  default is `Money.ExchangeRates.OpenExchangeRates`.
 
-* `:api_module` identifies the module that does the retrieval of exchange rates. This is any module that implements the `Money.ExchangeRates` behaviour.  The  default is `Money.ExchangeRates.OpenExchangeRates`
+* `:preload_historic_rates` defines a date or a date range that will be requested when the exchange rate service starts up. The date or date range should be specified as either a `Date.t` or a `Date.Range.t` or a tuple of `{Date.t, Date.t}` representing the `from` and `to` dates for the rates to be retrieved. The default is `nil` meaning no historic rates are preloaded.  Some examples:
 
 * `callback_module` defines a module that follows the `Money.ExchangeRates.Callback` behaviour whereby the function `rates_retrieved/2` is invoked after every successful retrieval of exchange rates.  The default is `Money.ExchangeRates.Callback`.
 
-* `log_failure` defines the log level at which api retrieval errors are logged.  The default is `:warn`
+* `log_failure` defines the log level at which api retrieval errors are logged.  The default is `:warn`.
 
 * `log_success` defines the log level at which successful api retrieval notifications are logged.  The default is `nil` which means no logging.
 
 * `log_info` defines the log level at which service startup messages are logged.  The default is `info`.
 
 * `:retriever_options` is available for exchange rate retriever module developers as a place to add retriever-specific configuration information.  This information should be added in the `init/1` callback in the retriever module.  See `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
+
+### Preloading historic exchange rates
+
+The current implementation will call the api_module to retrieve the historic rates once for each date in the `:preload_exchange_rates` range.  Some exchange rate services, like Open Exchange Rates, provides a bulk retrieval api that can retrieve multiple dates in a single call.  However this endpoint is only available for premium subscribers and it is still charged on a "per date retrieved" basis. So while there is a network/performance/efficiency benefit there is no economic benefit.  Please file an issue on [github](https://github.com/kipcole9/money) if implementing a bulk api is important to you.
+
+Some examples of configuring the `:preload_exchange_rates` key follow:
+
+  * `preload_exchange_rates: ~D[2017-01-01]`
+  * `preload_exchange_rates: Date.range(~D[2017-01-01], ~D[2017-10-01])`
+  * `preload_exchange_rates: {~D[2017-01-01], ~D[2017-10-01]}`
 
 ### Open Exchange Rates configuration
 
@@ -90,7 +100,7 @@ If you plan to use the provided Open Exchange Rates module to retrieve exchange 
 
 ### Managing the configuration at runtime
 
-  During exchange rate service startup, the function `init/1` is called on the configuration exchange rate retrieval module.  This module is expected to return an updated configuration allowing a develop to customise how the configuration is to be managed.  See the implementation at `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
+  During exchange rate service startup, the function `init/1` is called on the configured exchange rate retrieval module.  This module is expected to return an updated configuration allowing a develop to customise how the configuration is to be managed.  See the implementation at `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
 
 ### Using Environment Variables in the configuration
 
@@ -100,6 +110,8 @@ Keys can also be configured to retrieve values from environment variables.  This
       exchange_rate_service: {:system, "RATE_SERVICE"},
       exchange_rates_retrieve_every: {:system, "RETRIEVE_EVERY"},
       open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"}
+
+Note that the `{:system, "ENV KEY"}` approach is **not** currently supported for the `:preload_historic_rates` configuration key.
 
 ## The Exchange rates service process supervision and startup
 
@@ -116,7 +128,7 @@ If the exchange rate service is configured to automatically start up (because th
                                          |                 |
                                          +-----------------+
 
-On application start (or manual start if `:exchange_rate_service` is set to `false`), `Money.ExchangeRates.Retriever` will schedule the first retrieval to be executed after `:delay_before_first_retrieval` milliseconds and then each `:exchange_rates_retrieve_every` milliseconds thereafter.
+On application start (or manual start if `:exchange_rate_service` is set to `false`), `Money.ExchangeRates.Retriever` will schedule the first retrieval to be executed after immediately and then each `:exchange_rates_retrieve_every` milliseconds thereafter.
 
 ## Using Ecto or other applications from within the callback module
 
@@ -243,7 +255,10 @@ See also the module `Money.Arithmetic`:
 A `%Money{}` struct can be converted to another currency using `Money.to_currency/3` or `Money.to_currency!/3`.  For example:
 
     iex> Money.to_currency Money.new(:USD,100), :AUD
-    {:ok, #Money<:AUD, 136.4300>}
+    {:ok, #Money<:AUD, 136.43>}
+
+    iex> Money.to_currency Money.new(:USD,100), :AUD, ExchangeRates.historic_rates(~D[2017-01-01])
+    {:ok, #Money<:AUD, 128.76>}
 
     iex> Money.to_currency Money.new(:USD, 100) , :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
     {:error, {Cldr.UnknownCurrencyError, "Currency :AUDD is not known"}}
@@ -255,6 +270,14 @@ A user-defined map of exchange rates can also be supplied:
 
     iex> Money.to_currency Money.new(:USD,100), :AUD, %{USD: Decimal.new(1.0), AUD: Decimal.new(1.3)}
     #Money<:AUD, 130>
+
+### Historic Conversion Rates
+
+As noted in the [configuration](#configuration) section, `ex_money` can preload historic exchange rates when the exchange rates service starts up.  It can be anticipated that additional historic rates may be required subsequently.
+
+* `Money.ExchangeRates.retrieve_historic/1` and `Money.ExchangeRates.retrieve_historic/2` can be called to request retrieval of historic rates at any time.  This call will send a message to the retrieval service to request retrieval.  It does not return the rates.
+
+* `Money.ExchangeRates.historic_rates/1` is the partner function to `Money.ExchangeRates.latest_rates/1`.  It returns the exchange rates for a given date, and will return an error if no rates are available.
 
 ### Financial Functions
 
@@ -387,7 +410,7 @@ Retrieve from the database:
 
 ### Notes:
 
-1.  In order to preserve precision of the decimal amount, the amount part of the `%Money{}` struct is serialised as a string. This is done because JSON serializes numeric values as either `integer` or `float`, neither of which would not preserve precision of a decimal value.
+1.  In order to preserve precision of the decimal amount, the amount part of the `%Money{}` struct is serialised as a string. This is done because JSON serializes numeric values as either `integer` or `float`, neither of which would preserve precision of a decimal value.
 
 2.  The precision of the serialized string value of amount is affected by the setting of `Decimal.get_context`.  The default is 28 digits which should cater for your requirements.
 

@@ -7,7 +7,7 @@ defmodule MoneyTest.Ecto do
 
   test "load a tuple with an unknown currency code produces an error" do
     assert Money.Ecto.Composite.Type.load({"ABC", 100}) ==
-      {:error, {Cldr.UnknownCurrencyError, "Currency \"ABC\" is not known"}}
+      {:error, {Cldr.UnknownCurrencyError, "The currency \"ABC\" is invalid"}}
   end
 
   test "dump a money struct" do
@@ -48,7 +48,7 @@ defmodule MoneyTest.Ecto do
 
   test "cast a map with string keys and invalid currency" do
     assert Money.Ecto.Composite.Type.cast(%{"currency" => "AAA", "amount" => 100}) ==
-    {:error, {Cldr.UnknownCurrencyError, "Currency \"AAA\" is not known"}}
+    {:error, {Cldr.UnknownCurrencyError, "The currency \"AAA\" is invalid"}}
   end
 
   test "cast a map with atom keys and values" do
@@ -69,7 +69,7 @@ defmodule MoneyTest.Ecto do
 
   test "cast a map with atom keys and invalid currency" do
     assert Money.Ecto.Composite.Type.cast(%{currency: "AAA", amount: 100}) ==
-    {:error, {Cldr.UnknownCurrencyError, "Currency \"AAA\" is not known"}}
+    {:error, {Cldr.UnknownCurrencyError, "The currency \"AAA\" is invalid"}}
   end
 
   test "cast anything else is an error" do

@@ -1,6 +1,7 @@
 defmodule MoneyTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
+  import Money.ExchangeRatesTestHelper
 
   alias Money.ExchangeRates
   alias Money.Financial
@@ -95,25 +96,25 @@ defmodule MoneyTest do
   end
 
   test "raise when creating a new money struct from a tuple with an invalid currency code" do
-    assert_raise Money.UnknownCurrencyError, "Currency \"ABCD\" is not known", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCD\" is invalid", fn ->
       Money.from_tuple!({"ABCD", 1234})
     end
   end
 
   test "raise when creating a new money struct from invalid input" do
-    assert_raise Money.UnknownCurrencyError, "Currency \"ABCDE\" is not known", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
       Money.from_tuple!({1234, "ABCDE"})
     end
 
-    assert_raise Money.UnknownCurrencyError, "Currency \"ABCDE\" is not known", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
       Money.new!("ABCDE", 100)
     end
 
-    assert_raise Money.UnknownCurrencyError, "Currency \"ABCDE\" is not known", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
       Money.new!(Decimal.new(100),  "ABCDE")
     end
 
-    assert_raise Money.UnknownCurrencyError, "Currency \"ABCDE\" is not known", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
       Money.new!("ABCDE", Decimal.new(100))
     end
   end
@@ -137,11 +138,11 @@ defmodule MoneyTest do
   end
 
   test "creating a money struct with an invalid atom currency code returns error tuple" do
-    assert Money.new(:XYZ, 100) == {:error, {Money.UnknownCurrencyError, "Currency :XYZ is not known"}}
+    assert Money.new(:XYZ, 100) == {:error, {Money.UnknownCurrencyError, "The currency :XYZ is invalid"}}
   end
 
   test "creating a money struct with an invalid binary currency code returns error tuple" do
-    assert Money.new("ABCD", 100) == {:error, {Money.UnknownCurrencyError, "Currency \"ABCD\" is not known"}}
+    assert Money.new("ABCD", 100) == {:error, {Money.UnknownCurrencyError, "The currency \"ABCD\" is invalid"}}
   end
 
   test "string output of money is correctly formatted" do
@@ -326,7 +327,7 @@ defmodule MoneyTest do
 
   test "Get exchange rates" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
+      {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
     end
 
@@ -336,7 +337,7 @@ defmodule MoneyTest do
 
   test "Convert from USD to AUD" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
+      {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
     end
 
@@ -345,7 +346,7 @@ defmodule MoneyTest do
 
   test "Convert from USD to USD" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
+      {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
     end
 
@@ -354,38 +355,60 @@ defmodule MoneyTest do
 
   test "Convert from USD to ZZZ should return an error" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
+      {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
     end
 
     assert Money.to_currency(Money.new(:USD, 100), :ZZZ) ==
-      {:error, {Cldr.UnknownCurrencyError, "Currency :ZZZ is not known"}}
+      {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
   end
 
   test "Convert from USD to ZZZ should raise an exception" do
     capture_io fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
+      {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
     end
 
-    assert_raise Cldr.UnknownCurrencyError, ~r/Currency :ZZZ is not known/, fn ->
+    assert_raise Cldr.UnknownCurrencyError, ~r/The currency :ZZZ is invalid/, fn ->
       assert Money.to_currency!(Money.new(:USD, 100), :ZZZ)
     end
   end
 
+  test "Convert from USD to AUD using historic rates" do
+    capture_io fn ->
+      {:ok, _pid} = start_service()
+      :timer.sleep(@sleep_timer)
+    end
+
+    assert Money.to_currency!(Money.new(:USD, 100), :AUD,
+      ExchangeRates.historic_rates(~D[2017-01-01])) |> Money.round ==
+      Money.new(:AUD, Decimal.new(71.43))
+  end
+
+  test "Convert from USD to AUD using historic rates that aren't available" do
+    capture_io fn ->
+      {:ok, _pid} = start_service()
+      :timer.sleep(@sleep_timer)
+    end
+
+    assert Money.to_currency(Money.new(:USD, 100), :AUD,
+      ExchangeRates.historic_rates(~D[2017-02-01])) ==
+       {:error, {Money.ExchangeRateError, "No exchange rates for 2017-02-01 were found"}}
+  end
+
   test "Invoke callback module on successful exchange rate retrieval" do
     assert capture_io(fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
+      {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
-     end) == "Rates Retrieved\n"
+     end) == "Historic Rates Retrieved\nHistoric Rates Retrieved\nLatest Rates Retrieved\n"
   end
 
   test "That rates_available? returns correctly" do
     assert capture_io(fn ->
       {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
-      assert ExchangeRates.rates_available? == false
+      assert ExchangeRates.latest_rates_available? == false
       :timer.sleep(@sleep_timer)
-      assert ExchangeRates.rates_available? == true
+      assert ExchangeRates.latest_rates_available? == true
      end)
   end
 

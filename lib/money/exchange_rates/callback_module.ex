@@ -3,21 +3,35 @@ defmodule Money.ExchangeRates.Callback do
   Default exchange rates retrieval callback module.
 
   When exchange rates are successfully retrieved, the function
-  `rates_retrieved/2` is called to perform any desired serialization or
-  proocessing.
+  `latest_rates_retrieved/2` or `historic_rates_retrieved/2` is
+  called to perform any desired serialization or proocessing.
   """
 
   @doc """
-  Defines the behaviour to retrieve exchange rates from an external
+  Defines the behaviour to retrieve the latest exchange rates from an external
   data source.
   """
-  @callback rates_retrieved(%{}, %DateTime{}) :: :ok
+  @callback latest_rates_retrieved(%{}, DateTime.t) :: :ok
 
   @doc """
-  Callback function invoked when exchange rates are retrieved.
+  Defines the behaviour to retrieve historic exchange rates from an external
+  data source.
   """
-  @spec rates_retrieved(%{}, %DateTime{}) :: :ok
-  def rates_retrieved(_rates, _retrieved_at) do
+  @callback historic_rates_retrieved(%{}, Date.t) :: :ok
+
+  @doc """
+  Callback function invoked when the latest exchange rates are retrieved.
+  """
+  @spec latest_rates_retrieved(%{}, DateTime.t) :: :ok
+  def latest_rates_retrieved(_rates, _retrieved_at) do
+    :ok
+  end
+
+  @doc """
+  Callback function invoked when historic exchange rates are retrieved.
+  """
+  @spec historic_rates_retrieved(%{}, Date.t) :: :ok
+  def historic_rates_retrieved(_rates, _date) do
     :ok
   end
 end

@@ -26,8 +26,6 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   """
   @behaviour Money.ExchangeRates
 
-  alias Money.ExchangeRates.Retriever
-
   @open_exchange_rate_url "https://openexchangerates.org/api"
 
   @doc """
@@ -45,7 +43,6 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   def init(default_config) do
     url    = Money.get_env(:open_exchange_rates_url, @open_exchange_rate_url)
     app_id = Money.get_env(:open_exchange_rates_app_id, nil)
-
     Map.put(default_config, :retriever_options, %{url: url, app_id: app_id})
   end
 
@@ -70,14 +67,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   def get_latest_rates(config) do
     url = config.retriever_options.url
     app_id = config.retriever_options.app_id
-
-    case retrieve_latest_rates(url, app_id) do
-      {:ok, rates} ->
-        {:ok, rates}
-      {:error, reason} ->
-        Retriever.log(config, :failure, app_id_not_configured())
-        {:error, reason}
-    end
+    retrieve_latest_rates(url, app_id)
   end
 
   defp retrieve_latest_rates(_url, nil) do
@@ -87,6 +77,49 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   @latest_rates "/latest.json"
   defp retrieve_latest_rates(url, app_id) do
     retrieve_rates(url <> @latest_rates <> "?app_id=" <> app_id)
+  end
+
+  @doc """
+  Retrieves the historic exchange rates from Open Exchange Rates site.
+
+  * `date` is a date returned by `Date.new/3` or any struct with the
+    elements `:year`, `:month` and `:day`.
+
+  * `config` is the retrieval configuration. When invoked from the
+    exchange rates services this will be the config returned from
+    `Money.ExchangeRates.OpenExchangeRates.config/1`
+
+  Returns:
+
+  * `{:ok, rates}` if the rates can be retrieved
+
+  * `{:error, reason}` if rates cannot be retrieved
+
+  Typically this function is called by the exchange rates retrieval
+  service although it can be called outside that context as
+  required.
+  """
+  def get_historic_rates(date, config) do
+    url = config.retriever_options.url
+    app_id = config.retriever_options.app_id
+    retrieve_historic_rates(date, url, app_id)
+  end
+
+  defp retrieve_historic_rates(_date, _url, nil) do
+    {:error, app_id_not_configured()}
+  end
+
+  @historic_rates "/historical/"
+  defp retrieve_historic_rates(%Date{calendar: Calendar.ISO} = date, url, app_id) do
+    date_string = Date.to_string(date)
+    retrieve_rates(url <> @historic_rates <> "#{date_string}.json" <> "?app_id=" <> app_id)
+  end
+
+  defp retrieve_historic_rates(%{year: year, month: month, day: day}, url, app_id)  do
+    case Date.new(year, month, day) do
+      {:ok, date} -> retrieve_historic_rates(date, url, app_id)
+      error -> error
+    end
   end
 
   defp retrieve_rates(url) do

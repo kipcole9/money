@@ -20,7 +20,7 @@ if Code.ensure_loaded?(Ecto.Type) do
 
     # When loading from the database
     def load({currency, amount}) do
-      with {:ok, currency_code} <- Money.validate_currency_code(currency) do
+      with {:ok, currency_code} <- Money.validate_currency(currency) do
         {:ok, Money.new(currency_code, amount)}
       else
         error -> error
@@ -36,7 +36,7 @@ if Code.ensure_loaded?(Ecto.Type) do
 
     def dump({currency, amount})
     when (is_binary(currency) or is_atom(currency)) and is_number(amount) do
-      with {:ok, currency_code} <- Money.validate_currency_code(currency) do
+      with {:ok, currency_code} <- Money.validate_currency(currency) do
         {:ok, {to_string(currency_code), amount}}
       else
         error -> error
@@ -60,7 +60,7 @@ if Code.ensure_loaded?(Ecto.Type) do
     def cast(%{"currency" => currency, "amount" => amount})
     when (is_binary(currency) or is_atom(currency)) and is_number(amount) do
       with decimal_amount <- Decimal.new(amount),
-           {:ok, currency_code} <- Money.validate_currency_code(currency) do
+           {:ok, currency_code} <- Money.validate_currency(currency) do
         {:ok, Money.new(currency_code, decimal_amount)}
       else
         error -> error
@@ -70,7 +70,7 @@ if Code.ensure_loaded?(Ecto.Type) do
     def cast(%{"currency" => currency, "amount" => amount})
     when (is_binary(currency) or is_atom(currency)) and is_binary(amount) do
       with {:ok, amount} <- Decimal.parse(amount),
-           {:ok, currency_code} <- Money.validate_currency_code(currency) do
+           {:ok, currency_code} <- Money.validate_currency(currency) do
         {:ok, Money.new(currency_code, amount)}
       else
         error -> error

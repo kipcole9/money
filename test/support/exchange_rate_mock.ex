@@ -17,6 +17,18 @@ defmodule Money.ExchangeRates.Test do
     get_rates(@latest_url)
   end
 
+  def get_historic_rates(~D[2017-01-01], _config) do
+    {:ok,
+      %{AUD: Decimal.new(0.5), EUR: Decimal.new(1.1), USD: Decimal.new(0.7)}
+    }
+  end
+
+  def get_historic_rates(~D[2017-01-02], _config) do
+    {:ok,
+      %{AUD: Decimal.new(0.4), EUR: Decimal.new(0.9), USD: Decimal.new(0.6)}
+    }
+  end
+
   defp get_rates("invalid_url") do
     {:error, "bad url"}
   end
