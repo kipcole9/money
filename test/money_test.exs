@@ -110,6 +110,12 @@ defmodule MoneyTest do
       {:error, {Money.Invalid, "Unable to create money from \"USD\" and \"1234\""}}
   end
 
+  test "that creating a money with a string amount that is invalid returns and error" do
+    assert Money.new(:USD, "2134ff") ==
+      {:error, {Money.InvalidAmountError,
+                "Amount cannot be converted to a number: \"2134ff\""}}
+  end
+
   test "raise when creating a new money struct from a tuple with an invalid currency code" do
     assert_raise Money.UnknownCurrencyError, "The currency \"ABCD\" is invalid", fn ->
       Money.from_tuple!({"ABCD", 1234})
