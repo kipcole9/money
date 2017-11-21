@@ -92,14 +92,14 @@ defmodule Money do
 
   """
   @spec new(number, binary) :: Money.t
-  def new(currency_code, amount) when is_binary(currency_code) do
+  def new(currency_code, amount) when is_binary(currency_code) and is_number(amount) do
     case validate_currency(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
       {:ok, code} -> new(code, amount)
     end
   end
 
-  def new(amount, currency_code) when is_binary(currency_code) do
+  def new(amount, currency_code) when is_binary(currency_code) and is_number(amount) do
     new(currency_code, amount)
   end
 
@@ -114,15 +114,34 @@ defmodule Money do
     new(currency_code, amount)
   end
 
-  def new(currency_code, %Decimal{} = amount) when is_atom(currency_code) do
+  def new(currency_code, %Decimal{} = amount)
+  when is_atom(currency_code) or is_binary(currency_code) do
     case validate_currency(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
       {:ok, code} -> %Money{amount: amount, currency: code}
     end
   end
 
-  def new(%Decimal{} = amount, currency_code) when is_atom(currency_code) do
+  def new(%Decimal{} = amount, currency_code)
+  when is_atom(currency_code) or is_binary(currency_code) do
     new(currency_code, amount)
+  end
+  
+  def new(currency_code, amount) when is_atom(currency_code) and is_binary(amount) do
+    new(currency_code, Decimal.new(amount))
+  rescue Decimal.Error ->
+    {:error, 
+      {Money.InvalidAmountError, "Amount cannot be converted to a number: #{inspect amount}"}}
+  end
+  
+  def new(amount, currency_code) when is_atom(currency_code) and is_binary(amount) do
+    new(currency_code, amount)
+  end
+  
+  def new(maybe_amount, maybe_currency_code) do
+    {:error, 
+      {Money.Invalid, "Unable to create money from #{inspect maybe_amount} " <>
+                      "and #{inspect maybe_currency_code}"}}
   end
 
   @doc """
