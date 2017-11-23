@@ -8,9 +8,11 @@ This version signals API stability and the first release candidate.
 
 * Updated [ex_cldr](https://hex.pm/packages/ex_cldr) to version 1.0.0-rc.0
 
+* Ensure that `cast/1` is consistent in type checking for both type adapters (Postgres and MySQL)
+
 ## Bug Fixes
 
-* All string values for an amount for `Money.new/2` as long as the `currency_code` is an atom.
+* Allow string values for an amount for `Money.new/2` as long as the `currency_code` is an atom.
 
 * Improve the error message if `Money.new/2` can't disambiguate the arguments.  Thanks to @ssomnoremac.  Closes #37.
 

@@ -100,7 +100,7 @@ If you plan to use the provided Open Exchange Rates module to retrieve exchange 
 
 ### Managing the configuration at runtime
 
-  During exchange rate service startup, the function `init/1` is called on the configured exchange rate retrieval module.  This module is expected to return an updated configuration allowing a develop to customise how the configuration is to be managed.  See the implementation at `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
+  During exchange rate service startup, the function `init/1` is called on the configured exchange rate retrieval module.  This module is expected to return an updated configuration allowing a developer to customise how the configuration is to be managed.  See the implementation at `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
 
 ### Using Environment Variables in the configuration
 
@@ -210,7 +210,7 @@ See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
     iex> Money.to_string Money.new("USD", 234.467), format: :long
     {:ok, "234.47 US dollars"}
 
-Note that the output is influenced by the locale in effect.  By default the localed used is that returned by `Cldr.get_current_local/0`.  Its default value is "en".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
+Note that the output is influenced by the locale in effect.  By default the localed used is that returned by `Cldr.get_current_local/0`.  Its default value is "en-001".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
 
 ### Arithmetic Functions
 
