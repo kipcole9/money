@@ -4,7 +4,7 @@
 [![Hex pm](http://img.shields.io/hexpm/v/ex_money.svg?style=flat)](https://hex.pm/packages/ex_money)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/kipcole9/money/blob/master/LICENSE)
 
-Money implements a set of functions to store, retrieve and perform arithmetic
+Money implements a set of functions to store, retrieve, convert and perform arithmetic
 on a `%Money{}` type that is composed of a currency code and a currency amount.
 
 Money is opinionated in the interests of serving as a dependable library
@@ -14,7 +14,7 @@ How is this opinion expressed?
 
 1. Money must always have both a amount and a currency code.
 
-2. The currency code must always be a valid ISO4217 code.
+2. The currency code must always be a valid [ISO4217](https://www.iso.org/iso-4217-currency-codes.html) code.
 
 3. Money arithmetic can only be performed when both operands are of the same currency.
 
