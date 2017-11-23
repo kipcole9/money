@@ -51,7 +51,8 @@ defmodule Money.Mixfile do
       source_ref: "v#{@version}",
       extras: ["README.md", "CHANGELOG.md", "LICENSE.md"],
       main: "readme",
-      groups_for_modules: groups_for_modules()
+      groups_for_modules: groups_for_modules(),
+      logo: "logo.png"
     ]
   end
 

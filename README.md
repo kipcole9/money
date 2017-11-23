@@ -1,11 +1,14 @@
 # Introduction to Money
+![Build Status](http://sweatbox.noexpectations.com.au:8080/buildStatus/icon?job=money)
+![Deps Status](https://beta.hexfaktor.org/badge/all/github/kipcole9/money.svg)
+[![Hex pm](http://img.shields.io/hexpm/v/ex_money.svg?style=flat)](https://hex.pm/packages/ex_money)
+[![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/kipcole9/money/blob/master/LICENSE)
 
 Money implements a set of functions to store, retrieve and perform arithmetic
 on a `%Money{}` type that is composed of a currency code and a currency amount.
 
 Money is opinionated in the interests of serving as a dependable library
-that can underpin accounting and financial applications.  Before release 1.0 it
-can be expected that this contract may not be fully met.
+that can underpin accounting and financial applications.
 
 How is this opinion expressed?
 
