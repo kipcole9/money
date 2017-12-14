@@ -5,12 +5,12 @@ defmodule Money.ExchangeRates.Supervisor do
   alias Money.ExchangeRates
 
   def start_link do
-    Supervisor.start_link(__MODULE__, :ok, name: Money.ExchangeRates.Supervisor)
+    Supervisor.start_link(__MODULE__, :ok, name: ExchangeRates.Supervisor)
   end
 
   def init(:ok) do
     children = [
-      worker(Money.ExchangeRates.Retriever, [Money.ExchangeRates.Retriever, ExchangeRates.config])
+      worker(ExchangeRates.Retriever, [ExchangeRates.Retriever, ExchangeRates.config])
     ]
 
     supervise(children, strategy: :one_for_one)

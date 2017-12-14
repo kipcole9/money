@@ -169,7 +169,6 @@ defmodule Money.ExchangeRates do
               api_module: nil,
               callback_module: nil,
               log_levels: %{},
-              delay_before_first_retrieval: nil,
               preload_historic_rates: nil,
               retriever_options: nil
   end

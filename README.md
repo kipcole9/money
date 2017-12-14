@@ -45,7 +45,7 @@ An optional callback module can also be defined.  This module defines a `rates_r
 `Money` provides a set of configuration keys to customize behaviour. The default configuration is:
 
     config :ex_money,
-      exchange_rate_service: false,
+      auto_start_exchange_rate_service: false,
       exchange_rates_retrieve_every: 300_000,
       api_module: Money.ExchangeRates.OpenExchangeRates,
       callback_module: Money.ExchangeRates.Callback,
@@ -57,7 +57,7 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
 ### Configuration key definitions
 
-* `:exchange_rate_service` is a boolean that determines whether to automatically start the exchange rate retrieval service.  The default it `false`.
+* `:auto_start_exchange_rate_service` is a boolean that determines whether to automatically start the exchange rate retrieval service.  The default it `false`.
 
 * `:exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is 5 minutes (300,000 milliseconds).
 
@@ -110,7 +110,7 @@ If you plan to use the provided Open Exchange Rates module to retrieve exchange 
 Keys can also be configured to retrieve values from environment variables.  This lookup is done at runtime to facilitate deployment strategies.  If the value of a configuration key is `{:system, "some_string"}` then `"some_string"` is interpreted as an environment variable name which is passed to `System.get_env/2`.  An example configuration might be:
 
     config :ex_money,
-      exchange_rate_service: {:system, "RATE_SERVICE"},
+      auto_start_exchange_rate_service: {:system, "RATE_SERVICE"},
       exchange_rates_retrieve_every: {:system, "RETRIEVE_EVERY"},
       open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"}
 
@@ -118,7 +118,7 @@ Note that the `{:system, "ENV KEY"}` approach is **not** currently supported for
 
 ## The Exchange rates service process supervision and startup
 
-If the exchange rate service is configured to automatically start up (because the config key `exchange_rate_service` is set to `true`) then a supervisor process named `Money.ExchangeRates.Supervisor` is started which in turns starts a child `GenServer` called `Money.ExchangeRates.Retriever`.  It is `Money.ExchangeRates.Retriever` which will call the configured `api_module` to retrieve the rates.  It is also responsible for calling the configured `callback_module` after a successfull retrieval.
+If the exchange rate service is configured to automatically start up (because the config key `auto_start_exchange_rate_service` is set to `true`) then a supervisor process named `Money.ExchangeRates.Supervisor` is started which in turns starts a child `GenServer` called `Money.ExchangeRates.Retriever`.  It is `Money.ExchangeRates.Retriever` which will call the configured `api_module` to retrieve the rates.  It is also responsible for calling the configured `callback_module` after a successfull retrieval.
 
                                          +-----------------+
                                          |                 |
@@ -131,7 +131,7 @@ If the exchange rate service is configured to automatically start up (because th
                                          |                 |
                                          +-----------------+
 
-On application start (or manual start if `:exchange_rate_service` is set to `false`), `Money.ExchangeRates.Retriever` will schedule the first retrieval to be executed after immediately and then each `:exchange_rates_retrieve_every` milliseconds thereafter.
+On application start (or manual start if `:auto_start_exchange_rate_service` is set to `false`), `Money.ExchangeRates.Retriever` will schedule the first retrieval to be executed after immediately and then each `:exchange_rates_retrieve_every` milliseconds thereafter.
 
 ## Using Ecto or other applications from within the callback module
 
@@ -139,7 +139,7 @@ If you provide your own callback module and that module depends on some other ap
 
 In this situation the appropriate way to configure the exchange rates retrieval service is the following:
 
-1. Set the configuration key `exchange_rate_service` to `false` to prevent automatic startup of the service.
+1. Set the configuration key `auto_start_exchange_rate_service` to `false` to prevent automatic startup of the service.
 
 2. Configure your `api_module`, `callback_module` and any other required configuration as appropriate
 

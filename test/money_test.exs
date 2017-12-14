@@ -1,6 +1,7 @@
 defmodule MoneyTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
+  import ExUnit.CaptureLog
   import Money.ExchangeRatesTestHelper
 
   alias Money.ExchangeRates
@@ -335,7 +336,8 @@ defmodule MoneyTest do
   end
 
   test "Calculate irr with one outflow" do
-    flows = [{1, Money.new(:USD, -123400)},{2, Money.new(:USD, 36200)},{3,Money.new(:USD,54800)},{4,Money.new(:USD,48100)}]
+    flows = [{1, Money.new(:USD, -123400)},{2, Money.new(:USD, 36200)},
+             {3,Money.new(:USD,54800)},{4,Money.new(:USD,48100)}]
     assert Float.round(Financial.internal_rate_of_return(flows), 4) == 0.0596
   end
 
@@ -418,10 +420,13 @@ defmodule MoneyTest do
   end
 
   test "Invoke callback module on successful exchange rate retrieval" do
-    assert capture_io(fn ->
+    result = assert capture_io(fn ->
       {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
-     end) == "Historic Rates Retrieved\nHistoric Rates Retrieved\nLatest Rates Retrieved\n"
+     end)
+
+     assert result in ["Historic Rates Retrieved\nHistoric Rates Retrieved\nLatest Rates Retrieved\n",
+                       "Latest Rates Retrieved\nHistoric Rates Retrieved\nHistoric Rates Retrieved\n"]
   end
 
   test "That rates_available? returns correctly" do
@@ -464,5 +469,19 @@ defmodule MoneyTest do
     import Money.Sigil
     m = ~M[100]USD
     assert m == Money.new!(:USD, 100)
+  end
+
+  test "that we get a deprecation message if we use :exchange_rate_service keywork option" do
+    Application.put_env(:ex_money, :exchange_rate_service, true)
+    assert capture_log(fn ->
+      Money.Application.maybe_log_deprecation
+    end) =~ "Configuration option :exchange_rate_service is deprecated"
+  end
+
+  test "that we get a deprecation message if we use :delay_before_first_retrieval keywork option" do
+    Application.put_env(:ex_money, :delay_before_first_retrieval, 300)
+    assert capture_log(fn ->
+      Money.Application.maybe_log_deprecation
+    end) =~ "Configuration option :delay_before_first_retrieval is deprecated"
   end
 end
