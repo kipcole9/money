@@ -1,11 +1,10 @@
 # Introduction to Money
 ![Build Status](http://sweatbox.noexpectations.com.au:8080/buildStatus/icon?job=money)
-![Deps Status](https://beta.hexfaktor.org/badge/all/github/kipcole9/money.svg)
 [![Hex pm](http://img.shields.io/hexpm/v/ex_money.svg?style=flat)](https://hex.pm/packages/ex_money)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/kipcole9/money/blob/master/LICENSE)
 
 Money implements a set of functions to store, retrieve, convert and perform arithmetic
-on a `%Money{}` type that is composed of a currency code and a currency amount.
+on a `%Money{}` type that is composed of an ISO 4217 currency code and a currency amount.
 
 Money is opinionated in the interests of serving as a dependable library
 that can underpin accounting and financial applications.
@@ -30,7 +29,7 @@ How is this opinion expressed?
 
 ## Prerequisities
 
-* `ex_money` is supported on Elixir 1.5 and later only
+* `Money` is supported on Elixir 1.5 and later only
 
 ## Exchange rates and currency conversion
 
@@ -431,7 +430,7 @@ ex_money can be installed by:
 
 ```elixir
   def deps do
-    [{:ex_money, "~> 1.0.0-rc or ~> 1.0"}]
+    [{:ex_money, "~> 1.0"}]
   end
 ```
 
@@ -444,3 +443,126 @@ ex_money can be installed by:
 * Uses the `Decimal` type in Elixir and the Postgres `numeric` type to preserve precision.  For MySQL the amount is serialised as a string to preserve precision that might otherwise be lost if stored as a JSON numeric type (which is either an integer or a float)
 
 * Includes a set of financial calculations (arithmetic and cash flow calculations) that follow solid rounding rules
+
+## Falsehoods programmers believe about prices
+
+The [github gist](https://gist.github.com/rgs/6509585) gives a good summary of the challenges of managing money in an application. The following described how `Money` handles each of these assertions.
+
+**1. You can store a price in a floating point variable.**
+
+`Money` operates and serialises in a arbitrary precision Decimal value.
+
+**2. All currencies are subdivided in 1/100th units (like US dollar/cents, euro/eurocents etc.).**
+
+`Money` leverages CLDR which defines the appropriate number of decimal places of a currency. As of CLDR version 32 there are:
+
+  * 52 currencies with zero decimal digits
+  * 241 currencies with two decimal digits
+  * 6 currencies with three decimal digits
+  * and 1 currency with four decimal digits
+
+**3. All currencies are subdivided in decimal units (like dinar/fils)**
+
+**4. All currencies currently in circulation are subdivided in decimal units. (to exclude shillings, pennies) (counter-example: MGA)**
+
+**5. All currencies are subdivided. (counter-examples: KRW, COP, JPY... Or subdivisions can be deprecated.)**
+
+`Money` correctly manages the appropriate number of decimal places for a currency.  It also round correctly when formatting a currency for output (different currencies have different rounding levels for cash or transactions).
+
+**6. Prices can't have more precision than the smaller sub-unit of the currency. (e.g. gas prices)**
+
+All `Money` calculations are done with decimal arithmetic to the maxium precision of 28 decimal digits.
+
+**7. For any currency you can have a price of 1. (ZWL)**
+
+`Money` makes no assumption about the value assigned as long as its a real number.
+
+**8. Every country has its own currency. (EUR is the best example, but also Franc CFA, etc.)**
+
+`Money` makes no assumptions about the linkage of currencies to territories.
+
+**9. No country uses another's country official currency as its official currency. (many countries use USD: Ecuador, Micronesia...)**
+
+**10. Countries have only one currency.**
+
+`Money` doesn't link territories (countries) to a currency - it focuses only on the `Money` domain.  The addon package [cldr_territories](https://github.com/Schultzer/cldr_territories) does have knowledge of what curriencies are in effect throughout history for a given territory.  See `Cldr.Territory.info/1`.
+
+**11. Countries have only one currency currently in circulation. (Panama officially uses both PAB and USD)**
+
+`Money` makes no assumptions about currencies in circulation.
+
+**12. I'll only deal with currencies currently in circulation anyway.**
+
+`Money` makes no assumptions about currencies in circulation.
+
+**13. All currencies have an ISO 4217 3-letter code. (The Transnistrian ruble has none, for example)**
+
+`Money` does validate currency codes against the ISO 4217 list.  Custom currencies can be created in accordance with ISO 4217 using `Cldr.Currency.new/2`.
+
+**14. All currencies have a different name. (French franc, "nouveau franc")**
+
+`Money` has localised names for all ISO 4217 currencies in each of the over 500 locales defined by CLDR.
+
+**15. You always put the currency symbol after the price.**
+
+`Money` formats currency strings according to a format mask that is either defined by CLDR or user supplied.
+
+**16. You always put the currency symbol before the price.**
+
+`Money` formats currency strings according to a format mask that is either defined by CLDR or user supplied.
+
+**17. You always put the currency symbol either after, or before the price, never in the middle.**
+
+`Money` formats currency strings according to a format mask that is either defined by CLDR or user supplied.
+
+**18. There's only one currency symbol for any currency. (元, 角, 分 are increasing units of the Chinese renminbi.)**
+
+`Money` uses format masks defined by CLDR which, for the Chinese renminbi uses the "￥" symbol.
+
+**19. For a given currency, you always, but always, put the symbol in the same place.**
+
+`Money` makes no assumpions about symbol placement.  The symbol can be places anywhere in a formatted string but is typically, for CLDR format masks, placed either before or after the formatted number.
+
+**20. OK. But if you only use the ISO 4217 currency codes, you always put it before the price. (Hint: it depends on the language.)**
+
+Same as for the answer to 19 above.
+
+**21. Before the price means on the left. (ILS)**
+
+`Money` formats according to a locale and correctly places symbols for languages written right-to-left.
+
+**22. You can always use a dot (or a comma, etc.) as a decimal separator.**
+
+The decimal separator is defined per locale according to the CLDR definitions.
+
+**23. You can always use a space (or a dot, or a comma, etc.) as a thousands separator.**
+
+The thousands (acutally grouping since not all locales format in thousands) separator is defined per locale according to the CLDR definitions.
+
+**24. You separate big prices by grouping numbers in triplets (thousands). (One writes ¥1 0000)**
+
+Grouping is done according the CLDR definitions.  For many languages the grouping is in thousands.  Some format other ways.  For example in India numbers are formatted with the first group as a triplet and subsequent groups as doublets.
+
+**25. Prices at a single company will never range from five digits before the decimal to five digits after.**
+
+`Money` default precision is 28 decimal digits.  All arithmetic is done using arbitrary precision decimal arithemetic.  No round is performced unless either explicity performed or a money value is formatted for output.  When formatting rounding is applied according the locale-specific rules.
+
+**26. Prices contains only digits and punctuation. (Germans can write 12,- €)**
+
+`Money` format masks can contain very flexible formatting masks.  A set of formats is defined for each locale and a user-defined masks can also be defined.
+
+**27. A price can be at most 10^N for some value of N.**
+
+See the answer to 25.
+
+**28. Given two currencies, there is only one exchange rate between them at any given point in time.**
+
+`Money` supports an exchange rate mechansim, currency conversions and retrieval from external exchange rate services.  It does not impose any constraint on underlying conversion tables.
+
+**29. Given two currencies, there is at least one exchange rate between them at any given point in time. (restriction on export of MAD, ARS, CNY, for example)**
+
+See the answer to 28.
+
+**30. And the final one: a standalone $ character is always pronounced dollar. (It's also the peso sign.)**
+
+This is outside the domain of `Money`.
