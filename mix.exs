@@ -1,24 +1,25 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "1.1.0"
+  @version "1.1.1"
 
   def project do
-    [app: :ex_money,
-     version: @version,
-     elixir: "~> 1.5",
-     name: "Money",
-     source_url: "https://github.com/kipcole9/money",
-     docs: docs(),
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps(),
-     description: description(),
-     package: package(),
-     test_coverage: [tool: ExCoveralls],
-     aliases: aliases(),
-     elixirc_paths: elixirc_paths(Mix.env)
-   ]
+    [
+      app: :ex_money,
+      version: @version,
+      elixir: "~> 1.5",
+      name: "Money",
+      source_url: "https://github.com/kipcole9/money",
+      docs: docs(),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
+      description: description(),
+      package: package(),
+      test_coverage: [tool: ExCoveralls],
+      aliases: aliases(),
+      elixirc_paths: elixirc_paths(Mix.env())
+    ]
   end
 
   defp description do
@@ -31,10 +32,16 @@ defmodule Money.Mixfile do
       licenses: ["Apache 2.0"],
       links: %{
         "GitHub" => "https://github.com/kipcole9/money",
-        "Readme"    => "https://github.com/kipcole9/money/blob/v#{@version}/README.md",
-        "Changelog" => "https://github.com/kipcole9/money/blob/v#{@version}/CHANGELOG.md"},
+        "Readme" => "https://github.com/kipcole9/money/blob/v#{@version}/README.md",
+        "Changelog" => "https://github.com/kipcole9/money/blob/v#{@version}/CHANGELOG.md"
+      },
       files: [
-        "lib", "config", "mix.exs", "README.md", "CHANGELOG.md", "LICENSE.md"
+        "lib",
+        "config",
+        "mix.exs",
+        "README.md",
+        "CHANGELOG.md",
+        "LICENSE.md"
       ]
     ]
   end
@@ -59,7 +66,7 @@ defmodule Money.Mixfile do
   defp groups_for_modules do
     [
       "Exchange Rates": ~r/^Money.ExchangeRates.?/,
-      "Ecto": ~r/^Money.Ecto.?/
+      Ecto: ~r/^Money.Ecto.?/
     ]
   end
 
@@ -78,5 +85,5 @@ defmodule Money.Mixfile do
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 end

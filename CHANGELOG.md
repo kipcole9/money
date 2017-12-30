@@ -1,6 +1,12 @@
-# Changelog for Money v1.1.0
+# Changelog for Money v1.1.1
 
-This is the changelog for Money v1.1.0 released on December 22nd 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v1.1.1 released on December 31st 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+## Enhancements
+
+* Format the code using the Elixir code formatter
+
+# Changelog for Money v1.1.0
 
 ## Changes & Deprecations
 
