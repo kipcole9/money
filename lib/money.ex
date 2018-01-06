@@ -126,20 +126,20 @@ defmodule Money do
   when is_atom(currency_code) or is_binary(currency_code) do
     new(currency_code, amount)
   end
-  
+
   def new(currency_code, amount) when is_atom(currency_code) and is_binary(amount) do
     new(currency_code, Decimal.new(amount))
   rescue Decimal.Error ->
-    {:error, 
+    {:error,
       {Money.InvalidAmountError, "Amount cannot be converted to a number: #{inspect amount}"}}
   end
-  
+
   def new(amount, currency_code) when is_atom(currency_code) and is_binary(amount) do
     new(currency_code, amount)
   end
-  
+
   def new(maybe_amount, maybe_currency_code) do
-    {:error, 
+    {:error,
       {Money.Invalid, "Unable to create money from #{inspect maybe_amount} " <>
                       "and #{inspect maybe_currency_code}"}}
   end
@@ -1060,6 +1060,35 @@ defmodule Money do
   @spec reduce(Money.t) :: Money.t
   def reduce(%Money{currency: currency, amount: amount}) do
     %Money{currency: currency, amount: Decimal.reduce(amount)}
+  end
+
+  @doc """
+  Returns a tuple comprising the currency code, integer amount, exponent and remainder
+
+  Some services require submission of money items as an integer with an implied exponent
+  that is appropriate to the currency.
+
+  Rather than return only the integer, `Money.to_integer_exp` returns the currency code,
+  integer, exponent and remainder.  The remainder is included because to return an integer
+  money with an implied exponent the `Money` has to be rounded potentially leaving
+  a remainder.
+
+  ## Example
+
+      iex> m = Money.new(:USD, 200.012356)
+      #Money<:USD, 200.012356>
+      iex> Money.to_integer_exp(m)
+      {:USD, 20001, -2, Money.new(:USD, 0.002356)}
+
+  """
+  def to_integer_exp(%Money{} = money) do
+    new_money =
+      money
+      |> Money.round
+      |> Money.reduce
+
+    {:ok, remainder} = Money.sub(money, new_money)
+    {new_money.currency, new_money.amount.coef, new_money.amount.exp, remainder}
   end
 
   ## Helpers
