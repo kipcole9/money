@@ -4,7 +4,14 @@ This is the changelog for Money v1.1.1 released on January 6th, 2018.  For older
 
 ## Enhancements
 
-* Add `Money.to_integer_exp` to convert the `Money` into a tuple of the integer (coefficient) and exponent.  This is useful for services that require money to be presented in an integer format.
+* Add `Money.to_integer_exp` to convert the `Money` into a tuple of the currency_code, integer (coefficient), exponent and remainder.  This is useful for services that require money to be presented in an integer format.
+
+```
+  iex> m = Money.new(:USD, 200.012356)
+  #Money<:USD, 200.012356>
+  iex> Money.to_integer_exp(m)
+  {:USD, 20001, -2, Money.new(:USD, 0.002356)}
+```
 
 * Format the code using the Elixir code formatter
 
