@@ -1,6 +1,12 @@
-# Changelog for Money v1.1.1
+# Changelog for Money v1.1.2
 
-This is the changelog for Money v1.1.1 released on January 6th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v1.1.1 released on January 7th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+## Bug fixes
+
+* Fixes a bug in `Money.to_integer_exp/1` which was not correctly adjusting the exponent for money amounts that had no decimal places, or the number of decimal places was less than that required for the currency,  Additional tests have been added.
+
+# Changelog for Money v1.1.1
 
 ## Enhancements
 

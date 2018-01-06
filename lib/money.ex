@@ -1094,7 +1094,7 @@ defmodule Money do
       iex> m = Money.new(:USD, 200.00)
       #Money<:USD, 200.0>
       iex> Money.to_integer_exp(m)
-      {:USD, 200, 0, Money.new(:USD, 0.0)}
+      {:USD, 20000, -2, Money.new(:USD, 0.0)}
 
   """
   def to_integer_exp(%Money{} = money) do
@@ -1104,13 +1104,12 @@ defmodule Money do
       |> Money.reduce
 
     {:ok, remainder} = Money.sub(money, new_money)
+    {:ok, currency} = Cldr.Currency.currency_for_code(money.currency)
+    exponent = -currency.digits
+    exponent_adjustment = abs(exponent - new_money.amount.exp)
+    integer = Cldr.Math.power_of_10(exponent_adjustment) * new_money.amount.coef
 
-    if new_money.amount.exp > 0 do
-      coef = Cldr.Math.power_of_10(new_money.amount.exp) * new_money.amount.coef
-      {new_money.currency, coef, 0, remainder}
-    else
-      {new_money.currency, new_money.amount.coef, new_money.amount.exp, remainder}
-    end
+    {money.currency, integer, exponent, remainder}
   end
 
   ## Helpers
