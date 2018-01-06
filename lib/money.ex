@@ -1063,15 +1063,26 @@ defmodule Money do
   end
 
   @doc """
-  Returns a tuple comprising the currency code, integer amount, exponent and remainder
+  Returns a tuple comprising the currency code, integer amount,
+  exponent and remainder
 
-  Some services require submission of money items as an integer with an implied exponent
-  that is appropriate to the currency.
+  Some services require submission of money items as an integer
+  with an implied exponent that is appropriate to the currency.
 
-  Rather than return only the integer, `Money.to_integer_exp` returns the currency code,
-  integer, exponent and remainder.  The remainder is included because to return an integer
-  money with an implied exponent the `Money` has to be rounded potentially leaving
-  a remainder.
+  Rather than return only the integer, `Money.to_integer_exp`
+  returns the currency code, integer, exponent and remainder.
+  The remainder is included because to return an integer
+  money with an implied exponent the `Money` has to be rounded
+  potentially leaving a remainder.
+
+  ## Options
+
+  * `money` is any `Money.t` struct returned by `Cldr.Currency.new/2`
+
+  ## Notes
+
+  * Since the returned integer is expected to have the implied fractional
+  digits the `Money` needs to be rounded which is what this function does.
 
   ## Example
 
