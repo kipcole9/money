@@ -74,6 +74,27 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
 * `:retriever_options` is available for exchange rate retriever module developers as a place to add retriever-specific configuration information.  This information should be added in the `init/1` callback in the retriever module.  See `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
 
+### Configuring locales to support localised formatting
+
+`Money` uses [ex_cldr](https://hex.pm/packages/ex_cldr) and [ex_cldr_numbers](https://hex.pm/packages/ex_cldr_numbers) to support configuring locales and providing localed formatting.
+
+By default `ex_cldr` configures `en-001` (global english) as its only and default locale.  A minimal configuration to add any of the more then 500 known locales is below.  Full configuration information is contained in the [readme for ex_cldr](https://github.com/kipcole9/cldr#configuration).
+
+```
+config :ex_cldr,
+  default_locale: "en-001",
+  locales: ["fr", "zh-Hant", "en-GB", "bs", "pl", "ru", "th", "he", "af"]
+```
+
+You can determine what locales are available for configuration by calling `Cldr.available_locale_name/0`.
+
+**Note** that if you change your locale configuration then you will need to force recompile the two dependencies to ensure the locales are available. The commands are:
+
+```
+mix deps.compile ex_cldr --force
+mix deps.compile ex_cldr_numbers --force
+```
+
 ### Preloading historic exchange rates
 
 The current implementation will call the api_module to retrieve the historic rates once for each date in the `:preload_exchange_rates` range.  Some exchange rate services, like Open Exchange Rates, provides a bulk retrieval api that can retrieve multiple dates in a single call.  However this endpoint is only available for premium subscribers and it is still charged on a "per date retrieved" basis. So while there is a network/performance/efficiency benefit there is no economic benefit.  Please file an issue on [github](https://github.com/kipcole9/money) if implementing a bulk api is important to you.
@@ -199,9 +220,11 @@ An optional sigil module is available to aid in creating %Money{} structs.  It n
     ~M[100]USD
     #> #Money<:USD, 100>
 
-### Localised String formatting
+### Localised Money formatting
 
-See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
+`Money` provides locale-specific formatted output that is controlled be either the locale that has been set for this process or by the `:locale` parameter supplied to `Money.to_string/2`.  Configuring your localised environment requires configuring `ex_cldr` which is a dependency to `Money`.  See the [Configuration](https://github.com/kipcole9/cldr#configuration) section of the `ex_cldr` readme for more information.
+
+The main API for formatting `Money` is `Money.to_string/2`. Additionally formatting options are passed to `Cldr.Number.to_string/2`.  Those options are described in the [readme for ex_cldr_numbers](https://github.com/kipcole9/cldr_numbers#primary-public-api) which is also a dependency to `Money`.
 
     iex> Money.to_string Money.new("thb", 11)
     {:ok, "THB11.00"}
@@ -211,6 +234,18 @@ See also `Money.to_string/2` and `Cldr.Number.to_string/2`):
 
     iex> Money.to_string Money.new("USD", 234.467), format: :long
     {:ok, "234.47 US dollars"}
+
+    iex> Money.to_string Money.new("USD", 234.467), locale: "fr"
+    {:ok, "234,47 $US"}
+
+    iex> Money.to_string Money.new("USD", 234.467), locale: "de"
+    {:ok, "234,47 $"}
+
+    iex> Money.to_string Money.new("EUR", 234.467), locale: "de"
+    {:ok, "234,47 €"}
+
+    iex> Money.to_string Money.new("EUR", 234.467), locale: "fr"
+    {:ok, "234,47 €"}
 
 Note that the output is influenced by the locale in effect.  By default the localed used is that returned by `Cldr.get_current_local/0`.  Its default value is "en-001".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
 
