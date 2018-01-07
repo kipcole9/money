@@ -86,7 +86,11 @@ config :ex_cldr,
   locales: ["fr", "zh-Hant", "en-GB", "bs", "pl", "ru", "th", "he", "af"]
 ```
 
-You can determine what locales are available for configuration by calling `Cldr.available_locale_name/0`.
+* You can determine what locales are available to be configured by calling `Cldr.available_locale_names/0`.
+
+* `Cldr.set_current_locale/1` will set the default locale for the process
+
+* The `:locale` option can be used with `Money.to_string/2`.  If not provided as an option then `Money.to_string/2` will call `Cldr.get_current_locale/0` if one is set, otherwise it will use `Cldr.default_locale/0` which is set in the configuration.
 
 **Note** that if you change your locale configuration then you will need to force recompile the two dependencies to ensure the locales are available. The commands are:
 
