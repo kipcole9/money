@@ -1112,6 +1112,54 @@ defmodule Money do
     {money.currency, integer, exponent, remainder}
   end
 
+  @doc """
+  Convert an integer representation of money into a `Money` struct.
+
+  This is the inverse operation of `Money.to_integer_exp/1`.
+
+  ## Options
+
+  * `integer` is an integer representation of a mooney item including
+  any decimal digits.  ie. 20000 would interpreted to mean $200.00
+
+  * `currency` is the currency code for the `integer`.  The assumed
+  decimal places is derived from the currency code.
+
+  ## Returns
+
+  * A `Money` struct or
+
+  * `{:error, {Cldr.UnknownCurrencyError, message}}`
+
+  ## Examples
+
+      iex> Money.from_integer(20000, :USD)
+      #Money<:USD, 200.00>
+
+      iex> Money.from_integer(200, :JPY)
+      #Money<:JPY, 200>
+
+      iex> Money.from_integer(20012, :USD)
+      #Money<:USD, 200.12>
+
+  """
+  def from_integer(amount, currency) when is_integer(amount) do
+    with {:ok, currency} <- validate_currency(currency),
+         {:ok, %{digits: digits}} <- Cldr.Currency.currency_for_code(currency) do
+      sign = if amount < 0, do: -1, else: 1
+      digits = if digits == 0, do: 0, else: -digits
+
+      sign
+      |> Decimal.new(abs(amount), digits)
+      |> Money.new(currency)
+    end
+  end
+
+  @doc false
+  def from_integer({currency, integer, _exponent, _remainder}) do
+    from_integer(integer, currency)
+  end
+
   ## Helpers
 
   @doc false

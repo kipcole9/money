@@ -1,6 +1,23 @@
-# Changelog for Money v1.1.2
+# Changelog for Money v1.1.3
 
-This is the changelog for Money v1.1.1 released on January 7th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v1.1.3 released on January 8th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Improves the documentation that describes how to configure locales and how that relates to `Money.to_string/2`
+
+* Add `Money.from_integer/2` as the effective inverse of `Money.to_integer_exp/1`.  This function converts an integer form of money (inluding any decimal digits) into a `Money` struct.
+
+```
+  iex> Money.from_integer(20000, :USD)
+  #Money<:USD, 200.00>
+
+  iex> Money.from_integer(200, :JPY)
+  #Money<:JPY, 200>
+
+```
+
+# Changelog for Money v1.1.2
 
 ## Bug fixes
 
