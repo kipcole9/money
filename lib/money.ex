@@ -38,7 +38,7 @@ defmodule Money do
   Money is composed of an atom representation of an ISO4217 currency code and
   a `Decimal` representation of an amount.
   """
-  @type t :: %Money{currency: atom, amount: Decimal.t}
+  @type t :: %Money{currency: atom, amount: Decimal.t()}
   @type currency_code :: atom
 
   @enforce_keys [:currency, :amount]
@@ -91,7 +91,7 @@ defmodule Money do
       {:error, {Money.UnknownCurrencyError, "The currency :XYZZ is invalid"}}
 
   """
-  @spec new(number, binary) :: Money.t
+  @spec new(number, binary) :: Money.t()
   def new(currency_code, amount) when is_binary(currency_code) and is_number(amount) do
     case validate_currency(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
@@ -115,7 +115,7 @@ defmodule Money do
   end
 
   def new(currency_code, %Decimal{} = amount)
-  when is_atom(currency_code) or is_binary(currency_code) do
+      when is_atom(currency_code) or is_binary(currency_code) do
     case validate_currency(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
       {:ok, code} -> %Money{amount: amount, currency: code}
@@ -123,15 +123,18 @@ defmodule Money do
   end
 
   def new(%Decimal{} = amount, currency_code)
-  when is_atom(currency_code) or is_binary(currency_code) do
+      when is_atom(currency_code) or is_binary(currency_code) do
     new(currency_code, amount)
   end
 
   def new(currency_code, amount) when is_atom(currency_code) and is_binary(amount) do
     new(currency_code, Decimal.new(amount))
-  rescue Decimal.Error ->
-    {:error,
-      {Money.InvalidAmountError, "Amount cannot be converted to a number: #{inspect amount}"}}
+  rescue
+    Decimal.Error ->
+      {
+        :error,
+        {Money.InvalidAmountError, "Amount cannot be converted to a number: #{inspect(amount)}"}
+      }
   end
 
   def new(amount, currency_code) when is_atom(currency_code) and is_binary(amount) do
@@ -139,9 +142,14 @@ defmodule Money do
   end
 
   def new(maybe_amount, maybe_currency_code) do
-    {:error,
-      {Money.Invalid, "Unable to create money from #{inspect maybe_amount} " <>
-                      "and #{inspect maybe_currency_code}"}}
+    {
+      :error,
+      {
+        Money.Invalid,
+        "Unable to create money from #{inspect(maybe_amount)} " <>
+          "and #{inspect(maybe_currency_code)}"
+      }
+    }
   end
 
   @doc """
@@ -162,7 +170,7 @@ defmodule Money do
 
   """
   def new!(currency_code, amount)
-  when (is_binary(currency_code) or is_atom(currency_code)) do
+      when is_binary(currency_code) or is_atom(currency_code) do
     case money = new(currency_code, amount) do
       {:error, {exception, message}} -> raise exception, message
       _ -> money
@@ -170,17 +178,17 @@ defmodule Money do
   end
 
   def new!(amount, currency_code)
-  when (is_binary(currency_code) or is_atom(currency_code)) and is_number(amount) do
+      when (is_binary(currency_code) or is_atom(currency_code)) and is_number(amount) do
     new!(currency_code, amount)
   end
 
   def new!(%Decimal{} = amount, currency_code)
-  when is_binary(currency_code) or is_atom(currency_code) do
+      when is_binary(currency_code) or is_atom(currency_code) do
     new!(currency_code, amount)
   end
 
   def new!(currency_code, %Decimal{} = amount)
-  when is_binary(currency_code) or is_atom(currency_code) do
+      when is_binary(currency_code) or is_atom(currency_code) do
     new!(currency_code, amount)
   end
 
@@ -206,11 +214,12 @@ defmodule Money do
       #Money<:USD, 100>
 
   """
-  @spec from_tuple({binary, number}) :: Money.t
+  @spec from_tuple({binary, number}) :: Money.t()
   def from_tuple({currency_code, amount}) when is_binary(currency_code) and is_number(amount) do
     case validate_currency(currency_code) do
       {:error, {_exception, message}} ->
         {:error, {Money.UnknownCurrencyError, message}}
+
       {:ok, code} ->
         %Money{amount: Decimal.new(amount), currency: code}
     end
@@ -289,7 +298,7 @@ defmodule Money do
 
   """
   def to_string(%Money{} = money, options \\ []) do
-    options = merge_options(options, [currency: money.currency])
+    options = merge_options(options, currency: money.currency)
     Cldr.Number.to_string(money.amount, options)
   end
 
@@ -318,7 +327,7 @@ defmodule Money do
 
   """
   def to_string!(%Money{} = money, options \\ []) do
-    options = merge_options(options, [currency: money.currency])
+    options = merge_options(options, currency: money.currency)
     Cldr.Number.to_string!(money.amount, options)
   end
 
@@ -341,7 +350,7 @@ defmodule Money do
       #Decimal<100>
 
   """
-  @spec to_decimal(money :: Money.t) :: Decimal.t
+  @spec to_decimal(money :: Money.t()) :: Decimal.t()
   def to_decimal(%Money{amount: amount}) do
     amount
   end
@@ -370,14 +379,23 @@ defmodule Money do
         "Received :USD and :AUD."}}
 
   """
-  @spec add(money_1 :: Money.t, money_2 :: Money.t) :: Money.t
-  def add(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
+  @spec add(money_1 :: Money.t(), money_2 :: Money.t()) :: Money.t()
+  def add(%Money{currency: same_currency, amount: amount_a}, %Money{
+        currency: same_currency,
+        amount: amount_b
+      }) do
     {:ok, %Money{currency: same_currency, amount: Decimal.add(amount_a, amount_b)}}
   end
 
   def add(%Money{currency: code_a}, %Money{currency: code_b}) do
-    {:error, {ArgumentError, "Cannot add monies with different currencies. " <>
-      "Received #{inspect code_a} and #{inspect code_b}."}}
+    {
+      :error,
+      {
+        ArgumentError,
+        "Cannot add monies with different currencies. " <>
+          "Received #{inspect(code_a)} and #{inspect(code_b)}."
+      }
+    }
   end
 
   @doc """
@@ -430,16 +448,25 @@ defmodule Money do
       {:ok, Money.new(:USD, 100)}
 
   """
-  @spec sub(money_1 :: Money.t, money_2 :: Money.t)
-      :: {:ok, Money.t} | {:error, {Exception.t, String.t}}
+  @spec sub(money_1 :: Money.t(), money_2 :: Money.t()) ::
+          {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
 
-  def sub(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
+  def sub(%Money{currency: same_currency, amount: amount_a}, %Money{
+        currency: same_currency,
+        amount: amount_b
+      }) do
     {:ok, %Money{currency: same_currency, amount: Decimal.sub(amount_a, amount_b)}}
   end
 
   def sub(%Money{currency: code_a}, %Money{currency: code_b}) do
-    {:error, {ArgumentError, "Cannot subtract two monies with different currencies. " <>
-      "Received #{inspect code_a} and #{inspect code_b}."}}
+    {
+      :error,
+      {
+        ArgumentError,
+        "Cannot subtract two monies with different currencies. " <>
+          "Received #{inspect(code_a)} and #{inspect(code_b)}."
+      }
+    }
   end
 
   @doc """
@@ -467,7 +494,7 @@ defmodule Money do
       ** (ArgumentError) Cannot subtract monies with different currencies. Received :USD and :CAD.
 
   """
-  @spec sub!(money_1 :: Money.t, money_2 :: Money.t) :: Money.t | none()
+  @spec sub!(money_1 :: Money.t(), money_2 :: Money.t()) :: Money.t() | none()
 
   def sub!(%Money{} = a, %Money{} = b) do
     case sub(a, b) do
@@ -503,7 +530,7 @@ defmodule Money do
       {:error, {ArgumentError, "Cannot multiply money by \\"xx\\""}}
 
   """
-  @spec mult(Money.t, Cldr.Math.number_or_decimal) :: Money.t
+  @spec mult(Money.t(), Cldr.Math.number_or_decimal()) :: Money.t()
   def mult(%Money{currency: code, amount: amount}, number) when is_number(number) do
     {:ok, %Money{currency: code, amount: Decimal.mult(amount, Decimal.new(number))}}
   end
@@ -513,7 +540,7 @@ defmodule Money do
   end
 
   def mult(%Money{}, other) do
-    {:error, {ArgumentError, "Cannot multiply money by #{inspect other}"}}
+    {:error, {ArgumentError, "Cannot multiply money by #{inspect(other)}"}}
   end
 
   @doc """
@@ -541,7 +568,7 @@ defmodule Money do
       ** (ArgumentError) Cannot multiply money by :invalid
 
   """
-  @spec mult!(Money.t, Cldr.Math.number_or_decimal) :: Money.t | none()
+  @spec mult!(Money.t(), Cldr.Math.number_or_decimal()) :: Money.t() | none()
   def mult!(%Money{} = money, number) do
     case mult(money, number) do
       {:ok, result} -> result
@@ -576,7 +603,7 @@ defmodule Money do
       {:error, {ArgumentError, "Cannot divide money by \\"xx\\""}}
 
   """
-  @spec div(Money.t, Cldr.Math.number_or_decimal) :: Money.t
+  @spec div(Money.t(), Cldr.Math.number_or_decimal()) :: Money.t()
   def div(%Money{currency: code, amount: amount}, number) when is_number(number) do
     {:ok, %Money{currency: code, amount: Decimal.div(amount, Decimal.new(number))}}
   end
@@ -586,7 +613,7 @@ defmodule Money do
   end
 
   def div(%Money{}, other) do
-    {:error, {ArgumentError, "Cannot divide money by #{inspect other}"}}
+    {:error, {ArgumentError, "Cannot divide money by #{inspect(other)}"}}
   end
 
   @doc """
@@ -642,8 +669,11 @@ defmodule Money do
       false
 
   """
-  @spec equal?(money_1 :: Money.t, money_2 :: Money.t) :: boolean
-  def equal?(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
+  @spec equal?(money_1 :: Money.t(), money_2 :: Money.t()) :: boolean
+  def equal?(%Money{currency: same_currency, amount: amount_a}, %Money{
+        currency: same_currency,
+        amount: amount_b
+      }) do
     Decimal.equal?(amount_a, amount_b)
   end
 
@@ -684,14 +714,24 @@ defmodule Money do
         "Cannot compare monies with different currencies. Received :USD and :CAD."}}
 
   """
-  @spec cmp(money_1 :: Money.t, money_2 :: Money.t) :: :gt | :eq | :lt | {:error, {Exception.t, String.t}}
-  def cmp(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
+  @spec cmp(money_1 :: Money.t(), money_2 :: Money.t()) ::
+          :gt | :eq | :lt | {:error, {Exception.t(), String.t()}}
+  def cmp(%Money{currency: same_currency, amount: amount_a}, %Money{
+        currency: same_currency,
+        amount: amount_b
+      }) do
     Decimal.cmp(amount_a, amount_b)
   end
 
   def cmp(%Money{currency: code_a}, %Money{currency: code_b}) do
-    {:error, {ArgumentError, "Cannot compare monies with different currencies. " <>
-      "Received #{inspect code_a} and #{inspect code_b}."}}
+    {
+      :error,
+      {
+        ArgumentError,
+        "Cannot compare monies with different currencies. " <>
+          "Received #{inspect(code_a)} and #{inspect(code_b)}."
+      }
+    }
   end
 
   @doc """
@@ -754,16 +794,26 @@ defmodule Money do
         "Cannot compare monies with different currencies. Received :USD and :CAD."}}
 
   """
-  @spec compare(money_1 :: Money.t, money_2 :: Money.t) :: -1 | 0 | 1 | {:error, {Exception.t, String.t}}
-  def compare(%Money{currency: same_currency, amount: amount_a}, %Money{currency: same_currency, amount: amount_b}) do
+  @spec compare(money_1 :: Money.t(), money_2 :: Money.t()) ::
+          -1 | 0 | 1 | {:error, {Exception.t(), String.t()}}
+  def compare(%Money{currency: same_currency, amount: amount_a}, %Money{
+        currency: same_currency,
+        amount: amount_b
+      }) do
     amount_a
     |> Decimal.compare(amount_b)
-    |> Decimal.to_integer
+    |> Decimal.to_integer()
   end
 
   def compare(%Money{currency: code_a}, %Money{currency: code_b}) do
-    {:error, {ArgumentError, "Cannot compare monies with different currencies. " <>
-      "Received #{inspect code_a} and #{inspect code_b}."}}
+    {
+      :error,
+      {
+        ArgumentError,
+        "Cannot compare monies with different currencies. " <>
+          "Received #{inspect(code_a)} and #{inspect(code_b)}."
+      }
+    }
   end
 
   @doc """
@@ -830,7 +880,7 @@ defmodule Money do
       {$13.74, $0.04}
 
   """
-  @spec split(Money.t, non_neg_integer) :: {Money.t, Money.t}
+  @spec split(Money.t(), non_neg_integer) :: {Money.t(), Money.t()}
   def split(%Money{} = money, parts) when is_integer(parts) do
     rounded_money = Money.round(money)
 
@@ -883,7 +933,7 @@ defmodule Money do
       #Money<:JPY, 124>
 
   """
-  @spec round(Money.t, Keyword.t):: Money.t
+  @spec round(Money.t(), Keyword.t()) :: Money.t()
   def round(%Money{} = money, opts \\ []) do
     money
     |> round_to_decimal_digits(opts)
@@ -951,19 +1001,18 @@ defmodule Money do
       {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :CHF"}}
 
   """
-  @spec to_currency(Money.t, Money.currency_code, Map.t) :: {:ok, Map.t} | {:error, {Exception.t, String.t}}
+  @spec to_currency(Money.t(), Money.currency_code(), Map.t()) ::
+          {:ok, Map.t()} | {:error, {Exception.t(), String.t()}}
   def to_currency(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
 
   def to_currency(%Money{currency: currency} = money, to_currency, _rates)
-  when currency == to_currency do
+      when currency == to_currency do
     {:ok, money}
   end
 
   def to_currency(%Money{currency: currency} = money, to_currency, %{} = rates)
-  when is_atom(to_currency) or is_binary(to_currency) do
-    with \
-      {:ok, to_code} <- validate_currency(to_currency)
-    do
+      when is_atom(to_currency) or is_binary(to_currency) do
+    with {:ok, to_code} <- validate_currency(to_currency) do
       if currency == to_code, do: money, else: to_currency(money, to_currency, {:ok, rates})
     else
       {:error, _} = error -> error
@@ -971,20 +1020,16 @@ defmodule Money do
   end
 
   def to_currency(%Money{currency: from_currency, amount: amount}, to_currency, {:ok, rates})
-  when is_atom(to_currency) or is_binary(to_currency) do
-    with \
-      {:ok, currency_code} <- validate_currency(to_currency),
-      {:ok, base_rate} <- get_rate(from_currency, rates),
-      {:ok, conversion_rate} <- get_rate(currency_code, rates)
-    do
+      when is_atom(to_currency) or is_binary(to_currency) do
+    with {:ok, currency_code} <- validate_currency(to_currency),
+         {:ok, base_rate} <- get_rate(from_currency, rates),
+         {:ok, conversion_rate} <- get_rate(currency_code, rates) do
       converted_amount =
         amount
         |> Decimal.div(base_rate)
         |> Decimal.mult(conversion_rate)
 
       {:ok, Money.new(to_currency, converted_amount)}
-    else
-      {:error, _} = error -> error
     end
   end
 
@@ -1057,7 +1102,7 @@ defmodule Money do
       true
 
   """
-  @spec reduce(Money.t) :: Money.t
+  @spec reduce(Money.t()) :: Money.t()
   def reduce(%Money{currency: currency, amount: amount}) do
     %Money{currency: currency, amount: Decimal.reduce(amount)}
   end
@@ -1100,8 +1145,8 @@ defmodule Money do
   def to_integer_exp(%Money{} = money) do
     new_money =
       money
-      |> Money.round
-      |> Money.reduce
+      |> Money.round()
+      |> Money.reduce()
 
     {:ok, remainder} = Money.sub(money, new_money)
     {:ok, currency} = Cldr.Currency.currency_for_code(money.currency)
@@ -1167,6 +1212,7 @@ defmodule Money do
     case env = Application.get_env(:ex_money, key, default) do
       {:system, env_key} ->
         System.get_env(env_key) || default
+
       _ ->
         env
     end
@@ -1189,7 +1235,8 @@ defmodule Money do
   defp to_integer(n) when is_binary(n), do: String.to_integer(n)
 
   defp to_module(nil), do: nil
-  defp to_module(module_name) when is_atom(module_name) , do: module_name
+  defp to_module(module_name) when is_atom(module_name), do: module_name
+
   defp to_module(module_name) when is_binary(module_name) do
     Module.concat([module_name])
   end
@@ -1197,11 +1244,20 @@ defmodule Money do
   defp get_rate(currency, rates) do
     rates
     |> Map.take([currency, Atom.to_string(currency)])
-    |> Map.values
+    |> Map.values()
     |> case do
-         [rate] -> {:ok, rate}
-         _      -> {:error, {Money.ExchangeRateError, "No exchange rate is available for currency #{inspect currency}"}}
-       end
+      [rate] ->
+        {:ok, rate}
+
+      _ ->
+        {
+          :error,
+          {
+            Money.ExchangeRateError,
+            "No exchange rate is available for currency #{inspect(currency)}"
+          }
+        }
+    end
   end
 
   defp merge_options(options, required) do
@@ -1216,7 +1272,7 @@ defmodule Money do
 
   defimpl Inspect, for: Money do
     def inspect(money, _opts) do
-      "#Money<#{inspect money.currency}, #{Decimal.to_string(money.amount)}>"
+      "#Money<#{inspect(money.currency)}, #{Decimal.to_string(money.amount)}>"
     end
   end
 

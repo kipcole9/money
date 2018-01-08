@@ -33,14 +33,14 @@ if Code.ensure_loaded?(Ecto.Type) do
     end
 
     def dump({currency, amount})
-    when (is_binary(currency) or is_atom(currency)) and is_number(amount) do
+        when (is_binary(currency) or is_atom(currency)) and is_number(amount) do
       with {:ok, currency_code} <- Money.validate_currency(currency) do
         {:ok, {to_string(currency_code), amount}}
       end
     end
 
     def dump({currency, %Decimal{} = amount})
-    when (is_binary(currency) or is_atom(currency)) do
+        when is_binary(currency) or is_atom(currency) do
       with {:ok, currency_code} <- Money.validate_currency(currency) do
         {:ok, {to_string(currency_code), amount}}
       end
@@ -56,35 +56,29 @@ if Code.ensure_loaded?(Ecto.Type) do
     end
 
     def cast({currency, amount} = money)
-    when (is_binary(currency) or is_atom(currency)) and is_number(amount) do
+        when (is_binary(currency) or is_atom(currency)) and is_number(amount) do
       {:ok, Money.from_tuple(money)}
     end
 
     def cast(%{"currency" => currency, "amount" => amount})
-    when (is_binary(currency) or is_atom(currency)) and is_number(amount) do
-      with \
-        decimal_amount <- Decimal.new(amount),
-        {:ok, currency_code} <- Money.validate_currency(currency)
-      do
+        when (is_binary(currency) or is_atom(currency)) and is_number(amount) do
+      with decimal_amount <- Decimal.new(amount),
+           {:ok, currency_code} <- Money.validate_currency(currency) do
         {:ok, Money.new(currency_code, decimal_amount)}
       end
     end
 
     def cast(%{"currency" => currency, "amount" => amount})
-    when (is_binary(currency) or is_atom(currency)) and is_binary(amount) do
-      with \
-        {:ok, amount} <- Decimal.parse(amount),
-        {:ok, currency_code} <- Money.validate_currency(currency)
-      do
+        when (is_binary(currency) or is_atom(currency)) and is_binary(amount) do
+      with {:ok, amount} <- Decimal.parse(amount),
+           {:ok, currency_code} <- Money.validate_currency(currency) do
         {:ok, Money.new(currency_code, amount)}
       end
     end
 
     def cast(%{"currency" => currency, "amount" => %Decimal{} = amount})
-    when (is_binary(currency) or is_atom(currency)) do
-      with \
-        {:ok, currency_code} <- Money.validate_currency(currency)
-      do
+        when is_binary(currency) or is_atom(currency) do
+      with {:ok, currency_code} <- Money.validate_currency(currency) do
         {:ok, Money.new(currency_code, amount)}
       end
     end

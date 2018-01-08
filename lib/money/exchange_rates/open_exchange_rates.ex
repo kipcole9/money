@@ -41,7 +41,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   rates retrieval module.
   """
   def init(default_config) do
-    url    = Money.get_env(:open_exchange_rates_url, @open_exchange_rate_url)
+    url = Money.get_env(:open_exchange_rates_url, @open_exchange_rate_url)
     app_id = Money.get_env(:open_exchange_rates_app_id, nil)
     Map.put(default_config, :retriever_options, %{url: url, app_id: app_id})
   end
@@ -63,7 +63,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   service although it can be called outside that context as
   required.
   """
-  @spec get_latest_rates(Money.ExchangeRates.Config.t) :: {:ok, Map.t} | {:error, String.t}
+  @spec get_latest_rates(Money.ExchangeRates.Config.t()) :: {:ok, Map.t()} | {:error, String.t()}
   def get_latest_rates(config) do
     url = config.retriever_options.url
     app_id = config.retriever_options.app_id
@@ -115,7 +115,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
     retrieve_rates(url <> @historic_rates <> "#{date_string}.json" <> "?app_id=" <> app_id)
   end
 
-  defp retrieve_historic_rates(%{year: year, month: month, day: day}, url, app_id)  do
+  defp retrieve_historic_rates(%{year: year, month: month, day: day}, url, app_id) do
     case Date.new(year, month, day) do
       {:ok, date} -> retrieve_historic_rates(date, url, app_id)
       error -> error
@@ -127,10 +127,11 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
       {:ok, {{_version, 200, 'OK'}, _headers, body}} ->
         %{"base" => _base, "rates" => rates} = Poison.decode!(body)
 
-        decimal_rates = rates
-        |> Cldr.Map.atomize_keys
-        |> Enum.map(fn {k, v} -> {k, Decimal.new(v)} end)
-        |> Enum.into(%{})
+        decimal_rates =
+          rates
+          |> Cldr.Map.atomize_keys()
+          |> Enum.map(fn {k, v} -> {k, Decimal.new(v)} end)
+          |> Enum.into(%{})
 
         {:ok, decimal_rates}
 

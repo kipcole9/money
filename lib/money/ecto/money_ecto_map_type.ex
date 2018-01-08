@@ -25,10 +25,8 @@ if Code.ensure_loaded?(Ecto.Type) do
     end
 
     def load(%{"currency" => currency, "amount" => amount}) when is_binary(amount) do
-      with \
-        {:ok, amount} <- Decimal.parse(amount),
-        {:ok, currency} <- Money.validate_currency(currency)
-      do
+      with {:ok, amount} <- Decimal.parse(amount),
+           {:ok, currency} <- Money.validate_currency(currency) do
         {:ok, Money.new(currency, amount)}
       end
     end
@@ -40,20 +38,20 @@ if Code.ensure_loaded?(Ecto.Type) do
     end
 
     def dump(%Money{currency: currency, amount: %Decimal{} = amount}) do
-      {:ok, %{"currency" =>  to_string(currency), "amount" => Decimal.to_string(amount)}}
+      {:ok, %{"currency" => to_string(currency), "amount" => Decimal.to_string(amount)}}
     end
 
     def dump({currency, amount})
-    when (is_binary(currency) or is_atom(currency)) and is_number(amount) do
+        when (is_binary(currency) or is_atom(currency)) and is_number(amount) do
       with {:ok, currency_code} <- Money.validate_currency(currency) do
-        {:ok, %{"currency" =>  to_string(currency_code), "amount" => amount}}
+        {:ok, %{"currency" => to_string(currency_code), "amount" => amount}}
       end
     end
 
     def dump({currency, %Decimal{} = amount})
-    when (is_binary(currency) or is_atom(currency)) do
+        when is_binary(currency) or is_atom(currency) do
       with {:ok, currency_code} <- Money.validate_currency(currency) do
-        {:ok, %{"currency" =>  to_string(currency_code), "amount" => Decimal.to_string(amount)}}
+        {:ok, %{"currency" => to_string(currency_code), "amount" => Decimal.to_string(amount)}}
       end
     end
 

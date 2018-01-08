@@ -7,7 +7,7 @@ defmodule Money.ExchangeRates.Test do
   @latest_endpoint "/latest.json"
   @latest_url @exr_url <> @latest_endpoint <> "?app_id=" <> @app_id
   def init(config) do
-    url    = @latest_url
+    url = @latest_url
     app_id = @app_id
 
     Map.put(config, :retriever_options, %{url: url, app_id: app_id})
@@ -18,15 +18,11 @@ defmodule Money.ExchangeRates.Test do
   end
 
   def get_historic_rates(~D[2017-01-01], _config) do
-    {:ok,
-      %{AUD: Decimal.new(0.5), EUR: Decimal.new(1.1), USD: Decimal.new(0.7)}
-    }
+    {:ok, %{AUD: Decimal.new(0.5), EUR: Decimal.new(1.1), USD: Decimal.new(0.7)}}
   end
 
   def get_historic_rates(~D[2017-01-02], _config) do
-    {:ok,
-      %{AUD: Decimal.new(0.4), EUR: Decimal.new(0.9), USD: Decimal.new(0.6)}
-    }
+    {:ok, %{AUD: Decimal.new(0.4), EUR: Decimal.new(0.9), USD: Decimal.new(0.6)}}
   end
 
   defp get_rates("invalid_url") do
@@ -38,8 +34,6 @@ defmodule Money.ExchangeRates.Test do
   end
 
   defp get_rates(@latest_url) do
-    {:ok,
-      %{AUD: Decimal.new(0.7), EUR: Decimal.new(1.2), USD: Decimal.new(1)}
-    }
+    {:ok, %{AUD: Decimal.new(0.7), EUR: Decimal.new(1.2), USD: Decimal.new(1)}}
   end
 end
