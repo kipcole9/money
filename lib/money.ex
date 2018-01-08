@@ -1014,8 +1014,6 @@ defmodule Money do
       when is_atom(to_currency) or is_binary(to_currency) do
     with {:ok, to_code} <- validate_currency(to_currency) do
       if currency == to_code, do: money, else: to_currency(money, to_currency, {:ok, rates})
-    else
-      {:error, _} = error -> error
     end
   end
 
