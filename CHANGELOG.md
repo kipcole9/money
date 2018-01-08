@@ -6,7 +6,7 @@ This is the changelog for Money v1.1.3 released on January 8th, 2018.  For older
 
 * Improves the documentation that describes how to configure locales and how that relates to `Money.to_string/2`
 
-* Add `Money.from_integer/2` as the effective inverse of `Money.to_integer_exp/1`.  This function converts an integer form of money (inluding any decimal digits) into a `Money` struct.
+* Add `Money.from_integer/2` as the effective inverse of `Money.to_integer_exp/1`.  This function converts an integer form of money (inluding any decimal digits) into a `Money` struct. This is useful for services that return money in an integer format.
 
 ```
   iex> Money.from_integer(20000, :USD)
