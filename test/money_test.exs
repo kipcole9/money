@@ -519,4 +519,35 @@ defmodule MoneyTest do
              Money.Application.maybe_log_deprecation()
            end) =~ "Configuration option :delay_before_first_retrieval is deprecated"
   end
+
+  test "the integer and exponent for a number with more than the required decimal places" do
+    m = Money.new(:USD, "200.012356")
+    assert Money.to_integer_exp(m) == {:USD, 20001, -2, Money.new(:USD, "0.002356")}
+  end
+
+  test "the integer and exponent for a number with no decimal places" do
+    m = Money.new(:USD, "200.00")
+    assert Money.to_integer_exp(m) == {:USD, 20000, -2, Money.new(:USD, "0.0")}
+  end
+
+  test "the integer and exponent for a number with one less than the required decimal places" do
+    m = Money.new(:USD, "200.1")
+    assert Money.to_integer_exp(m) == {:USD, 20010, -2, Money.new(:USD, "0.0")}
+  end
+
+  test "the integer and exponent for a currency with no decimal places" do
+    m = Money.new(:JPY, "200.1")
+    assert Money.to_integer_exp(m) == {:JPY, 200, 0, Money.new(:JPY, "0.1")}
+  end
+
+  test "the integer and exponent for a currency with three decimal places" do
+    m = Money.new(:JOD, "200.1")
+    assert Money.to_integer_exp(m) == {:JOD, 200_100, -3, Money.new(:JOD, "0.0")}
+
+    m = Money.new(:JOD, "200.1234")
+    assert Money.to_integer_exp(m) == {:JOD, 200_123, -3, Money.new(:JOD, "0.0004")}
+
+    m = Money.new(:JOD, 200)
+    assert Money.to_integer_exp(m) == {:JOD, 200_000, -3, Money.new(:JOD, 0)}
+  end
 end

@@ -99,7 +99,11 @@ defmodule Money do
 
   """
   @spec new(number, binary) :: Money.t()
+<<<<<<< HEAD
   def new(currency_code, amount) when is_binary(currency_code) and is_integer(amount) do
+=======
+  def new(currency_code, amount) when is_binary(currency_code) and is_number(amount) do
+>>>>>>> 02a498bfff68e9cacf62afa90f6a00fc41e8b255
     case validate_currency(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
       {:ok, code} -> new(code, amount)
@@ -138,8 +142,10 @@ defmodule Money do
     new(currency_code, Decimal.new(amount))
   rescue
     Decimal.Error ->
-      {:error,
-       {Money.InvalidAmountError, "Amount cannot be converted to a number: #{inspect(amount)}"}}
+      {
+        :error,
+        {Money.InvalidAmountError, "Amount cannot be converted to a number: #{inspect(amount)}"}
+      }
   end
 
   def new(amount, currency_code) when is_atom(currency_code) and is_binary(amount) do
@@ -461,10 +467,14 @@ defmodule Money do
   end
 
   def add(%Money{currency: code_a}, %Money{currency: code_b}) do
-    {:error,
-     {ArgumentError,
-      "Cannot add monies with different currencies. " <>
-        "Received #{inspect(code_a)} and #{inspect(code_b)}."}}
+    {
+      :error,
+      {
+        ArgumentError,
+        "Cannot add monies with different currencies. " <>
+          "Received #{inspect(code_a)} and #{inspect(code_b)}."
+      }
+    }
   end
 
   @doc """
@@ -1071,8 +1081,6 @@ defmodule Money do
       when is_atom(to_currency) or is_binary(to_currency) do
     with {:ok, to_code} <- validate_currency(to_currency) do
       if currency == to_code, do: money, else: to_currency(money, to_currency, {:ok, rates})
-    else
-      {:error, _} = error -> error
     end
   end
 
@@ -1087,8 +1095,6 @@ defmodule Money do
         |> Decimal.mult(conversion_rate)
 
       {:ok, Money.new(to_currency, converted_amount)}
-    else
-      {:error, _} = error -> error
     end
   end
 
@@ -1164,6 +1170,104 @@ defmodule Money do
   @spec reduce(Money.t()) :: Money.t()
   def reduce(%Money{currency: currency, amount: amount}) do
     %Money{currency: currency, amount: Decimal.reduce(amount)}
+  end
+
+  @doc """
+  Returns a tuple comprising the currency code, integer amount,
+  exponent and remainder
+
+  Some services require submission of money items as an integer
+  with an implied exponent that is appropriate to the currency.
+
+  Rather than return only the integer, `Money.to_integer_exp`
+  returns the currency code, integer, exponent and remainder.
+  The remainder is included because to return an integer
+  money with an implied exponent the `Money` has to be rounded
+  potentially leaving a remainder.
+
+  ## Options
+
+  * `money` is any `Money.t` struct returned by `Cldr.Currency.new/2`
+
+  ## Notes
+
+  * Since the returned integer is expected to have the implied fractional
+  digits the `Money` needs to be rounded which is what this function does.
+
+  ## Example
+
+      iex> m = Money.new(:USD, 200.012356)
+      #Money<:USD, 200.012356>
+      iex> Money.to_integer_exp(m)
+      {:USD, 20001, -2, Money.new(:USD, 0.002356)}
+
+      iex> m = Money.new(:USD, 200.00)
+      #Money<:USD, 200.0>
+      iex> Money.to_integer_exp(m)
+      {:USD, 20000, -2, Money.new(:USD, 0.0)}
+
+  """
+  def to_integer_exp(%Money{} = money) do
+    new_money =
+      money
+      |> Money.round()
+      |> Money.reduce()
+
+    {:ok, remainder} = Money.sub(money, new_money)
+    {:ok, currency} = Cldr.Currency.currency_for_code(money.currency)
+    exponent = -currency.digits
+    exponent_adjustment = abs(exponent - new_money.amount.exp)
+    integer = Cldr.Math.power_of_10(exponent_adjustment) * new_money.amount.coef
+
+    {money.currency, integer, exponent, remainder}
+  end
+
+  @doc """
+  Convert an integer representation of money into a `Money` struct.
+
+  This is the inverse operation of `Money.to_integer_exp/1`.
+
+  ## Options
+
+  * `integer` is an integer representation of a mooney item including
+  any decimal digits.  ie. 20000 would interpreted to mean $200.00
+
+  * `currency` is the currency code for the `integer`.  The assumed
+  decimal places is derived from the currency code.
+
+  ## Returns
+
+  * A `Money` struct or
+
+  * `{:error, {Cldr.UnknownCurrencyError, message}}`
+
+  ## Examples
+
+      iex> Money.from_integer(20000, :USD)
+      #Money<:USD, 200.00>
+
+      iex> Money.from_integer(200, :JPY)
+      #Money<:JPY, 200>
+
+      iex> Money.from_integer(20012, :USD)
+      #Money<:USD, 200.12>
+
+  """
+  def from_integer(amount, currency) when is_integer(amount) do
+    with {:ok, currency} <- validate_currency(currency),
+         {:ok, %{digits: digits}} <- Cldr.Currency.currency_for_code(currency) do
+      sign = if amount < 0, do: -1, else: 1
+      digits = if digits == 0, do: 0, else: -digits
+
+      sign
+      |> Decimal.new(abs(amount), digits)
+      |> Money.new(currency)
+    end
+  end
+
+  @doc false
+  def from_integer({currency, integer, _exponent, _remainder}) do
+    from_integer(integer, currency)
   end
 
   ## Helpers
