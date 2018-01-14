@@ -11,5 +11,3 @@ config :ex_money,
   log_success: :info
 
 config :ex_cldr, locales: ["en", "root", "zh-Hans", "zh"]
-
-

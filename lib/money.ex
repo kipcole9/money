@@ -149,9 +149,9 @@ defmodule Money do
   end
 
   def new(_currency_code, amount) when is_float(amount) do
-    {:error, {
-      Money.InvalidAmountError,
-        "Float amounts are not supported in new/2 due to potenial rounding " <>
+    {:error,
+     {Money.InvalidAmountError,
+      "Float amounts are not supported in new/2 due to potenial rounding " <>
         "and precision issues.  If absolutely required, use Money.from_float/2"}}
   end
 
