@@ -527,7 +527,7 @@ defmodule MoneyTest do
 
   test "the integer and exponent for a number with no decimal places" do
     m = Money.new(:USD, "200.00")
-    assert Money.to_integer_exp(m) == {:USD, 20000, -2, Money.new(:USD, "0.0")}
+    assert Money.to_integer_exp(m) == {:USD, 20000, -2, Money.new(:USD, "0.00")}
   end
 
   test "the integer and exponent for a number with one less than the required decimal places" do

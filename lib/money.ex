@@ -99,11 +99,7 @@ defmodule Money do
 
   """
   @spec new(number, binary) :: Money.t()
-<<<<<<< HEAD
   def new(currency_code, amount) when is_binary(currency_code) and is_integer(amount) do
-=======
-  def new(currency_code, amount) when is_binary(currency_code) and is_number(amount) do
->>>>>>> 02a498bfff68e9cacf62afa90f6a00fc41e8b255
     case validate_currency(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
       {:ok, code} -> new(code, amount)
@@ -1196,15 +1192,15 @@ defmodule Money do
 
   ## Example
 
-      iex> m = Money.new(:USD, 200.012356)
+      iex> m = Money.new(:USD, "200.012356")
       #Money<:USD, 200.012356>
       iex> Money.to_integer_exp(m)
-      {:USD, 20001, -2, Money.new(:USD, 0.002356)}
+      {:USD, 20001, -2, Money.new(:USD, "0.002356")}
 
-      iex> m = Money.new(:USD, 200.00)
-      #Money<:USD, 200.0>
+      iex> m = Money.new(:USD, "200.00")
+      #Money<:USD, 200.00>
       iex> Money.to_integer_exp(m)
-      {:USD, 20000, -2, Money.new(:USD, 0.0)}
+      {:USD, 20000, -2, Money.new(:USD, "0.00")}
 
   """
   def to_integer_exp(%Money{} = money) do
