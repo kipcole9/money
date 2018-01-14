@@ -10,7 +10,7 @@ defmodule Money.ExchangeRates.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(ExchangeRates.Retriever, [ExchangeRates.Retriever, ExchangeRates.config])
+      worker(ExchangeRates.Retriever, [ExchangeRates.Retriever, ExchangeRates.config()])
     ]
 
     supervise(children, strategy: :one_for_one)

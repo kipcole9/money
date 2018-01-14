@@ -1,17 +1,24 @@
-# Changelog for Money v1.1.1
+# Changelog for Money v2.0.0
 
-This is the changelog for Money v1.1.1 released on December 31st 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.0.0 released on January 15th, 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
-## Enhancements
+### Breaking Changes
 
-* Format the code using the Elixir code formatter
+* The function `Money.new/2` no longer supports a `float` amount.  The new function `Money.from_float/2` is introduced.  The factory function `Money.new/2` previously supported a `float` amount as a parameter.  There are many well-documented issues with float.  Although a float with a precision of no more than 15 digits will convert (and round-trip) without loss of precision there is a real possibility that the upstream calculations that produced the float will have introduced rounding or precision errors. Calling `Money.new/2` with a float amount will return an error tuple:
 
-# Changelog for Money v1.1.0
+  ```
+  {:error, {
+    Money.InvalidAmountError,
+      "Float amounts are not supported in new/2 due to potenial rounding " <>
+      "and precision issues.  If absolutely required, use Money.from_float/2"}}
+  ```
 
-## Changes & Deprecations
+* Remove support for `Money` tuples in `Money.Ecto.Composite.Type` and `Money.Ecto.Map.Type`.  Previously there has been support for dumping `Money` in a tuple format.  This support has now been removed and all `Money` operations should be based on the `Money.t` struct.
 
-* The configuration option `:exchange_rate_service` is deprecated in favour of `:auto_start_exchange_rate_service` to better reflect the intent of the option.  The keyword `:exchange_rate_service` will continue to be supported until `Money` version 2.0.
+### Enhancements
 
-* The configuration option `:delay_before_first_retrieval` is deprecated and is removed from the configuration struct.  Since the option has had no effect since version 0.9 its removal should have no impact on existing code.
+* Add `Money.from_float/2` to create a `Money` struct from a float and a currency code.  This function is named to make it clear that we risk losing precision due to upstream rounding errors.  According to the standard and experimentation, floats of up to 15 digits of precision will round trip without error.  Therefore `from_float/2` will check the precision of the number and return an error if the precision is greater than 15 since the correctness of the number cannot be verified beyond that.
 
-* Added [Falsehoods programmers believe about prices](https://gist.github.com/rgs/6509585) topics  which give a good summary of the challenges of managing money in an application and how `Money` manages each of them.
+* Add `Money.from_float!/2` which is like `from_float/2` but raises on error
+
+* Formatted the text the with the Elixir 1.6 code formatter

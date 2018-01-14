@@ -30,12 +30,13 @@ defmodule Money.Financial do
   """
   @one Decimal.new(1)
   def future_value(%Money{currency: currency, amount: amount}, interest_rate, periods)
-  when is_number(interest_rate) and is_number(periods) do
-    fv = interest_rate
-    |> Decimal.new
-    |> Decimal.add(@one)
-    |> Math.power(periods)
-    |> Decimal.mult(amount)
+      when is_number(interest_rate) and is_number(periods) do
+    fv =
+      interest_rate
+      |> Decimal.new()
+      |> Decimal.add(@one)
+      |> Math.power(periods)
+      |> Decimal.mult(amount)
 
     Money.new(currency, fv)
   end
@@ -60,7 +61,7 @@ defmodule Money.Financial do
   def future_value(flows, interest_rate)
 
   def future_value([{period, %Money{}} | _other_flows] = flows, interest_rate)
-  when is_integer(period) and is_number(interest_rate) do
+      when is_integer(period) and is_number(interest_rate) do
     {max_period, _} = Enum.max(flows)
 
     present_value(flows, interest_rate)
@@ -87,11 +88,12 @@ defmodule Money.Financial do
       #Money<:USD, 148.6436280241436864020760472>
   """
   def present_value(%Money{currency: currency, amount: amount}, interest_rate, periods)
-  when is_number(interest_rate) and is_number(periods) and periods >= 0 do
-    pv_1 = interest_rate
-    |> Decimal.new
-    |> Decimal.add(@one)
-    |> Math.power(periods)
+      when is_number(interest_rate) and is_number(periods) and periods >= 0 do
+    pv_1 =
+      interest_rate
+      |> Decimal.new()
+      |> Decimal.add(@one)
+      |> Math.power(periods)
 
     pv = Decimal.div(amount, pv_1)
     Money.new(currency, pv)
@@ -117,23 +119,23 @@ defmodule Money.Financial do
   def present_value(flows, interest_rate)
 
   def present_value([{period, %Money{}} | _other_flows] = flows, interest_rate)
-  when is_integer(period) and is_number(interest_rate) do
+      when is_integer(period) and is_number(interest_rate) do
     validate_same_currency!(flows)
     do_present_value(flows, interest_rate)
   end
 
   defp do_present_value({period, %Money{} = flow}, interest_rate)
-  when is_integer(period) and is_number(interest_rate) do
+       when is_integer(period) and is_number(interest_rate) do
     present_value(flow, interest_rate, period)
   end
 
   defp do_present_value([{period, %Money{}} = flow | []], interest_rate)
-  when is_integer(period) and is_number(interest_rate) do
+       when is_integer(period) and is_number(interest_rate) do
     do_present_value(flow, interest_rate)
   end
 
   defp do_present_value([{period, %Money{}} = flow | other_flows], interest_rate)
-  when is_integer(period) and is_number(interest_rate) do
+       when is_integer(period) and is_number(interest_rate) do
     do_present_value(flow, interest_rate)
     |> Money.add!(do_present_value(other_flows, interest_rate))
   end
@@ -159,13 +161,14 @@ defmodule Money.Financial do
       #Money<:USD, 15218.84367220444038002337042>
   """
   def net_present_value([{period, %Money{currency: currency}} | _] = flows, interest_rate)
-  when is_integer(period) and is_number(interest_rate) do
+      when is_integer(period) and is_number(interest_rate) do
     net_present_value(flows, interest_rate, Money.new(currency, 0))
   end
 
   def net_present_value([{period, %Money{}} | _] = flows, interest_rate, %Money{} = investment)
-  when is_integer(period) and is_number(interest_rate) do
+      when is_integer(period) and is_number(interest_rate) do
     validate_same_currency!(investment, flows)
+
     present_value(flows, interest_rate)
     |> Money.sub!(investment)
   end
@@ -222,11 +225,11 @@ defmodule Money.Financial do
 
   @irr_precision 0.000001
   defp do_internal_rate_of_return(flows, estimate_m, estimate_n) do
-    npv_n = net_present_value(flows, estimate_n).amount |> Math.to_float
-    npv_m = net_present_value(flows, estimate_m).amount |> Math.to_float
+    npv_n = net_present_value(flows, estimate_n).amount |> Math.to_float()
+    npv_m = net_present_value(flows, estimate_m).amount |> Math.to_float()
 
     if abs(npv_n - npv_m) > @irr_precision do
-      estimate_o = estimate_n - (((estimate_n - estimate_m) / (npv_n - npv_m)) * npv_n)
+      estimate_o = estimate_n - (estimate_n - estimate_m) / (npv_n - npv_m) * npv_n
       do_internal_rate_of_return(flows, estimate_n, estimate_o)
     else
       estimate_n
@@ -251,10 +254,12 @@ defmodule Money.Financial do
       iex> Money.Financial.interest_rate Money.new(:USD, 10000), Money.new(:USD, 10824.3216), 4
       #Decimal<0.02>
   """
-  def interest_rate(%Money{currency: pv_currency, amount: pv_amount} = _present_value,
-                    %Money{currency: fv_currency, amount: fv_amount} = _future_value,
-                    periods)
-  when pv_currency == fv_currency and is_number(periods) and periods > 0 do
+  def interest_rate(
+        %Money{currency: pv_currency, amount: pv_amount} = _present_value,
+        %Money{currency: fv_currency, amount: fv_amount} = _future_value,
+        periods
+      )
+      when pv_currency == fv_currency and is_number(periods) and periods > 0 do
     fv_amount
     |> Decimal.div(pv_amount)
     |> Math.root(periods)
@@ -277,12 +282,16 @@ defmodule Money.Financial do
       iex> Money.Financial.periods Money.new(:USD, 1500), Money.new(:USD, 2000), 0.005
       #Decimal<57.68013595323872502502238648>
   """
-  def periods(%Money{currency: pv_currency, amount: pv_amount} = _present_value,
-              %Money{currency: fv_currency, amount: fv_amount} = _future_value,
-              interest_rate)
-  when pv_currency == fv_currency and is_number(interest_rate) and interest_rate > 0 do
-    Decimal.div(Math.log(Decimal.div(fv_amount, pv_amount)),
-                Math.log(Decimal.add(@one, Decimal.new(interest_rate))))
+  def periods(
+        %Money{currency: pv_currency, amount: pv_amount} = _present_value,
+        %Money{currency: fv_currency, amount: fv_amount} = _future_value,
+        interest_rate
+      )
+      when pv_currency == fv_currency and is_number(interest_rate) and interest_rate > 0 do
+    Decimal.div(
+      Math.log(Decimal.div(fv_amount, pv_amount)),
+      Math.log(Decimal.add(@one, Decimal.new(interest_rate)))
+    )
   end
 
   @doc """
@@ -301,9 +310,12 @@ defmodule Money.Financial do
       iex> Money.Financial.payment Money.new(:USD, 100), 0.12, 20
       #Money<:USD, 13.38787800396606622792492299>
   """
-  def payment(%Money{currency: pv_currency, amount: pv_amount} = _present_value,
-              interest_rate, periods)
-  when is_number(interest_rate) and interest_rate > 0 and is_number(periods) and periods > 0 do
+  def payment(
+        %Money{currency: pv_currency, amount: pv_amount} = _present_value,
+        interest_rate,
+        periods
+      )
+      when is_number(interest_rate) and interest_rate > 0 and is_number(periods) and periods > 0 do
     interest_rate = Decimal.new(interest_rate)
     p1 = Decimal.mult(pv_amount, interest_rate)
     p2 = Decimal.sub(@one, Decimal.add(@one, interest_rate) |> Math.power(-periods))
@@ -318,14 +330,14 @@ defmodule Money.Financial do
     number_of_currencies =
       flows
       |> Enum.map(fn {_period, %Money{currency: currency}} -> currency end)
-      |> Enum.uniq
-      |> Enum.count
+      |> Enum.uniq()
+      |> Enum.count()
 
     if number_of_currencies > 1 do
-      raise ArgumentError, message:
-        "More than one currency found in cash flows; " <>
-        "implicit currency conversion is not supported.  Cash flows: " <>
-        inspect(flows)
+      raise ArgumentError,
+        message:
+          "More than one currency found in cash flows; " <>
+            "implicit currency conversion is not supported.  Cash flows: " <> inspect(flows)
     end
   end
 end

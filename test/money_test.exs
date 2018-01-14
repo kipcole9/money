@@ -108,13 +108,13 @@ defmodule MoneyTest do
 
   test "that two binary arguments returns and error" do
     assert Money.new("USD", "1234") ==
-      {:error, {Money.Invalid, "Unable to create money from \"USD\" and \"1234\""}}
+             {:error, {Money.Invalid, "Unable to create money from \"USD\" and \"1234\""}}
   end
 
   test "that creating a money with a string amount that is invalid returns and error" do
     assert Money.new(:USD, "2134ff") ==
-      {:error, {Money.InvalidAmountError,
-                "Amount cannot be converted to a number: \"2134ff\""}}
+             {:error,
+              {Money.InvalidAmountError, "Amount cannot be converted to a number: \"2134ff\""}}
   end
 
   test "raise when creating a new money struct from a tuple with an invalid currency code" do
@@ -133,7 +133,7 @@ defmodule MoneyTest do
     end
 
     assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
-      Money.new!(Decimal.new(100),  "ABCDE")
+      Money.new!(Decimal.new(100), "ABCDE")
     end
 
     assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
@@ -160,11 +160,13 @@ defmodule MoneyTest do
   end
 
   test "creating a money struct with an invalid atom currency code returns error tuple" do
-    assert Money.new(:XYZ, 100) == {:error, {Money.UnknownCurrencyError, "The currency :XYZ is invalid"}}
+    assert Money.new(:XYZ, 100) ==
+             {:error, {Money.UnknownCurrencyError, "The currency :XYZ is invalid"}}
   end
 
   test "creating a money struct with an invalid binary currency code returns error tuple" do
-    assert Money.new("ABCD", 100) == {:error, {Money.UnknownCurrencyError, "The currency \"ABCD\" is invalid"}}
+    assert Money.new("ABCD", 100) ==
+             {:error, {Money.UnknownCurrencyError, "The currency \"ABCD\" is invalid"}}
   end
 
   test "string output of money is correctly formatted" do
@@ -194,6 +196,7 @@ defmodule MoneyTest do
 
   test "cash flows with different currencies raises" do
     flows = [{1, Money.new(:USD, 100)}, {2, Money.new(:AUD, 100)}]
+
     assert_raise ArgumentError, ~r/More than one currency found in cash flows/, fn ->
       Money.Financial.present_value(flows, 0.12)
     end
@@ -263,8 +266,8 @@ defmodule MoneyTest do
   test "Split %Money{} into 3 equal parts" do
     m1 = Money.new(:USD, 100)
     {m2, m3} = Money.split(m1, 3)
-    assert Money.cmp(m2, Money.new(:USD, 33.33)) == :eq
-    assert Money.cmp(m3, Money.new(:USD, 0.01)) == :eq
+    assert Money.cmp(m2, Money.new(:USD, Decimal.new(33.33))) == :eq
+    assert Money.cmp(m3, Money.new(:USD, Decimal.new(0.01))) == :eq
   end
 
   test "Test successful money cmp" do
@@ -316,19 +319,19 @@ defmodule MoneyTest do
   end
 
   test "Money is rounded according to currency definition for USD" do
-    assert Money.round(Money.new(:USD, 123.456)) == Money.new(:USD, 123.46)
+    assert Money.round(Money.new(:USD, "123.456")) == Money.new(:USD, "123.46")
   end
 
   test "Money is rounded according to currency definition for JPY" do
-    assert Money.round(Money.new(:JPY, 123.456)) == Money.new(:JPY, 123)
+    assert Money.round(Money.new(:JPY, "123.456")) == Money.new(:JPY, 123)
   end
 
   test "Money is rounded according to currency definition for CHF" do
-    assert Money.round(Money.new(:CHF, 123.456)) == Money.new(:CHF, 123.46)
+    assert Money.round(Money.new(:CHF, "123.456")) == Money.new(:CHF, "123.46")
   end
 
   test "Money is rounded according to currency cash definition for CHF" do
-    assert Money.round(Money.new(:CHF, 123.456), cash: true) == Money.new(:CHF, 125)
+    assert Money.round(Money.new(:CHF, "123.456"), cash: true) == Money.new(:CHF, 125)
   end
 
   test "Extract decimal from money" do
@@ -336,61 +339,72 @@ defmodule MoneyTest do
   end
 
   test "Calculate irr with one outflow" do
-    flows = [{1, Money.new(:USD, -123400)},{2, Money.new(:USD, 36200)},
-             {3,Money.new(:USD,54800)},{4,Money.new(:USD,48100)}]
+    flows = [
+      {1, Money.new(:USD, -123_400)},
+      {2, Money.new(:USD, 36200)},
+      {3, Money.new(:USD, 54800)},
+      {4, Money.new(:USD, 48100)}
+    ]
+
     assert Float.round(Financial.internal_rate_of_return(flows), 4) == 0.0596
   end
 
   test "Calculate irr with two outflows" do
-    flows = [{0, Money.new(:USD, -1000)},{1, Money.new(:USD, -4000)},{2,Money.new(:USD,5000)},{3,Money.new(:USD,2000)}]
+    flows = [
+      {0, Money.new(:USD, -1000)},
+      {1, Money.new(:USD, -4000)},
+      {2, Money.new(:USD, 5000)},
+      {3, Money.new(:USD, 2000)}
+    ]
+
     assert Float.round(Financial.internal_rate_of_return(flows), 4) == 0.2548
   end
 
   @sleep_timer 50
 
   test "Get exchange rates" do
-    capture_io fn ->
+    capture_io(fn ->
       {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
-    end
+    end)
 
     test_result = {:ok, %{USD: Decimal.new(1), AUD: Decimal.new(0.7), EUR: Decimal.new(1.2)}}
     assert Money.ExchangeRates.latest_rates() == test_result
   end
 
   test "Convert from USD to AUD" do
-    capture_io fn ->
+    capture_io(fn ->
       {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
-    end
+    end)
 
     assert Money.cmp(Money.to_currency!(Money.new(:USD, 100), :AUD), Money.new(:AUD, 70)) == :eq
   end
 
   test "Convert from USD to USD" do
-    capture_io fn ->
+    capture_io(fn ->
       {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
-    end
+    end)
 
     assert Money.cmp(Money.to_currency!(Money.new(:USD, 100), :USD), Money.new(:USD, 100)) == :eq
   end
 
   test "Convert from USD to ZZZ should return an error" do
-    capture_io fn ->
+    capture_io(fn ->
       {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
-    end
+    end)
 
     assert Money.to_currency(Money.new(:USD, 100), :ZZZ) ==
-      {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
+             {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
   end
 
   test "Convert from USD to ZZZ should raise an exception" do
-    capture_io fn ->
+    capture_io(fn ->
       {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
-    end
+    end)
 
     assert_raise Cldr.UnknownCurrencyError, ~r/The currency :ZZZ is invalid/, fn ->
       assert Money.to_currency!(Money.new(:USD, 100), :ZZZ)
@@ -398,59 +412,78 @@ defmodule MoneyTest do
   end
 
   test "Convert from USD to AUD using historic rates" do
-    capture_io fn ->
+    capture_io(fn ->
       {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
-    end
+    end)
 
-    assert Money.to_currency!(Money.new(:USD, 100), :AUD,
-      ExchangeRates.historic_rates(~D[2017-01-01])) |> Money.round ==
-      Money.new(:AUD, Decimal.new(71.43))
+    assert Money.to_currency!(
+             Money.new(:USD, 100),
+             :AUD,
+             ExchangeRates.historic_rates(~D[2017-01-01])
+           )
+           |> Money.round() == Money.new(:AUD, Decimal.new(71.43))
   end
 
   test "Convert from USD to AUD using historic rates that aren't available" do
-    capture_io fn ->
+    capture_io(fn ->
       {:ok, _pid} = start_service()
       :timer.sleep(@sleep_timer)
-    end
+    end)
 
-    assert Money.to_currency(Money.new(:USD, 100), :AUD,
-      ExchangeRates.historic_rates(~D[2017-02-01])) ==
-       {:error, {Money.ExchangeRateError, "No exchange rates for 2017-02-01 were found"}}
+    assert Money.to_currency(
+             Money.new(:USD, 100),
+             :AUD,
+             ExchangeRates.historic_rates(~D[2017-02-01])
+           ) == {:error, {Money.ExchangeRateError, "No exchange rates for 2017-02-01 were found"}}
   end
 
   test "Invoke callback module on successful exchange rate retrieval" do
-    result = assert capture_io(fn ->
-      {:ok, _pid} = start_service()
-      :timer.sleep(@sleep_timer)
-     end)
+    result =
+      assert capture_io(fn ->
+               {:ok, _pid} = start_service()
+               :timer.sleep(@sleep_timer)
+             end)
 
-     assert result in ["Historic Rates Retrieved\nHistoric Rates Retrieved\nLatest Rates Retrieved\n",
-                       "Latest Rates Retrieved\nHistoric Rates Retrieved\nHistoric Rates Retrieved\n"]
+    assert result in [
+             "Historic Rates Retrieved\nHistoric Rates Retrieved\nLatest Rates Retrieved\n",
+             "Latest Rates Retrieved\nHistoric Rates Retrieved\nHistoric Rates Retrieved\n"
+           ]
   end
 
   test "That rates_available? returns correctly" do
     assert capture_io(fn ->
-      {:ok, _pid} = Money.ExchangeRates.Retriever.start_link(Money.ExchangeRates.Retriever, ExchangeRates.default_config)
-      assert ExchangeRates.latest_rates_available? == false
-      :timer.sleep(@sleep_timer)
-      assert ExchangeRates.latest_rates_available? == true
-     end)
+             {:ok, _pid} =
+               Money.ExchangeRates.Retriever.start_link(
+                 Money.ExchangeRates.Retriever,
+                 ExchangeRates.default_config()
+               )
+
+             assert ExchangeRates.latest_rates_available?() == false
+             :timer.sleep(@sleep_timer)
+             assert ExchangeRates.latest_rates_available?() == true
+           end)
   end
 
   test "That an error is returned if there is no open exchange rates app_id configured" do
     Application.put_env(:ex_money, :open_exchange_rates_app_id, nil)
-    config = Money.ExchangeRates.OpenExchangeRates.init(Money.ExchangeRates.default_config)
-    config = Map.put(config, :log_levels, %{failure: :nil, info: nil, success: nil})
+    config = Money.ExchangeRates.OpenExchangeRates.init(Money.ExchangeRates.default_config())
+    config = Map.put(config, :log_levels, %{failure: nil, info: nil, success: nil})
+
     assert Money.ExchangeRates.OpenExchangeRates.get_latest_rates(config) ==
-      {:error, "Open Exchange Rates app_id is not configured.  Rates are not retrieved."}
+             {:error, "Open Exchange Rates app_id is not configured.  Rates are not retrieved."}
   end
 
   if System.get_env("OPEN_EXCHANGE_RATES_APP_ID") do
     test "That the Open Exchange Rates retriever returns a map" do
-      Application.put_env(:ex_money, :open_exchange_rates_app_id, System.get_env("OPEN_EXCHANGE_RATES_APP_ID"))
-      config = Money.ExchangeRates.OpenExchangeRates.init(Money.ExchangeRates.default_config)
-      config = Map.put(config, :log_levels, %{failure: :nil, info: nil, success: nil})
+      Application.put_env(
+        :ex_money,
+        :open_exchange_rates_app_id,
+        System.get_env("OPEN_EXCHANGE_RATES_APP_ID")
+      )
+
+      config = Money.ExchangeRates.OpenExchangeRates.init(Money.ExchangeRates.default_config())
+      config = Map.put(config, :log_levels, %{failure: nil, info: nil, success: nil})
       {:ok, rates} = Money.ExchangeRates.OpenExchangeRates.get_latest_rates(config)
       assert is_map(rates)
     end
@@ -473,15 +506,17 @@ defmodule MoneyTest do
 
   test "that we get a deprecation message if we use :exchange_rate_service keywork option" do
     Application.put_env(:ex_money, :exchange_rate_service, true)
+
     assert capture_log(fn ->
-      Money.Application.maybe_log_deprecation
-    end) =~ "Configuration option :exchange_rate_service is deprecated"
+             Money.Application.maybe_log_deprecation()
+           end) =~ "Configuration option :exchange_rate_service is deprecated"
   end
 
   test "that we get a deprecation message if we use :delay_before_first_retrieval keywork option" do
     Application.put_env(:ex_money, :delay_before_first_retrieval, 300)
+
     assert capture_log(fn ->
-      Money.Application.maybe_log_deprecation
-    end) =~ "Configuration option :delay_before_first_retrieval is deprecated"
+             Money.Application.maybe_log_deprecation()
+           end) =~ "Configuration option :delay_before_first_retrieval is deprecated"
   end
 end

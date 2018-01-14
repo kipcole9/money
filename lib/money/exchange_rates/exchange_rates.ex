@@ -111,8 +111,7 @@ defmodule Money.ExchangeRates do
   Returns `{:ok, map_of_rates}` or `{:error, reason}`
 
   """
-  @callback get_latest_rates(config :: Money.Config.t) ::
-    {:ok, Map.t} | {:error, binary}
+  @callback get_latest_rates(config :: Money.Config.t()) :: {:ok, Map.t()} | {:error, binary}
 
   @doc """
   Invoked to return the historic exchange rates from the configured
@@ -123,8 +122,8 @@ defmodule Money.ExchangeRates do
   Returns `{:ok, map_of_historic_rates}` or `{:error, reason}`
 
   """
-  @callback get_historic_rates(Date.t, config :: Money.Config.t) ::
-    {:ok, Map.t} | {:error, binary}
+  @callback get_historic_rates(Date.t(), config :: Money.Config.t()) ::
+              {:ok, Map.t()} | {:error, binary}
 
   @doc """
   Given the default configuration, returns an updated configuration at runtime
@@ -139,7 +138,7 @@ defmodule Money.ExchangeRates do
   which may have been updated.  The configuration key `:retriever_options` is
   available for any service-specific configuration.
   """
-  @callback init(config :: Money.Config.t) :: Money.Config.t
+  @callback init(config :: Money.Config.t()) :: Money.Config.t()
   @optional_callbacks init: 1
 
   require Logger
@@ -178,12 +177,9 @@ defmodule Money.ExchangeRates do
   """
   def default_config do
     %Config{
-      api_module:
-        Money.get_env(:api_module, @default_api_module, :module),
-      callback_module:
-        Money.get_env(:callback_module, @default_callback_module, :module),
-      preload_historic_rates:
-        Money.get_env(:preload_historic_rates, nil),
+      api_module: Money.get_env(:api_module, @default_api_module, :module),
+      callback_module: Money.get_env(:callback_module, @default_callback_module, :module),
+      preload_historic_rates: Money.get_env(:preload_historic_rates, nil),
       retrieve_every:
         Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval, :integer),
       log_levels: %{
@@ -283,7 +279,9 @@ defmodule Money.ExchangeRates do
   """
   def retrieve_historic(%Date{calendar: Calendar.ISO} = from, %Date{calendar: Calendar.ISO} = to) do
     case Process.whereis(Money.ExchangeRates.Retriever) do
-      nil -> {:error, exchange_rate_service_error()}
+      nil ->
+        {:error, exchange_rate_service_error()}
+
       pid ->
         for date <- Date.range(from, to) do
           Process.send(pid, {:historic_rates, date}, [])
@@ -292,10 +290,8 @@ defmodule Money.ExchangeRates do
   end
 
   def retrieve_historic(%{year: y1, month: m1, day: d1}, %{year: y2, month: m2, day: d2}) do
-    with \
-      {:ok, from} <- Date.new(y1, m1, d1),
-      {:ok, to} <- Date.new(y2, m2, d2)
-    do
+    with {:ok, from} <- Date.new(y1, m1, d1),
+         {:ok, to} <- Date.new(y2, m2, d2) do
       retrieve_historic(from, to)
     end
   end
@@ -315,7 +311,7 @@ defmodule Money.ExchangeRates do
   through `Money.ExchangeRates.retrieve_latest_rates/0`.
 
   """
-  @spec latest_rates() :: {:ok, Map.t} | {:error, {Exception.t, binary}}
+  @spec latest_rates() :: {:ok, Map.t()} | {:error, {Exception.t(), binary}}
   def latest_rates do
     try do
       case :ets.lookup(:exchange_rates, :latest_rates) do
@@ -324,7 +320,7 @@ defmodule Money.ExchangeRates do
       end
     rescue
       ArgumentError ->
-        Logger.error "Argument error getting exchange rates from ETS table"
+        Logger.error("Argument error getting exchange rates from ETS table")
         {:error, {Money.ExchangeRateError, "No exchange rates are available"}}
     end
   end
@@ -354,15 +350,17 @@ defmodule Money.ExchangeRates do
       case :ets.lookup(:exchange_rates, date) do
         [{_date, rates}] ->
           {:ok, rates}
+
         [] ->
-          {:error, {Money.ExchangeRateError,
-            "No exchange rates for #{Date.to_string(date)} were found"}}
+          {:error,
+           {Money.ExchangeRateError, "No exchange rates for #{Date.to_string(date)} were found"}}
       end
     rescue
       ArgumentError ->
-        Logger.error "Argument error getting historic exchange rates from ETS table"
-        {:error, {Money.ExchangeRateError,
-          "No exchange rates for #{Date.to_string(date)} are available"}}
+        Logger.error("Argument error getting historic exchange rates from ETS table")
+
+        {:error,
+         {Money.ExchangeRateError, "No exchange rates for #{Date.to_string(date)} are available"}}
     end
   end
 
@@ -396,13 +394,14 @@ defmodule Money.ExchangeRates do
         utc_offset: 0, year: 2016, zone_abbr: "UTC"}}
 
   """
-  @spec last_updated() :: {:ok, DateTime.t} | {:error, {Exception.t, binary}}
+  @spec last_updated() :: {:ok, DateTime.t()} | {:error, {Exception.t(), binary}}
   def last_updated do
     case :ets.lookup(:exchange_rates, :last_updated) do
       [{:last_updated, timestamp}] ->
         {:ok, timestamp}
+
       [] ->
-        Logger.error "Argument error getting last updated timestamp from ETS table"
+        Logger.error("Argument error getting last updated timestamp from ETS table")
         {:error, {Money.ExchangeRateError, "Last updated date is not known"}}
     end
   end

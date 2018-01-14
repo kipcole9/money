@@ -7,8 +7,7 @@ config :ex_money, Money.Repo,
   hostname: "localhost",
   pool_size: 10
 
-config :ex_money,
-  ecto_repos: [Money.Repo]
+config :ex_money, ecto_repos: [Money.Repo]
 
 config :ex_money,
   auto_start_exchange_rate_service: false,
@@ -23,5 +22,3 @@ config :ex_money,
 config :ex_cldr,
   default_locale: "en",
   locales: ["en", "root"]
-
-

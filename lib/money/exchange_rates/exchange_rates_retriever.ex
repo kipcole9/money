@@ -33,7 +33,7 @@ defmodule Money.ExchangeRates.Retriever do
     schedule_work(config.retrieve_every)
 
     if config.preload_historic_rates do
-      log(config, :info, "Preloading historic rates for #{inspect config.preload_historic_rates}")
+      log(config, :info, "Preloading historic rates for #{inspect(config.preload_historic_rates)}")
       schedule_work(config.preload_historic_rates)
     end
 
@@ -52,20 +52,21 @@ defmodule Money.ExchangeRates.Retriever do
   end
 
   def handle_info(message, config) do
-    Logger.error "Invalid message for ExchangeRates.Retriever: #{inspect message}"
+    Logger.error("Invalid message for ExchangeRates.Retriever: #{inspect(message)}")
     {:noreply, config}
   end
 
   def retrieve_latest_rates(%{callback_module: callback_module} = config) do
     case ExchangeRates.get_latest_rates(config) do
       {:ok, rates} ->
-        retrieved_at = DateTime.utc_now
+        retrieved_at = DateTime.utc_now()
         store_latest_rates(rates, retrieved_at)
         apply(callback_module, :latest_rates_retrieved, [rates, retrieved_at])
         log(config, :success, "Retrieved latest exchange rates successfully")
         {:ok, rates}
+
       {:error, reason} ->
-        log(config, :failure, "Could not retrieve latest exchange rates: #{inspect reason}")
+        log(config, :failure, "Could not retrieve latest exchange rates: #{inspect(reason)}")
         {:error, reason}
     end
   end
@@ -75,12 +76,23 @@ defmodule Money.ExchangeRates.Retriever do
       {:ok, rates} ->
         store_historic_rates(rates, date)
         apply(callback_module, :historic_rates_retrieved, [rates, date])
-        log(config, :success,
-          "Retrieved historic exchange rates for #{Date.to_string(date)} successfully")
+
+        log(
+          config,
+          :success,
+          "Retrieved historic exchange rates for #{Date.to_string(date)} successfully"
+        )
+
         {:ok, rates}
+
       {:error, reason} ->
-        log(config, :failure, "Could not retrieve historic exchange rates " <>
-                              "for #{Date.to_string(date)}: #{inspect reason}")
+        log(
+          config,
+          :failure,
+          "Could not retrieve historic exchange rates " <>
+            "for #{Date.to_string(date)}: #{inspect(reason)}"
+        )
+
         {:error, reason}
     end
   end
@@ -89,7 +101,7 @@ defmodule Money.ExchangeRates.Retriever do
     Process.send_after(self(), :latest_rates, delay_ms)
   end
 
-  defp schedule_work(%Date{calendar: Calendar.ISO} =  date) do
+  defp schedule_work(%Date{calendar: Calendar.ISO} = date) do
     Process.send(self(), {:historic_rates, date}, [])
   end
 
@@ -105,6 +117,7 @@ defmodule Money.ExchangeRates.Retriever do
 
   defp schedule_work(date_string) when is_binary(date_string) do
     parts = String.split(date_string, "..")
+
     case parts do
       [date] -> schedule_work(Date.from_iso8601(date))
       [from, to] -> schedule_work({Date.from_iso8601(from), Date.from_iso8601(to)})
@@ -128,6 +141,7 @@ defmodule Money.ExchangeRates.Retriever do
     case Map.get(log_levels, key) do
       nil ->
         nil
+
       log_level ->
         Logger.log(log_level, message)
     end

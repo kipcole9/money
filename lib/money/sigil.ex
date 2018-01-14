@@ -11,6 +11,10 @@ defmodule Money.Sigil do
 
       iex> ~M[1000]usd
       #Money<:USD, 1000>
+
+      iex> ~M[1000.34]usd
+      #Money<:USD, 1000.34>
+
   """
 
   def sigil_M(amount, [_, _, _] = currency) do
@@ -20,13 +24,13 @@ defmodule Money.Sigil do
   defp to_decimal(string) do
     string
     |> String.replace("_", "")
-    |> Decimal.new
+    |> Decimal.new()
   end
 
   defp atomize(currency) do
     currency
-    |> List.to_string
-    |> String.upcase
-    |> String.to_existing_atom
+    |> List.to_string()
+    |> String.upcase()
+    |> String.to_existing_atom()
   end
 end

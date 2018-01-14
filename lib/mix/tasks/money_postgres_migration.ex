@@ -21,20 +21,21 @@ if Code.ensure_loaded?(Ecto) do
       no_umbrella!("money.gen.migration")
       repos = parse_repo(args)
       name = "add_money_with_currency_type_to_postgres"
-      Enum.each repos, fn repo ->
+
+      Enum.each(repos, fn repo ->
         ensure_repo(repo, args)
-        path = Path.relative_to(migrations_path(repo), Mix.Project.app_path)
+        path = Path.relative_to(migrations_path(repo), Mix.Project.app_path())
         file = Path.join(path, "#{timestamp()}_#{underscore(name)}.exs")
-        create_directory path
+        create_directory(path)
 
         assigns = [mod: Module.concat([repo, Migrations, camelize(name)])]
 
-        create_file file, migration_template(assigns)
+        create_file(file, migration_template(assigns))
 
-        if open?(file) and Mix.shell.yes?("Do you want to run this migration?") do
-          Mix.Task.run "ecto.migrate", [repo]
+        if open?(file) and Mix.shell().yes?("Do you want to run this migration?") do
+          Mix.Task.run("ecto.migrate", [repo])
         end
-      end
+      end)
     end
 
     defp timestamp do
@@ -42,10 +43,10 @@ if Code.ensure_loaded?(Ecto) do
       "#{y}#{pad(m)}#{pad(d)}#{pad(hh)}#{pad(mm)}#{pad(ss)}"
     end
 
-    defp pad(i) when i < 10, do: << ?0, ?0 + i >>
+    defp pad(i) when i < 10, do: <<?0, ?0 + i>>
     defp pad(i), do: to_string(i)
 
-    embed_template :migration, """
+    embed_template(:migration, """
     defmodule <%= inspect @mod %> do
       use Ecto.Migration
 
@@ -59,6 +60,6 @@ if Code.ensure_loaded?(Ecto) do
         execute "DROP TYPE public.money_with_currency"
       end
     end
-    """
+    """)
   end
 end
