@@ -204,7 +204,7 @@ end
      iex> Money.new(100, :USD)
      #Money<:USD, 100>
 
-     iex> Money.new("CHF", 130.02)
+     iex> Money.new("CHF", "130.02")
      #Money<:CHF, 130.02>
 
      iex> Money.new("thb", 11)
@@ -214,6 +214,19 @@ The canonical representation of a currency code is an `atom` that is a valid
 [ISO4217](http://www.currency-iso.org/en/home/tables/table-a1.html) currency code. The amount of a `%Money{}` is represented by a `Decimal`.
 
 Note that the arguments to `Money.new/2` can be supplied in either order.
+
+### Float amounts cannot be provided to `Money.new/2`
+
+Float have well-known issues in computing due to issues of rounding and potential precision loss.  Internally `Money` uses `Decimal` to store the amount which allows arbitrary precision arithmetic.  `Money` also uses the `numeric` type in Postgres to preserve precision and even goes to far as to store the amount as a `string` in `MySQL` for the same reason.
+
+Therefore an error is returned if an attempt is made to use `Money.new/2` with a float amount:
+
+    {:error,
+     {Money.InvalidAmountError,
+      "Float amounts are not supported in new/2 due to potenial rounding " <>
+        "and precision issues.  If absolutely required, use Money.from_float/2"}}
+
+If the use of `float`s is require then the function `Money.from_float/2` is provided with the same arguments as those for `Money.new/2`.  `Money.from_float/2` provides an addition check and will return an error if the precision (number of digits) of the provided float is more than 15 (the number of digits guaranteed to round-trip between a 64-bit float and a string).
 
 ### Optional ~M sigil
 
@@ -233,22 +246,22 @@ The main API for formatting `Money` is `Money.to_string/2`. Additionally formatt
     iex> Money.to_string Money.new("thb", 11)
     {:ok, "THB11.00"}
 
-    iex> Money.to_string Money.new("USD", 234.467)
+    iex> Money.to_string Money.new("USD", "234.467")
     {:ok, "$234.47"}
 
-    iex> Money.to_string Money.new("USD", 234.467), format: :long
+    iex> Money.to_string Money.new("USD", "234.467"), format: :long
     {:ok, "234.47 US dollars"}
 
-    iex> Money.to_string Money.new("USD", 234.467), locale: "fr"
+    iex> Money.to_string Money.new("USD", "234.467"), locale: "fr"
     {:ok, "234,47 $US"}
 
-    iex> Money.to_string Money.new("USD", 234.467), locale: "de"
+    iex> Money.to_string Money.new("USD", "234.467"), locale: "de"
     {:ok, "234,47 $"}
 
-    iex> Money.to_string Money.new("EUR", 234.467), locale: "de"
+    iex> Money.to_string Money.new("EUR", "234.467"), locale: "de"
     {:ok, "234,47 €"}
 
-    iex> Money.to_string Money.new("EUR", 234.467), locale: "fr"
+    iex> Money.to_string Money.new("EUR", "234.467"), locale: "fr"
     {:ok, "234,47 €"}
 
 Note that the output is influenced by the locale in effect.  By default the localed used is that returned by `Cldr.get_current_local/0`.  Its default value is "en-001".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
@@ -285,31 +298,31 @@ See also the module `Money.Arithmetic`:
 
     # Rounding applies the currency definitions of CLDR as implemented in
     # the hex package [ex_cldr](https://hex.pm/packages/ex_cldr)
-    iex> Money.round Money.new(:USD, 100.678)
+    iex> Money.round Money.new(:USD, "100.678")
     #Money<:USD, 100.68>
 
-    iex> Money.round Money.new(:JPY, 100.678)
+    iex> Money.round Money.new(:JPY, "100.678")
     #Money<:JPY, 101>
 
 ### Currency Conversion
 
 A `%Money{}` struct can be converted to another currency using `Money.to_currency/3` or `Money.to_currency!/3`.  For example:
 
-    iex> Money.to_currency Money.new(:USD,100), :AUD
+    iex> Money.to_currency Money.new(:USD, 100), :AUD
     {:ok, #Money<:AUD, 136.43>}
 
-    iex> Money.to_currency Money.new(:USD,100), :AUD, ExchangeRates.historic_rates(~D[2017-01-01])
+    iex> Money.to_currency Money.new(:USD, 100), :AUD, ExchangeRates.historic_rates(~D[2017-01-01])
     {:ok, #Money<:AUD, 128.76>}
 
     iex> Money.to_currency Money.new(:USD, 100) , :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
     {:error, {Cldr.UnknownCurrencyError, "Currency :AUDD is not known"}}
 
-    iex> Money.to_currency! Money.new(:USD,100), :XXX
+    iex> Money.to_currency! Money.new(:USD, 100), :XXX
     ** (Money.ExchangeRateError) No exchange rate is available for currency :XXX
 
 A user-defined map of exchange rates can also be supplied:
 
-    iex> Money.to_currency Money.new(:USD,100), :AUD, %{USD: Decimal.new(1.0), AUD: Decimal.new(1.3)}
+    iex> Money.to_currency Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1.0), AUD: Decimal.new(1.3)}
     #Money<:AUD, 130>
 
 ### Historic Conversion Rates
