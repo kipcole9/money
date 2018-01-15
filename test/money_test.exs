@@ -550,4 +550,8 @@ defmodule MoneyTest do
     m = Money.new(:JOD, 200)
     assert Money.to_integer_exp(m) == {:JOD, 200_000, -3, Money.new(:JOD, 0)}
   end
+
+  test "that the Phoenix.HTML.Safe protocol returns the correct result" do
+    assert Phoenix.HTML.Safe.to_iodata(Money.new(:USD, 100)) == "$100.00"
+  end
 end

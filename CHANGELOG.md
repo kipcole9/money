@@ -1,6 +1,12 @@
-# Changelog for Money v2.0.0
+# Changelog for Money v2.0.1
 
-This is the changelog for Money v2.0.0 released on January 15th, 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.0.1 released on January 16th, 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* `Phoenix.HTML.Safe` protocol implementation correctly returns a formatted string, not an `{:ok, string}` tuple.  Closes #45.
+
+# Changelog for Money v2.0.0
 
 ### Breaking Changes
 
