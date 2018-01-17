@@ -30,7 +30,13 @@ defmodule Money.Sigil do
   defp atomize(currency) do
     currency
     |> List.to_string()
-    |> String.upcase()
-    |> String.to_existing_atom()
+    |> validate_currency!
+  end
+
+  def validate_currency!(currency) do
+    case Money.validate_currency(currency) do
+      {:ok, currency} -> currency
+      {:error, {_exception, reason}} -> raise Money.UnknownCurrencyError, reason
+    end
   end
 end

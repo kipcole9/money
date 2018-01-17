@@ -504,6 +504,19 @@ defmodule MoneyTest do
     assert m == Money.new!(:USD, 100)
   end
 
+  test "raise when a sigil function has an invalid currency" do
+    assert_raise Money.UnknownCurrencyError, ~r/The currency .* is invalid/, fn ->
+      Money.Sigil.sigil_M("42", [?A, ?B, ?C])
+    end
+  end
+
+  test "raise when a sigil has an invalid currency" do
+    import Money.Sigil
+    assert_raise Money.UnknownCurrencyError, ~r/The currency .* is invalid/, fn ->
+      ~M[42]ABD
+    end
+  end
+
   test "that we get a deprecation message if we use :exchange_rate_service keywork option" do
     Application.put_env(:ex_money, :exchange_rate_service, true)
 

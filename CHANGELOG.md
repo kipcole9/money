@@ -1,6 +1,12 @@
-# Changelog for Money v2.0.1
+# Changelog for Money v2.0.2
 
-This is the changelog for Money v2.0.1 released on January 16th, 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.0.2 released on January 18th, 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* `Money.Sigil` was calling `String.to_existing_atom/1` directly rather than `Cldr.validate_currency/1`.  Since currency codes are only loaded and therefore the atoms materialized when `Cldr` is loaded this created a situation whereby a valid currency code may raise an `agument error`.  `Money.Sigil` now correctly calls `Cldr.validate_currency/1` which ensures the currency atoms are loaded before validation.  Closes #46.
+
+# Changelog for Money v2.0.1
 
 ### Bug Fixes
 
