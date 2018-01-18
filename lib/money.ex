@@ -240,6 +240,7 @@ defmodule Money do
           "Reduce the precision or call Money.new/2 with a Decimal or String amount"}}
 
   """
+  @since "2.0.0"
   @max_precision_allowed 15
   def from_float(currency_code, amount)
       when (is_binary(currency_code) or is_atom(currency_code)) and is_float(amount) do
