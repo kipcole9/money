@@ -512,6 +512,7 @@ defmodule MoneyTest do
 
   test "raise when a sigil has an invalid currency" do
     import Money.Sigil
+
     assert_raise Money.UnknownCurrencyError, ~r/The currency .* is invalid/, fn ->
       ~M[42]ABD
     end

@@ -39,7 +39,7 @@ defmodule Money do
   a `Decimal` representation of an amount.
   """
   @type t :: %Money{currency: atom, amount: Decimal.t()}
-  @type currency_code :: atom
+  @type currency_code :: atom | String.t()
 
   @enforce_keys [:currency, :amount]
   defstruct currency: nil, amount: nil
@@ -211,14 +211,14 @@ defmodule Money do
   an error tuple of the form `{:error, {exception, message}}`.
 
   Floats are fraught with danger in computer arithmetic due to the
-  unexpected loss of precision during rounding.  The IEEE754 standard
-  indicates that a number with a precision of 16 should round-trip convert
-  without fidelity.  This function supports numbers with a precision up
-  to 15 digits and will error if the provided amount is outside that
-  range.
+  unexpected loss of precision during rounding. The IEEE754 standard
+  indicates that a number with a precision of 16 digits should
+  round-trip convert without loss of fidelity. This function supports
+  numbers with a precision up to 15 digits and will error if the
+  provided amount is outside that range.
 
-  Note that `Money` cannot detect lack of precision or rounding errors
-  introduced upstream.  This function therefore should be used with
+  **Note** that `Money` cannot detect lack of precision or rounding errors
+  introduced upstream. This function therefore should be used with
   great care and its use should be considered potentially harmful.
 
   ## Options
@@ -242,6 +242,7 @@ defmodule Money do
   """
   @since "2.0.0"
   @max_precision_allowed 15
+  @spec from_float(currency_code, float) :: Money.t() | {:error, {Exception.t, String.t}}
   def from_float(currency_code, amount)
       when (is_binary(currency_code) or is_atom(currency_code)) and is_float(amount) do
     if Cldr.Number.precision(amount) <= @max_precision_allowed do
@@ -261,6 +262,25 @@ defmodule Money do
     from_float(currency_code, amount)
   end
 
+  @doc """
+  Returns a %Money{} struct from a currency code and a float amount, or
+  raises an exception if the currency code is invalid.
+
+  See `Money.from_float/2` for further information.
+
+  **Note** that `Money` cannot detect lack of precision or rounding errors
+  introduced upstream. This function therefore should be used with
+  great care and its use should be considered potentially harmful.
+
+  ## Options
+
+  * `currency_code` is an ISO4217 three-character upcased binary or atom
+
+  * `amount` is a float
+
+  """
+  @since "2.0.0"
+  @spec from_float!(currency_code, float) :: Money.t() | no_return()
   def from_float!(currency_code, amount) do
     case from_float(currency_code, amount) do
       {:ok, money} -> money
@@ -278,7 +298,7 @@ defmodule Money do
 
   * `amount` is an integer or Decimal
 
-  This function is typically called from Ecto when it's loading a %Money{}
+  This function is typically called from Ecto when it's loading a `%Money{}`
   struct from the database.
 
   ## Example
@@ -290,6 +310,7 @@ defmodule Money do
       #Money<:USD, 100>
 
   """
+  @deprecated "Use new/2 instead.  Will be removed in Money 3.0"
   @spec from_tuple({binary, number}) :: Money.t()
   def from_tuple({currency_code, amount}) when is_binary(currency_code) and is_integer(amount) do
     case validate_currency(currency_code) do
@@ -328,6 +349,7 @@ defmodule Money do
           (ex_money) lib/money.ex:130: Money.new!/1
 
   """
+  @deprecated "Use new/2 instead.  Will be removed in Money 3.0"
   def from_tuple!({currency_code, amount}) when is_binary(currency_code) and is_integer(amount) do
     case money = new(currency_code, amount) do
       {:error, {exception, message}} -> raise exception, message
