@@ -81,7 +81,9 @@ defmodule Money.Mixfile do
       {:decimal, "~> 1.4"},
       {:ecto, "~> 2.1", optional: true},
       {:phoenix_html, "~> 2.0", optional: true},
-      {:ex_doc, "~> 0.18", only: :dev}
+      {:ex_doc, "~> 0.18", only: :dev},
+      {:gringotts, git: "https://github.com/aviabird/gringotts",
+        branch: "protocol-expansion", optional: true}
     ]
   end
 
