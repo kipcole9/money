@@ -1,6 +1,12 @@
-# Changelog for Money v2.0.2
+# Changelog for Money v2.0.3
 
-This is the changelog for Money v2.0.2 released on January 18th, 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.0.3 released on January 24th, 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fixes the typespec for `Money.new/2` and revises several other typespecs.  Added a dialyzer configuration.  Since `Money.new/2` allows flexible (probably too flexible) order or arguments, the typespec does not fully match the function implementation and Dialyzer understandably complains.  However the value of a typespec as documentation argues against making the typespec formally correct.  This will be revisited for Money 3.0.
+
+# Changelog for Money v2.0.2
 
 ### Bug Fixes
 

@@ -98,7 +98,9 @@ defmodule Money do
         "use Money.from_float/2"}}
 
   """
-  @spec new(number, binary) :: Money.t()
+  @spec new(currency_code, integer | Decimal.t | String.t) ::
+    {:ok, Money.t()} | {:error, {Exceptiom.t, String.t}}
+
   def new(currency_code, amount) when is_binary(currency_code) and is_integer(amount) do
     case validate_currency(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
@@ -183,6 +185,8 @@ defmodule Money do
         (ex_money) lib/money.ex:177: Money.new!/2
 
   """
+  @spec new!(integer | Decimal.t | String.t, currency_code) :: Money.t() | no_return()
+
   def new!(currency_code, amount)
       when is_binary(currency_code) or is_atom(currency_code) do
     case money = new(currency_code, amount) do
@@ -242,7 +246,9 @@ defmodule Money do
   """
   @since "2.0.0"
   @max_precision_allowed 15
-  @spec from_float(currency_code, float) :: Money.t() | {:error, {Exception.t, String.t}}
+  @spec from_float(currency_code, float) ::
+    {:ok, Money.t()} | {:error, {Exception.t, String.t}}
+
   def from_float(currency_code, amount)
       when (is_binary(currency_code) or is_atom(currency_code)) and is_float(amount) do
     if Cldr.Number.precision(amount) <= @max_precision_allowed do
@@ -281,6 +287,7 @@ defmodule Money do
   """
   @since "2.0.0"
   @spec from_float!(currency_code, float) :: Money.t() | no_return()
+
   def from_float!(currency_code, amount) do
     case from_float(currency_code, amount) do
       {:ok, money} -> money
@@ -312,6 +319,7 @@ defmodule Money do
   """
   @deprecated "Use new/2 instead.  Will be removed in Money 3.0"
   @spec from_tuple({binary, number}) :: Money.t()
+
   def from_tuple({currency_code, amount}) when is_binary(currency_code) and is_integer(amount) do
     case validate_currency(currency_code) do
       {:error, {_exception, message}} ->

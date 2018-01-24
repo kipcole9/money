@@ -1,0 +1,27 @@
+:0: Unknown function 'Elixir.Cldr.Mixfile':project/0
+:0: Unknown function 'Elixir.Flow':from_enumerable/2
+:0: Unknown function 'Elixir.Flow':map/2
+:0: Unknown function 'Elixir.Gettext.Compiler':expand_to_binary/4
+:0: Unknown function 'Elixir.Gettext.Compiler':warn_if_domain_contains_slashes/1
+:0: Unknown function 'Elixir.Gettext.Extractor':extract/4
+:0: Unknown function 'Elixir.Gettext.Extractor':'extracting?'/0
+:0: Unknown function 'Elixir.Gettext.Interpolation':interpolate/2
+:0: Unknown function 'Elixir.Gettext.Interpolation':to_interpolatable/1
+:0: Unknown function 'Elixir.Mix.Project':config/0
+:0: Unknown function 'Elixir.EEx.Engine':'fetch_assign!'/2
+:0: Unknown function 'Elixir.Mix':shell/0
+:0: Unknown function 'Elixir.Mix.Ecto':ensure_repo/2
+:0: Unknown function 'Elixir.Mix.Ecto':migrations_path/1
+:0: Unknown function 'Elixir.Mix.Ecto':'no_umbrella!'/1
+:0: Unknown function 'Elixir.Mix.Ecto':'open?'/1
+:0: Unknown function 'Elixir.Mix.Ecto':parse_repo/1
+:0: Unknown function 'Elixir.Mix.Generator':create_directory/1
+:0: Unknown function 'Elixir.Mix.Generator':create_file/2
+:0: Unknown function 'Elixir.Mix.Project':app_path/0
+:0: Unknown function 'Elixir.Mix.Task':run/2
+:0: Unknown function 'Elixir.Phoenix.HTML.Safe':to_iodata/1
+lib/mix/tasks/money_postgres_migration.ex:2: Callback info about the 'Elixir.Mix.Task' behaviour is not available
+lib/money.ex:1367: Callback info about the 'Elixir.Phoenix.HTML.Safe' behaviour is not available
+lib/money/application.ex:48: The variable Vname@1 can never match since previous clauses completely covered the type atom()
+lib/money/ecto/money_ecto_composite_type.ex:2: Callback info about the 'Elixir.Ecto.Type' behaviour is not available
+lib/money/ecto/money_ecto_map_type.ex:2: Callback info about the 'Elixir.Ecto.Type' behaviour is not available

@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "2.0.3-dev"
+  @version "2.0.3"
 
   def project do
     [
@@ -18,7 +18,8 @@ defmodule Money.Mixfile do
       package: package(),
       test_coverage: [tool: ExCoveralls],
       aliases: aliases(),
-      elixirc_paths: elixirc_paths(Mix.env())
+      elixirc_paths: elixirc_paths(Mix.env()),
+      dialyzer: [ignore_warnings: ".dialyzer_ignore_warnings"]
     ]
   end
 
@@ -81,7 +82,8 @@ defmodule Money.Mixfile do
       {:decimal, "~> 1.4"},
       {:ecto, "~> 2.1", optional: true},
       {:phoenix_html, "~> 2.0", optional: true},
-      {:ex_doc, "~> 0.18", only: :dev}
+      {:ex_doc, "~> 0.18", only: :dev},
+      {:dialyxir, "~> 0.5", only: :dev, runtime: false},
     ]
   end
 
