@@ -1,6 +1,12 @@
-# Changelog for Money v2.0.3
+# Changelog for Money v2.0.4
 
-This is the changelog for Money v2.0.3 released on January 24th, 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.0.4 released on January 25th, 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fixed `from_float!/2` which would fail since `new/2` does not return `{:ok, Money.t}`.  Note that from `ex_money` 3.0, `Money.new/2` will return `{:ok, Money.t}` to be consistent with canonical approaches in Elixir.  Closes #48.  Thanks for @lostkobrakai.
+
+# Changelog for Money v2.0.3
 
 ### Bug Fixes
 

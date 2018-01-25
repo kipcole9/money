@@ -99,7 +99,7 @@ defmodule Money do
 
   """
   @spec new(currency_code, integer | Decimal.t | String.t) ::
-    {:ok, Money.t()} | {:error, {Exceptiom.t, String.t}}
+    Money.t() | {:error, {Exceptiom.t, String.t}}
 
   def new(currency_code, amount) when is_binary(currency_code) and is_integer(amount) do
     case validate_currency(currency_code) do
@@ -247,7 +247,7 @@ defmodule Money do
   @since "2.0.0"
   @max_precision_allowed 15
   @spec from_float(currency_code, float) ::
-    {:ok, Money.t()} | {:error, {Exception.t, String.t}}
+    Money.t() | {:error, {Exception.t, String.t}}
 
   def from_float(currency_code, amount)
       when (is_binary(currency_code) or is_atom(currency_code)) and is_float(amount) do
@@ -284,14 +284,23 @@ defmodule Money do
 
   * `amount` is a float
 
+  ## Examples
+
+      iex> Money.from_float!(:USD, 1.234)
+      #Money<:USD, 1.234>
+
+      Money.from_float!(:USD, 1.234567890987654)
+      #=> ** (Money.InvalidAmountError) The precision of the float 1.234567890987654 is greater than 15 which could lead to unexpected results. Reduce the precision or call Money.new/2 with a Decimal or String amount
+          (ex_money) lib/money.ex:293: Money.from_float!/2
+
   """
   @since "2.0.0"
   @spec from_float!(currency_code, float) :: Money.t() | no_return()
 
   def from_float!(currency_code, amount) do
     case from_float(currency_code, amount) do
-      {:ok, money} -> money
       {:error, {exception, reason}} -> raise exception, reason
+      money -> money
     end
   end
 
