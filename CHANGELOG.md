@@ -1,6 +1,6 @@
 # Changelog for Money v2.1.0
 
-This is the changelog for Money v2.0.4 released on January 25th, 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.0.4 released on _, 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 
