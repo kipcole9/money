@@ -568,4 +568,13 @@ defmodule MoneyTest do
   test "that the Phoenix.HTML.Safe protocol returns the correct result" do
     assert Phoenix.HTML.Safe.to_iodata(Money.new(:USD, 100)) == "$100.00"
   end
+
+  test "that we use iso digits as default for to_integer_exp" do
+    assert Money.to_integer_exp(Money.new(:COP, 1234)) == {:COP, 123400, -2, Money.new(:COP,0)}
+  end
+
+  test "that we can use accounting digits for to_integer_exp" do
+    assert Money.to_integer_exp(Money.new(:COP, 1234), currency_digits: :accounting) ==
+      {:COP, 1234, 0, Money.new(:COP,0)}
+  end
 end

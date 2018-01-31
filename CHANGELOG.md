@@ -1,6 +1,16 @@
-# Changelog for Money v2.0.4
+# Changelog for Money v2.1.0
 
 This is the changelog for Money v2.0.4 released on January 25th, 2017.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* `Money.to_integer_exp/1` is now `Money.to_integer/2`
+
+* `Money.to_integer/2` now uses the definition of digits (subunits) as defined by ISO 4217.  Previously the definition was that supplied by CLDR.  CLDR's definition is not always in alignment with ISO 4217.  ISO 4217 is a firm requirement for financial transactions through payment gateways.
+
+* Note that the dependencies for `ex_cldr` and `ex_cldr_numbers` have been bumped accordingly.
+
+# Changelog for Money v2.0.4
 
 ### Bug Fixes
 

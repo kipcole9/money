@@ -1046,10 +1046,30 @@ defmodule Money do
   defp round_to_decimal_digits(%Money{currency: code, amount: amount}, opts) do
     with {:ok, currency} <- Currency.currency_for_code(code) do
       rounding_mode = Keyword.get(opts, :rounding_mode, @default_rounding_mode)
-      rounding = if opts[:cash], do: currency.cash_digits, else: currency.digits
+      rounding = digits_from_opts(currency, opts[:currency_digits])
       rounded_amount = Decimal.round(amount, rounding, rounding_mode)
       %Money{currency: code, amount: rounded_amount}
     end
+  end
+
+  defp digits_from_opts(currency, nil) do
+    currency.iso_digits
+  end
+
+  defp digits_from_opts(currency, :iso) do
+    currency.iso_digits
+  end
+
+  defp digits_from_opts(currency, :accounting) do
+    currency.digits
+  end
+
+  defp digits_from_opts(currency, :cash) do
+    currency.cash_digits
+  end
+
+  defp digits_from_opts(currency, _) do
+    currency.iso_digits
   end
 
   defp round_to_nearest(%Money{currency: code} = money, opts) do
@@ -1243,15 +1263,16 @@ defmodule Money do
       {:USD, 20000, -2, Money.new(:USD, "0.00")}
 
   """
-  def to_integer_exp(%Money{} = money) do
+  def to_integer_exp(%Money{} = money, opts \\ []) do
     new_money =
       money
-      |> Money.round()
+      |> Money.round(opts)
       |> Money.reduce()
 
     {:ok, remainder} = Money.sub(money, new_money)
     {:ok, currency} = Cldr.Currency.currency_for_code(money.currency)
-    exponent = -currency.digits
+    digits = digits_from_opts(currency, opts[:currency_digits])
+    exponent = -digits
     exponent_adjustment = abs(exponent - new_money.amount.exp)
     integer = Cldr.Math.power_of_10(exponent_adjustment) * new_money.amount.coef
 
@@ -1261,15 +1282,18 @@ defmodule Money do
   @doc """
   Convert an integer representation of money into a `Money` struct.
 
-  This is the inverse operation of `Money.to_integer_exp/1`.
+  This is the inverse operation of `Money.to_integer_exp/1`. Note
+  that the ISO definition of currency digits (subunit) is *always*
+  used.  This is, in some cases like the Colombian Peso (COP)
+  different to the CLDR definition.
 
   ## Options
 
   * `integer` is an integer representation of a mooney item including
-  any decimal digits.  ie. 20000 would interpreted to mean $200.00
+    any decimal digits.  ie. 20000 would interpreted to mean $200.00
 
   * `currency` is the currency code for the `integer`.  The assumed
-  decimal places is derived from the currency code.
+    decimal places is derived from the currency code.
 
   ## Returns
 
@@ -1288,10 +1312,13 @@ defmodule Money do
       iex> Money.from_integer(20012, :USD)
       #Money<:USD, 200.12>
 
+      iex> Money.from_integer(20012, :COP)
+      #Money<:COP, 200.12>
+
   """
   def from_integer(amount, currency) when is_integer(amount) do
     with {:ok, currency} <- validate_currency(currency),
-         {:ok, %{digits: digits}} <- Cldr.Currency.currency_for_code(currency) do
+         {:ok, %{iso_digits: digits}} <- Cldr.Currency.currency_for_code(currency) do
       sign = if amount < 0, do: -1, else: 1
       digits = if digits == 0, do: 0, else: -digits
 
