@@ -53,6 +53,10 @@ defmodule Money do
   alias Cldr.Currency
 
   defdelegate validate_currency(currency_code), to: Cldr
+  defdelegate known_currencies, to: Cldr
+  defdelegate known_current_currencies, to: Money.Currency
+  defdelegate known_historic_currencies, to: Money.Currency
+  defdelegate known_tender_currencies, to: Money.Currency
 
   @doc """
   Returns a %Money{} struct from a currency code and a currency amount or
@@ -1388,23 +1392,9 @@ defmodule Money do
     Keyword.merge(options, required, fn _k, _v1, v2 -> v2 end)
   end
 
-  defimpl String.Chars do
-    def to_string(v) do
-      Money.to_string(v)
-    end
-  end
-
-  defimpl Inspect, for: Money do
-    def inspect(money, _opts) do
-      "#Money<#{inspect(money.currency)}, #{Decimal.to_string(money.amount)}>"
-    end
-  end
-
-  if Code.ensure_compiled?(Phoenix.HTML.Safe) do
-    defimpl Phoenix.HTML.Safe, for: Money do
-      def to_iodata(money) do
-        Phoenix.HTML.Safe.to_iodata(Money.to_string!(money))
-      end
-    end
+  @json_library Application.get_env(:ex_money, :json_library, Cldr.Config.json_library)
+  @doc false
+  def json_library do
+    @json_library
   end
 end

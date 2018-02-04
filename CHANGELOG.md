@@ -1,6 +1,22 @@
-# Changelog for Money v2.1.0
+# Changelog for Money v2.2.0
 
-This is the changelog for Money v2.1.0 released on Febrary 4th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.2.0 released on _, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Add `Money.known_currencies/0` which delegates to `Cldr.known_currencies/0` and returns the list of known currency codes
+
+* Add `Money.known_current_currencies/0` to return the list of currencies currently active according to ISO 4217
+
+* Add `Money.known_historic_currencies/0` to return a list of currencies known to Cldr but which are not considered in current use
+
+* Add `Money.known_tender_currencies/0` to return a list of currencies defined as legal tender in Cldr
+
+* Add the configuration key `:json_library` that specifies which json library to use for decoding json.  The default is `Cldr.Config.json_library/0` which is currently `Poison` although this is likely to change to `Jason` when `Phoenix makes this change.
+
+* Moves the protocol implementations for `String.Chars`, `Inspect` and `Phoenix.HTML.Safe` to a separate file so that recompilation on locale configuration change works correctly.
+
+# Changelog for Money v2.1.0
 
 ### Enhancements
 

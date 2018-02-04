@@ -13,7 +13,12 @@ How is this opinion expressed?
 
 1. Money must always have both a amount and a currency code.
 
-2. The currency code must always be a valid [ISO4217](https://www.iso.org/iso-4217-currency-codes.html) code.
+2. The currency code must always be a valid [ISO4217](https://www.iso.org/iso-4217-currency-codes.html) code. [Current](https://www.currency-iso.org/en/home/tables/table-a1.html) and [historical](https://www.currency-iso.org/en/home/tables/table-a3.html) currency codes can be used.  See the [ISO Currency](https://www.currency-iso.org/en/home/tables.html) for more information. You can also identify the relevant codes by:
+
+   * `Money.known_currencies/0` returns all the currency codes known to `Money`
+   * `Money.known_current_currencies/0` returns the currency codes currently in use
+   * `Money.known_historic_currencies/0` returns the list of historic currency codes
+   * `Money.known_tender_currencies/0` returns the list of currencies known to be legal tender
 
 3. Money arithmetic can only be performed when both operands are of the same currency.
 
@@ -52,7 +57,10 @@ An optional callback module can also be defined.  This module defines a `rates_r
       retriever_options: nil,
       log_failure: :warn,
       log_info: :info,
-      log_success: nil
+      log_success: nil,
+      json_library: Cldr.Config.json_library()
+
+**Note** that `ex_money` does not define a json library dependency and therefore it is the users responsibility to configure a required json library as a dependency in the applications `mix.exs`.
 
 ### Configuration key definitions
 
@@ -73,6 +81,8 @@ An optional callback module can also be defined.  This module defines a `rates_r
 * `log_info` defines the log level at which service startup messages are logged.  The default is `info`.
 
 * `:retriever_options` is available for exchange rate retriever module developers as a place to add retriever-specific configuration information.  This information should be added in the `init/1` callback in the retriever module.  See `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
+
+* `:json_library` determines which json library to be used for decoding.  Two common options are `Poison` and `Jason`. The default is `Cldr.Config.json_library/0` which is currently configured by default as Poison.
 
 ### Configuring locales to support localised formatting
 

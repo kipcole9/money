@@ -8,6 +8,9 @@ config :ex_money,
   preload_historic_rates: {~D[2017-01-01], ~D[2017-01-02]},
   log_failure: :warn,
   log_info: :info,
-  log_success: :info
+  log_success: :info,
+  json_library: Jason
 
-config :ex_cldr, locales: ["en", "root", "zh-Hans", "zh"]
+config :ex_cldr,
+  locales: ["en", "root", "zh-Hans", "zh"],
+  json_library: Jason

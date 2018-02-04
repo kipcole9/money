@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "2.1.0"
+  @version "2.2.0-dev"
 
   def project do
     [
@@ -86,6 +86,8 @@ defmodule Money.Mixfile do
       {:phoenix_html, "~> 2.0", optional: true},
       {:ex_doc, "~> 0.18", only: :dev},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
+      {:jason, "~> 1.0", optional: true},
+      {:poison, "~> 2.2 or ~> 3.1", optional: true},
     ]
   end
 

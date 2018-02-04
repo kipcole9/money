@@ -125,7 +125,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   defp retrieve_rates(url) do
     case :httpc.request(String.to_charlist(url)) do
       {:ok, {{_version, 200, 'OK'}, _headers, body}} ->
-        %{"base" => _base, "rates" => rates} = Poison.decode!(body)
+        %{"base" => _base, "rates" => rates} = Money.json_library().decode!(body)
 
         decimal_rates =
           rates

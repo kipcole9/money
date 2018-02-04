@@ -9,6 +9,7 @@ defmodule MoneyTest do
 
   doctest Money
   doctest Money.ExchangeRates
+  doctest Money.Currency
 
   test "create a new money struct with a binary currency code" do
     money = Money.new(1234, "USD")
