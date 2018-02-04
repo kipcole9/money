@@ -4,9 +4,7 @@ This is the changelog for Money v2.1.0 released on Febrary 4th, 2018.  For older
 
 ### Enhancements
 
-* `Money.to_integer_exp/1` is now `Money.to_integer/2`
-
-* `Money.to_integer/2` now uses the definition of digits (subunits) as defined by ISO 4217.  Previously the definition was that supplied by CLDR.  CLDR's definition is not always in alignment with ISO 4217.  ISO 4217 is a firm requirement for financial transactions through payment gateways.
+* `Money.to_integer_exp/2` now uses the definition of digits (subunits) as defined by ISO 4217.  Previously the definition was that supplied by CLDR.  CLDR's definition is not always in alignment with ISO 4217.  ISO 4217 is a firm requirement for financial transactions through payment gateways.
 
 * Bump dependencies for `ex_cldr` to 1.4.0 and `ex_cldr_numbers` to 1.3.0 to support `:iso_digits`
 
