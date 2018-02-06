@@ -29,6 +29,8 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   @open_exchange_rate_url "https://openexchangerates.org/api"
   @ets_table :exchange_rates
 
+  alias Money.ExchangeRates
+
   @doc """
   Update the retriever configuration to include the requirements
   for Open Exchange Rates.  This function is invoked when the
@@ -42,6 +44,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   rates retrieval module.
   """
   def init(default_config) do
+    ExchangeRates.Cache.init
     url = Money.get_env(:open_exchange_rates_url, @open_exchange_rate_url)
     app_id = Money.get_env(:open_exchange_rates_app_id, nil)
     Map.put(default_config, :retriever_options, %{url: url, app_id: app_id})
