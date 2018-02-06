@@ -1,32 +1,137 @@
 defmodule Money.ExchangeRates.Retriever do
   @moduledoc """
   Implements a `GenServer` to retrieve exchange rates from
-  a configured retrieveal module on a periodic basis.  By default exchange
-  rates are retrieved from [Open Exchange Rates](http://openexchangerates.org).
+  a configured retrieveal module on a periodic or on demand basis.
 
-  Retrieved data is stored in an `:ets` table.
+  By default exchange rates are retrieved from [Open Exchange Rates](http://openexchangerates.org).
 
-  By default the period of execution is 5 minutes (300_000 microseconds). The
+  The default period of execution is 5 minutes (300_000 milliseconds). The
   period of retrieval is configured in `config.exs` or the appropriate
   environment configuration.  For example:
 
       config :ex_money,
-        open_exchange_rates_app_id: "app_id_string",
-        open_exchange_rates_retrieve_every: 300_000
+        retrieve_every: 300_000
+
   """
 
   use GenServer
 
   require Logger
-  alias Money.ExchangeRates
+  alias Money.ExchangeRates.Cache
 
-  def start_link(name, config) do
+  def start_link(name, config \\ Money.ExchangeRates.config) do
     GenServer.start_link(__MODULE__, config, name: name)
   end
 
+  @doc """
+  Forces retrieval of the latest exchange rates
+
+  Sends a message ot the exchange rate retrieval worker to request
+  current rates be retrieved and stored.
+
+  Returns:
+
+  * `{:ok, rates}` if exchange rates request is successfully sent.
+
+  * `{:error, reason}` if the request cannot be send.
+
+  This function does not return exchange rates, for that see
+  `Money.ExchangeRates.latest_rates/0` or
+  `Money.ExchangeRates.historic_rates/1`.
+  """
+  def latest_rates() do
+    case Process.whereis(Money.ExchangeRates.Retriever) do
+      nil -> {:error, exchange_rate_service_error()}
+      _pid -> GenServer.call(__MODULE__, :latest_rates)
+    end
+  end
+
+  @doc """
+  Forces retrieval of historic exchange rates for a single date
+
+  * `date` is a date returned by `Date.new/3` or any struct with the
+    elements `:year`, `:month` and `:day` or
+
+  * a `Date.Range.t` created by `Date.range/2` that specifies a
+    range of dates to retrieve
+
+  Returns:
+
+  * `{:ok, rates}` if exchange rates request is successfully sent.
+
+  * `{:error, reason}` if the request cannot be send.
+
+  Sends a message ot the exchange rate retrieval worker to request
+  historic rates for a specified date or range be retrieved and
+  stored.
+
+  This function does not return exchange rates, for that see
+  `Money.ExchangeRates.latest_rates/0` or
+  `Money.ExchangeRates.historic_rates/1`.
+  """
+  def historic_rates(%Date{calendar: Calendar.ISO} = date) do
+    case Process.whereis(__MODULE__) do
+      nil -> {:error, exchange_rate_service_error()}
+      _pid -> GenServer.call(__MODULE__, {:historic_rates, date})
+    end
+  end
+
+  def historic_rates(%{year: year, month: month, day: day}) do
+    case Date.new(year, month, day) do
+      {:ok, date} -> historic_rates(date)
+      error -> error
+    end
+  end
+
+  def historic_rates(%Date.Range{first: from, last: to}) do
+    historic_rates(from, to)
+  end
+
+  @doc """
+  Forces retrieval of historic exchange rates for a range of dates
+
+  * `from` is a date returned by `Date.new/3` or any struct with the
+    elements `:year`, `:month` and `:day`.
+
+  * `to` is a date returned by `Date.new/3` or any struct with the
+    elements `:year`, `:month` and `:day`.
+
+  Returns:
+
+  * `{:ok, rates}` if exchange rates request is successfully sent.
+
+  * `{:error, reason}` if the request cannot be send.
+
+  Sends a message to the exchange rate retrieval process for each
+  date in the range `from`..`to` to request historic rates be
+  retrieved.
+  """
+  def historic_rates(%Date{calendar: Calendar.ISO} = from, %Date{calendar: Calendar.ISO} = to) do
+    case Process.whereis(__MODULE__) do
+      nil ->
+        {:error, exchange_rate_service_error()}
+
+      _pid ->
+        for date <- Date.range(from, to) do
+          GenServer.call(__MODULE__, {:historic_rates, date})
+        end
+    end
+  end
+
+  def historic_rates(%{year: y1, month: m1, day: d1}, %{year: y2, month: m2, day: d2}) do
+    with {:ok, from} <- Date.new(y1, m1, d1),
+         {:ok, to} <- Date.new(y2, m2, d2) do
+      historic_rates(from, to)
+    end
+  end
+
+  #
+  # Server implementation
+  #
+
   def init(config) do
     log(config, :info, "Starting exchange rate retrieval service")
-    initialize_ets_table()
+    Cache.init()
 
     log(config, :info, log_init_message(config.retrieve_every))
     schedule_work(0)
@@ -38,6 +143,14 @@ defmodule Money.ExchangeRates.Retriever do
     end
 
     {:ok, config}
+  end
+
+  def handle_call(:latest_rates, config) do
+    {:reply, retrieve_latest_rates(config), config}
+  end
+
+  def handle_call({:historic_rates, date}, config) do
+    {:reply, retrieve_historic_rates(date, config), config}
   end
 
   def handle_info(:latest_rates, config) do
@@ -56,11 +169,15 @@ defmodule Money.ExchangeRates.Retriever do
     {:noreply, config}
   end
 
-  def retrieve_latest_rates(%{callback_module: callback_module} = config) do
-    case ExchangeRates.get_latest_rates(config) do
+  defp retrieve_latest_rates(%{callback_module: callback_module} = config) do
+    case config.api_module.get_latest_rates(config) do
+      {:ok, :not_modified} ->
+        log(config, :success, "Retrieved latest exchange rates successfully. Rates unchanged.")
+        {:ok, Cache.latest_rates}
+
       {:ok, rates} ->
         retrieved_at = DateTime.utc_now()
-        store_latest_rates(rates, retrieved_at)
+        Cache.store_latest_rates(rates, retrieved_at)
         apply(callback_module, :latest_rates_retrieved, [rates, retrieved_at])
         log(config, :success, "Retrieved latest exchange rates successfully")
         {:ok, rates}
@@ -71,10 +188,10 @@ defmodule Money.ExchangeRates.Retriever do
     end
   end
 
-  def retrieve_historic_rates(%Date{} = date, %{callback_module: callback_module} = config) do
-    case ExchangeRates.get_historic_rates(date, config) do
+  defp retrieve_historic_rates(date, %{callback_module: callback_module} = config) do
+    case config.api_module.get_historic_rates(date, config) do
       {:ok, rates} ->
-        store_historic_rates(rates, date)
+        Cache.store_historic_rates(rates, date)
         apply(callback_module, :historic_rates_retrieved, [rates, date])
 
         log(
@@ -124,17 +241,11 @@ defmodule Money.ExchangeRates.Retriever do
     end
   end
 
-  defp initialize_ets_table do
-    :ets.new(:exchange_rates, [:named_table, read_concurrency: true])
-  end
-
-  defp store_latest_rates(rates, retrieved_at) do
-    :ets.insert(:exchange_rates, {:latest_rates, rates})
-    :ets.insert(:exchange_rates, {:last_updated, retrieved_at})
-  end
-
-  defp store_historic_rates(rates, date) do
-    :ets.insert(:exchange_rates, {date, rates})
+  # Any non-numeric value, or non-date value means
+  # we don't schedule work - ie there is no periodic
+  # retrieval
+  defp schedule_work(_) do
+    :ok
   end
 
   def log(%{log_levels: log_levels}, key, message) do
@@ -157,5 +268,9 @@ defmodule Money.ExchangeRates.Retriever do
     seconds = div(milliseconds, 1000)
     plural = if seconds == 1, do: "second", else: "seconds"
     {seconds, plural}
+  end
+
+  defp exchange_rate_service_error do
+    {Money.ExchangeRateError, "Exchange rate service does not appear to be running"}
   end
 end

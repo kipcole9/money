@@ -27,6 +27,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   @behaviour Money.ExchangeRates
 
   @open_exchange_rate_url "https://openexchangerates.org/api"
+  @ets_table :exchange_rates
 
   @doc """
   Update the retriever configuration to include the requirements
@@ -123,23 +124,71 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   end
 
   defp retrieve_rates(url) do
-    case :httpc.request(String.to_charlist(url)) do
-      {:ok, {{_version, 200, 'OK'}, _headers, body}} ->
-        %{"base" => _base, "rates" => rates} = Money.json_library().decode!(body)
+    url = String.to_charlist(url)
+    headers = if_none_match_header(get_etag())
 
-        decimal_rates =
-          rates
-          |> Cldr.Map.atomize_keys()
-          |> Enum.map(fn {k, v} -> {k, Decimal.new(v)} end)
-          |> Enum.into(%{})
+    :httpc.request(:get, {url, headers}, [], [])
+    |> process_response
+  end
 
-        {:ok, decimal_rates}
+  defp process_response({:ok, {{_version, 200, 'OK'}, headers, body}}) do
+    %{"base" => _base, "rates" => rates} = Money.json_library().decode!(body)
 
-      {_, {{_version, code, message}, _headers, _body}} ->
-        {:error, "#{code} #{message}"}
+    save_etag(headers)
 
-      {:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}} ->
-        {:error, sys_message}
+    decimal_rates =
+      rates
+      |> Cldr.Map.atomize_keys()
+      |> Enum.map(fn {k, v} -> {k, Decimal.new(v)} end)
+      |> Enum.into(%{})
+
+    {:ok, decimal_rates}
+  end
+
+  defp process_response({:ok, {{_version, 304, 'Not Modified'}, _headers, _body}}) do
+    {:ok, :not_modified}
+  end
+
+  defp process_response({_, {{_version, code, message}, _headers, _body}}) do
+    {:error, "#{code} #{message}"}
+  end
+
+  defp process_response({:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}}) do
+    {:error, sys_message}
+  end
+
+  defp if_none_match_header({etag, date}) do
+    [
+      {'If-None-Match', etag},
+      {'If-Modified-Since', date},
+    ]
+  end
+
+  defp if_none_match_header(nil) do
+    []
+  end
+
+  defp get_etag() do
+    case :ets.lookup(:exchange_rates, :oxr_etag) do
+      [{:oxr_etag, etag}] -> etag
+      [] -> nil
+    end
+  rescue ArgumentError ->
+    nil
+  end
+
+  defp save_etag(headers) do
+    etag = :proplists.get_value 'etag', headers
+    date = :proplists.get_value 'date', headers
+
+    try do
+      if etag != :undefined && date != :undedefined do
+        :ets.insert(@ets_table, {:oxr_etag, {etag, date}})
+      else
+        :ets.insert(@ets_table, {:oxr_etag, nil})
+      end
+    rescue ArgumentError ->
+      :error
     end
   end
 
