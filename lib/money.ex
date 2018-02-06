@@ -46,6 +46,34 @@ defmodule Money do
 
   import Kernel, except: [round: 1, div: 1]
 
+  @json_library Application.get_env(:ex_money, :json_library, Cldr.Config.json_library)
+  unless Code.ensure_loaded?(@json_library) do
+    IO.puts """
+
+    The json_library '#{inspect @json_library}' does not appear
+    to be available.  A json library is required
+    for Money to operate. Is in configured as a
+    dependency in mix.exs?
+
+    In config.exs your expicit or implicit configuration is:
+
+      config ex_money
+        json_library: #{inspect @json_library}
+
+    In mix.exs you will need something like:
+
+      def deps() do
+        [
+          ...
+          {:#{String.downcase(inspect(@json_library))}, version_string}
+        ]
+      end
+    """
+    raise ArgumentError,
+      "Json library #{String.downcase(inspect(@json_library))} does"  <>
+      "not appear to be a dependency"
+  end
+
   # Default mode for rounding is :half_even, also known
   # as bankers rounding
   @default_rounding_mode :half_even
@@ -1392,7 +1420,6 @@ defmodule Money do
     Keyword.merge(options, required, fn _k, _v1, v2 -> v2 end)
   end
 
-  @json_library Application.get_env(:ex_money, :json_library, Cldr.Config.json_library)
   @doc false
   def json_library do
     @json_library
