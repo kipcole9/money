@@ -70,7 +70,7 @@ defmodule Money do
       end
     """
     raise ArgumentError,
-      "Json library #{String.downcase(inspect(@json_library))} does"  <>
+      "Json library #{String.downcase(inspect(@json_library))} does "  <>
       "not appear to be a dependency"
   end
 
