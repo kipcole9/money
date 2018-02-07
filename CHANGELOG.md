@@ -1,6 +1,30 @@
-# Changelog for Money v2.2.0
+# Changelog for Money v2.3.0
 
-This is the changelog for Money v2.2.0 released on _, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.3.0 released on _, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+This release is primarily a refactoring of the exchange rates service.  It separates the concerns of retrieval and caching.  It also normalises the api amongst the three modules `Money.ExchangeRates`, `Money.ExchangeRates.Retriever` and `Money.ExchangeRates.Cache`.  Each of these modules implements:
+
+  * `latest_rates/0`
+  * `historic_rates/1`
+
+This makes it clear that rates can be retrieved through the cache or the service API.  The implementation in `Money.ExchangeRates` will return the cached value if available or will call the service API if not.
+
+### Enhancements
+
+* Print an informative message and raises at compile time if the configured json library appears to not be configured.
+
+* Move exchange rate caching to its own module `Money.ExchangeRates.Cache`
+
+* Move all exchange rates retrieval functions to `Money.ExchangeRates.Retriever`
+
+* If the config key `:retrieve_every` is set to a non positive integer value then no periodic retrieval will be performed.  This allows the configuration of, for example:
+
+```
+config ex_money,
+  retrieve_every: :never
+```
+
+# Changelog for Money v2.2.0
 
 ### Enhancements
 
