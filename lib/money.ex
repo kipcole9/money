@@ -52,12 +52,12 @@ defmodule Money do
 
     The json_library '#{inspect @json_library}' does not appear
     to be available.  A json library is required
-    for Money to operate. Is in configured as a
+    for Money to operate. Is it configured as a
     dependency in mix.exs?
 
     In config.exs your expicit or implicit configuration is:
 
-      config ex_money
+      config ex_money,
         json_library: #{inspect @json_library}
 
     In mix.exs you will need something like:
