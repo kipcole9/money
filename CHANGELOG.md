@@ -26,7 +26,7 @@ This makes it clear that rates can be retrieved through the cache or the service
 * If the config key `:exchange_rates_retrieve_every` is set to a non positive integer value then no periodic retrieval will be performed.  This allows the configuration of, for example:
 
 ```
-config ex_money,
+config :ex_money,
   exchange_rates_retrieve_every: :never
 ```
 
