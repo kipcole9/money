@@ -27,7 +27,7 @@ This makes it clear that rates can be retrieved through the cache or the service
 
 ```
 config ex_money,
-  retrieve_every: :never
+  exchange_rates_retrieve_every: :never
 ```
 
 # Changelog for Money v2.2.0
