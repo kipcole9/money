@@ -15,7 +15,7 @@ config :ex_money,
   open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"},
   preload_historic_rates: Date.range(~D[2017-01-01], ~D[2017-01-02]),
   api_module: Money.ExchangeRates.Test,
-  log_failure: :warn,
+  log_failure: nil,
   log_info: nil,
   callback_module: Money.ExchangeRates.CallbackTest
 

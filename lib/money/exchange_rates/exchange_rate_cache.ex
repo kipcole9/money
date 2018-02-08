@@ -4,7 +4,13 @@ defmodule Money.ExchangeRates.Cache do
   @ets_table :exchange_rates
 
   def init do
-    :ets.new(@ets_table, [:named_table, read_concurrency: true])
+    if :ets.info(@ets_table) == :undefined do
+      :ets.new(@ets_table, [
+        :named_table, :public, read_concurrency: true
+      ])
+    else
+      @ets_table
+    end
   end
 
   def latest_rates do
@@ -58,9 +64,13 @@ defmodule Money.ExchangeRates.Cache do
   def store_latest_rates(rates, retrieved_at) do
     :ets.insert(@ets_table, {:latest_rates, rates})
     :ets.insert(@ets_table, {:last_updated, retrieved_at})
+  rescue ArgumentError ->
+     Logger.error("Failed to store latest rates")
   end
 
   def store_historic_rates(rates, date) do
     :ets.insert(@ets_table, {date, rates})
+  rescue ArgumentError ->
+     Logger.error("Failed to store historic rates for #{inspect date}")
   end
 end

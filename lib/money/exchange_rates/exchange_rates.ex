@@ -142,6 +142,7 @@ defmodule Money.ExchangeRates do
   @optional_callbacks init: 1
 
   require Logger
+  alias Money.ExchangeRates.Retriever
   alias Money.ExchangeRates.Cache
 
   @default_retrieval_interval 300_000
@@ -208,7 +209,10 @@ defmodule Money.ExchangeRates do
   """
   @spec latest_rates() :: {:ok, Map.t()} | {:error, {Exception.t(), binary}}
   def latest_rates do
-    Cache.latest_rates
+    case Cache.latest_rates do
+      {:ok, rates} -> {:ok, rates}
+      _ -> Retriever.latest_rates
+    end
   end
 
   @doc """
@@ -233,7 +237,10 @@ defmodule Money.ExchangeRates do
   """
   @spec historic_rates(Date.t) :: {:ok, Map.t()} | {:error, {Exception.t(), binary}}
   def historic_rates(date) do
-    Cache.historic_rates(date)
+    case Cache.historic_rates(date) do
+      {:ok, rates} -> {:ok, rates}
+      _ -> Retriever.historic_rates(date)
+    end
   end
 
   @doc """
@@ -242,9 +249,9 @@ defmodule Money.ExchangeRates do
   """
   @spec latest_rates_available?() :: boolean
   def latest_rates_available? do
-    case latest_rates() do
+    case Cache.latest_rates do
       {:ok, _} -> true
-      {:error, _} -> false
+      _ -> false
     end
   end
 
@@ -263,6 +270,9 @@ defmodule Money.ExchangeRates do
   """
   @spec last_updated() :: {:ok, DateTime.t()} | {:error, {Exception.t(), binary}}
   def last_updated do
-    Cache.last_updated
+    case Cache.last_updated do
+      {:ok, last_updated} -> {:ok, last_updated}
+      _ -> nil
+    end
   end
 end

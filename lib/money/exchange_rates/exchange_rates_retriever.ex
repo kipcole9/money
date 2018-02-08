@@ -19,6 +19,10 @@ defmodule Money.ExchangeRates.Retriever do
   require Logger
   alias Money.ExchangeRates.Cache
 
+  def start(name \\ __MODULE__, config \\ Money.ExchangeRates.config) do
+    start_link(name, config)
+  end
+
   def start_link(name, config \\ Money.ExchangeRates.config) do
     GenServer.start_link(__MODULE__, config, name: name)
   end
@@ -131,8 +135,7 @@ defmodule Money.ExchangeRates.Retriever do
 
   def init(config) do
     log(config, :info, "Starting exchange rate retrieval service")
-    Cache.init()
-
+    Cache.init
     log(config, :info, log_init_message(config.retrieve_every))
     schedule_work(0)
     schedule_work(config.retrieve_every)
@@ -145,11 +148,11 @@ defmodule Money.ExchangeRates.Retriever do
     {:ok, config}
   end
 
-  def handle_call(:latest_rates, config) do
+  def handle_call(:latest_rates, _from, config) do
     {:reply, retrieve_latest_rates(config), config}
   end
 
-  def handle_call({:historic_rates, date}, config) do
+  def handle_call({:historic_rates, date}, _from, config) do
     {:reply, retrieve_historic_rates(date, config), config}
   end
 

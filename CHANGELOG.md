@@ -9,6 +9,12 @@ This release is primarily a refactoring of the exchange rates service.  It separ
 
 This makes it clear that rates can be retrieved through the cache or the service API.  The implementation in `Money.ExchangeRates` will return the cached value if available or will call the service API if not.
 
+### To Do
+
+* [ ] Setting `:exchange_rates_retrieve_every` to a non integer value raises an execption. We want to be able to set the to `:never` so that periodic scheduling is not performed
+
+* [ ] The exchange rates service is required for retrieval since we call the external API from the service in order to have a separate process and supervision.  So we need to ensure its started when we do `Money.ExchangeRates.Retriever.latest_rates/0`
+
 ### Enhancements
 
 * Print an informative message and raises at compile time if the configured json library appears to not be configured.
