@@ -30,6 +30,8 @@ config :ex_money,
 
 * Move all exchange rates retrieval functions to `Money.ExchangeRates.Retriever`
 
+* Add `Money.ExchangeRates.Retriever.reconfigure/1` to allow reconfiguration of the exchange rates retriever.
+
 * If the config key `:exchange_rates_retrieve_every` is set to an `atom` rather than an `integer` then no periodic retrieval will be performed.  This allows the configuration of the following, which is also the default:
 
 ```
