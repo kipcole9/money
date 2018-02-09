@@ -519,4 +519,32 @@ defmodule MoneyTest do
     assert Money.to_integer_exp(Money.new(:COP, 1234), currency_digits: :accounting) ==
              {:COP, 1234, 0, Money.new(:COP, 0)}
   end
+
+  test "that api latest_rates callbacks are executed" do
+    config =
+      Money.ExchangeRates.default_config
+      |> Map.put(:callback_module, Money.ExchangeRates.CallbackTest)
+
+    Money.ExchangeRates.Retriever.reconfigure(config)
+    Money.ExchangeRates.Retriever.latest_rates
+
+    assert Application.get_env(:ex_money, :test) == "Latest Rates Retrieved"
+
+    Money.ExchangeRates.default_config
+    |> Money.ExchangeRates.Retriever.reconfigure
+  end
+
+  test "that api historic_rates callbacks are executed" do
+    config =
+      Money.ExchangeRates.default_config
+      |> Map.put(:callback_module, Money.ExchangeRates.CallbackTest)
+
+    Money.ExchangeRates.Retriever.reconfigure(config)
+    Money.ExchangeRates.Retriever.historic_rates(~D[2017-01-01])
+
+    assert Application.get_env(:ex_money, :test) == "Historic Rates Retrieved"
+
+    Money.ExchangeRates.default_config
+    |> Money.ExchangeRates.Retriever.reconfigure
+  end
 end

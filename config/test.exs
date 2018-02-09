@@ -15,7 +15,6 @@ config :ex_money,
   api_module: Money.ExchangeRates.Test,
   log_failure: nil,
   log_info: nil
-  # callback_module: Money.ExchangeRates.CallbackTest
 
 config :ex_cldr,
   default_locale: "en",

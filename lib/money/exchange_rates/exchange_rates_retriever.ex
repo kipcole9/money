@@ -141,6 +141,15 @@ defmodule Money.ExchangeRates.Retriever do
     GenServer.call(__MODULE__, {:reconfigure, config})
   end
 
+  @doc """
+  Return the current configuration of the Exchange Rates
+  Retrieval service
+
+  """
+  def config do
+    GenServer.call(__MODULE__, :config)
+  end
+
   #
   # Server implementation
   #
@@ -171,7 +180,12 @@ defmodule Money.ExchangeRates.Retriever do
   end
 
   def handle_call({:reconfigure, new_configuration}, _from, _config) do
-    {:reply, init(new_configuration)}
+    {:ok, new_config} = init(new_configuration)
+    {:reply, new_config, new_config}
+  end
+
+  def handle_call(:config, _from, config) do
+    {:reply, config, config}
   end
 
   def handle_info(:latest_rates, config) do

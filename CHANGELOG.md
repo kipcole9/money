@@ -11,7 +11,7 @@ This makes it clear that rates can be retrieved through the cache or the service
 
 ### Migration from earlier versions
 
-* If your current configuration relies upon the default exchange rates retrieval occurring then from this release forward you will need to explicity specify the retrieval period.  For example:
+* If your current configuration relies upon the default exchange rates retrieval occurring then from this release forward you will need to explicity specify the retrieval period.  The default value has been changed to `:never`. For example:
 
 ```
 config :ex_money,
@@ -31,6 +31,8 @@ config :ex_money,
 * Move all exchange rates retrieval functions to `Money.ExchangeRates.Retriever`
 
 * Add `Money.ExchangeRates.Retriever.reconfigure/1` to allow reconfiguration of the exchange rates retriever.
+
+* Add `Money.ExchangeRates.Retriever.config/0` to return the current retriever configuration.
 
 * If the config key `:exchange_rates_retrieve_every` is set to an `atom` rather than an `integer` then no periodic retrieval will be performed.  This allows the configuration of the following, which is also the default:
 
