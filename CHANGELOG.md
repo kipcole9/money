@@ -41,7 +41,7 @@ config :ex_money,
   exchange_rates_retrieve_every: :never
 ```
 
-* Use `etag`s in the `Money.ExchangeRates.OpenExchangeRates` api module to
+* Use `etag`s in the `Money.ExchangeRates.OpenExchangeRates` api module
 
 # Changelog for Money v2.2.0
 
