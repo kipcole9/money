@@ -2,7 +2,6 @@ defmodule MoneyTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
   import ExUnit.CaptureLog
-  import Money.ExchangeRatesTestHelper
 
   alias Money.ExchangeRates
   alias Money.Financial
@@ -361,109 +360,51 @@ defmodule MoneyTest do
     assert Float.round(Financial.internal_rate_of_return(flows), 4) == 0.2548
   end
 
-  @sleep_timer 50
-
   test "Get exchange rates" do
-    capture_io(fn ->
-      {:ok, _pid} = start_service()
-      :timer.sleep(@sleep_timer)
-    end)
-
     test_result = {:ok, %{USD: Decimal.new(1), AUD: Decimal.new(0.7), EUR: Decimal.new(1.2)}}
     assert Money.ExchangeRates.latest_rates() == test_result
   end
 
   test "Convert from USD to AUD" do
-    capture_io(fn ->
-      {:ok, _pid} = start_service()
-      :timer.sleep(@sleep_timer)
-    end)
-
     assert Money.cmp(Money.to_currency!(Money.new(:USD, 100), :AUD), Money.new(:AUD, 70)) == :eq
   end
 
   test "Convert from USD to USD" do
-    capture_io(fn ->
-      {:ok, _pid} = start_service()
-      :timer.sleep(@sleep_timer)
-    end)
-
     assert Money.cmp(Money.to_currency!(Money.new(:USD, 100), :USD), Money.new(:USD, 100)) == :eq
   end
 
   test "Convert from USD to ZZZ should return an error" do
-    capture_io(fn ->
-      {:ok, _pid} = start_service()
-      :timer.sleep(@sleep_timer)
-    end)
-
-    assert Money.to_currency(Money.new(:USD, 100), :ZZZ) ==
+    capture_io fn ->
+      assert Money.to_currency(Money.new(:USD, 100), :ZZZ) ==
              {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
+    end
   end
 
   test "Convert from USD to ZZZ should raise an exception" do
-    capture_io(fn ->
-      {:ok, _pid} = start_service()
-      :timer.sleep(@sleep_timer)
-    end)
-
-    assert_raise Cldr.UnknownCurrencyError, ~r/The currency :ZZZ is invalid/, fn ->
-      assert Money.to_currency!(Money.new(:USD, 100), :ZZZ)
+    capture_io fn ->
+      assert_raise Cldr.UnknownCurrencyError, ~r/The currency :ZZZ is invalid/, fn ->
+        assert Money.to_currency!(Money.new(:USD, 100), :ZZZ)
+      end
     end
   end
 
   test "Convert from USD to AUD using historic rates" do
-    capture_io(fn ->
-      {:ok, _pid} = start_service()
-      :timer.sleep(@sleep_timer)
-    end)
-
-    assert Money.to_currency!(
+    capture_io fn ->
+        assert Money.to_currency!(
              Money.new(:USD, 100),
              :AUD,
              ExchangeRates.historic_rates(~D[2017-01-01])
            )
            |> Money.round() == Money.new(:AUD, Decimal.new(71.43))
+    end
   end
 
   test "Convert from USD to AUD using historic rates that aren't available" do
-    capture_io(fn ->
-      {:ok, _pid} = start_service()
-      :timer.sleep(@sleep_timer)
-    end)
-
     assert Money.to_currency(
              Money.new(:USD, 100),
              :AUD,
              ExchangeRates.historic_rates(~D[2017-02-01])
            ) == {:error, {Money.ExchangeRateError, "No exchange rates for 2017-02-01 were found"}}
-  end
-
-  test "Invoke callback module on successful exchange rate retrieval" do
-    result =
-      assert capture_io(fn ->
-               {:ok, _pid} = start_service()
-               :timer.sleep(@sleep_timer)
-             end)
-
-    assert result in [
-             "Historic Rates Retrieved\nHistoric Rates Retrieved\nLatest Rates Retrieved\n",
-             "Latest Rates Retrieved\nHistoric Rates Retrieved\nHistoric Rates Retrieved\n"
-           ]
-  end
-
-  test "That rates_available? returns correctly" do
-    assert capture_io(fn ->
-             {:ok, _pid} =
-               Money.ExchangeRates.Retriever.start_link(
-                 Money.ExchangeRates.Retriever,
-                 ExchangeRates.default_config()
-               )
-
-             assert ExchangeRates.latest_rates_available?() == false
-             :timer.sleep(@sleep_timer)
-             assert ExchangeRates.latest_rates_available?() == true
-           end)
   end
 
   test "That an error is returned if there is no open exchange rates app_id configured" do
@@ -571,11 +512,11 @@ defmodule MoneyTest do
   end
 
   test "that we use iso digits as default for to_integer_exp" do
-    assert Money.to_integer_exp(Money.new(:COP, 1234)) == {:COP, 123400, -2, Money.new(:COP,0)}
+    assert Money.to_integer_exp(Money.new(:COP, 1234)) == {:COP, 123_400, -2, Money.new(:COP, 0)}
   end
 
   test "that we can use accounting digits for to_integer_exp" do
     assert Money.to_integer_exp(Money.new(:COP, 1234), currency_digits: :accounting) ==
-      {:COP, 1234, 0, Money.new(:COP,0)}
+             {:COP, 1234, 0, Money.new(:COP, 0)}
   end
 end

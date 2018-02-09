@@ -160,7 +160,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   defp if_none_match_header({etag, date}) do
     [
       {'If-None-Match', etag},
-      {'If-Modified-Since', date},
+      {'If-Modified-Since', date}
     ]
   end
 
@@ -173,13 +173,14 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
       [{:oxr_etag, etag}] -> etag
       [] -> nil
     end
-  rescue ArgumentError ->
-    nil
+  rescue
+    ArgumentError ->
+      nil
   end
 
   defp save_etag(headers) do
-    etag = :proplists.get_value 'etag', headers
-    date = :proplists.get_value 'date', headers
+    etag = :proplists.get_value('etag', headers)
+    date = :proplists.get_value('date', headers)
 
     try do
       if etag != :undefined && date != :undedefined do
@@ -187,8 +188,9 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
       else
         :ets.insert(@ets_table, {:oxr_etag, nil})
       end
-    rescue ArgumentError ->
-      :error
+    rescue
+      ArgumentError ->
+        :error
     end
   end
 

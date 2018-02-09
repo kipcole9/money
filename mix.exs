@@ -87,7 +87,7 @@ defmodule Money.Mixfile do
       {:ex_doc, "~> 0.18", only: :dev},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
       {:jason, "~> 1.0", optional: true},
-      {:poison, "~> 2.2 or ~> 3.1", optional: true},
+      {:poison, "~> 2.2 or ~> 3.1", optional: true}
     ]
   end
 

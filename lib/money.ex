@@ -46,11 +46,11 @@ defmodule Money do
 
   import Kernel, except: [round: 1, div: 1]
 
-  @json_library Application.get_env(:ex_money, :json_library, Cldr.Config.json_library)
+  @json_library Application.get_env(:ex_money, :json_library, Cldr.Config.json_library())
   unless Code.ensure_loaded?(@json_library) do
-    IO.puts """
+    IO.puts("""
 
-    The json_library '#{inspect @json_library}' does not appear
+    The json_library '#{inspect(@json_library)}' does not appear
     to be available.  A json library is required
     for Money to operate. Is it configured as a
     dependency in mix.exs?
@@ -58,7 +58,7 @@ defmodule Money do
     In config.exs your expicit or implicit configuration is:
 
       config ex_money,
-        json_library: #{inspect @json_library}
+        json_library: #{inspect(@json_library)}
 
     In mix.exs you will need something like:
 
@@ -68,10 +68,11 @@ defmodule Money do
           {:#{String.downcase(inspect(@json_library))}, version_string}
         ]
       end
-    """
+    """)
+
     raise ArgumentError,
-      "Json library #{String.downcase(inspect(@json_library))} does "  <>
-      "not appear to be a dependency"
+          "Json library #{String.downcase(inspect(@json_library))} does " <>
+            "not appear to be a dependency"
   end
 
   # Default mode for rounding is :half_even, also known
@@ -130,8 +131,8 @@ defmodule Money do
         "use Money.from_float/2"}}
 
   """
-  @spec new(currency_code, integer | Decimal.t | String.t) ::
-    Money.t() | {:error, {Exceptiom.t, String.t}}
+  @spec new(currency_code, integer | Decimal.t() | String.t()) ::
+          Money.t() | {:error, {Exceptiom.t(), String.t()}}
 
   def new(currency_code, amount) when is_binary(currency_code) and is_integer(amount) do
     case validate_currency(currency_code) do
@@ -217,7 +218,7 @@ defmodule Money do
         (ex_money) lib/money.ex:177: Money.new!/2
 
   """
-  @spec new!(integer | Decimal.t | String.t, currency_code) :: Money.t() | no_return()
+  @spec new!(integer | Decimal.t() | String.t(), currency_code) :: Money.t() | no_return()
 
   def new!(currency_code, amount)
       when is_binary(currency_code) or is_atom(currency_code) do
@@ -278,8 +279,7 @@ defmodule Money do
   """
   @since "2.0.0"
   @max_precision_allowed 15
-  @spec from_float(currency_code, float) ::
-    Money.t() | {:error, {Exception.t, String.t}}
+  @spec from_float(currency_code, float) :: Money.t() | {:error, {Exception.t(), String.t()}}
 
   def from_float(currency_code, amount)
       when (is_binary(currency_code) or is_atom(currency_code)) and is_float(amount) do
@@ -1384,6 +1384,12 @@ defmodule Money do
     |> to_integer
   end
 
+  def get_env(key, default, :maybe_integer) do
+    key
+    |> get_env(default)
+    |> to_maybe_integer
+  end
+
   def get_env(key, default, :module) do
     key
     |> get_env(default)
@@ -1393,6 +1399,11 @@ defmodule Money do
   defp to_integer(nil), do: nil
   defp to_integer(n) when is_integer(n), do: n
   defp to_integer(n) when is_binary(n), do: String.to_integer(n)
+
+  defp to_maybe_integer(nil), do: nil
+  defp to_maybe_integer(n) when is_integer(n), do: n
+  defp to_maybe_integer(n) when is_atom(n), do: n
+  defp to_maybe_integer(n) when is_binary(n), do: String.to_integer(n)
 
   defp to_module(nil), do: nil
   defp to_module(module_name) when is_atom(module_name), do: module_name

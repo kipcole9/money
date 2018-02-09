@@ -4,25 +4,23 @@ defmodule Money.Currency do
   legal tender currencies.
   """
 
-  @current_currencies Cldr.Config.get_locale(Cldr.get_current_locale.cldr_locale_name)
+  @current_currencies Cldr.Config.get_locale(Cldr.get_current_locale().cldr_locale_name)
                       |> Map.get(:currencies)
                       |> Enum.filter(fn {_code, currency} -> !is_nil(currency.iso_digits) end)
                       |> Enum.map(fn {code, _currency} -> code end)
-                      |> Enum.sort
+                      |> Enum.sort()
 
-
-  @historic_currencies Cldr.Config.get_locale(Cldr.get_current_locale.cldr_locale_name)
+  @historic_currencies Cldr.Config.get_locale(Cldr.get_current_locale().cldr_locale_name)
                        |> Map.get(:currencies)
                        |> Enum.filter(fn {_code, currency} -> is_nil(currency.iso_digits) end)
                        |> Enum.map(fn {code, _currency} -> code end)
-                       |> Enum.sort
+                       |> Enum.sort()
 
-
-  @tender_currencies Cldr.Config.get_locale(Cldr.get_current_locale.cldr_locale_name)
+  @tender_currencies Cldr.Config.get_locale(Cldr.get_current_locale().cldr_locale_name)
                      |> Map.get(:currencies)
                      |> Enum.filter(fn {_code, currency} -> currency.tender end)
                      |> Enum.map(fn {code, _currency} -> code end)
-                     |> Enum.sort
+                     |> Enum.sort()
 
   @doc """
   Returns the list of currently active ISO 4217 currency codes.

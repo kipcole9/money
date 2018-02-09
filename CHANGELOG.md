@@ -9,11 +9,18 @@ This release is primarily a refactoring of the exchange rates service.  It separ
 
 This makes it clear that rates can be retrieved through the cache or the service API.  The implementation in `Money.ExchangeRates` will return the cached value if available or will call the service API if not.
 
-### To Do
+### Migration from earlier versions
 
-* [ ] Setting `:exchange_rates_retrieve_every` to a non integer value raises an execption. We want to be able to set the to `:never` so that periodic scheduling is not performed
+* If your current configuration relies upon the default exchange rates retrieval occurring then from this release forward you will need to explicity specify the retrieval period.  For example:
 
-* [ ] The exchange rates service is required for retrieval since we call the external API from the service in order to have a separate process and supervision.  So we need to ensure its started when we do `Money.ExchangeRates.Retriever.latest_rates/0`
+```
+config :ex_money,
+  exchange_rates_retrieve_every: 300_000
+```
+
+### Deprecation
+
+* The configuration option `:auto_start_exchange_rate_service` is deprecated.  The service is always started since rates can be retrieved synchronously on demand via `Money.ExchangeRates.Retriever.latest_rates/0` or periodically as defined by the configuration option `:exchange_rates_retrieve_every`
 
 ### Enhancements
 
@@ -23,12 +30,14 @@ This makes it clear that rates can be retrieved through the cache or the service
 
 * Move all exchange rates retrieval functions to `Money.ExchangeRates.Retriever`
 
-* If the config key `:exchange_rates_retrieve_every` is set to a non positive integer value then no periodic retrieval will be performed.  This allows the configuration of, for example:
+* If the config key `:exchange_rates_retrieve_every` is set to an `atom` rather than an `integer` then no periodic retrieval will be performed.  This allows the configuration of the following, which is also the default:
 
 ```
 config :ex_money,
   exchange_rates_retrieve_every: :never
 ```
+
+* Use `etag`s in the `Money.ExchangeRates.OpenExchangeRates` api module to
 
 # Changelog for Money v2.2.0
 

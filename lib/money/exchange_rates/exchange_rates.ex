@@ -145,7 +145,7 @@ defmodule Money.ExchangeRates do
   alias Money.ExchangeRates.Retriever
   alias Money.ExchangeRates.Cache
 
-  @default_retrieval_interval 300_000
+  @default_retrieval_interval :never
   @default_callback_module Money.ExchangeRates.Callback
   @default_api_module Money.ExchangeRates.OpenExchangeRates
 
@@ -183,7 +183,7 @@ defmodule Money.ExchangeRates do
       callback_module: Money.get_env(:callback_module, @default_callback_module, :module),
       preload_historic_rates: Money.get_env(:preload_historic_rates, nil),
       retrieve_every:
-        Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval, :integer),
+        Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval, :maybe_integer),
       log_levels: %{
         success: Money.get_env(:log_success, nil),
         failure: Money.get_env(:log_failure, :warn),
@@ -209,9 +209,9 @@ defmodule Money.ExchangeRates do
   """
   @spec latest_rates() :: {:ok, Map.t()} | {:error, {Exception.t(), binary}}
   def latest_rates do
-    case Cache.latest_rates do
+    case Cache.latest_rates() do
       {:ok, rates} -> {:ok, rates}
-      _ -> Retriever.latest_rates
+      _ -> Retriever.latest_rates()
     end
   end
 
@@ -235,7 +235,7 @@ defmodule Money.ExchangeRates do
   through `Money.ExchangeRates.retrieve_historic_rates/1`.
 
   """
-  @spec historic_rates(Date.t) :: {:ok, Map.t()} | {:error, {Exception.t(), binary}}
+  @spec historic_rates(Date.t()) :: {:ok, Map.t()} | {:error, {Exception.t(), binary}}
   def historic_rates(date) do
     case Cache.historic_rates(date) do
       {:ok, rates} -> {:ok, rates}
@@ -249,7 +249,7 @@ defmodule Money.ExchangeRates do
   """
   @spec latest_rates_available?() :: boolean
   def latest_rates_available? do
-    case Cache.latest_rates do
+    case Cache.latest_rates() do
       {:ok, _} -> true
       _ -> false
     end
@@ -270,7 +270,7 @@ defmodule Money.ExchangeRates do
   """
   @spec last_updated() :: {:ok, DateTime.t()} | {:error, {Exception.t(), binary}}
   def last_updated do
-    case Cache.last_updated do
+    case Cache.last_updated() do
       {:ok, last_updated} -> {:ok, last_updated}
       _ -> nil
     end

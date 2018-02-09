@@ -19,11 +19,11 @@ defmodule Money.ExchangeRates.Retriever do
   require Logger
   alias Money.ExchangeRates.Cache
 
-  def start(name \\ __MODULE__, config \\ Money.ExchangeRates.config) do
+  def start(name \\ __MODULE__, config \\ Money.ExchangeRates.config()) do
     start_link(name, config)
   end
 
-  def start_link(name, config \\ Money.ExchangeRates.config) do
+  def start_link(name, config \\ Money.ExchangeRates.config()) do
     GenServer.start_link(__MODULE__, config, name: name)
   end
 
@@ -42,6 +42,7 @@ defmodule Money.ExchangeRates.Retriever do
   This function does not return exchange rates, for that see
   `Money.ExchangeRates.latest_rates/0` or
   `Money.ExchangeRates.historic_rates/1`.
+
   """
   def latest_rates() do
     case Process.whereis(Money.ExchangeRates.Retriever) do
@@ -72,6 +73,7 @@ defmodule Money.ExchangeRates.Retriever do
   This function does not return exchange rates, for that see
   `Money.ExchangeRates.latest_rates/0` or
   `Money.ExchangeRates.historic_rates/1`.
+
   """
   def historic_rates(%Date{calendar: Calendar.ISO} = date) do
     case Process.whereis(__MODULE__) do
@@ -109,6 +111,7 @@ defmodule Money.ExchangeRates.Retriever do
   Sends a message to the exchange rate retrieval process for each
   date in the range `from`..`to` to request historic rates be
   retrieved.
+
   """
   def historic_rates(%Date{calendar: Calendar.ISO} = from, %Date{calendar: Calendar.ISO} = to) do
     case Process.whereis(__MODULE__) do
@@ -129,16 +132,27 @@ defmodule Money.ExchangeRates.Retriever do
     end
   end
 
+  @doc """
+  Updated the configuration for the Exchange Rate
+  Service
+
+  """
+  def reconfigure(%Money.ExchangeRates.Config{} = config) do
+    GenServer.call(__MODULE__, {:reconfigure, config})
+  end
+
   #
   # Server implementation
   #
 
   def init(config) do
-    log(config, :info, "Starting exchange rate retrieval service")
-    Cache.init
-    log(config, :info, log_init_message(config.retrieve_every))
-    schedule_work(0)
-    schedule_work(config.retrieve_every)
+    Cache.init()
+
+    if is_integer(config.retrieve_every) do
+      log(config, :info, log_init_message(config.retrieve_every))
+      schedule_work(0)
+      schedule_work(config.retrieve_every)
+    end
 
     if config.preload_historic_rates do
       log(config, :info, "Preloading historic rates for #{inspect(config.preload_historic_rates)}")
@@ -154,6 +168,10 @@ defmodule Money.ExchangeRates.Retriever do
 
   def handle_call({:historic_rates, date}, _from, config) do
     {:reply, retrieve_historic_rates(date, config), config}
+  end
+
+  def handle_call({:reconfigure, new_configuration}, _from, _config) do
+    {:reply, init(new_configuration)}
   end
 
   def handle_info(:latest_rates, config) do
@@ -176,7 +194,7 @@ defmodule Money.ExchangeRates.Retriever do
     case config.api_module.get_latest_rates(config) do
       {:ok, :not_modified} ->
         log(config, :success, "Retrieved latest exchange rates successfully. Rates unchanged.")
-        {:ok, Cache.latest_rates}
+        {:ok, Cache.latest_rates()}
 
       {:ok, rates} ->
         retrieved_at = DateTime.utc_now()
@@ -264,7 +282,7 @@ defmodule Money.ExchangeRates.Retriever do
   defp log_init_message(every) do
     {every, plural_every} = seconds(every)
 
-    "Rates will be retrieved now and then every #{every} #{plural_every}."
+    "Exchange Rates will be retrieved now and then every #{every} #{plural_every}."
   end
 
   defp seconds(milliseconds) do
