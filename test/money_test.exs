@@ -374,29 +374,29 @@ defmodule MoneyTest do
   end
 
   test "Convert from USD to ZZZ should return an error" do
-    capture_io fn ->
+    capture_io(fn ->
       assert Money.to_currency(Money.new(:USD, 100), :ZZZ) ==
-             {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
-    end
+               {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
+    end)
   end
 
   test "Convert from USD to ZZZ should raise an exception" do
-    capture_io fn ->
+    capture_io(fn ->
       assert_raise Cldr.UnknownCurrencyError, ~r/The currency :ZZZ is invalid/, fn ->
         assert Money.to_currency!(Money.new(:USD, 100), :ZZZ)
       end
-    end
+    end)
   end
 
   test "Convert from USD to AUD using historic rates" do
-    capture_io fn ->
-        assert Money.to_currency!(
-             Money.new(:USD, 100),
-             :AUD,
-             ExchangeRates.historic_rates(~D[2017-01-01])
-           )
-           |> Money.round() == Money.new(:AUD, Decimal.new(71.43))
-    end
+    capture_io(fn ->
+      assert Money.to_currency!(
+               Money.new(:USD, 100),
+               :AUD,
+               ExchangeRates.historic_rates(~D[2017-01-01])
+             )
+             |> Money.round() == Money.new(:AUD, Decimal.new(71.43))
+    end)
   end
 
   test "Convert from USD to AUD using historic rates that aren't available" do
@@ -522,21 +522,21 @@ defmodule MoneyTest do
 
   test "that api latest_rates callbacks are executed" do
     config =
-      Money.ExchangeRates.default_config
+      Money.ExchangeRates.default_config()
       |> Map.put(:callback_module, Money.ExchangeRates.CallbackTest)
 
     Money.ExchangeRates.Retriever.reconfigure(config)
-    Money.ExchangeRates.Retriever.latest_rates
+    Money.ExchangeRates.Retriever.latest_rates()
 
     assert Application.get_env(:ex_money, :test) == "Latest Rates Retrieved"
 
-    Money.ExchangeRates.default_config
-    |> Money.ExchangeRates.Retriever.reconfigure
+    Money.ExchangeRates.default_config()
+    |> Money.ExchangeRates.Retriever.reconfigure()
   end
 
   test "that api historic_rates callbacks are executed" do
     config =
-      Money.ExchangeRates.default_config
+      Money.ExchangeRates.default_config()
       |> Map.put(:callback_module, Money.ExchangeRates.CallbackTest)
 
     Money.ExchangeRates.Retriever.reconfigure(config)
@@ -544,7 +544,7 @@ defmodule MoneyTest do
 
     assert Application.get_env(:ex_money, :test) == "Historic Rates Retrieved"
 
-    Money.ExchangeRates.default_config
-    |> Money.ExchangeRates.Retriever.reconfigure
+    Money.ExchangeRates.default_config()
+    |> Money.ExchangeRates.Retriever.reconfigure()
   end
 end

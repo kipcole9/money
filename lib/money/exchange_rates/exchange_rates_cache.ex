@@ -77,4 +77,15 @@ defmodule Money.ExchangeRates.Cache do
     ArgumentError ->
       Logger.error("Failed to store historic rates for #{inspect(date)}")
   end
+
+  def get(key) do
+    case :ets.lookup(@ets_table, key) do
+      [{^key, value}] -> value
+      [] -> nil
+    end
+  end
+
+  def put(key, value) do
+    :ets.insert(@ets_table, {key, value})
+  end
 end

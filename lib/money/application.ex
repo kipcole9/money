@@ -52,7 +52,7 @@ defmodule Money.Application do
       {:ok, _} ->
         Logger.warn(
           "Configuration option :delay_before_first_retrieval is deprecated. " <>
-          "Please remove it from your configuration."
+            "Please remove it from your configuration."
         )
 
         Application.delete_env(:ex_money, :delay_before_first_retrieval)
@@ -65,8 +65,8 @@ defmodule Money.Application do
       {:ok, _} ->
         Logger.warn(
           "Configuration option :auto_start_exchange_rate_service is deprecated. " <>
-          "Please remove it from your configuration. " <>
-          "Use the :exchange_rates_retrieve_every option instead to define a retrieval period. "
+            "Please remove it from your configuration. " <>
+            "Use the :exchange_rates_retrieve_every option instead to define a retrieval period. "
         )
 
         Application.delete_env(:ex_money, :auto_start_exchange_rate_service)
@@ -79,8 +79,8 @@ defmodule Money.Application do
       {:ok, _} ->
         Logger.warn(
           "Configuration option :exchange_rate_service is deprecated. " <>
-          "Please remove it from your configuration. " <>
-          "Use the :exchange_rates_retrieve_every option instead to define a retrieval period. "
+            "Please remove it from your configuration. " <>
+            "Use the :exchange_rates_retrieve_every option instead to define a retrieval period. "
         )
 
         Application.delete_env(:ex_money, :exchange_rate_service)

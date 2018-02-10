@@ -150,6 +150,69 @@ defmodule Money.ExchangeRates.Retriever do
     GenServer.call(__MODULE__, :config)
   end
 
+  def retrieve_rates(url) when is_binary(url) do
+    url
+    |> String.to_charlist()
+    |> retrieve_rates
+  end
+
+  def retrieve_rates(url) when is_list(url) do
+    headers = if_none_match_header(url)
+
+    :httpc.request(:get, {url, headers}, [], [])
+    |> process_response(url)
+  end
+
+  defp process_response({:ok, {{_version, 200, 'OK'}, headers, body}}, url) do
+    %{"base" => _base, "rates" => rates} = Money.json_library().decode!(body)
+
+    decimal_rates =
+      rates
+      |> Cldr.Map.atomize_keys()
+      |> Enum.map(fn {k, v} -> {k, Decimal.new(v)} end)
+      |> Enum.into(%{})
+
+    save_etag(headers, url)
+    {:ok, decimal_rates}
+  end
+
+  defp process_response({:ok, {{_version, 304, 'Not Modified'}, headers, _body}}, url) do
+    save_etag(headers, url)
+    {:ok, :not_modified}
+  end
+
+  defp process_response({_, {{_version, code, message}, _headers, _body}}, _url) do
+    {:error, "#{code} #{message}"}
+  end
+
+  defp process_response({:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}}, _url) do
+    {:error, sys_message}
+  end
+
+  defp if_none_match_header(url) do
+    case Cache.get(url) do
+      {etag, date} ->
+        [
+          {'If-None-Match', etag},
+          {'If-Modified-Since', date}
+        ]
+
+      _ ->
+        []
+    end
+  end
+
+  defp save_etag(headers, url) do
+    etag = :proplists.get_value('etag', headers)
+    date = :proplists.get_value('date', headers)
+
+    if etag != :undefined && date != :undedefined do
+      Cache.put(url, {etag, date})
+    else
+      Cache.put(url, nil)
+    end
+  end
+
   #
   # Server implementation
   #
@@ -225,6 +288,10 @@ defmodule Money.ExchangeRates.Retriever do
 
   defp retrieve_historic_rates(date, %{callback_module: callback_module} = config) do
     case config.api_module.get_historic_rates(date, config) do
+      {:ok, :not_modified} ->
+        log(config, :success, "Historic exchange rates for #{Date.to_string(date)} are unchanged")
+        {:ok, Cache.historic_rates(date)}
+
       {:ok, rates} ->
         Cache.store_historic_rates(rates, date)
         apply(callback_module, :historic_rates_retrieved, [rates, date])

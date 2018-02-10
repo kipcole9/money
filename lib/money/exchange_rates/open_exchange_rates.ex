@@ -24,10 +24,12 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
         open_exchange_rates_url: "https://openexchangerates.org/alternative_api"
 
   """
+  require Logger
+  alias Money.ExchangeRates.Retriever
+
   @behaviour Money.ExchangeRates
 
   @open_exchange_rate_url "https://openexchangerates.org/api"
-  @ets_table :exchange_rates
 
   @doc """
   Update the retriever configuration to include the requirements
@@ -77,7 +79,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
 
   @latest_rates "/latest.json"
   defp retrieve_latest_rates(url, app_id) do
-    retrieve_rates(url <> @latest_rates <> "?app_id=" <> app_id)
+    Retriever.retrieve_rates(url <> @latest_rates <> "?app_id=" <> app_id)
   end
 
   @doc """
@@ -113,84 +115,16 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   @historic_rates "/historical/"
   defp retrieve_historic_rates(%Date{calendar: Calendar.ISO} = date, url, app_id) do
     date_string = Date.to_string(date)
-    retrieve_rates(url <> @historic_rates <> "#{date_string}.json" <> "?app_id=" <> app_id)
+
+    Retriever.retrieve_rates(
+      url <> @historic_rates <> "#{date_string}.json" <> "?app_id=" <> app_id
+    )
   end
 
   defp retrieve_historic_rates(%{year: year, month: month, day: day}, url, app_id) do
     case Date.new(year, month, day) do
       {:ok, date} -> retrieve_historic_rates(date, url, app_id)
       error -> error
-    end
-  end
-
-  defp retrieve_rates(url) do
-    url = String.to_charlist(url)
-    headers = if_none_match_header(get_etag())
-
-    :httpc.request(:get, {url, headers}, [], [])
-    |> process_response
-  end
-
-  defp process_response({:ok, {{_version, 200, 'OK'}, headers, body}}) do
-    %{"base" => _base, "rates" => rates} = Money.json_library().decode!(body)
-
-    save_etag(headers)
-
-    decimal_rates =
-      rates
-      |> Cldr.Map.atomize_keys()
-      |> Enum.map(fn {k, v} -> {k, Decimal.new(v)} end)
-      |> Enum.into(%{})
-
-    {:ok, decimal_rates}
-  end
-
-  defp process_response({:ok, {{_version, 304, 'Not Modified'}, _headers, _body}}) do
-    {:ok, :not_modified}
-  end
-
-  defp process_response({_, {{_version, code, message}, _headers, _body}}) do
-    {:error, "#{code} #{message}"}
-  end
-
-  defp process_response({:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}}) do
-    {:error, sys_message}
-  end
-
-  defp if_none_match_header({etag, date}) do
-    [
-      {'If-None-Match', etag},
-      {'If-Modified-Since', date}
-    ]
-  end
-
-  defp if_none_match_header(nil) do
-    []
-  end
-
-  defp get_etag() do
-    case :ets.lookup(:exchange_rates, :oxr_etag) do
-      [{:oxr_etag, etag}] -> etag
-      [] -> nil
-    end
-  rescue
-    ArgumentError ->
-      nil
-  end
-
-  defp save_etag(headers) do
-    etag = :proplists.get_value('etag', headers)
-    date = :proplists.get_value('date', headers)
-
-    try do
-      if etag != :undefined && date != :undedefined do
-        :ets.insert(@ets_table, {:oxr_etag, {etag, date}})
-      else
-        :ets.insert(@ets_table, {:oxr_etag, nil})
-      end
-    rescue
-      ArgumentError ->
-        :error
     end
   end
 
