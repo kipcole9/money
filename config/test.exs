@@ -14,7 +14,8 @@ config :ex_money,
   open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"},
   api_module: Money.ExchangeRates.Test,
   log_failure: nil,
-  log_info: nil
+  log_info: nil,
+  exchange_rates_cache: :ets
 
 config :ex_cldr,
   default_locale: "en",

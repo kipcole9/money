@@ -43,6 +43,8 @@ config :ex_money,
 
 * Use `etag`s in the `Money.ExchangeRates.OpenExchangeRates` api module when retrieving exchange rates from the service.
 
+* Adds the config key `:exchange_rates_cache` which can be set to either the memory-based `:ets` (the default) or file-based `:dets`.
+
 # Changelog for Money v2.2.0
 
 ### Enhancements

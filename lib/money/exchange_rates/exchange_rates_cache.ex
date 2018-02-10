@@ -2,8 +2,15 @@ defmodule Money.ExchangeRates.Cache do
   require Logger
 
   @ets_table :exchange_rates
+  @cache Application.get_env(:ex_money, :exchange_rates_cache, :ets)
+  @dets_path Path.join(:code.priv_dir(:ex_money), ".exchange_rates")
+             |> String.to_charlist()
 
   def init do
+    do_init(@cache)
+  end
+
+  defp do_init(:ets) do
     if :ets.info(@ets_table) == :undefined do
       :ets.new(@ets_table, [
         :named_table,
@@ -15,10 +22,26 @@ defmodule Money.ExchangeRates.Cache do
     end
   end
 
+  defp do_init(:dets) do
+    {:ok, name} = :dets.open_file(@ets_table, file: @dets_path)
+    name
+  end
+
+  defp do_init(other) do
+    raise ArgumentError,
+          "ex_money configuration key :cache #{inspect(other)} is invalid. " <>
+            " It must be either :ets or :dets.  The default is :ets."
+  end
+
+  def shutdown do
+    :dets.close(@ets_table)
+  end
+
   def latest_rates do
     case get(:latest_rates) do
       nil ->
         {:error, {Money.ExchangeRateError, "No exchange rates were found"}}
+
       rates ->
         rates
     end
@@ -29,6 +52,7 @@ defmodule Money.ExchangeRates.Cache do
       nil ->
         {:error,
          {Money.ExchangeRateError, "No exchange rates for #{Date.to_string(date)} were found"}}
+
       rates ->
         rates
     end
@@ -44,6 +68,7 @@ defmodule Money.ExchangeRates.Cache do
       nil ->
         Logger.error("Argument error getting last updated timestamp from ETS table")
         {:error, {Money.ExchangeRateError, "Last updated date is not known"}}
+
       last_updated ->
         last_updated
     end
@@ -62,13 +87,13 @@ defmodule Money.ExchangeRates.Cache do
   end
 
   def get(key) do
-    case :ets.lookup(@ets_table, key) do
+    case @cache.lookup(@ets_table, key) do
       [{^key, value}] -> value
       [] -> nil
     end
   end
 
   def put(key, value) do
-    :ets.insert(@ets_table, {key, value})
+    @cache.insert(@ets_table, {key, value})
   end
 end

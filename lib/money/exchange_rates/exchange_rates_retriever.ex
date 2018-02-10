@@ -185,7 +185,10 @@ defmodule Money.ExchangeRates.Retriever do
     {:error, "#{code} #{message}"}
   end
 
-  defp process_response({:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}}, _url) do
+  defp process_response(
+         {:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}},
+         _url
+       ) do
     {:error, sys_message}
   end
 
@@ -218,6 +221,7 @@ defmodule Money.ExchangeRates.Retriever do
   #
 
   def init(config) do
+    :erlang.process_flag(:trap_exit, true)
     Cache.init()
 
     if is_integer(config.retrieve_every) do
@@ -232,6 +236,18 @@ defmodule Money.ExchangeRates.Retriever do
     end
 
     {:ok, config}
+  end
+
+  def terminate(:normal, _config) do
+    Cache.shutdown()
+  end
+
+  def terminate(:shutdown, _config) do
+    Cache.shutdown()
+  end
+
+  def termina(other, _config) do
+    Logger.error("[ExchangeRates.Retriever] Terminate called with unhandled #{inspect(other)}")
   end
 
   def handle_call(:latest_rates, _from, config) do
@@ -251,6 +267,14 @@ defmodule Money.ExchangeRates.Retriever do
     {:reply, config, config}
   end
 
+  def handle_call(:stop, _from, config) do
+    {:stop, :normal, :ok, config}
+  end
+
+  def handle_call({:stop, reason}, _from, config) do
+    {:stop, reason, :ok, config}
+  end
+
   def handle_info(:latest_rates, config) do
     retrieve_latest_rates(config)
     schedule_work(config.retrieve_every)
@@ -260,6 +284,14 @@ defmodule Money.ExchangeRates.Retriever do
   def handle_info({:historic_rates, %Date{calendar: Calendar.ISO} = date}, config) do
     retrieve_historic_rates(date, config)
     {:noreply, config}
+  end
+
+  def handle_info(:stop, config) do
+    {:stop, :normal, config}
+  end
+
+  def handle_info({:stop, reason}, config) do
+    {:stop, reason, config}
   end
 
   def handle_info(message, config) do

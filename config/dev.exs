@@ -8,6 +8,7 @@ config :ex_money,
   log_failure: :warn,
   log_info: :info,
   log_success: :info,
-  json_library: Jason
+  json_library: Jason,
+  exchange_rates_cache: :dets
 
 config :ex_cldr, locales: ["en", "root", "zh-Hans", "zh"]
