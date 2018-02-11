@@ -1,6 +1,6 @@
-# Changelog for Money v2.3.0
+# Changelog for Money v2.2.0
 
-This is the changelog for Money v2.3.0 released on February 11, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.2.0 released on February 11, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 This release is primarily a refactoring of the exchange rates service.  It separates the concerns of retrieval and caching.  It also normalises the API amongst the three modules `Money.ExchangeRates`, `Money.ExchangeRates.Retriever` and `Money.ExchangeRates.Cache`.  Each of these modules implements:
 
@@ -9,9 +9,22 @@ This release is primarily a refactoring of the exchange rates service.  It separ
 
 This makes it clear that rates can be retrieved through the cache or the service API.  The implementation in `Money.ExchangeRates` will return the cached value if available or will call the service API if not.
 
-### Enhancements
+### Migration from earlier releases
 
-* Print an informative message and raises at compile time if the configured json library appears to not be known.
+The only know issue for migrating from earlier releases is if your application requires a different supervision strategy for the exchange rate service that the default one.  This is documented in the README in the section "Using Ecto or other applications from within the callback module".  The change is the way in which the supervisor is defined.  It is included here for completeness:
+
+**In prior releases:**
+```
+supervisor(Money.ExchangeRates.Supervisor, [])
+```
+
+**From this release onwards:**
+```
+supervisor(Money.ExchangeRates.Supervisor, [[restart: true, start_retriever: true]])
+```
+Note that the option `start_retriever: true` is optional.  The default is `false`.  The option `restart: true` is required in this case because the exchange rates supervisor is always started when `ex_money` is started even if the retriever is not started.
+
+### Enhancements
 
 * Define an exchange rates cache behaviour `Money.ExchangeRates.Cache`
 
@@ -39,10 +52,6 @@ config :ex_money,
 ```
 
 * Use `etag`'s in the `Money.ExchangeRates.OpenExchangeRates` API module when retrieving exchange rates from the service.
-
-# Changelog for Money v2.2.0
-
-### Enhancements
 
 * Add `Money.known_currencies/0` which delegates to `Cldr.known_currencies/0` and returns the list of known currency codes
 

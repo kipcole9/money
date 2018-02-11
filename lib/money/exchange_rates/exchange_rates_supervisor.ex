@@ -10,9 +10,69 @@ defmodule Money.ExchangeRates.Supervisor do
 
   @child_name ExchangeRates.Retriever
 
-  @doc false
+  @doc """
+  Starts the Exchange Rates supervisor and
+  optionally starts the exchange rates
+  retrieval service as well.
+
+  ## Options
+
+  * `:restart` is a boolean value indicating
+    if the supervisor is to be restarted.  This is
+    typically used to move the supervisor from its
+    default position under the `ex_money` supervision
+    tree to a different supervision tree.  The default
+    is `false`
+
+  * `:start_retriever` is a boolean indicating
+    if the exchange rates retriever is to be started
+    when the supervisor is started.  The default is
+    defined by the configuration key
+    `:auto_start_exchange_rate_service`
+  """
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, name: ExchangeRates.Supervisor)
+  end
+
+  def start_link(options) do
+    options = Keyword.merge(default_options(), options)
+    if options[:restart], do: stop()
+    supervisor = start_link()
+    if options[:start_retriever], do: ExchangeRates.Retriever.start
+    supervisor
+  end
+
+  defp default_options do
+    [
+      restart: false,
+      start_retriever: Money.get_env(:auto_start_exchange_rates_service, false, :boolean)
+    ]
+  end
+
+  @doc """
+  Stop the Money.ExchangeRates.Supervisor.
+
+  The Money.ExchangeRates.Supervisor is always started
+  with `ex_money` starts even if the config key
+  `:auto_start_exchange_rates_service` is set to `false`.
+
+  In some instances an application may require the
+  `Money.ExchangeRates.Supervisor` to be started under
+  a different supervision tree.  In this case it is
+  required to call this function first before a new
+  configuration is started.
+
+  One use case is when the Exchange Rates service is
+  configured with either an API module, a Callback module
+  or a Cache module which uses Ecto and therefore its
+  a requirement that Ecto is started first.
+
+  See the README section on "Using Ecto or other applications
+  from within the callback module" for an eanple of how
+  to configure the supervisor in this case.
+  """
+  def stop do
+    Supervisor.terminate_child(Money.Supervisor, __MODULE__)
   end
 
   @doc false

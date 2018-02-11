@@ -198,8 +198,13 @@ defmodule Application do
 
       # Include the Money.ExchangeRates.Supervisor in your application's
       # supervision tree.  This supervisor will start the child process
-      # Money.ExchangeRates.Retriever
-      supervisor(Money.ExchangeRates.Supervisor, [])
+      # Money.ExchangeRates.Retriever.
+
+      # Note the use of double `[]` around
+      # the parameters which are required to ensure that the supervisor
+      # is stopped before including in your supervisor tree.
+      # The `start_retriever: true` is optional.  The default value is `false`.
+      supervisor(Money.ExchangeRates.Supervisor, [[restart: true, start_retriever: true]])
     ]
 
     opts = [strategy: :one_for_one, name: Application.Supervisor]
