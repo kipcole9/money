@@ -24,7 +24,7 @@ defmodule Money.ExchangeRates.Cache.Ets do
     end
   end
 
-  def shutdown do
+  def terminate do
     :ok
   end
 

@@ -19,7 +19,7 @@ defmodule Money.ExchangeRates.Cache.Dets do
     name
   end
 
-  def shutdown do
+  def terminate do
     :dets.close(@ets_table)
   end
 

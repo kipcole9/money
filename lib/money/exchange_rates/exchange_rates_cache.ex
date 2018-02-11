@@ -11,10 +11,10 @@ defmodule Money.ExchangeRates.Cache do
   @callback init() :: any()
 
   @doc """
-  Shutdown the cache when the retriver process
+  Terminate the cache when the retriver process
   stops normally
   """
-  @callback shutdown() :: any()
+  @callback terminate() :: any()
 
   @doc """
   Retrieve the latest exchange rates from the

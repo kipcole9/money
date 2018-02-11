@@ -252,12 +252,12 @@ defmodule Money.ExchangeRates.Retriever do
 
   @doc false
   def terminate(:normal, config) do
-    config.cache_module.shutdown()
+    config.cache_module.terminate()
   end
 
   @doc false
   def terminate(:shutdown, config) do
-    config.cache_module.shutdown()
+    config.cache_module.terminate()
   end
 
   @doc false
@@ -277,7 +277,7 @@ defmodule Money.ExchangeRates.Retriever do
 
   @doc false
   def handle_call({:reconfigure, new_configuration}, _from, config) do
-    config.cache_module.shutdown()
+    config.cache_module.terminate()
     {:ok, new_config} = init(new_configuration)
     {:reply, new_config, new_config}
   end
