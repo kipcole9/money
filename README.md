@@ -49,10 +49,10 @@ An optional callback module can also be defined.  This module defines a `rates_r
 `Money` provides a set of configuration keys to customize behaviour. The default configuration is:
 
     config :ex_money,
-      auto_start_exchange_rate_service: false,
       exchange_rates_retrieve_every: 300_000,
       api_module: Money.ExchangeRates.OpenExchangeRates,
       callback_module: Money.ExchangeRates.Callback,
+      exchange_rates_cache_module: Money.ExchangeRates.Cache.Ets,
       preload_historic_rates: nil,
       retriever_options: nil,
       log_failure: :warn,
@@ -67,6 +67,11 @@ An optional callback module can also be defined.  This module defines a `rates_r
 * `:exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is `:never`. An `atom` value is interpreted to mean that there should be no periodic retrieval.
 
 * `:api_module` identifies the module that does the retrieval of exchange rates. This is any module that implements the `Money.ExchangeRates` behaviour.  The  default is `Money.ExchangeRates.OpenExchangeRates`.
+
+* `:exchange_rates_cache_module` defines the module that provides an exchange rates cache.  Any module that implements the `Money.ExchangeRates.Cache` behaviour.  Two alternative strategies are provided:
+
+  * `Money.ExchangeRates.Cache.Ets` which is also the default.
+  * `Money.ExchangeRates.Cache.Dets`
 
 * `:preload_historic_rates` defines a date or a date range that will be requested when the exchange rate service starts up. The date or date range should be specified as either a `Date.t` or a `Date.Range.t` or a tuple of `{Date.t, Date.t}` representing the `from` and `to` dates for the rates to be retrieved. The default is `nil` meaning no historic rates are preloaded.  Some examples:
 
@@ -100,13 +105,6 @@ config :ex_cldr,
 
 * The `:locale` option can be used with `Money.to_string/2`.  If not provided as an option then `Money.to_string/2` will call `Cldr.get_current_locale/0` if one is set, otherwise it will use `Cldr.default_locale/0` which is set in the configuration.
 
-**Note** that if you change your locale configuration then you will need to force recompile the two dependencies to ensure the locales are available. The commands are:
-
-```
-mix deps.compile ex_cldr --force
-mix deps.compile ex_cldr_numbers --force
-```
-
 ### Preloading historic exchange rates
 
 The current implementation will call the api_module to retrieve the historic rates once for each date in the `:preload_exchange_rates` range.  Some exchange rate services, like Open Exchange Rates, provides a bulk retrieval api that can retrieve multiple dates in a single call.  However this endpoint is only available for premium subscribers and it is still charged on a "per date retrieved" basis. So while there is a network/performance/efficiency benefit there is no economic benefit.  Please file an issue on [github](https://github.com/kipcole9/money) if implementing a bulk api is important to you.
@@ -135,7 +133,15 @@ If you plan to use the provided Open Exchange Rates module to retrieve exchange 
 
 ### Managing the configuration at runtime
 
-  During exchange rate service startup, the function `init/1` is called on the configured exchange rate retrieval module.  This module is expected to return an updated configuration allowing a developer to customise how the configuration is to be managed.  See the implementation at `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
+During exchange rate service startup, the function `init/1` is called on the configured exchange rate retrieval module.  This module is expected to return an updated configuration allowing a developer to customise how the configuration is to be managed.  See the implementation at `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
+
+To support runtime (re-)configuration the following functions are provided:
+
+  * `Money.ExchangeRates.Retriever.config/0` returns the current configuration of the exchange rates retrieval service.
+
+  * `Money.ExchangeRates.Retriever.stop/0` and `Money.ExchangeRates.Retriever.start/0` stop and start the exchange rates retrieval service respectively.
+
+  * `Money.ExchangeRates.Retriever.reconfigure/1` reconfigures the exchange rates retrieval service.  It does not restart the service, the service remains active during the recongiguration.
 
 ### Using Environment Variables in the configuration
 

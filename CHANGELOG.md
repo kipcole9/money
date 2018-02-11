@@ -30,9 +30,11 @@ config :ex_money,
 
 * Move all exchange rates retrieval functions to `Money.ExchangeRates.Retriever`
 
+* Add `Money.ExchangeRates.Retriever.config/0` to return the current retriever configuration.
+
 * Add `Money.ExchangeRates.Retriever.reconfigure/1` to allow reconfiguration of the exchange rates retriever.
 
-* Add `Money.ExchangeRates.Retriever.config/0` to return the current retriever configuration.
+* Add `Money.ExchangeRates.Retriever.stop/0` and `Money.ExchangeRates.Retriever.start/0` to stop and start the retrieval service.  It is automatically started on application start.
 
 * If the config key `:exchange_rates_retrieve_every` is set to an `atom` rather than an `integer` then no periodic retrieval will be performed.  This allows the configuration of the following, which is also the default:
 
@@ -43,7 +45,10 @@ config :ex_money,
 
 * Use `etag`s in the `Money.ExchangeRates.OpenExchangeRates` api module when retrieving exchange rates from the service.
 
-* Adds the config key `:exchange_rates_cache` which can be set to either the memory-based `:ets` (the default) or file-based `:dets`.
+* Adds the config key `:exchange_rates_cache_module` which can be set to a module that implements the `Money.ExchangeRates.Cache` behaviour.  Two modules are provided:
+
+  * `Money.ExchangeRates.Cache.Ets` (the default) and
+  * `Money.ExchangeRates.Cache.Dets`
 
 # Changelog for Money v2.2.0
 

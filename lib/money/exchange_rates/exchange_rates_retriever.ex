@@ -17,12 +17,22 @@ defmodule Money.ExchangeRates.Retriever do
   use GenServer
 
   require Logger
-  alias Money.ExchangeRates.Cache
 
-  def start(name \\ __MODULE__, config \\ Money.ExchangeRates.config()) do
-    start_link(name, config)
+  @doc """
+  Starts the exchange rates retrieval service
+  """
+  def start do
+    Money.ExchangeRates.Supervisor.start_retriever
   end
 
+  @doc """
+  Stop the exchange rates retrieval service.
+  """
+  def stop do
+    Money.ExchangeRates.Supervisor.stop_retriever
+  end
+
+  @doc false
   def start_link(name, config \\ Money.ExchangeRates.config()) do
     GenServer.start_link(__MODULE__, config, name: name)
   end
@@ -150,50 +160,50 @@ defmodule Money.ExchangeRates.Retriever do
     GenServer.call(__MODULE__, :config)
   end
 
-  def retrieve_rates(url) when is_binary(url) do
+  @doc """
+  Retrieve exchange rates from an external HTTP
+  service.
+
+  This function is primarily intended for use by
+  an exchange rates api module.
+  """
+  def retrieve_rates(url, config) when is_binary(url) do
     url
     |> String.to_charlist()
-    |> retrieve_rates
+    |> retrieve_rates(config)
   end
 
-  def retrieve_rates(url) when is_list(url) do
-    headers = if_none_match_header(url)
+  def retrieve_rates(url, config) when is_list(url) do
+    headers = if_none_match_header(url, config)
 
     :httpc.request(:get, {url, headers}, [], [])
-    |> process_response(url)
+    |> process_response(url, config)
   end
 
-  defp process_response({:ok, {{_version, 200, 'OK'}, headers, body}}, url) do
-    %{"base" => _base, "rates" => rates} = Money.json_library().decode!(body)
-
-    decimal_rates =
-      rates
-      |> Cldr.Map.atomize_keys()
-      |> Enum.map(fn {k, v} -> {k, Decimal.new(v)} end)
-      |> Enum.into(%{})
-
-    save_etag(headers, url)
-    {:ok, decimal_rates}
+  defp process_response({:ok, {{_version, 200, 'OK'}, headers, body}}, url, config) do
+    rates = config.api_module.decode_rates(body)
+    save_etag(headers, url, config)
+    {:ok, rates}
   end
 
-  defp process_response({:ok, {{_version, 304, 'Not Modified'}, headers, _body}}, url) do
-    save_etag(headers, url)
+  defp process_response({:ok, {{_version, 304, 'Not Modified'}, headers, _body}}, url, config) do
+    save_etag(headers, url, config)
     {:ok, :not_modified}
   end
 
-  defp process_response({_, {{_version, code, message}, _headers, _body}}, _url) do
+  defp process_response({_, {{_version, code, message}, _headers, _body}}, _url, _config) do
     {:error, "#{code} #{message}"}
   end
 
   defp process_response(
          {:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}},
-         _url
+         _url, _config
        ) do
     {:error, sys_message}
   end
 
-  defp if_none_match_header(url) do
-    case Cache.get(url) do
+  defp if_none_match_header(url, config) do
+    case config.cache_module.get(url) do
       {etag, date} ->
         [
           {'If-None-Match', etag},
@@ -205,14 +215,14 @@ defmodule Money.ExchangeRates.Retriever do
     end
   end
 
-  defp save_etag(headers, url) do
+  defp save_etag(headers, url, config) do
     etag = :proplists.get_value('etag', headers)
     date = :proplists.get_value('date', headers)
 
     if etag != :undefined && date != :undedefined do
-      Cache.put(url, {etag, date})
+      config.cache_module.put(url, {etag, date})
     else
-      Cache.put(url, nil)
+      config.cache_module.put(url, nil)
     end
   end
 
@@ -220,9 +230,10 @@ defmodule Money.ExchangeRates.Retriever do
   # Server implementation
   #
 
+  @doc false
   def init(config) do
     :erlang.process_flag(:trap_exit, true)
-    Cache.init()
+    config.cache_module.init()
 
     if is_integer(config.retrieve_every) do
       log(config, :info, log_init_message(config.retrieve_every))
@@ -231,69 +242,85 @@ defmodule Money.ExchangeRates.Retriever do
     end
 
     if config.preload_historic_rates do
-      log(config, :info, "Preloading historic rates for #{inspect(config.preload_historic_rates)}")
+      log(config, :info,
+        "Preloading historic rates for #{inspect(config.preload_historic_rates)}")
       schedule_work(config.preload_historic_rates)
     end
 
     {:ok, config}
   end
 
-  def terminate(:normal, _config) do
-    Cache.shutdown()
+  @doc false
+  def terminate(:normal, config) do
+    config.cache_module.shutdown()
   end
 
-  def terminate(:shutdown, _config) do
-    Cache.shutdown()
+  @doc false
+  def terminate(:shutdown, config) do
+    config.cache_module.shutdown()
   end
 
+  @doc false
   def termina(other, _config) do
     Logger.error("[ExchangeRates.Retriever] Terminate called with unhandled #{inspect(other)}")
   end
 
+  @doc false
   def handle_call(:latest_rates, _from, config) do
     {:reply, retrieve_latest_rates(config), config}
   end
 
+  @doc false
   def handle_call({:historic_rates, date}, _from, config) do
     {:reply, retrieve_historic_rates(date, config), config}
   end
 
-  def handle_call({:reconfigure, new_configuration}, _from, _config) do
+  @doc false
+  def handle_call({:reconfigure, new_configuration}, _from, config) do
+    config.cache_module.shutdown()
     {:ok, new_config} = init(new_configuration)
     {:reply, new_config, new_config}
   end
 
+  @doc false
   def handle_call(:config, _from, config) do
     {:reply, config, config}
   end
 
+  @doc false
   def handle_call(:stop, _from, config) do
     {:stop, :normal, :ok, config}
   end
 
+  @doc false
   def handle_call({:stop, reason}, _from, config) do
     {:stop, reason, :ok, config}
   end
 
+  @doc false
   def handle_info(:latest_rates, config) do
     retrieve_latest_rates(config)
     schedule_work(config.retrieve_every)
     {:noreply, config}
   end
 
+  @doc false
   def handle_info({:historic_rates, %Date{calendar: Calendar.ISO} = date}, config) do
     retrieve_historic_rates(date, config)
     {:noreply, config}
   end
 
+  @doc false
   def handle_info(:stop, config) do
     {:stop, :normal, config}
   end
 
+  @doc false
   def handle_info({:stop, reason}, config) do
     {:stop, reason, config}
   end
 
+  @doc false
   def handle_info(message, config) do
     Logger.error("Invalid message for ExchangeRates.Retriever: #{inspect(message)}")
     {:noreply, config}
@@ -303,11 +330,11 @@ defmodule Money.ExchangeRates.Retriever do
     case config.api_module.get_latest_rates(config) do
       {:ok, :not_modified} ->
         log(config, :success, "Retrieved latest exchange rates successfully. Rates unchanged.")
-        {:ok, Cache.latest_rates()}
+        {:ok, config.cache_module.latest_rates()}
 
       {:ok, rates} ->
         retrieved_at = DateTime.utc_now()
-        Cache.store_latest_rates(rates, retrieved_at)
+        config.cache_module.store_latest_rates(rates, retrieved_at)
         apply(callback_module, :latest_rates_retrieved, [rates, retrieved_at])
         log(config, :success, "Retrieved latest exchange rates successfully")
         {:ok, rates}
@@ -322,10 +349,10 @@ defmodule Money.ExchangeRates.Retriever do
     case config.api_module.get_historic_rates(date, config) do
       {:ok, :not_modified} ->
         log(config, :success, "Historic exchange rates for #{Date.to_string(date)} are unchanged")
-        {:ok, Cache.historic_rates(date)}
+        {:ok, config.cache_module.historic_rates(date)}
 
       {:ok, rates} ->
-        Cache.store_historic_rates(rates, date)
+        config.cache_module.store_historic_rates(rates, date)
         apply(callback_module, :historic_rates_retrieved, [rates, date])
 
         log(
@@ -382,6 +409,7 @@ defmodule Money.ExchangeRates.Retriever do
     :ok
   end
 
+  @doc false
   def log(%{log_levels: log_levels}, key, message) do
     case Map.get(log_levels, key) do
       nil ->

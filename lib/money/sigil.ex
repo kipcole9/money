@@ -7,11 +7,9 @@ defmodule Money.Sigil do
 
   ## Example
 
-      import Money.Sigil
-
+      iex> import Money.Sigil
       iex> ~M[1000]usd
       #Money<:USD, 1000>
-
       iex> ~M[1000.34]usd
       #Money<:USD, 1000.34>
 

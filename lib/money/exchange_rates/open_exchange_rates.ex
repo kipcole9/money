@@ -49,6 +49,15 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
     Map.put(default_config, :retriever_options, %{url: url, app_id: app_id})
   end
 
+  def decode_rates(body) do
+    %{"base" => _base, "rates" => rates} = Money.json_library().decode!(body)
+
+    rates
+    |> Cldr.Map.atomize_keys()
+    |> Enum.map(fn {k, v} -> {k, Decimal.new(v)} end)
+    |> Enum.into(%{})
+  end
+
   @doc """
   Retrieves the latest exchange rates from Open Exchange Rates site.
 
@@ -70,16 +79,16 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   def get_latest_rates(config) do
     url = config.retriever_options.url
     app_id = config.retriever_options.app_id
-    retrieve_latest_rates(url, app_id)
+    retrieve_latest_rates(url, app_id, config)
   end
 
-  defp retrieve_latest_rates(_url, nil) do
+  defp retrieve_latest_rates(_url, nil, _config) do
     {:error, app_id_not_configured()}
   end
 
   @latest_rates "/latest.json"
-  defp retrieve_latest_rates(url, app_id) do
-    Retriever.retrieve_rates(url <> @latest_rates <> "?app_id=" <> app_id)
+  defp retrieve_latest_rates(url, app_id, config) do
+    Retriever.retrieve_rates(url <> @latest_rates <> "?app_id=" <> app_id, config)
   end
 
   @doc """
@@ -105,25 +114,26 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   def get_historic_rates(date, config) do
     url = config.retriever_options.url
     app_id = config.retriever_options.app_id
-    retrieve_historic_rates(date, url, app_id)
+    retrieve_historic_rates(date, url, app_id, config)
   end
 
-  defp retrieve_historic_rates(_date, _url, nil) do
+  defp retrieve_historic_rates(_date, _url, nil, _config) do
     {:error, app_id_not_configured()}
   end
 
   @historic_rates "/historical/"
-  defp retrieve_historic_rates(%Date{calendar: Calendar.ISO} = date, url, app_id) do
+  defp retrieve_historic_rates(%Date{calendar: Calendar.ISO} = date, url, app_id, config) do
     date_string = Date.to_string(date)
 
     Retriever.retrieve_rates(
-      url <> @historic_rates <> "#{date_string}.json" <> "?app_id=" <> app_id
+      url <> @historic_rates <> "#{date_string}.json" <> "?app_id=" <> app_id,
+      config
     )
   end
 
-  defp retrieve_historic_rates(%{year: year, month: month, day: day}, url, app_id) do
+  defp retrieve_historic_rates(%{year: year, month: month, day: day}, url, app_id, config) do
     case Date.new(year, month, day) do
-      {:ok, date} -> retrieve_historic_rates(date, url, app_id)
+      {:ok, date} -> retrieve_historic_rates(date, url, app_id, config)
       error -> error
     end
   end

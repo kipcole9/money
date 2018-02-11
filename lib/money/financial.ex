@@ -251,7 +251,7 @@ defmodule Money.Financial do
       iex> Money.Financial.interest_rate Money.new(:USD, 10000), Money.new(:USD, 10816), 2
       #Decimal<0.04>
 
-      iex> Money.Financial.interest_rate Money.new(:USD, 10000), Money.new(:USD, 10824.3216), 4
+      iex> Money.Financial.interest_rate Money.new(:USD, 10000), Money.new(:USD, "10824.3216"), 4
       #Decimal<0.02>
   """
   def interest_rate(

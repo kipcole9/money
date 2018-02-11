@@ -1,4 +1,4 @@
-defmodule Money.ExchangeRates.Test do
+defmodule Money.ExchangeRates.Api.Test do
   @behaviour Money.ExchangeRates
 
   @app_id "app_id"
@@ -11,6 +11,10 @@ defmodule Money.ExchangeRates.Test do
     app_id = @app_id
 
     Map.put(config, :retriever_options, %{url: url, app_id: app_id})
+  end
+
+  def decode_rates(rates) do
+    Money.ExchangeRates.OpenExchangeRates.decode_rates(rates)
   end
 
   def get_latest_rates(_config) do

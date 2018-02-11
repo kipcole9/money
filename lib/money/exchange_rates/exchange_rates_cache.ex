@@ -1,99 +1,65 @@
 defmodule Money.ExchangeRates.Cache do
-  require Logger
+  @moduledoc """
+  Defines a cache behaviour and default inplementation
+  of a cache for exchange rates
+  """
 
-  @ets_table :exchange_rates
-  @cache Application.get_env(:ex_money, :exchange_rates_cache, :ets)
-  @dets_path Path.join(:code.priv_dir(:ex_money), ".exchange_rates")
-             |> String.to_charlist()
+  @doc """
+  Initialize the cache when the exchange rates
+  retriever is started
+  """
+  @callback init() :: any()
 
-  def init do
-    do_init(@cache)
-  end
+  @doc """
+  Shutdown the cache when the retriver process
+  stops normally
+  """
+  @callback shutdown() :: any()
 
-  defp do_init(:ets) do
-    if :ets.info(@ets_table) == :undefined do
-      :ets.new(@ets_table, [
-        :named_table,
-        :public,
-        read_concurrency: true
-      ])
-    else
-      @ets_table
-    end
-  end
+  @doc """
+  Retrieve the latest exchange rates from the
+  cache.
+  """
+  @callback latest_rates() :: {:ok, Map.t} | {:error, {Exception.t, String.t}}
 
-  defp do_init(:dets) do
-    {:ok, name} = :dets.open_file(@ets_table, file: @dets_path)
-    name
-  end
+  @doc """
+  Returns the exchange rates for a given
+  date.
+  """
+  @callback historic_rates(Date.t) :: {:ok, Map.t} | {:error, {Exception.t, String.t}}
 
-  defp do_init(other) do
-    raise ArgumentError,
-          "ex_money configuration key :cache #{inspect(other)} is invalid. " <>
-            " It must be either :ets or :dets.  The default is :ets."
-  end
+  @doc """
+  Store the latest exchange rates in the cache.
+  """
+  @callback store_latest_rates(Map.t, DateTime.t) :: :ok
 
-  def shutdown do
-    :dets.close(@ets_table)
-  end
+  @doc """
+  Store the historic exchange rates for a given
+  date in the cache.
+  """
+  @callback store_historic_rates(Map.t, Date.t) :: :ok
+
+  @doc """
+  Return the value for a given key in the
+  cache.
+  """
+  @callback get(any()) :: any()
+
+  @doc """
+  Put the given value under the given
+  key in the cache.
+  """
+  @callback put(any(), any()) :: any()
 
   def latest_rates do
-    case get(:latest_rates) do
-      nil ->
-        {:error, {Money.ExchangeRateError, "No exchange rates were found"}}
-
-      rates ->
-        rates
-    end
+    cache().latest_rates
   end
 
-  def historic_rates(%Date{calendar: Calendar.ISO} = date) do
-    case get(date) do
-      nil ->
-        {:error,
-         {Money.ExchangeRateError, "No exchange rates for #{Date.to_string(date)} were found"}}
-
-      rates ->
-        rates
-    end
+  def historic_rates(date) do
+    cache().historic_rates(date)
   end
 
-  def historic_rates(%{year: year, month: month, day: day}) do
-    {:ok, date} = Date.new(year, month, day)
-    historic_rates(date)
-  end
-
-  def last_updated do
-    case get(:last_updated) do
-      nil ->
-        Logger.error("Argument error getting last updated timestamp from ETS table")
-        {:error, {Money.ExchangeRateError, "Last updated date is not known"}}
-
-      last_updated ->
-        last_updated
-    end
-  end
-
-  def store_latest_rates(rates, retrieved_at) do
-    put(:latest_rates, rates)
-    put(:last_updated, retrieved_at)
-  rescue
-    ArgumentError ->
-      Logger.error("Failed to store latest rates")
-  end
-
-  def store_historic_rates(rates, date) do
-    put(date, rates)
-  end
-
-  def get(key) do
-    case @cache.lookup(@ets_table, key) do
-      [{^key, value}] -> value
-      [] -> nil
-    end
-  end
-
-  def put(key, value) do
-    @cache.insert(@ets_table, {key, value})
+  def cache do
+    Money.ExchangeRates.Retriever.config.cache_module
   end
 end

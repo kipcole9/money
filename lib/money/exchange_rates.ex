@@ -100,6 +100,7 @@ defmodule Money.ExchangeRates do
   expected to return an updated configuration allowing a developer to
   customise how the configuration is to be managed.  See the implementation
   at `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
+
   """
 
   @doc """
@@ -125,6 +126,15 @@ defmodule Money.ExchangeRates do
   @callback get_historic_rates(Date.t(), config :: Money.Config.t()) ::
               {:ok, Map.t()} | {:error, binary}
 
+
+  @doc """
+  Decode the body returned from the API request and
+  return a map of rates.  THe map of rates must have
+  an upcased atom key representing an ISO 4217 currency
+  code and the value must be a Decimal number.
+  """
+  @callback decode_rates(any) :: Map.t
+
   @doc """
   Given the default configuration, returns an updated configuration at runtime
   during exchange rates service startup.
@@ -142,12 +152,13 @@ defmodule Money.ExchangeRates do
   @optional_callbacks init: 1
 
   require Logger
+  import Money.ExchangeRates.Cache
   alias Money.ExchangeRates.Retriever
-  alias Money.ExchangeRates.Cache
 
   @default_retrieval_interval :never
   @default_callback_module Money.ExchangeRates.Callback
   @default_api_module Money.ExchangeRates.OpenExchangeRates
+  @default_cache_module Money.ExchangeRates.Cache.Ets
 
   @doc """
   Returns the configuration for `ex_money` including the
@@ -171,7 +182,8 @@ defmodule Money.ExchangeRates do
               callback_module: nil,
               log_levels: %{},
               preload_historic_rates: nil,
-              retriever_options: nil
+              retriever_options: nil,
+              cache_module: nil
   end
 
   @doc """
@@ -179,9 +191,14 @@ defmodule Money.ExchangeRates do
   """
   def default_config do
     %Config{
-      api_module: Money.get_env(:api_module, @default_api_module, :module),
-      callback_module: Money.get_env(:callback_module, @default_callback_module, :module),
-      preload_historic_rates: Money.get_env(:preload_historic_rates, nil),
+      api_module:
+        Money.get_env(:api_module, @default_api_module, :module),
+      callback_module:
+        Money.get_env(:callback_module, @default_callback_module, :module),
+      preload_historic_rates:
+        Money.get_env(:preload_historic_rates, nil),
+      cache_module:
+        Money.get_env(:exchange_rates_cache_module, @default_cache_module, :module),
       retrieve_every:
         Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval, :maybe_integer),
       log_levels: %{
@@ -209,9 +226,9 @@ defmodule Money.ExchangeRates do
   """
   @spec latest_rates() :: {:ok, Map.t()} | {:error, {Exception.t(), binary}}
   def latest_rates do
-    case Cache.latest_rates() do
+    case cache().latest_rates() do
       {:ok, rates} -> {:ok, rates}
-      _ -> Retriever.latest_rates()
+      {:error, _} -> Retriever.latest_rates()
     end
   end
 
@@ -237,9 +254,9 @@ defmodule Money.ExchangeRates do
   """
   @spec historic_rates(Date.t()) :: {:ok, Map.t()} | {:error, {Exception.t(), binary}}
   def historic_rates(date) do
-    case Cache.historic_rates(date) do
+    case cache().historic_rates(date) do
       {:ok, rates} -> {:ok, rates}
-      _ -> Retriever.historic_rates(date)
+      {:error, _} -> Retriever.historic_rates(date)
     end
   end
 
@@ -249,8 +266,8 @@ defmodule Money.ExchangeRates do
   """
   @spec latest_rates_available?() :: boolean
   def latest_rates_available? do
-    case Cache.latest_rates() do
-      {:ok, _} -> true
+    case cache().latest_rates() do
+      {:ok, _rates} -> true
       _ -> false
     end
   end
@@ -268,9 +285,9 @@ defmodule Money.ExchangeRates do
         utc_offset: 0, year: 2016, zone_abbr: "UTC"}}
 
   """
-  @spec last_updated() :: {:ok, DateTime.t()} | {:error, {Exception.t(), binary}}
+  @spec last_updated() :: {:ok, DateTime.t()} | nil
   def last_updated do
-    case Cache.last_updated() do
+    case cache().last_updated() do
       {:ok, last_updated} -> {:ok, last_updated}
       _ -> nil
     end
