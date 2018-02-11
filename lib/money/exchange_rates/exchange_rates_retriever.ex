@@ -21,15 +21,33 @@ defmodule Money.ExchangeRates.Retriever do
   @doc """
   Starts the exchange rates retrieval service
   """
-  def start do
-    Money.ExchangeRates.Supervisor.start_retriever
+  def start(config \\ Money.ExchangeRates.config()) do
+    Money.ExchangeRates.Supervisor.start_retriever(config)
   end
 
   @doc """
   Stop the exchange rates retrieval service.
+
+  The service can be restarted with `restart/0`.
   """
   def stop do
     Money.ExchangeRates.Supervisor.stop_retriever
+  end
+
+  @doc """
+  Restart the exchange rates retrieval service
+  """
+  def restart do
+    Money.ExchangeRates.Supervisor.restart_retriever
+  end
+
+  @doc """
+  Delete the exchange rates retrieval service
+
+  The service can be started again with `start/1`
+  """
+  def delete do
+    Money.ExchangeRates.Supervisor.delete_retriever
   end
 
   @doc false

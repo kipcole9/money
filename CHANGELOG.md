@@ -1,40 +1,35 @@
 # Changelog for Money v2.3.0
 
-This is the changelog for Money v2.3.0 released on _, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.3.0 released on February 11, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
-This release is primarily a refactoring of the exchange rates service.  It separates the concerns of retrieval and caching.  It also normalises the api amongst the three modules `Money.ExchangeRates`, `Money.ExchangeRates.Retriever` and `Money.ExchangeRates.Cache`.  Each of these modules implements:
+This release is primarily a refactoring of the exchange rates service.  It separates the concerns of retrieval and caching.  It also normalises the API amongst the three modules `Money.ExchangeRates`, `Money.ExchangeRates.Retriever` and `Money.ExchangeRates.Cache`.  Each of these modules implements:
 
   * `latest_rates/0`
   * `historic_rates/1`
 
 This makes it clear that rates can be retrieved through the cache or the service API.  The implementation in `Money.ExchangeRates` will return the cached value if available or will call the service API if not.
 
-### Migration from earlier versions
-
-* If your current configuration relies upon the default exchange rates retrieval occurring then from this release forward you will need to explicity specify the retrieval period.  The default value has been changed to `:never`. For example:
-
-```
-config :ex_money,
-  exchange_rates_retrieve_every: 300_000
-```
-
-### Deprecation
-
-* The configuration option `:auto_start_exchange_rate_service` is deprecated.  The service is always started since rates can be retrieved synchronously on demand via `Money.ExchangeRates.Retriever.latest_rates/0` or periodically as defined by the configuration option `:exchange_rates_retrieve_every`
-
 ### Enhancements
 
-* Print an informative message and raises at compile time if the configured json library appears to not be configured.
+* Print an informative message and raises at compile time if the configured json library appears to not be known.
 
-* Move exchange rate caching to its own module `Money.ExchangeRates.Cache`
+* Define an exchange rates cache behaviour `Money.ExchangeRates.Cache`
+
+* Adds the config key `:exchange_rates_cache_module` which can be set to a module that implements the `Money.ExchangeRates.Cache` behaviour.  Two modules are provided:
+
+  * `Money.ExchangeRates.Cache.Ets` (the default) and
+  * `Money.ExchangeRates.Cache.Dets`
 
 * Move all exchange rates retrieval functions to `Money.ExchangeRates.Retriever`
 
-* Add `Money.ExchangeRates.Retriever.config/0` to return the current retriever configuration.
+* Add several functions to `Money.ExchangeRates.Retriever`:
 
-* Add `Money.ExchangeRates.Retriever.reconfigure/1` to allow reconfiguration of the exchange rates retriever.
-
-* Add `Money.ExchangeRates.Retriever.stop/0` and `Money.ExchangeRates.Retriever.start/0` to stop and start the retrieval service.  It is automatically started on application start.
+  * `:config/0` to return the current retriever configuration.
+  * `reconfigure/1` to allow reconfiguration of the exchange rates retriever.
+  * `start/1` to start the service. Delegates to `Money.ExchangeRates.Supervisor.start_retriever/1`.
+  * `stop/0` to stop the service. Delegates to `Money.ExchangeRates.Supervisor.stop_retriever/0`.
+  * `restart/0` to restart the service. Delegates to `Money.ExchangeRates.Supervisor.restart_retriever/0`.
+  * `delete/0` to delete the service.  It can be started again with `start/1`. Delegates to `Money.ExchangeRates.Supervisor.delete_retriever/0`.
 
 * If the config key `:exchange_rates_retrieve_every` is set to an `atom` rather than an `integer` then no periodic retrieval will be performed.  This allows the configuration of the following, which is also the default:
 
@@ -43,12 +38,7 @@ config :ex_money,
   exchange_rates_retrieve_every: :never
 ```
 
-* Use `etag`s in the `Money.ExchangeRates.OpenExchangeRates` api module when retrieving exchange rates from the service.
-
-* Adds the config key `:exchange_rates_cache_module` which can be set to a module that implements the `Money.ExchangeRates.Cache` behaviour.  Two modules are provided:
-
-  * `Money.ExchangeRates.Cache.Ets` (the default) and
-  * `Money.ExchangeRates.Cache.Dets`
+* Use `etag`'s in the `Money.ExchangeRates.OpenExchangeRates` API module when retrieving exchange rates from the service.
 
 # Changelog for Money v2.2.0
 
@@ -62,7 +52,7 @@ config :ex_money,
 
 * Add `Money.known_tender_currencies/0` to return a list of currencies defined as legal tender in Cldr
 
-* Add the configuration key `:json_library` that specifies which json library to use for decoding json.  The default is `Cldr.Config.json_library/0` which is currently `Poison` although this is likely to change to `Jason` when `Phoenix makes this change.
+* Add the configuration key `:json_library` that specifies which json library to use for decoding json.  The default is `Cldr.Config.json_library/0` which is currently `Poison` although this is likely to change to `Jason` when `Phoenix` makes this change.
 
 * Moves the protocol implementations for `String.Chars`, `Inspect` and `Phoenix.HTML.Safe` to a separate file so that recompilation on locale configuration change works correctly.
 
