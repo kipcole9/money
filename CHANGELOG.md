@@ -11,7 +11,7 @@ This makes it clear that rates can be retrieved through the cache or the service
 
 ### Migration from earlier releases
 
-The only know issue for migrating from earlier releases is if your application requires a different supervision strategy for the exchange rate service that the default one.  This is documented in the README in the section "Using Ecto or other applications from within the callback module".  The change is the way in which the supervisor is defined.  It is included here for completeness:
+The only known issue for migrating from earlier releases is if your application requires a different supervision strategy for the exchange rate service that the default one.  This is documented in the README in the section "Using Ecto or other applications from within the callback module".  The change is the way in which the supervisor is defined.  It is included here for completeness:
 
 **In prior releases:**
 ```
@@ -22,7 +22,7 @@ supervisor(Money.ExchangeRates.Supervisor, [])
 ```
 supervisor(Money.ExchangeRates.Supervisor, [[restart: true, start_retriever: true]])
 ```
-Note that the option `start_retriever: true` is optional.  The default is `false`.  The option `restart: true` is required in this case because the exchange rates supervisor is always started when `ex_money` is started even if the retriever is not started.
+Note that the option `start_retriever: true` is optional.  The default is `false`.  The option `restart: true` is required in this case because the exchange rates supervisor is always started when `ex_money` is started even if the retriever is not started.  Therefore it needs to be stopped first before restarting in the new supervision tree.  The option `restart: true` forces this step to be executed.
 
 ### Enhancements
 
