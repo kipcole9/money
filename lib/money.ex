@@ -1396,6 +1396,16 @@ defmodule Money do
     |> to_module
   end
 
+  def get_env(key, default, :boolean) do
+    case get_env(key, default) do
+      true -> true
+      false -> false
+      other ->
+        raise RuntimeError, "[ex_money] The configuration key " <>
+        "#{inspect key} must be either true or false. #{inspect other} was provided."
+    end
+  end
+
   defp to_integer(nil), do: nil
   defp to_integer(n) when is_integer(n), do: n
   defp to_integer(n) when is_binary(n), do: String.to_integer(n)

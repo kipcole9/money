@@ -130,7 +130,7 @@ defmodule Money.ExchangeRates.Retriever do
 
       _pid ->
         for date <- Date.range(from, to) do
-          GenServer.call(__MODULE__, {:historic_rates, date})
+          historic_rates(date)
         end
     end
   end
