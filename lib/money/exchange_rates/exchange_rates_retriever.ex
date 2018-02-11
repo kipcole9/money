@@ -244,7 +244,7 @@ defmodule Money.ExchangeRates.Retriever do
     if config.preload_historic_rates do
       log(config, :info,
         "Preloading historic rates for #{inspect(config.preload_historic_rates)}")
-      schedule_work(config.preload_historic_rates)
+      schedule_work(config.preload_historic_rates, config.cache_module)
     end
 
     {:ok, config}
@@ -379,33 +379,50 @@ defmodule Money.ExchangeRates.Retriever do
     Process.send_after(self(), :latest_rates, delay_ms)
   end
 
-  defp schedule_work(%Date{calendar: Calendar.ISO} = date) do
-    Process.send(self(), {:historic_rates, date}, [])
-  end
-
-  defp schedule_work(%Date.Range{} = date_range) do
+  defp schedule_work(%Date.Range{} = date_range, cache_module) do
     for date <- date_range do
-      Process.send(self(), {:historic_rates, date}, [])
+      schedule_work(date, cache_module)
     end
   end
 
-  defp schedule_work({%Date{} = from, %Date{} = to}) do
-    schedule_work(Date.range(from, to))
+  # Don't retrieve historic rates if they are
+  # already cached.  Note that this is only
+  # called at retriever initialization, not
+  # through the public api.
+  #
+  # This depends on:
+  # 1. The cache is persistent, like Cache.Dets
+  # 2. The assumption that historic rates don't change
+  # A persistent cache will reduce the number of
+  # external API calls and it means the cache
+  # will survive restarts both intentional and
+  # unintentional
+  defp schedule_work(%Date{calendar: Calendar.ISO} = date, cache_module) do
+    case cache_module.historic_rates(date) do
+      {:ok, _rates} ->
+        :ok
+      {:error, _} ->
+        Process.send(self(), {:historic_rates, date}, [])
+    end
   end
 
-  defp schedule_work(date_string) when is_binary(date_string) do
+  defp schedule_work({%Date{} = from, %Date{} = to}, cache_module) do
+    schedule_work(Date.range(from, to), cache_module)
+  end
+
+  defp schedule_work(date_string, cache_module) when is_binary(date_string) do
     parts = String.split(date_string, "..")
 
     case parts do
       [date] -> schedule_work(Date.from_iso8601(date))
-      [from, to] -> schedule_work({Date.from_iso8601(from), Date.from_iso8601(to)})
+      [from, to] -> schedule_work({Date.from_iso8601(from), Date.from_iso8601(to)}, cache_module)
     end
   end
 
   # Any non-numeric value, or non-date value means
   # we don't schedule work - ie there is no periodic
   # retrieval
-  defp schedule_work(_) do
+  defp schedule_work(_, _cache_module) do
     :ok
   end
 
