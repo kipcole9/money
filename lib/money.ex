@@ -1029,7 +1029,7 @@ defmodule Money do
   end
 
   @doc """
-  Round a `Money` value into the acceptable range for the defined currency.
+  Round a `Money` value into the acceptable range for the requested currency.
 
   ## Options
 
@@ -1041,25 +1041,27 @@ defmodule Money do
     `Decimal.Context`.  The default is `:half_even` which is also known
     as "banker's rounding"
 
-    * `:cash` which determines whether the rounding is being applied to
-    an accounting amount or a cash amount.  Some currencies, such as the
-    :AUD and :CHF have a cash unit increment minimum which requires
-    a different rounding increment to an arbitrary accounting amount. The
-    default is `false`.
+    * `:currency_digits` which determines the rounding increment.
+      The valid options are `:cash`, `:accounting` and `:iso`.  The
+      default is `:iso`. The rounding increment applies to currencies
+      such as :AUD and :CHF which have an accounting increment of 0.01
+      but a minimum cash increment of 0.05.
+
+  ## Notes
 
   There are two kinds of rounding applied:
 
-  1.  Round to the appropriate number of fractional digits
+  1. Round to the appropriate number of fractional digits
 
   2. Apply an appropriate rounding increment.  Most currencies
-  round to the same precision as the number of decimal digits, but some
-  such as :AUD and :CHF round to a minimum such as 0.05 when its a cash
-  amount.
+     round to the same precision as the number of decimal digits, but some
+     such as :AUD and :CHF round to a minimum such as 0.05 when its a cash
+     amount.
 
   ## Examples
 
-      iex> Money.round Money.new("123.7456", :CHF), cash: true
-      #Money<:CHF, 125>
+      iex> Money.round Money.new("123.73", :CHF), currency_digits: :cash
+      #Money<:CHF, 123.75>
 
       iex> Money.round Money.new("123.7456", :CHF)
       #Money<:CHF, 123.75>
@@ -1106,18 +1108,23 @@ defmodule Money do
 
   defp round_to_nearest(%Money{currency: code} = money, opts) do
     with {:ok, currency} <- Currency.currency_for_code(code) do
-      increment = if opts[:cash], do: currency.cash_rounding, else: currency.rounding
-      do_round_to_nearest(money, increment, opts)
+      digits = digits_from_opts(currency, opts[:currency_digits])
+      increment = increment_from_opts(currency, opts[:currency_digits])
+      do_round_to_nearest(money, digits, increment, opts)
     end
   end
 
-  defp do_round_to_nearest(money, 0, _opts) do
+  defp do_round_to_nearest(money, _digits, 0, _opts) do
     money
   end
 
-  defp do_round_to_nearest(money, increment, opts) do
+  defp do_round_to_nearest(money, digits, increment, opts) do
     rounding_mode = Keyword.get(opts, :rounding_mode, @default_rounding_mode)
-    rounding = Decimal.new(increment)
+    rounding =
+      -digits
+      |> Cldr.Math.power_of_10
+      |> Kernel.*(increment)
+      |> Decimal.new
 
     rounded_amount =
       money.amount
@@ -1126,6 +1133,14 @@ defmodule Money do
       |> Decimal.mult(rounding)
 
     %Money{currency: money.currency, amount: rounded_amount}
+  end
+
+  defp increment_from_opts(currency, :cash) do
+    currency.cash_rounding
+  end
+
+  defp increment_from_opts(currency, _) do
+    currency.rounding
   end
 
   @doc """

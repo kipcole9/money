@@ -334,7 +334,12 @@ defmodule MoneyTest do
   end
 
   test "Money is rounded according to currency cash definition for CHF" do
-    assert Money.round(Money.new(:CHF, "123.456"), cash: true) == Money.new(:CHF, 125)
+    assert Money.round(Money.new(:CHF, "123.456"), currency_digits: :cash) ==
+      Money.new(:CHF, "123.45")
+    assert Money.round(Money.new(:CHF, "123.41"), currency_digits: :cash) ==
+      Money.new(:CHF, "123.40")
+    assert Money.round(Money.new(:CHF, "123.436"), currency_digits: :cash) ==
+      Money.new(:CHF, "123.45")
   end
 
   test "Extract decimal from money" do
