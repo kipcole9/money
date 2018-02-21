@@ -1,6 +1,14 @@
-# Changelog for Money v2.2.0
+# Changelog for Money v2.2.1
 
-This is the changelog for Money v2.2.0 released on February 11, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.2.1 released on February 22, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Correctly round to cash increment Money.round/2 now correctly uses the rounding increment for a currency. This is relevant for currencies like :AUD and :CHF which have minimum cash rounding of 0.05 even though the accounting increment is 0.01.  Thanks to @maennchen.  Closes #56.
+
+* Update documentation for `Money.round/2` to correctly refer to the option `:currency_digits` with the valid options of `:cash`, `:accounting` and `:iso`.  The default is `:iso`.  The option `cash: true` is invalid.
+
+# Changelog for Money v2.2.0
 
 This release is primarily a refactoring of the exchange rates service.  It separates the concerns of retrieval and caching.  It also normalises the API amongst the three modules `Money.ExchangeRates`, `Money.ExchangeRates.Retriever` and `Money.ExchangeRates.Cache`.  Each of these modules implements:
 
