@@ -747,12 +747,28 @@ defmodule Money do
 
   """
   @spec div(Money.t(), Cldr.Math.number_or_decimal()) :: Money.t()
+  @spec div(Money.t(), Money.t()) :: Decimal.t()
   def div(%Money{currency: code, amount: amount}, number) when is_number(number) do
     {:ok, %Money{currency: code, amount: Decimal.div(amount, Decimal.new(number))}}
   end
 
   def div(%Money{currency: code, amount: amount}, %Decimal{} = number) do
     {:ok, %Money{currency: code, amount: Decimal.div(amount, number)}}
+  end
+
+  def div(%Money{currency: code, amount: base}, %Money{currency: code, amount: divisor}) do
+    base
+    |> Decimal.div(divisor)
+    |> case do
+      %Decimal{} = result ->
+        {:ok, result}
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
+  def div(%Money{}, %Money{}) do
+    {:error, {ArgumentError, "Cannot divide money amounts with different currencies"}}
   end
 
   def div(%Money{}, other) do
