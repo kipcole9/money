@@ -1024,22 +1024,24 @@ defmodule Money do
       |> Money.div!(parts)
       |> round
 
-    remainder = sub!(rounded_money, mult!(div, parts))
+    remainder = sub!(money, mult!(div, parts))
     {div, remainder}
   end
 
   @doc """
   Round a `Money` value into the acceptable range for the requested currency.
 
-  ## Options
+  ## Arguments
 
   * `money` is a `%Money{}` struct
 
-  * `opts` is a keyword list with the following keys:
+  * `opts` is a keyword list of options
+
+  ## Options
 
     * `:rounding_mode` that defines how the number will be rounded.  See
-    `Decimal.Context`.  The default is `:half_even` which is also known
-    as "banker's rounding"
+      `Decimal.Context`.  The default is `:half_even` which is also known
+      as "banker's rounding"
 
     * `:currency_digits` which determines the rounding increment.
       The valid options are `:cash`, `:accounting` and `:iso`.  The

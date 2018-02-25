@@ -1,5 +1,7 @@
 defmodule MoneyTest do
   use ExUnit.Case
+  use ExUnitProperties
+
   import ExUnit.CaptureLog
   alias Money.Financial
 
@@ -271,6 +273,14 @@ defmodule MoneyTest do
     {m2, m3} = Money.split(m1, 3)
     assert Money.cmp(m2, Money.new(:USD, Decimal.new(33.33))) == :eq
     assert Money.cmp(m3, Money.new(:USD, Decimal.new(0.01))) == :eq
+  end
+
+  property "check that money split sums to the original value" do
+    check all {money, splits} <- GenerateSplits.generate_money(), max_runs: 1_000 do
+      {split_amount, remainder} = Money.split(money, splits)
+      reassemble = Money.mult!(split_amount, splits) |> Money.add!(remainder)
+      assert Money.cmp(reassemble, money) == :eq
+    end
   end
 
   test "Test successful money cmp" do

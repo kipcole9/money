@@ -1,6 +1,12 @@
-# Changelog for Money v2.2.1
+# Changelog for Money v2.2.2
 
-This is the changelog for Money v2.2.1 released on February 22, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.2.2 released on __, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fix `Money.split` to ensure that `split_amount * parts + remainder == original_money` and added property testing
+
+# Changelog for Money v2.2.1
 
 ### Bug Fixes
 
