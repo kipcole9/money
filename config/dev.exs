@@ -13,4 +13,4 @@ config :ex_money,
   exchange_rates_cache: Money.ExchangeRates.Cache.Dets
 
 config :ex_cldr,
-  locales: ["en", "root", "zh-Hans", "zh", "it", "fr", "es"]
+  locales: ["en", "root", "zh-Hans", "zh", "it", "fr", "es", "pt"]

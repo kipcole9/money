@@ -194,11 +194,21 @@ defmodule Money do
     new(currency_code, amount)
   end
 
-  def new(maybe_amount, maybe_currency_code) do
-    {:error,
-     {Money.Invalid,
-      "Unable to create money from #{inspect(maybe_amount)} " <>
-        "and #{inspect(maybe_currency_code)}"}}
+  def new(param_a, param_b) when is_binary(param_a) and is_binary(param_b) do
+    with {:ok, currency_code} <- validate_currency(param_a) do
+      new(currency_code, param_b)
+    else
+      {:error, _} ->
+        with {:ok, currency_code} <- validate_currency(param_b) do
+          new(currency_code, param_a)
+        else
+          {:error, _} ->
+            {:error,
+              {Money.Invalid,
+                "Unable to create money from #{inspect(param_a)} " <>
+                "and #{inspect(param_b)}"}}
+        end
+    end
   end
 
   @doc """

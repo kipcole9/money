@@ -21,6 +21,24 @@ defmodule MoneyTest do
     assert money.amount == Decimal.new(1234)
   end
 
+  test "create a new money struct wth a binary currency code and binary amount" do
+    money = Money.new("1234", "USD")
+    assert money.currency == :USD
+    assert money.amount == Decimal.new(1234)
+
+    money = Money.new("USD", "1234")
+    assert money.currency == :USD
+    assert money.amount == Decimal.new(1234)
+  end
+
+  test "create a new money struct wth a invalid binary currency code and binary amount" do
+    money = Money.new("1234", "ZZZ")
+    assert money == {:error, {Money.Invalid, "Unable to create money from \"1234\" and \"ZZZ\""}}
+
+    money = Money.new("ZZZ", "1234")
+    assert money == {:error, {Money.Invalid, "Unable to create money from \"ZZZ\" and \"1234\""}}
+  end
+
   test "create a new! money struct with a binary currency code" do
     money = Money.new!(1234, "USD")
     assert money.currency == :USD
@@ -109,11 +127,6 @@ defmodule MoneyTest do
     money = Money.new!("1234", :USD)
     assert money.currency == :USD
     assert money.amount == Decimal.new(1234)
-  end
-
-  test "that two binary arguments returns and error" do
-    assert Money.new("USD", "1234") ==
-             {:error, {Money.Invalid, "Unable to create money from \"USD\" and \"1234\""}}
   end
 
   test "that creating a money with a string amount that is invalid returns and error" do

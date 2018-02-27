@@ -1,10 +1,12 @@
 # Changelog for Money v2.2.2
 
-This is the changelog for Money v2.2.2 released on __, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.2.2 released on February 27th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
 * Fix `Money.split` to ensure that `split_amount * parts + remainder == original_money` and added property testing
+
+* Allow `Money.new/2` to have both a binary currency code and a binary amount.  Thanks to @mbenatti.  Closes #57.
 
 # Changelog for Money v2.2.1
 
