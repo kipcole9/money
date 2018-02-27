@@ -262,6 +262,16 @@ defmodule MoneyTest do
     assert Money.equal?(m1, m2) == true
   end
 
+  test "divide a money by money" do
+    assert Money.div!(Money.new(:USD, 100), Money.new(:USD, 2)) == Decimal.new(50)
+  end
+
+  test "divide a money by money with other currency" do
+    assert_raise ArgumentError, ~r/Cannot divide money amounts with different currencies/, fn ->
+      Money.div!(Money.new(:USD, 100), Money.new(:EUR, 2)) == Decimal.new(50)
+    end
+  end
+
   test "divide a money by something that raises an exception" do
     assert_raise ArgumentError, ~r/Cannot divide money by/, fn ->
       Money.div!(Money.new(:USD, 100), :invalid)
