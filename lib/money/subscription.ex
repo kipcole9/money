@@ -234,8 +234,8 @@ defmodule Money.Subscription do
       %{year: year, month: month, day: day, calendar: calendar} = last_billing_date) do
     months_in_year = months_in_year(last_billing_date)
 
+    year = year + div(month + count, months_in_year)
     month = amod((month + count), months_in_year)
-    year = year + div(month, months_in_year)
     day = min(day, calendar.days_in_month(year, month))
 
     {:ok, next_billing_date} = Date.new(year, month, day)
