@@ -204,9 +204,8 @@ defmodule Money do
         else
           {:error, _} ->
             {:error,
-              {Money.Invalid,
-                "Unable to create money from #{inspect(param_a)} " <>
-                "and #{inspect(param_b)}"}}
+             {Money.Invalid,
+              "Unable to create money from #{inspect(param_a)} " <> "and #{inspect(param_b)}"}}
         end
     end
   end
@@ -1132,11 +1131,12 @@ defmodule Money do
 
   defp do_round_to_nearest(money, digits, increment, opts) do
     rounding_mode = Keyword.get(opts, :rounding_mode, @default_rounding_mode)
+
     rounding =
       -digits
-      |> Cldr.Math.power_of_10
+      |> Cldr.Math.power_of_10()
       |> Kernel.*(increment)
-      |> Decimal.new
+      |> Decimal.new()
 
     rounded_amount =
       money.amount
@@ -1443,11 +1443,16 @@ defmodule Money do
 
   def get_env(key, default, :boolean) do
     case get_env(key, default) do
-      true -> true
-      false -> false
+      true ->
+        true
+
+      false ->
+        false
+
       other ->
-        raise RuntimeError, "[ex_money] The configuration key " <>
-        "#{inspect key} must be either true or false. #{inspect other} was provided."
+        raise RuntimeError,
+              "[ex_money] The configuration key " <>
+                "#{inspect(key)} must be either true or false. #{inspect(other)} was provided."
     end
   end
 

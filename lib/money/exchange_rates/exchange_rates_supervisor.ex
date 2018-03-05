@@ -38,7 +38,7 @@ defmodule Money.ExchangeRates.Supervisor do
     options = Keyword.merge(default_options(), options)
     if options[:restart], do: stop()
     supervisor = start_link()
-    if options[:start_retriever], do: ExchangeRates.Retriever.start
+    if options[:start_retriever], do: ExchangeRates.Retriever.start()
     supervisor
   end
 
@@ -173,5 +173,4 @@ defmodule Money.ExchangeRates.Supervisor do
   defp retriever_spec(config) do
     %{id: @child_name, start: {@child_name, :start_link, [@child_name, config]}}
   end
-
 end

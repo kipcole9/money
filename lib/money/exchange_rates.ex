@@ -126,14 +126,13 @@ defmodule Money.ExchangeRates do
   @callback get_historic_rates(Date.t(), config :: Money.Config.t()) ::
               {:ok, Map.t()} | {:error, binary}
 
-
   @doc """
   Decode the body returned from the API request and
   return a map of rates.  THe map of rates must have
   an upcased atom key representing an ISO 4217 currency
   code and the value must be a Decimal number.
   """
-  @callback decode_rates(any) :: Map.t
+  @callback decode_rates(any) :: Map.t()
 
   @doc """
   Given the default configuration, returns an updated configuration at runtime
@@ -191,14 +190,10 @@ defmodule Money.ExchangeRates do
   """
   def default_config do
     %Config{
-      api_module:
-        Money.get_env(:api_module, @default_api_module, :module),
-      callback_module:
-        Money.get_env(:callback_module, @default_callback_module, :module),
-      preload_historic_rates:
-        Money.get_env(:preload_historic_rates, nil),
-      cache_module:
-        Money.get_env(:exchange_rates_cache_module, @default_cache_module, :module),
+      api_module: Money.get_env(:api_module, @default_api_module, :module),
+      callback_module: Money.get_env(:callback_module, @default_callback_module, :module),
+      preload_historic_rates: Money.get_env(:preload_historic_rates, nil),
+      cache_module: Money.get_env(:exchange_rates_cache_module, @default_cache_module, :module),
       retrieve_every:
         Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval, :maybe_integer),
       log_levels: %{

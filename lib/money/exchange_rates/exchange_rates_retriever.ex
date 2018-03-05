@@ -31,14 +31,14 @@ defmodule Money.ExchangeRates.Retriever do
   The service can be restarted with `restart/0`.
   """
   def stop do
-    Money.ExchangeRates.Supervisor.stop_retriever
+    Money.ExchangeRates.Supervisor.stop_retriever()
   end
 
   @doc """
   Restart the exchange rates retrieval service
   """
   def restart do
-    Money.ExchangeRates.Supervisor.restart_retriever
+    Money.ExchangeRates.Supervisor.restart_retriever()
   end
 
   @doc """
@@ -47,7 +47,7 @@ defmodule Money.ExchangeRates.Retriever do
   The service can be started again with `start/1`
   """
   def delete do
-    Money.ExchangeRates.Supervisor.delete_retriever
+    Money.ExchangeRates.Supervisor.delete_retriever()
   end
 
   @doc false
@@ -215,7 +215,8 @@ defmodule Money.ExchangeRates.Retriever do
 
   defp process_response(
          {:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}},
-         _url, _config
+         _url,
+         _config
        ) do
     {:error, sys_message}
   end
@@ -260,8 +261,7 @@ defmodule Money.ExchangeRates.Retriever do
     end
 
     if config.preload_historic_rates do
-      log(config, :info,
-        "Preloading historic rates for #{inspect(config.preload_historic_rates)}")
+      log(config, :info, "Preloading historic rates for #{inspect(config.preload_historic_rates)}")
       schedule_work(config.preload_historic_rates, config.cache_module)
     end
 
@@ -419,6 +419,7 @@ defmodule Money.ExchangeRates.Retriever do
     case cache_module.historic_rates(date) do
       {:ok, _rates} ->
         :ok
+
       {:error, _} ->
         Process.send(self(), {:historic_rates, date}, [])
     end

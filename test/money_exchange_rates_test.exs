@@ -107,5 +107,4 @@ defmodule Money.ExchangeRates.Test do
     Money.ExchangeRates.default_config()
     |> Money.ExchangeRates.Retriever.reconfigure()
   end
-
 end

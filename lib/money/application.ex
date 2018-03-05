@@ -14,7 +14,7 @@ defmodule Money.Application do
     supervisor = Supervisor.start_link(children, opts)
 
     if start_exchange_rate_service?() do
-      ExchangeRates.Supervisor.start_retriever
+      ExchangeRates.Supervisor.start_retriever()
     end
 
     supervisor
@@ -69,8 +69,8 @@ defmodule Money.Application do
       {:ok, start?} ->
         Logger.warn(
           "[ex_money] Configuration option :exchange_rate_service is deprecated " <>
-          "in favour of :auto_start_exchange_rate_service.  Please " <>
-          "update your configuration."
+            "in favour of :auto_start_exchange_rate_service.  Please " <>
+            "update your configuration."
         )
 
         Application.put_env(:ex_money, :auto_start_exchange_rate_service, start?)

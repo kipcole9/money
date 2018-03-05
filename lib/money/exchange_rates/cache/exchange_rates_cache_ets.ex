@@ -10,7 +10,7 @@ defmodule Money.ExchangeRates.Cache.Ets do
 
   require Logger
   require Money.ExchangeRates.Cache.EtsDets
-  Money.ExchangeRates.Cache.EtsDets.define_common_functions
+  Money.ExchangeRates.Cache.EtsDets.define_common_functions()
 
   def init do
     if :ets.info(@ets_table) == :undefined do

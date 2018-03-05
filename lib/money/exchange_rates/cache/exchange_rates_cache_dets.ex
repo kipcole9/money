@@ -12,7 +12,7 @@ defmodule Money.ExchangeRates.Cache.Dets do
 
   require Logger
   require Money.ExchangeRates.Cache.EtsDets
-  Money.ExchangeRates.Cache.EtsDets.define_common_functions
+  Money.ExchangeRates.Cache.EtsDets.define_common_functions()
 
   def init do
     {:ok, name} = :dets.open_file(@ets_table, file: @dets_path)

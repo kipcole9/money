@@ -20,24 +20,24 @@ defmodule Money.ExchangeRates.Cache do
   Retrieve the latest exchange rates from the
   cache.
   """
-  @callback latest_rates() :: {:ok, Map.t} | {:error, {Exception.t, String.t}}
+  @callback latest_rates() :: {:ok, Map.t()} | {:error, {Exception.t(), String.t()}}
 
   @doc """
   Returns the exchange rates for a given
   date.
   """
-  @callback historic_rates(Date.t) :: {:ok, Map.t} | {:error, {Exception.t, String.t}}
+  @callback historic_rates(Date.t()) :: {:ok, Map.t()} | {:error, {Exception.t(), String.t()}}
 
   @doc """
   Store the latest exchange rates in the cache.
   """
-  @callback store_latest_rates(Map.t, DateTime.t) :: :ok
+  @callback store_latest_rates(Map.t(), DateTime.t()) :: :ok
 
   @doc """
   Store the historic exchange rates for a given
   date in the cache.
   """
-  @callback store_historic_rates(Map.t, Date.t) :: :ok
+  @callback store_historic_rates(Map.t(), Date.t()) :: :ok
 
   @doc """
   Return the value for a given key in the
@@ -60,6 +60,6 @@ defmodule Money.ExchangeRates.Cache do
   end
 
   def cache do
-    Money.ExchangeRates.Retriever.config.cache_module
+    Money.ExchangeRates.Retriever.config().cache_module
   end
 end
