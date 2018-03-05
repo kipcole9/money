@@ -91,7 +91,7 @@ defmodule Money.Subscription do
     plan that the credit on the old plan will fund.
 
   * `:round` determines whether when prorating the `:period` it is truncated or rounded up
-    to the next nearest full `interval_count`. Valid values are `:down`,`:up` or `round`.
+    to the next nearest full `interval_count`. Valid values are `:down`,`:up` or `:nearest`.
     The default is `:up`
 
   ## Returns
@@ -296,7 +296,7 @@ defmodule Money.Subscription do
     case rounding do
       :up -> Float.ceil(extended_period)
       :down -> extended_period
-      :round -> Float.round(extended_period)
+      :nearest -> Float.round(extended_period)
     end
     |> trunc
   end
