@@ -1387,6 +1387,24 @@ defmodule Money do
     end
   end
 
+  @doc """
+  Return a zero Money amount in the given currency
+
+  ## Example
+
+      iex> Money.zero(:USD)
+      #Money<:USD, 0>
+
+      iex> Money.zero :ZZZ
+      {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
+
+  """
+  def zero(currency) do
+    with {:ok, currency} <- validate_currency(currency) do
+      Money.new(currency, 0)
+    end
+  end
+
   @doc false
   def from_integer({currency, integer, _exponent, _remainder}) do
     from_integer(integer, currency)
