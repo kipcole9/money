@@ -17,6 +17,7 @@ defmodule Money.Subscription do
 
   * The definition of the current plan
   * The definition of the new plan
+  * The last billing date
   * The strategy for changing the plan which is either:
     * to have the effective date of the new plan be after
       the current billing period of the current plan
@@ -24,7 +25,9 @@ defmodule Money.Subscription do
       be a credit on the current plan which needs to be applied
       to the new plan.
 
-  ### New plan is effective at the end of the current billing period
+  See `Money.Subscription.change/4`
+
+  ### When the new plan is effective at the end of the current billing period
 
   The first strategy simply finishes the current billing cycle before
   the new plan is introduced and therefore no proration is required.
@@ -32,7 +35,7 @@ defmodule Money.Subscription do
   have the same interval (`day`, `week, ...) and interval multiple
   (an integer nmber of intervals).
 
-  ### New plan is effective immediately
+  ### When the new plan is effective immediately
 
   If the new plan is to be effective immediately then any credit
   balance remaining on the old plan needs to be applied to the
@@ -64,8 +67,13 @@ defmodule Money.Subscription do
   * `interval_count` which defines the number of `interval`s for the
     billing period.  This must be a positive integer.
 
-  *`price` which is a `Money.t` representing the price of the plan
+  * `price` which is a `Money.t` representing the price of the plan
     to be paid each billing period.
+
+  ### Billing in advance
+
+  This module calculates all subscription changes on the basis
+  that billing is done in advance.
 
   """
 
@@ -76,6 +84,8 @@ defmodule Money.Subscription do
 
   * `current_plan` is a map with at least the fields `interval`, `interval_count` and `price`
   * `new_plan` is a map with at least the fields `interval`, `interval_count` and `price`
+  * `last_billing_date` is a `Date.t` or other map with the fields `year`, `month`,
+    `day` and `calendar`
   * `options` is a keyword map of options the define how the change is to be made
 
   ## Options
