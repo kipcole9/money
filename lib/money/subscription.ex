@@ -111,7 +111,8 @@ defmodule Money.Subscription do
   * `:next_billing_date`
   * `:next_billing_amount`
   * `:following_billing_date`
-  * `:credit_applied`
+  * `:credit_amount_applied`
+  * `:credit_days_applied`
   * `:carry_forward`
 
   """
@@ -154,7 +155,7 @@ defmodule Money.Subscription do
 
   # Reduce the price of the first period of the new plan by the
   # credit amount on the current plan
-  def prorate(plan, credit_amount, _last_billing_date, effective_date, :price, _options) do
+  defp prorate(plan, credit_amount, _last_billing_date, effective_date, :price, _options) do
     prorate_price =
       Map.get(plan, :price)
       |> Money.sub!(credit_amount)
@@ -181,7 +182,7 @@ defmodule Money.Subscription do
 
   # Extend the first period of the new plan by the amount of credit
   # on the current plan
-  def prorate(plan, credit_amount, _last_billing_date, effective_date, :period, options) do
+  defp prorate(plan, credit_amount, _last_billing_date, effective_date, :period, options) do
     {following_billing_date, credit_period} =
       extend_period(plan, credit_amount, effective_date, options)
 
@@ -197,11 +198,11 @@ defmodule Money.Subscription do
     }
   end
 
-  def plan_credit(%{price: price} = plan, last_billing_date, effective_date \\ Date.utc_today()) do
+  defp plan_credit(%{price: price} = plan, last_billing_date, effective_date) do
     plan_days = plan_days(effective_date, plan)
     price_per_day = Decimal.div(price.amount, Decimal.new(plan_days))
     days_remaining = days_remaining(plan, last_billing_date, effective_date)
-      
+
     price_per_day
     |> Decimal.mult(Decimal.new(days_remaining))
     |> Money.new(price.currency)
@@ -209,7 +210,7 @@ defmodule Money.Subscription do
 
   # Extend the billing period by the amount that
   # credit will fund on the new plan in days.
-  def extend_period(plan, credit, effective_date, options) do
+  defp extend_period(plan, credit, effective_date, options) do
     price = Map.get(plan, :price)
     plan_days = plan_days(effective_date, plan)
     price_per_day = Decimal.div(price.amount, Decimal.new(plan_days))
@@ -227,11 +228,7 @@ defmodule Money.Subscription do
     {following_billing_date, credit_days_applied}
   end
 
-  def fraction_period_remaining(last_billing_date, plan, effective_date \\ Date.utc_today()) do
-    days_remaining(plan, last_billing_date, effective_date) / plan_days(last_billing_date, plan)
-  end
-
-  def plan_days(last_billing_date, plan) do
+  defp plan_days(last_billing_date, plan) do
     plan
     |> next_billing_date(last_billing_date)
     |> days_difference(last_billing_date)
@@ -289,7 +286,9 @@ defmodule Money.Subscription do
     %{last_billing_date | year: year + count}
   end
 
-  def days_difference(%{year: year1, month: month1, day: day1, calendar: calendar1}, %{
+  ## Helpers
+
+  defp days_difference(%{year: year1, month: month1, day: day1, calendar: calendar1}, %{
         year: year2,
         month: month2,
         day: day2,
@@ -299,19 +298,13 @@ defmodule Money.Subscription do
       calendar2.date_to_iso_days(year2, month2, day2)
   end
 
-  def add_days(%{year: year, month: month, day: day, calendar: calendar}, days) do
+  defp add_days(%{year: year, month: month, day: day, calendar: calendar}, days) do
     {year, month, day} =
       (calendar.date_to_iso_days(year, month, day) + days)
       |> calendar.date_from_iso_days
 
     {:ok, date} = Date.new(year, month, day, calendar)
     date
-  end
-
-  ## Helpers
-
-  defp multiply(fraction, price) do
-    Money.mult!(price, fraction)
   end
 
   defp months_in_year(%{year: year, calendar: calendar}) do

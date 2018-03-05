@@ -1,3 +1,20 @@
+# Changelog for Money v2.3.0
+
+This is the changelog for Money v2.3.0 released on March ___, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fix the protocol implementation for `String.Chars`
+
+### Enhancements
+
+This version introduces a new module `Money.Subscription` that supports applications that manage subscriptions. These appications often need to support upgrading and downgrading plans.  This action involves the calculation of a credit amount from the current plan that is then applied to the new plan.
+
+* Add `Money.Subscription.change/4`
+* Add `Money.Subscription.plan_days/2`
+* Add `Money.Subscription.days_remaining/3`
+* Add `Money.Subscription.next_billing_date/2`
+
 # Changelog for Money v2.2.2
 
 This is the changelog for Money v2.2.2 released on February 27th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
