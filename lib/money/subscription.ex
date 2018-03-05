@@ -118,12 +118,14 @@ defmodule Money.Subscription do
   @spec change(current_plan :: Map.t, new_plan :: Map.t, options :: Keyword.t) :: Map.t
   def change(current_plan, new_plan, last_billing_date, options \\ [])
 
-  def change(current_plan, new_plan, last_billing_date, options) do
+  def change(%{price: %Money{currency: currency}} = current_plan,
+             %{price: %Money{currency: currency}} = new_plan, last_billing_date, options) do
+
     options = options_from(options, default_options())
     change(current_plan, new_plan, last_billing_date, options[:effective], options)
   end
 
-  def change(current_plan, new_plan, last_billing_date, :next_period, _options) do
+  defp change(current_plan, new_plan, last_billing_date, :next_period, _options) do
     price = Map.get(new_plan, :price)
     next_billing_date = next_billing_date(current_plan, last_billing_date)
     zero = Money.zero(price.currency)
@@ -138,11 +140,11 @@ defmodule Money.Subscription do
     }
   end
 
-  def change(current_plan, new_plan, last_billing_date, :immediately, options) do
+  defp change(current_plan, new_plan, last_billing_date, :immediately, options) do
     change(current_plan, new_plan, last_billing_date, Date.utc_today(), options)
   end
 
-  def change(current_plan, new_plan, last_billing_date, effective_date, options) do
+  defp change(current_plan, new_plan, last_billing_date, effective_date, options) do
     credit = plan_credit(current_plan, last_billing_date, effective_date)
     prorate(new_plan, credit, last_billing_date, effective_date, options[:prorate], options)
   end
