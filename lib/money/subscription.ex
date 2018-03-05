@@ -101,8 +101,8 @@ defmodule Money.Subscription do
     plan that the credit on the old plan will fund.
 
   * `:round` determines whether when prorating the `:period` it is truncated or rounded up
-    to the next nearest full `interval_count`. Valid values are `:down`,`:up` or `:nearest`.
-    The default is `:up`
+    to the next nearest full `interval_count`. Valid values are `:down`, `:half_up`,
+    `:half_even`, `:ceiling`, `:floor`, `:half_down`, `:up`.  The default is `:half_up`.
 
   ## Returns
 
@@ -129,11 +129,12 @@ defmodule Money.Subscription do
     zero = Money.zero(price.currency)
 
     %{
-      effective_date: next_billing_date,
       next_billing_amount: price,
       next_billing_date: next_billing_date,
-      credit_applied: zero,
-      remainder: zero
+      following_billing_date: next_billing_date(current_plan, next_billing_date),
+      credit_amount_applied: zero,
+      credit_period_applied: 0,
+      carry_forward: zero
     }
   end
 
@@ -148,10 +149,10 @@ defmodule Money.Subscription do
 
   # Reduce the price of the first period of the new plan by the
   # credit amount on the current plan
-  def prorate(plan, credit, _last_billing_date, effective_date, :price, _options) do
+  def prorate(plan, credit_amount, _last_billing_date, effective_date, :price, _options) do
     prorate_price =
       Map.get(plan, :price)
-      |> Money.sub(credit)
+      |> Money.sub!(credit_amount)
       |> Money.round
 
     zero = zero(plan)
@@ -167,22 +168,24 @@ defmodule Money.Subscription do
       next_billing_date: effective_date,
       next_billing_amount: next_billing_amount,
       following_billing_date: next_billing_date(plan, effective_date),
-      credit_applied: credit,
+      credit_amount_applied: credit_amount,
+      credit_period_applied: 0,
       carry_forward: carry_forward
     }
   end
 
   # Extend the first period of the new plan by the amount of credit
   # on the current plan
-  def prorate(plan, credit, _last_billing_date, effective_date, :period, options) do
-    following_billing_date = extend_period(plan, credit, effective_date, options)
+  def prorate(plan, credit_amount, _last_billing_date, effective_date, :period, options) do
+    {following_billing_date, credit_period} = extend_period(plan, credit_amount, effective_date, options)
     next_billing_amount = Map.get(plan, :price)
 
     %{
       next_billing_date: effective_date,
       next_billing_amount: next_billing_amount,
       following_billing_date: following_billing_date,
-      credit_applied: credit,
+      credit_amount_applied: credit_amount,
+      credit_period_applied: credit_period,
       carry_forward: zero(plan)
     }
   end
@@ -191,6 +194,7 @@ defmodule Money.Subscription do
     last_billing_date
     |> fraction_period_remaining(plan, effective_date)
     |> multiply(price)
+    |> Money.round
   end
 
   # Extend the billing period by the amount that
@@ -200,14 +204,18 @@ defmodule Money.Subscription do
   def extend_period(plan, credit, effective_date, options) do
     price = Map.get(plan, :price)
     fraction_to_extend = Decimal.div(credit.amount, price.amount)
+    decimal_interval = Decimal.new(plan[:interval_count])
     extended_interval_count =
       fraction_to_extend
-      |> Kernel.*(plan.interval_count)
-      |> round(options[:round])
-      |> Kernel.+(plan.interval_count)
+      |> Decimal.mult(decimal_interval)
+      |> Decimal.round(0, options[:round])
+      |> Decimal.add(decimal_interval)
+      |> Decimal.to_integer
 
+    credit_period_applied = extended_interval_count - plan[:interval_count]
     first_period_plan = %{plan | interval_count: extended_interval_count}
-    next_billing_date(first_period_plan, effective_date)
+
+    {next_billing_date(first_period_plan, effective_date), credit_period_applied}
   end
 
   def fraction_period_remaining(last_billing_date, plan, effective_date \\ Date.utc_today) do
@@ -228,6 +236,7 @@ defmodule Money.Subscription do
 
   def next_billing_date(%{interval: :day, interval_count: count},
       %{year: year, month: month, day: day, calendar: calendar}) do
+
     {year, month, day} =
       (calendar.date_to_iso_days(year, month, day) + count)
       |> calendar.date_from_iso_days
@@ -266,7 +275,7 @@ defmodule Money.Subscription do
   ## Helpers
 
   defp multiply(fraction, price) do
-    Money.mult(price, fraction)
+    Money.mult!(price, fraction)
   end
 
   defp months_in_year(%{year: year, calendar: calendar}) do
@@ -292,7 +301,7 @@ defmodule Money.Subscription do
   end
 
   defp default_options do
-    [effective: :next_period, prorate: :price, round: :up]
+    [effective: :next_period, prorate: :price, round: :half_even]
   end
 
   defp zero(plan) do
@@ -300,14 +309,5 @@ defmodule Money.Subscription do
     |> Map.get(:price)
     |> Map.get(:currency)
     |> Money.zero
-  end
-
-  defp round(extended_period, rounding) do
-    case rounding do
-      :up -> Float.ceil(extended_period)
-      :down -> extended_period
-      :nearest -> Float.round(extended_period)
-    end
-    |> trunc
   end
 end
