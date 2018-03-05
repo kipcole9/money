@@ -76,7 +76,7 @@ defmodule Money.Subscription do
 
   * `current_plan` is a map with at least the fields `interval`, `interval_count` and `price`
   * `new_plan` is a map with at least the fields `interval`, `interval_count` and `price`
-  * `option` is a keyword map of options the define how the change is to be made
+  * `options` is a keyword map of options the define how the change is to be made
 
   ## Options
 
@@ -98,11 +98,11 @@ defmodule Money.Subscription do
 
   A `Map.t` with the following elements:
 
-  * `effective_date`
-  * `next_billing_amount`
-  * `next_billing_date
-  * `credit_applied`
-  * `remainder`
+  * `:next_billing_date`
+  * `:next_billing_amount`
+  * `:following_billing_date`
+  * `:credit_applied`
+  * `:carry_forward`
 
   """
   @spec change(current_plan :: Map.t, new_plan :: Map.t, options :: Keyword.t) :: Map.t
