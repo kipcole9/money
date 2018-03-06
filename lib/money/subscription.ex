@@ -149,17 +149,17 @@ defmodule Money.Subscription do
   end
 
   defp change(current_plan, new_plan, last_billing_date, effective_date, options) do
-    credit = plan_credit(current_plan, last_billing_date, effective_date)
+    credit = plan_credit(current_plan, last_billing_date, effective_date, options)
     prorate(new_plan, credit, last_billing_date, effective_date, options[:prorate], options)
   end
 
   # Reduce the price of the first period of the new plan by the
   # credit amount on the current plan
-  defp prorate(plan, credit_amount, _last_billing_date, effective_date, :price, _options) do
+  defp prorate(plan, credit_amount, _last_billing_date, effective_date, :price, options) do
     prorate_price =
       Map.get(plan, :price)
       |> Money.sub!(credit_amount)
-      |> Money.round()
+      |> Money.round(rounding_mode: options[:round])
 
     zero = zero(plan)
 
@@ -198,7 +198,7 @@ defmodule Money.Subscription do
     }
   end
 
-  defp plan_credit(%{price: price} = plan, last_billing_date, effective_date) do
+  defp plan_credit(%{price: price} = plan, last_billing_date, effective_date, options) do
     plan_days = plan_days(effective_date, plan)
     price_per_day = Decimal.div(price.amount, Decimal.new(plan_days))
     days_remaining = days_remaining(plan, last_billing_date, effective_date)
@@ -206,6 +206,7 @@ defmodule Money.Subscription do
     price_per_day
     |> Decimal.mult(Decimal.new(days_remaining))
     |> Money.new(price.currency)
+    |> Money.round(rounding_mode: options[:round])
   end
 
   # Extend the billing period by the amount that
