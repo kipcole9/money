@@ -8,12 +8,14 @@ This is the changelog for Money v2.3.0 released on March ___, 2018.  For older c
 
 ### Enhancements
 
-This version introduces a new module `Money.Subscription` that supports applications that manage subscriptions. These appications often need to support upgrading and downgrading plans.  This action involves the calculation of a credit amount from the current plan that is then applied to the new plan.
+This version introduces a new module `Money.Subscription` that supports applications that manage subscriptions. These appications often need to support upgrading and downgrading plans.  This action involves the calculation of a credit amount from the current plan that is then applied to the new plan.  See `Money.Subscription` and `Money.Subscription.change/4`.
 
-* Add `Money.Subscription.change/4`
-* Add `Money.Subscription.plan_days/2`
-* Add `Money.Subscription.days_remaining/3`
-* Add `Money.Subscription.next_billing_date/2`
+* Add `Money.Subscription.change/4` to change subscription plans
+* Add `Money.Subscription.plan_days/2` to return the number of days in a plan period
+* Add `Money.Subscription.days_remaining/3` to return the number of days remaining in a plan
+* Add `Money.Subscription.next_billing_date/2` to return the next billing date for a subscription to a plan
+* Add `Money.Subscription.Plan.new/3` and `Money.Subscription.Plan.new!/3` to create a new plan
+* Add `Money.zero/1` that returns a `Money.t` with a zero amount in the given currency to
 
 # Changelog for Money v2.2.2
 

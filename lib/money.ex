@@ -1388,17 +1388,26 @@ defmodule Money do
   end
 
   @doc """
-  Return a zero Money amount in the given currency
+  Return a zero amount `Money.t` in the given currency
 
   ## Example
 
       iex> Money.zero(:USD)
       #Money<:USD, 0>
 
+      iex> money = Money.new(:USD, 200)
+      iex> Money.zero(money)
+      #Money<:USD, 0>
+
       iex> Money.zero :ZZZ
       {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
 
   """
+  @spec zero(currency_code | Money.t()) :: Money.t()
+  def zero(%{currency: currency, amount: _amount}) do
+    zero(currency)
+  end
+
   def zero(currency) do
     with {:ok, currency} <- validate_currency(currency) do
       Money.new(currency, 0)

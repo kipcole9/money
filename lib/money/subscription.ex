@@ -93,6 +93,8 @@ defmodule Money.Subscription do
   * `:effective` defines when the new plan comes into effect.  The values are `:immediately`,
     a `Date.t` or `:next_period`.  The default is `:next_period` if the current and new plans
     have the same `interval` and `interval_count`.  Otherwise the default is `:immediately`.
+    Note that the date applied in the case of `:immediately` is the date returned by
+    `Date.utc_today`.
 
   * `:prorate` which determines how to prorate the current plan into the new plan.  The
     options are `:price` which will reduce the price of the first period of the new plan
@@ -108,12 +110,30 @@ defmodule Money.Subscription do
 
   A `Map.t` with the following elements:
 
-  * `:next_billing_date`
-  * `:next_billing_amount`
-  * `:following_billing_date`
-  * `:credit_amount_applied`
-  * `:credit_days_applied`
-  * `:carry_forward`
+  * `:next_billing_date` which is the next billing date derived from the option
+    `:effective` given to `change/4`
+
+  * `:next_billing_amount` is the amount to be billed, net of any credit, at
+    the `:next_billing_date`
+
+  * `:following_billing_date` is the the billing date after the `:next_billing_date`
+    including any `credit_days_applied`
+
+  * `:credit_amount_applied` is the amount of credit applied to the new plan. If
+    the `:prorate` option is `:price` (the default) the next `:next_billing_amount`
+    is the plan `:price` reduced by the `:credit_amount_applied`. If the `:prorate`
+    option is `:period` then the `:next_billing_amount` is not adjusted.  In this
+    case the `:following_billing_date` is extended by the `:credit-days_applied`
+    instead.
+
+  * `:credit_days_applied` is the number of days credit applied to the next billing
+    by adding days to the `:following_billing_date`.
+
+  * `:credit_period_ends` is the date on which any applied credit is consumed
+
+  * `:carry_forward` is any amount of credit carried forward to a subsequent period.
+    This applied when the credit amount for the current plan is greater than the price
+    of the new plan.  In this case the `:next_billing_amount` is zero.
 
   """
   @spec change(current_plan :: Map.t(), new_plan :: Map.t(), options :: Keyword.t()) :: Map.t()
@@ -129,6 +149,8 @@ defmodule Money.Subscription do
     change(current_plan, new_plan, last_billing_date, options[:effective], options)
   end
 
+  # Change the plan at the end of the current billing period.  This requires
+  # no proration and is therefore the easiest to caculate.
   defp change(current_plan, new_plan, last_billing_date, :next_period, _options) do
     price = Map.get(new_plan, :price)
     next_billing_date = next_billing_date(current_plan, last_billing_date)
@@ -203,7 +225,7 @@ defmodule Money.Subscription do
   end
 
   defp plan_credit(%{price: price} = plan, last_billing_date, effective_date, options) do
-    plan_days = plan_days(effective_date, plan)
+    plan_days = plan_days(plan, effective_date)
     price_per_day = Decimal.div(price.amount, Decimal.new(plan_days))
     days_remaining = days_remaining(plan, last_billing_date, effective_date)
 
@@ -217,14 +239,14 @@ defmodule Money.Subscription do
   # credit will fund on the new plan in days.
   defp extend_period(plan, credit, effective_date, options) do
     price = Map.get(plan, :price)
-    plan_days = plan_days(effective_date, plan)
+    plan_days = plan_days(plan, effective_date)
     price_per_day = Decimal.div(price.amount, Decimal.new(plan_days))
 
     credit_days_applied =
       credit.amount
       |> Decimal.div(price_per_day)
       |> Decimal.round(0, options[:round])
-      |> Decimal.to_integer
+      |> Decimal.to_integer()
 
     following_billing_date =
       next_billing_date(plan, effective_date)
@@ -233,18 +255,96 @@ defmodule Money.Subscription do
     {following_billing_date, credit_days_applied}
   end
 
-  defp plan_days(last_billing_date, plan) do
+  @doc """
+  Returns number of days in the plan period
+
+  ## Arguments
+
+  * `plan` is any `Money.Subscription.Plan.t`
+
+  * `last_billing_date` is a `Date.t`
+
+  ## Returns
+
+  The number of days in the billing period
+
+  ## Examples
+
+      iex> plan = Money.Subscription.Plan.new! Money.new!(:USD, 100), :month, 1
+      iex> Money.Subscription.plan_days plan, ~D[2018-01-01]
+      31
+      iex> Money.Subscription.plan_days plan, ~D[2018-02-01]
+      28
+      iex> Money.Subscription.plan_days plan, ~D[2018-04-01]
+      30
+
+  """
+  @spec days_remaining(Money.Subscription.Plan.t, Date.t) :: integer
+  def plan_days(plan, last_billing_date) do
     plan
     |> next_billing_date(last_billing_date)
     |> days_difference(last_billing_date)
   end
 
+  @doc """
+  Returns number of days remaining in the plan period
+
+  ## Arguments
+
+  * `plan` is any `Money.Subscription.Plan.t`
+
+  * `last_billing_date` is a `Date.t`
+
+  * `effective_date` is a `Date.t` after the
+    `last_billing_date` and before the end of
+    the `plan_days`
+
+  ## Returns
+
+  The number of days remaining in the billing period
+
+  ## Examples
+
+      iex> plan = Money.Subscription.Plan.new! Money.new!(:USD, 100), :month, 1
+      iex> Money.Subscription.days_remaining plan, ~D[2018-01-01], ~D[2018-01-02]
+      30
+      iex> Money.Subscription.days_remaining plan, ~D[2018-02-01], ~D[2018-02-02]
+      27
+
+  """
+  @spec days_remaining(Money.Subscription.Plan.t, Date.t, Date.t) :: integer
   def days_remaining(plan, last_billing_date, effective_date \\ Date.utc_today()) do
     plan
     |> next_billing_date(last_billing_date)
     |> days_difference(effective_date)
   end
 
+  @doc """
+  Returns the next billing date for a plan
+
+  ## Arguments
+
+  * `plan` is a `Money.Subscription.Plan.t`
+
+  * `last_billing_date` is the date of the last bill that
+    represents the start of the billing period
+
+  ## Returns
+
+  The next billing date as a `Date.t`.
+
+  ## Example
+
+      iex> plan = Money.Subscription.Plan.new!(Money.new!(:USD, 100), :month)
+      iex> Money.Subscription.next_billing_date(plan, ~D[2018-03-01])
+      ~D[2018-04-01]
+
+      iex> plan = Money.Subscription.Plan.new!(Money.new!(:USD, 100), :day, 30)
+      iex> Money.Subscription.next_billing_date(plan, ~D[2018-02-01])
+      ~D[2018-03-03]
+
+  """
+  @spec next_billing_date(Money.Subscription.Plan.t, Date.t) :: Date.t
   def next_billing_date(%{interval: :day, interval_count: count}, %{
         year: year,
         month: month,
@@ -276,7 +376,7 @@ defmodule Money.Subscription do
         months_left_this_year = months_in_this_year - month
         plan = %{plan | interval_count: count - months_left_this_year - 1}
         last_billing_date = %{last_billing_date | year: year + 1, month: 1, day: day}
-        date =  next_billing_date(plan, last_billing_date)
+        date = next_billing_date(plan, last_billing_date)
         {Map.get(date, :year), Map.get(date, :month)}
       end
 
@@ -291,7 +391,29 @@ defmodule Money.Subscription do
     %{last_billing_date | year: year + count}
   end
 
-  @spec days_difference(date_1 :: Date.t, date_2 :: Date.t) :: integer
+  @doc """
+  Returns the number of days between two dates
+
+  ## Arguments
+
+  * `date_1` is a `Date.t`
+
+  * `date_2` is a `Date.t`
+
+  ## Returns
+
+  * `days`, an integer number of days between two dates
+
+  ## Example
+
+      iex> Money.Subscription.days_difference ~D[2018-02-28], ~D[2018-01-01]
+      58
+
+      iex> Money.Subscription.days_difference ~D[2018-02-28], ~D[2018-02-01]
+      27
+
+  """
+  @spec days_difference(date_1 :: Date.t(), date_2 :: Date.t()) :: days :: integer
   def days_difference(%{year: year1, month: month1, day: day1, calendar: calendar1}, %{
         year: year2,
         month: month2,
@@ -302,7 +424,29 @@ defmodule Money.Subscription do
       calendar2.date_to_iso_days(year2, month2, day2)
   end
 
-  @spec add_days(date :: Date.t, days :: integer) :: Date.t
+  @doc """
+  Adds a number of days to a date
+
+  ## Arguments
+
+  * `date` is a `Date.t`
+
+  * `days` in an integer number of days
+
+  ## Returns
+
+  * `new_date` is a date `days` later than `date`
+
+  ## Examples
+
+      iex> Money.Subscription.add_days ~D[2018-02-01], 27
+      ~D[2018-02-28]
+
+      iex> Money.Subscription.add_days ~D[2018-01-01], 30
+      ~D[2018-01-31]
+
+  """
+  @spec add_days(date :: Date.t(), days :: integer) :: new_date :: Date.t()
   def add_days(%{year: year, month: month, day: day, calendar: calendar}, days) do
     {year, month, day} =
       (calendar.date_to_iso_days(year, month, day) + days)
