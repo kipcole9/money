@@ -144,6 +144,53 @@ defmodule Money.Subscription do
     amount for the current plan is greater than the price of the new plan.  In
     this case the `:next_billing_amount` is zero.
 
+  ## Examples
+
+      # Change at end of the current period so no proration
+      iex> current = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 1)
+      iex> new = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 3)
+      iex> Money.Subscription.change current, new, ~D[2018-01-01]
+      %Money.Subscription.Change{
+        carry_forward: Money.zero(:USD),
+        credit_amount: Money.zero(:USD),
+        credit_amount_applied: Money.zero(:USD),
+        credit_days_applied: 0,
+        credit_period_ends: nil,
+        following_billing_date: ~D[2018-03-01],
+        next_billing_amount: Money.new(:USD, 10),
+        next_billing_date: ~D[2018-02-01]
+      }
+
+      # Change during the current plan generates a credit amount
+      iex> current = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 1)
+      iex> new = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 3)
+      iex> Money.Subscription.change current, new, ~D[2018-01-01], effective: ~D[2018-01-15]
+      %Money.Subscription.Change{
+        carry_forward: Money.zero(:USD),
+        credit_amount: Money.new(:USD, "5.49"),
+        credit_amount_applied: Money.new(:USD, "5.49"),
+        credit_days_applied: 0,
+        credit_period_ends: nil,
+        following_billing_date: ~D[2018-04-15],
+        next_billing_amount: Money.new(:USD, "4.51"),
+        next_billing_date: ~D[2018-01-15]
+      }
+
+      # Change during the current plan generates a credit period
+      iex> current = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 1)
+      iex> new = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 3)
+      iex> Money.Subscription.change current, new, ~D[2018-01-01], effective: ~D[2018-01-15], prorate: :period
+      %Money.Subscription.Change{
+        carry_forward: Money.zero(:USD),
+        credit_amount: Money.new(:USD, "5.49"),
+        credit_amount_applied: Money.zero(:USD),
+        credit_days_applied: 50,
+        credit_period_ends: ~D[2018-03-05],
+        following_billing_date: ~D[2018-06-04],
+        next_billing_amount: Money.new(:USD, 10),
+        next_billing_date: ~D[2018-01-15]
+      }
+
   """
   @spec change(current_plan :: Map.t(), new_plan :: Map.t(), options :: Keyword.t()) :: Map.t()
   def change(current_plan, new_plan, last_billing_date, options \\ [])
