@@ -3,12 +3,12 @@ defmodule Money.Subscription do
   Provides functions to upgrade and downgrade subscriptions
   from one plan to another.
 
-  Since moving from one plan to another may requiring
+  Since moving from one plan to another may require
   prorating the payment stream at the point of transition,
   this module is introduced to provide a single point of
   calculation of the proration in order to give clear focus
-  to the issues of calculating the carry over amount or
-  the carryover period at the point of plan change.
+  to the issues of calculating the carry-over amount or
+  the carry-over period at the point of plan change.
 
   ### Changing a subscription plan
 
@@ -29,10 +29,10 @@ defmodule Money.Subscription do
 
   ### When the new plan is effective at the end of the current billing period
 
-  The first strategy simply finishes the current billing cycle before
+  The first strategy simply finishes the current billing period before
   the new plan is introduced and therefore no proration is required.
   This is the default strategy when the current plan and the new plan
-  have the same interval (`day`, `week, ...) and interval multiple
+  have the same interval (`day`, `week`, ...) and interval multiple
   (an integer nmber of intervals).
 
   ### When the new plan is effective immediately
@@ -62,7 +62,7 @@ defmodule Money.Subscription do
   any `Map.t` that includes the following fields:
 
   * `interval` which defines the billing interval for a plan. The value
-    can be one of `day`, `week`, `month`, `year`.
+    can be one of `day`, `week`, `month` or `year`.
 
   * `interval_count` which defines the number of `interval`s for the
     billing period.  This must be a positive integer.

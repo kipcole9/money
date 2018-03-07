@@ -1,4 +1,7 @@
 defmodule Money.Subscription.Plan do
+  @moduledoc """
+  Prvoides a standard subscription plan structure
+  """
   @type interval :: :day | :week | :month | :year
   @type interval_count :: non_neg_integer
 
@@ -17,7 +20,7 @@ defmodule Money.Subscription.Plan do
   * `:price` is any `Money.t`
 
   * `:interval` is the period of the plan.  The valid intervals are
-  `  :day`, `:week`, `:month` or ':year`.
+  `  `:day`, `:week`, `:month` or ':year`.
 
   * `:interval_count` is an integer count of the number of `:interval`s
     of the plan.  The default is `1`
