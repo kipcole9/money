@@ -165,6 +165,7 @@ defmodule Money.Subscription do
       next_billing_date: next_billing_date,
       following_billing_date: next_billing_date(current_plan, next_billing_date),
       credit_amount_applied: zero,
+      credit_amount: zero,
       credit_days_applied: 0,
       credit_period_ends: nil,
       carry_forward: zero
@@ -201,7 +202,8 @@ defmodule Money.Subscription do
       next_billing_date: effective_date,
       next_billing_amount: next_billing_amount,
       following_billing_date: next_billing_date(plan, effective_date),
-      credit_amount_applied: credit_amount,
+      credit_amount: credit_amount,
+      credit_amount_applied: Money.add!(credit_amount, carry_forward),
       credit_days_applied: 0,
       credit_period_ends: nil,
       carry_forward: carry_forward
@@ -221,7 +223,8 @@ defmodule Money.Subscription do
       next_billing_date: effective_date,
       next_billing_amount: next_billing_amount,
       following_billing_date: following_billing_date,
-      credit_amount_applied: credit_amount,
+      credit_amount: credit_amount,
+      credit_amount_applied: zero(plan),
       credit_days_applied: days_credit,
       credit_period_ends: credit_period_ends,
       carry_forward: zero(plan)
