@@ -31,9 +31,7 @@ defmodule Money.Subscription do
 
   The first strategy simply finishes the current billing period before
   the new plan is introduced and therefore no proration is required.
-  This is the default strategy when the current plan and the new plan
-  have the same interval (`day`, `week`, ...) and interval multiple
-  (an integer nmber of intervals).
+  This is the default strategy.
 
   ### When the new plan is effective immediately
 
