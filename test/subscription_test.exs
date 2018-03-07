@@ -1,6 +1,7 @@
 defmodule MoneySubscriptionTest do
   use ExUnit.Case
   alias Money.Subscription.Plan
+  alias Money.Subscription.Change
   alias Money.Subscription
 
   test "plan change at end of period has no credit and correct billing dates" do
@@ -9,9 +10,9 @@ defmodule MoneySubscriptionTest do
 
     changeset = Money.Subscription.change(p1, p2, ~D[2018-03-01])
 
-    assert changeset[:next_billing_amount] == Money.new(:USD, 200)
-    assert changeset[:next_billing_date] == ~D[2018-03-31]
-    assert changeset[:following_billing_date] == ~D[2018-04-30]
+    assert changeset.next_billing_amount == Money.new(:USD, 200)
+    assert changeset.next_billing_date == ~D[2018-03-31]
+    assert changeset.following_billing_date == ~D[2018-04-30]
   end
 
   test "plan change at 50% of period has no credit and correct billing dates" do
@@ -20,13 +21,13 @@ defmodule MoneySubscriptionTest do
 
     changeset = Money.Subscription.change(p1, p2, ~D[2018-03-01], effective: ~D[2018-03-16])
 
-    assert changeset[:next_billing_amount] == Money.new(:USD, "150.00")
-    assert changeset[:next_billing_date] == ~D[2018-03-16]
-    assert changeset[:following_billing_date] == ~D[2018-04-15]
-    assert changeset[:credit_amount_applied] == Money.new(:USD, "50.00")
+    assert changeset.next_billing_amount == Money.new(:USD, "150.00")
+    assert changeset.next_billing_date == ~D[2018-03-16]
+    assert changeset.following_billing_date == ~D[2018-04-15]
+    assert changeset.credit_amount_applied == Money.new(:USD, "50.00")
 
     assert Money.cmp!(
-             Money.add!(changeset[:credit_amount_applied], changeset[:next_billing_amount]),
+             Money.add!(changeset.credit_amount_applied, changeset.next_billing_amount),
              p2.price
            ) == :eq
   end
@@ -46,7 +47,7 @@ defmodule MoneySubscriptionTest do
       interval_count: 6
     }
 
-    assert %{
+    assert %Change{
              carry_forward: Money.zero(:CHF),
              credit_amount: Money.new(:CHF, "67.20"),
              credit_amount_applied: Money.zero(:CHF),
@@ -80,7 +81,7 @@ defmodule MoneySubscriptionTest do
       interval_count: 6
     }
 
-    assert %{
+    assert %Change{
              carry_forward: Money.zero(:CHF),
              credit_amount: Money.new(:CHF, Decimal.new("130.00")),
              credit_amount_applied: Money.zero(:CHF),
@@ -98,7 +99,7 @@ defmodule MoneySubscriptionTest do
     old = Money.Subscription.Plan.new!(Money.new(:CHF, Decimal.new("0.5")), :month)
     new = Money.Subscription.Plan.new!(Money.new(:CHF, Decimal.new(1000)), :month, 36)
 
-    assert %{
+    assert %Change{
              carry_forward: Money.zero(:CHF),
              credit_amount: Money.new(:CHF, "0.30"),
              credit_amount_applied: Money.zero(:CHF),
@@ -123,7 +124,7 @@ defmodule MoneySubscriptionTest do
 
     changeset = Subscription.change(p1, p2, ~D[2018-01-01], effective: ~D[2018-01-05])
 
-    assert changeset == %{
+    assert changeset == %Change{
       carry_forward: Money.new(:USD, "-790.00"),
       credit_amount: Money.new(:USD, "800.00"),
       credit_amount_applied: Money.new(:USD, "10.00"),
