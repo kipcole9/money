@@ -97,10 +97,8 @@ defmodule Money.Subscription do
   ## Options
 
   * `:effective` defines when the new plan comes into effect.  The values are `:immediately`,
-    a `Date.t` or `:next_period`.  The default is `:next_period` if the current and new plans
-    have the same `interval` and `interval_count`.  Otherwise the default is `:immediately`.
-    Note that the date applied in the case of `:immediately` is the date returned by
-    `Date.utc_today`.
+    a `Date.t` or `:next_period`.  The default is `:next_period`.  Note that the date
+    applied in the case of `:immediately` is the date returned by `Date.utc_today`.
 
   * `:prorate` which determines how to prorate the current plan into the new plan.  The
     options are `:price` which will reduce the price of the first period of the new plan
