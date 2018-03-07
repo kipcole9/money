@@ -140,6 +140,7 @@ defmodule Money.Subscription do
       following_billing_date: next_billing_date(current_plan, next_billing_date),
       credit_amount_applied: zero,
       credit_days_applied: 0,
+      credit_period_ends: nil,
       carry_forward: zero
     }
   end
@@ -176,6 +177,7 @@ defmodule Money.Subscription do
       following_billing_date: next_billing_date(plan, effective_date),
       credit_amount_applied: credit_amount,
       credit_days_applied: 0,
+      credit_period_ends: nil,
       carry_forward: carry_forward
     }
   end
@@ -183,17 +185,19 @@ defmodule Money.Subscription do
   # Extend the first period of the new plan by the amount of credit
   # on the current plan
   defp prorate(plan, credit_amount, _last_billing_date, effective_date, :period, options) do
-    {following_billing_date, credit_period} =
+    {following_billing_date, days_credit} =
       extend_period(plan, credit_amount, effective_date, options)
 
     next_billing_amount = Map.get(plan, :price)
+    credit_period_ends = add_days(effective_date, days_credit - 1)
 
     %{
       next_billing_date: effective_date,
       next_billing_amount: next_billing_amount,
       following_billing_date: following_billing_date,
       credit_amount_applied: credit_amount,
-      credit_days_applied: credit_period,
+      credit_days_applied: days_credit,
+      credit_period_ends: credit_period_ends,
       carry_forward: zero(plan)
     }
   end
@@ -287,9 +291,8 @@ defmodule Money.Subscription do
     %{last_billing_date | year: year + count}
   end
 
-  ## Helpers
-
-  defp days_difference(%{year: year1, month: month1, day: day1, calendar: calendar1}, %{
+  @spec days_difference(date_1 :: Date.t, date_2 :: Date.t) :: integer
+  def days_difference(%{year: year1, month: month1, day: day1, calendar: calendar1}, %{
         year: year2,
         month: month2,
         day: day2,
@@ -299,7 +302,8 @@ defmodule Money.Subscription do
       calendar2.date_to_iso_days(year2, month2, day2)
   end
 
-  defp add_days(%{year: year, month: month, day: day, calendar: calendar}, days) do
+  @spec add_days(date :: Date.t, days :: integer) :: Date.t
+  def add_days(%{year: year, month: month, day: day, calendar: calendar}, days) do
     {year, month, day} =
       (calendar.date_to_iso_days(year, month, day) + days)
       |> calendar.date_from_iso_days
@@ -307,6 +311,8 @@ defmodule Money.Subscription do
     {:ok, date} = Date.new(year, month, day, calendar)
     date
   end
+
+  ## Helpers
 
   defp months_in_year(%{year: year, calendar: calendar}) do
     if function_exported?(calendar, :months_in_year, 1) do
