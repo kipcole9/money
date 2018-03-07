@@ -71,7 +71,15 @@ defmodule Money.Subscription do
   ### Billing in advance
 
   This module calculates all subscription changes on the basis
-  that billing is done in advance.
+  that billing is done in advance.  This primarily affects the
+  calculation of plan credit when a plan changes.  The assumption
+  is that the period from the start of the plan to the point
+  of change has been consumed and therefore the credit is based
+  upon that period of the plan that has not yet been consumed.
+
+  If the calculation was based upon "payment in arrears" then
+  the credit would actually be a debit since the part of the
+  current period consumed has not yet been paid for.
 
   """
 
