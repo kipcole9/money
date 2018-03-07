@@ -15,7 +15,7 @@ This version introduces a new module `Money.Subscription` that supports applicat
 * Add `Money.Subscription.days_remaining/3` to return the number of days remaining in a plan
 * Add `Money.Subscription.next_billing_date/2` to return the next billing date for a subscription to a plan
 * Add `Money.Subscription.Plan.new/3` and `Money.Subscription.Plan.new!/3` to create a new plan
-* Add `Money.zero/1` that returns a `Money.t` with a zero amount in the given currency to
+* Add `Money.zero/1` that returns a `Money.t` with a zero amount in the given currency
 
 # Changelog for Money v2.2.2
 
