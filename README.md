@@ -216,18 +216,19 @@ end
 ## API Usage Examples
 
 ### Creating a %Money{} struct
+```elixir
+iex> Money.new(:USD, 100)
+#Money<:USD, 100>
 
-     iex> Money.new(:USD, 100)
-     #Money<:USD, 100>
+iex> Money.new(100, :USD)
+#Money<:USD, 100>
 
-     iex> Money.new(100, :USD)
-     #Money<:USD, 100>
+iex> Money.new("CHF", "130.02")
+#Money<:CHF, 130.02>
 
-     iex> Money.new("CHF", "130.02")
-     #Money<:CHF, 130.02>
-
-     iex> Money.new("thb", 11)
-     #Money<:THB, 11>
+iex> Money.new("thb", 11)
+#Money<:THB, 11>
+```
 
 The canonical representation of a currency code is an `atom` that is a valid
 [ISO4217](http://www.currency-iso.org/en/home/tables/table-a1.html) currency code. The amount of a `%Money{}` is represented by a `Decimal`.
@@ -368,24 +369,112 @@ For more detail see `Money.Financial`.
 
 ## Subscriptions
 
-<suscriptions and example>
+Subscriptions, especially in the context of a SaaS, can involve changing plans - either from a smaller plan to a larger or a larger plan to smaller.  In either situation a credit amount needs to be calculated based upon the current plan which is then applied to the new plan.  `Money.Subscription` is a module that provides functions to support this subscription pricing, credit calculations and payment dates.
+
+The primary functions supporting subscriptions are:
+
+* Create a subscription plan: `Money.Subscription.Plan.new/3`
+* Change a from one plan to another: `Money.Subscription.change/4`
+* Calculate the next billing date for a plan: `Money.Subscription.next_billing_date/2`
+* Calculate the number of days in a billing period: `Money.Subscription.plan_days/2`
+* Calculate the number of days left in a billing period: `Money.Subscription.days_remaining/3`
+
+### Examples
+
+```elixir
+# Create the current plan
+iex> current_plan = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 1)
+%Money.Subscription.Plan{
+  interval: :month,
+  interval_count: 1,
+  price: #Money<:USD, 10>
+}
+
+# How many days in a billing period?
+iex> Money.Subscription.plan_days current_plan, ~D[2018-03-01]
+31
+
+# How many days remaining in the current billing period
+iex> Money.Subscription.days_remaining current_plan, ~D[2018-03-01], ~D[2018-03-10]
+22
+
+# When is the next billing date
+iex> Money.Subscription.next_billing_date current_plan, ~D[2018-03-01]
+~D[2018-04-01]
+
+# Create a new plan
+iex> new_plan = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 3)
+%Money.Subscription.Plan{
+  interval: :month,
+  interval_count: 3,
+  price: #Money<:USD, 10>
+}
+
+# Change plans at the end of the current billing period
+iex> Money.Subscription.change current_plan, new_plan, ~D[2018-03-01]
+%Money.Subscription.Change{
+  carry_forward: #Money<:USD, 0>,
+  credit_amount: #Money<:USD, 0>,
+  credit_amount_applied: #Money<:USD, 0>,
+  credit_days_applied: 0,
+  credit_period_ends: nil,
+  following_billing_date: ~D[2018-05-01],
+  next_billing_amount: #Money<:USD, 10>,
+  next_billing_date: ~D[2018-04-01]
+}
+
+# Change plans in the middle of the current plan period
+# and credit the balance of the current plan to the new plan
+iex> Money.Subscription.change current_plan, new_plan, ~D[2018-03-01], effective: ~D[2018-03-15]
+%Money.Subscription.Change{
+  carry_forward: #Money<:USD, 0>,
+  credit_amount: #Money<:USD, 5.49>,
+  credit_amount_applied: #Money<:USD, 5.49>,
+  credit_days_applied: 0,
+  credit_period_ends: nil,
+  following_billing_date: ~D[2018-06-15],
+  next_billing_amount: #Money<:USD, 4.51>,
+  next_billing_date: ~D[2018-03-15]
+}
+
+# Change plans in the middle of the current plan period
+# but instead of a monetary credit, apply the credit as
+# extra days on the new plan in the first billing period
+iex> Money.Subscription.change current_plan, new_plan, ~D[2018-03-01], effective: ~D[2018-03-15], prorate: :period
+%Money.Subscription.Change{
+  carry_forward: #Money<:USD, 0>,
+  credit_amount: #Money<:USD, 5.49>,
+  credit_amount_applied: #Money<:USD, 0>,
+  credit_days_applied: 51,
+  credit_period_ends: ~D[2018-05-04],
+  following_billing_date: ~D[2018-08-05],
+  next_billing_amount: #Money<:USD, 10>,
+  next_billing_date: ~D[2018-03-15]
+}
+```
 
 ## Serializing to a Postgres database with Ecto
 
-First generate the migration to create the custom type:
+`Money` provides custom Ecto day types and a custom Postgres data type to provide serialization of `Money.t` types without losing precision whilst also maintaining the integrity of the `{currency_code, amount}` relationship.  To serialise and retrieve money types from a database the following steps should be followed:
 
-    mix money.gen.postgres.migration
-    * creating priv/repo/migrations
-    * creating priv/repo/migrations/20161007234652_add_money_with_currency_type_to_postgres.exs
+1. First generate the migration to create the custom type:
 
-Then migrate the database:
+```elixir
+mix money.gen.postgres.migration
+* creating priv/repo/migrations
+* creating priv/repo/migrations/20161007234652_add_money_with_currency_type_to_postgres.exs
+```
 
-    mix ecto.migrate
-    07:09:28.637 [info]  == Running MoneyTest.Repo.Migrations.AddMoneyWithCurrencyTypeToPostgres.up/0 forward
-    07:09:28.640 [info]  execute "CREATE TYPE public.money_with_currency AS (currency_code char(3), amount numeric(20,8))"
-    07:09:28.647 [info]  == Migrated in 0.0s
+2. Then migrate the database:
 
-Create your database migration with the new type (don't forget to `mix ecto.migrate` as well):
+```elixir
+mix ecto.migrate
+07:09:28.637 [info]  == Running MoneyTest.Repo.Migrations.AddMoneyWithCurrencyTypeToPostgres.up/0 forward
+07:09:28.640 [info]  execute "CREATE TYPE public.money_with_currency AS (currency_code char(3), amount numeric(20,8))"
+07:09:28.647 [info]  == Migrated in 0.0s
+```
+
+3. Create your database migration with the new type (don't forget to `mix ecto.migrate` as well):
 
 ```elixir
 defmodule MoneyTest.Repo.Migrations.CreateLedger do
@@ -400,7 +489,7 @@ defmodule MoneyTest.Repo.Migrations.CreateLedger do
 end
 ```
 
-Create your schema using the `Money.Ecto.Composite.Type` ecto type:
+4. Create your schema using the `Money.Ecto.Composite.Type` ecto type:
 
 ```elixir
 defmodule Ledger do
@@ -414,21 +503,25 @@ defmodule Ledger do
 end
 ```
 
-Insert into the database:
+5. Insert into the database:
 
-    iex> Repo.insert %Ledger{amount: Money.new(:USD, 100)}
-    [debug] QUERY OK db=4.5ms
-    INSERT INTO "ledgers" ("amount","inserted_at","updated_at") VALUES ($1,$2,$3)
-    [{"USD", #Decimal<100>}, {{2016, 10, 7}, {23, 12, 13, 0}}, {{2016, 10, 7}, {23, 12, 13, 0}}]
+```elixir
+iex> Repo.insert %Ledger{amount: Money.new(:USD, 100)}
+[debug] QUERY OK db=4.5ms
+INSERT INTO "ledgers" ("amount","inserted_at","updated_at") VALUES ($1,$2,$3)
+[{"USD", #Decimal<100>}, {{2016, 10, 7}, {23, 12, 13, 0}}, {{2016, 10, 7}, {23, 12, 13, 0}}]
+```
 
-Retrieve from the database:
+6. Retrieve from the database:
 
-    iex> Repo.all Ledger
-    [debug] QUERY OK source="ledgers" db=5.3ms decode=0.1ms queue=0.1ms
-    SELECT l0."amount", l0."inserted_at", l0."updated_at" FROM "ledgers" AS l0 []
-    [%Ledger{__meta__: #Ecto.Schema.Metadata<:loaded, "ledgers">, amount: #<:USD, 100.00000000>,
-      inserted_at: ~N[2017-02-21 00:15:40.979576],
-      updated_at: ~N[2017-02-21 00:15:40.991391]}]
+```elixir
+iex> Repo.all Ledger
+[debug] QUERY OK source="ledgers" db=5.3ms decode=0.1ms queue=0.1ms
+SELECT l0."amount", l0."inserted_at", l0."updated_at" FROM "ledgers" AS l0 []
+[%Ledger{__meta__: #Ecto.Schema.Metadata<:loaded, "ledgers">, amount: #<:USD, 100.00000000>,
+  inserted_at: ~N[2017-02-21 00:15:40.979576],
+  updated_at: ~N[2017-02-21 00:15:40.991391]}]
+```
 
 ## Serializing to a MySQL (or other non-Postgres) database with Ecto
 
@@ -494,7 +587,7 @@ Retrieve from the database:
 3.  Serializing the amount as a string means that SQL query arithmetic and equality operators will not work as expected.  You may find that `CAST`ing the string value will restore some of that functionality.  For example:
 
 ```sql
-    CAST(JSON_EXTRACT(amount_map, '$.amount') AS DECIMAL(20, 8)) AS amount;
+CAST(JSON_EXTRACT(amount_map, '$.amount') AS DECIMAL(20, 8)) AS amount;
 ```
 
 ## Installation
@@ -504,9 +597,9 @@ ex_money can be installed by:
   1. Adding `ex_money` to your list of dependencies in `mix.exs`:
 
 ```elixir
-  def deps do
-    [{:ex_money, "~> 1.0"}]
-  end
+def deps do
+  [{:ex_money, "~> 1.0"}]
+end
 ```
 
 ## Why yet another Money package?
