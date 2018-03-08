@@ -366,6 +366,10 @@ A set of basic financial functions are available in the module `Money.Financial`
 
 For more detail see `Money.Financial`.
 
+## Subscriptions
+
+<suscriptions and example>
+
 ## Serializing to a Postgres database with Ecto
 
 First generate the migration to create the custom type:
