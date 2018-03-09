@@ -439,6 +439,11 @@ defmodule Money.Subscription do
         {Map.get(date, :year), Map.get(date, :month)}
       end
 
+    day =
+      year
+      |> calendar.days_in_month(month)
+      |> min(day)
+
     {:ok, next_billing_date} = Date.new(year, month, day, calendar)
     next_billing_date
   end

@@ -135,4 +135,9 @@ defmodule MoneySubscriptionTest do
       next_billing_date: ~D[2018-01-05]
     }
   end
+
+  test "that month rollover works at end of month when next month is shorter" do
+    assert Money.Subscription.next_billing_date(%{interval: :month, interval_count: 1}, ~D[2018-01-31]) ==
+    ~D[2018-02-28]
+  end
 end

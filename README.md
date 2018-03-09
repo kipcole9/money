@@ -394,6 +394,9 @@ iex> current_plan = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 1)
 iex> Money.Subscription.plan_days current_plan, ~D[2018-03-01]
 31
 
+iex> Money.Subscription.plan_days current_plan, ~D[2018-02-01]
+28
+
 # How many days remaining in the current billing period
 iex> Money.Subscription.days_remaining current_plan, ~D[2018-03-01], ~D[2018-03-10]
 22
