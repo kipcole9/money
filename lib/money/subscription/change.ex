@@ -42,5 +42,4 @@ defmodule Money.Subscription.Change do
     :credit_period_ends,
     :carry_forward
   ]
-
 end

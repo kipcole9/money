@@ -125,19 +125,21 @@ defmodule MoneySubscriptionTest do
     changeset = Subscription.change(p1, p2, ~D[2018-01-01], effective: ~D[2018-01-05])
 
     assert changeset == %Change{
-      carry_forward: Money.new(:USD, "-790.00"),
-      credit_amount: Money.new(:USD, "800.00"),
-      credit_amount_applied: Money.new(:USD, "10.00"),
-      credit_days_applied: 0,
-      credit_period_ends: nil,
-      following_billing_date: ~D[2018-01-15],
-      next_billing_amount: Money.zero(:USD),
-      next_billing_date: ~D[2018-01-05]
-    }
+             carry_forward: Money.new(:USD, "-790.00"),
+             credit_amount: Money.new(:USD, "800.00"),
+             credit_amount_applied: Money.new(:USD, "10.00"),
+             credit_days_applied: 0,
+             credit_period_ends: nil,
+             following_billing_date: ~D[2018-01-15],
+             next_billing_amount: Money.zero(:USD),
+             next_billing_date: ~D[2018-01-05]
+           }
   end
 
   test "that month rollover works at end of month when next month is shorter" do
-    assert Money.Subscription.next_billing_date(%{interval: :month, interval_count: 1}, ~D[2018-01-31]) ==
-    ~D[2018-02-28]
+    assert Money.Subscription.next_billing_date(
+             %{interval: :month, interval_count: 1},
+             ~D[2018-01-31]
+           ) == ~D[2018-02-28]
   end
 end

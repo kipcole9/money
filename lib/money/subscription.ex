@@ -338,7 +338,7 @@ defmodule Money.Subscription do
       30
 
   """
-  @spec days_remaining(Money.Subscription.Plan.t, Date.t) :: integer
+  @spec days_remaining(Money.Subscription.Plan.t(), Date.t()) :: integer
   def plan_days(plan, last_billing_date) do
     plan
     |> next_billing_date(last_billing_date)
@@ -371,7 +371,7 @@ defmodule Money.Subscription do
       27
 
   """
-  @spec days_remaining(Money.Subscription.Plan.t, Date.t, Date.t) :: integer
+  @spec days_remaining(Money.Subscription.Plan.t(), Date.t(), Date.t()) :: integer
   def days_remaining(plan, last_billing_date, effective_date \\ Date.utc_today()) do
     plan
     |> next_billing_date(last_billing_date)
@@ -403,7 +403,7 @@ defmodule Money.Subscription do
       ~D[2018-03-03]
 
   """
-  @spec next_billing_date(Money.Subscription.Plan.t, Date.t) :: Date.t
+  @spec next_billing_date(Money.Subscription.Plan.t(), Date.t()) :: Date.t()
   def next_billing_date(%{interval: :day, interval_count: count}, %{
         year: year,
         month: month,
