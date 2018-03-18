@@ -4,11 +4,14 @@ defmodule MoneySubscriptionTest do
   alias Money.Subscription.Change
   alias Money.Subscription
 
+  doctest Money.Subscription
+  doctest Money.Subscription.Plan
+
   test "plan change at end of period has no credit and correct billing dates" do
     p1 = %{interval: :day, interval_count: 30, price: Money.new(:USD, 100)}
     p2 = %{interval: :day, interval_count: 30, price: Money.new(:USD, 200)}
 
-    changeset = Money.Subscription.change(p1, p2, ~D[2018-03-01])
+    changeset = Money.Subscription.change_plan(p1, p2, previous_billing_date: ~D[2018-03-01])
 
     assert changeset.next_billing_amount == Money.new(:USD, 200)
     assert changeset.next_billing_date == ~D[2018-03-31]
@@ -19,7 +22,13 @@ defmodule MoneySubscriptionTest do
     p1 = %{interval: :day, interval_count: 30, price: Money.new(:USD, 100)}
     p2 = %{interval: :day, interval_count: 30, price: Money.new(:USD, 200)}
 
-    changeset = Money.Subscription.change(p1, p2, ~D[2018-03-01], effective: ~D[2018-03-16])
+    changeset =
+      Money.Subscription.change_plan(
+        p1,
+        p2,
+        previous_billing_date: ~D[2018-03-01],
+        effective: ~D[2018-03-16]
+      )
 
     assert changeset.next_billing_amount == Money.new(:USD, "150.00")
     assert changeset.next_billing_date == ~D[2018-03-16]
@@ -57,10 +66,10 @@ defmodule MoneySubscriptionTest do
              next_billing_amount: new.price,
              next_billing_date: today
            } ==
-             Money.Subscription.change(
+             Money.Subscription.change_plan(
                old,
                new,
-               ~D[2018-01-01],
+               previous_billing_date: ~D[2018-01-01],
                effective: today,
                prorate: :period
              )
@@ -90,7 +99,14 @@ defmodule MoneySubscriptionTest do
              following_billing_date: ~D[2018-11-09],
              next_billing_amount: new.price,
              next_billing_date: today
-           } == Money.Subscription.change(old, new, today, effective: today, prorate: :period)
+           } ==
+             Money.Subscription.change_plan(
+               old,
+               new,
+               previous_billing_date: today,
+               effective: today,
+               prorate: :period
+             )
   end
 
   test "should get at least 1 day when subscription upgrade is from a very low subscription to a very high one" do
@@ -109,10 +125,10 @@ defmodule MoneySubscriptionTest do
              next_billing_amount: new.price,
              next_billing_date: today
            } ==
-             Money.Subscription.change(
+             Money.Subscription.change_plan(
                old,
                new,
-               ~D[2018-01-01],
+               previous_billing_date: ~D[2018-01-01],
                effective: today,
                prorate: :period
              )
@@ -122,7 +138,13 @@ defmodule MoneySubscriptionTest do
     p1 = Plan.new!(Money.new(:USD, 1000), :day, 20)
     p2 = Plan.new!(Money.new(:USD, 10), :day, 10)
 
-    changeset = Subscription.change(p1, p2, ~D[2018-01-01], effective: ~D[2018-01-05])
+    changeset =
+      Subscription.change_plan(
+        p1,
+        p2,
+        previous_billing_date: ~D[2018-01-01],
+        effective: ~D[2018-01-05]
+      )
 
     assert changeset == %Change{
              carry_forward: Money.new(:USD, "-790.00"),
