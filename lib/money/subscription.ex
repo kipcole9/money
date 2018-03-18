@@ -86,11 +86,11 @@ defmodule Money.Subscription do
   alias Money.Subscription.{Change, Plan}
 
   @type id :: term()
-  @type t :: %{id: id(), previous_billing_date: DateTime.t(), plans: list(Plant.t())}
+  @type t :: %{id: id(), current_interval_started: DateTime.t(), plans: list(Plant.t())}
 
   defstruct id: nil,
-            previous_billing_date: nil,
-            next_billing_date: nil,
+            current_interval_started: nil,
+            next_interval_starts: nil,
             plans: [],
             created_at: nil
 
@@ -122,7 +122,7 @@ defmodule Money.Subscription do
 
   * `current_plan` is a map with at least the fields `interval`, `interval_count` and `price`
   * `new_plan` is a map with at least the fields `interval`, `interval_count` and `price`
-  * `previous_billing_date` is a `Date.t` or other map with the fields `year`, `month`,
+  * `current_interval_started` is a `Date.t` or other map with the fields `year`, `month`,
     `day` and `calendar`
   * `options` is a keyword map of options the define how the change is to be made
 
@@ -146,13 +146,13 @@ defmodule Money.Subscription do
 
   A `Money.Subscription.Change.t` with the following elements:
 
-  * `:next_billing_date` which is the next billing date derived from the option
+  * `:next_interval_starts` which is the next billing date derived from the option
     `:effective` given to `change/4`
 
   * `:next_billing_amount` is the amount to be billed, net of any credit, at
-    the `:next_billing_date`
+    the `:next_interval_starts`
 
-  * `:following_billing_date` is the the billing date after the `:next_billing_date`
+  * `:following_interval_starts` is the the billing date after the `:next_interval_starts`
     including any `credit_days_applied`
 
   * `:credit_amount` is the amount of unconsumed credit of the current plan
@@ -161,11 +161,11 @@ defmodule Money.Subscription do
     the `:prorate` option is `:price` (the default) the next `:next_billing_amount`
     is the plan `:price` reduced by the `:credit_amount_applied`. If the `:prorate`
     option is `:period` then the `:next_billing_amount` is not adjusted.  In this
-    case the `:following_billing_date` is extended by the `:credit-days_applied`
+    case the `:following_interval_starts` is extended by the `:credit-days_applied`
     instead.
 
   * `:credit_days_applied` is the number of days credit applied to the next billing
-    by adding days to the `:following_billing_date`.
+    by adding days to the `:following_interval_starts`.
 
   * `:credit_period_ends` is the date on which any applied credit is consumed or `nil`
 
@@ -179,46 +179,46 @@ defmodule Money.Subscription do
       # Change at end of the current period so no proration
       iex> current = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 1)
       iex> new = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 3)
-      iex> Money.Subscription.change_plan current, new, previous_billing_date: ~D[2018-01-01]
+      iex> Money.Subscription.change_plan current, new, current_interval_started: ~D[2018-01-01]
       %Money.Subscription.Change{
         carry_forward: Money.zero(:USD),
         credit_amount: Money.zero(:USD),
         credit_amount_applied: Money.zero(:USD),
         credit_days_applied: 0,
         credit_period_ends: nil,
-        following_billing_date: ~D[2018-03-01],
+        following_interval_starts: ~D[2018-03-01],
         next_billing_amount: Money.new(:USD, 10),
-        next_billing_date: ~D[2018-02-01]
+        next_interval_starts: ~D[2018-02-01]
       }
 
       # Change during the current plan generates a credit amount
       iex> current = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 1)
       iex> new = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 3)
-      iex> Money.Subscription.change_plan current, new, previous_billing_date: ~D[2018-01-01], effective: ~D[2018-01-15]
+      iex> Money.Subscription.change_plan current, new, current_interval_started: ~D[2018-01-01], effective: ~D[2018-01-15]
       %Money.Subscription.Change{
         carry_forward: Money.zero(:USD),
         credit_amount: Money.new(:USD, "5.49"),
         credit_amount_applied: Money.new(:USD, "5.49"),
         credit_days_applied: 0,
         credit_period_ends: nil,
-        following_billing_date: ~D[2018-04-15],
+        following_interval_starts: ~D[2018-04-15],
         next_billing_amount: Money.new(:USD, "4.51"),
-        next_billing_date: ~D[2018-01-15]
+        next_interval_starts: ~D[2018-01-15]
       }
 
       # Change during the current plan generates a credit period
       iex> current = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 1)
       iex> new = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 3)
-      iex> Money.Subscription.change_plan current, new, previous_billing_date: ~D[2018-01-01], effective: ~D[2018-01-15], prorate: :period
+      iex> Money.Subscription.change_plan current, new, current_interval_started: ~D[2018-01-01], effective: ~D[2018-01-15], prorate: :period
       %Money.Subscription.Change{
         carry_forward: Money.zero(:USD),
         credit_amount: Money.new(:USD, "5.49"),
         credit_amount_applied: Money.zero(:USD),
         credit_days_applied: 50,
         credit_period_ends: ~D[2018-03-05],
-        following_billing_date: ~D[2018-06-04],
+        following_interval_starts: ~D[2018-06-04],
         next_billing_amount: Money.new(:USD, 10),
-        next_billing_date: ~D[2018-01-15]
+        next_interval_starts: ~D[2018-01-15]
       }
 
   """
@@ -238,7 +238,7 @@ defmodule Money.Subscription do
     options =
       options_from(options, default_options())
       |> Keyword.put_new(:current_start_date, current_start_date)
-      |> Keyword.put_new(:previous_billing_date, subscription.previous_billing_date)
+      |> Keyword.put_new(:current_interval_started, subscription.current_interval_started)
 
     change_plan(current_plan, new_plan, options[:effective], options)
   end
@@ -256,13 +256,13 @@ defmodule Money.Subscription do
   # no proration and is therefore the easiest to calculate.
   defp change_plan(current_plan, new_plan, :next_period, options) do
     price = Map.get(new_plan, :price)
-    next_billing_date = next_billing_date(current_plan, options[:previous_billing_date])
+    next_interval_starts = next_interval_starts(current_plan, options[:current_interval_started])
     zero = Money.zero(price.currency)
 
     %Change{
       next_billing_amount: price,
-      next_billing_date: next_billing_date,
-      following_billing_date: next_billing_date(current_plan, next_billing_date),
+      next_interval_starts: next_interval_starts,
+      following_interval_starts: next_interval_starts(current_plan, next_interval_starts),
       credit_amount_applied: zero,
       credit_amount: zero,
       credit_days_applied: 0,
@@ -298,9 +298,9 @@ defmodule Money.Subscription do
       end
 
     %Change{
-      next_billing_date: effective_date,
+      next_interval_starts: effective_date,
       next_billing_amount: next_billing_amount,
-      following_billing_date: next_billing_date(plan, effective_date),
+      following_interval_starts: next_interval_starts(plan, effective_date),
       credit_amount: credit_amount,
       credit_amount_applied: Money.add!(credit_amount, carry_forward),
       credit_days_applied: 0,
@@ -312,16 +312,16 @@ defmodule Money.Subscription do
   # Extend the first period of the new plan by the amount of credit
   # on the current plan
   defp prorate(plan, credit_amount, effective_date, :period, options) do
-    {following_billing_date, days_credit} =
+    {following_interval_starts, days_credit} =
       extend_period(plan, credit_amount, effective_date, options)
 
     next_billing_amount = Map.get(plan, :price)
     credit_period_ends = Date.add(effective_date, days_credit - 1)
 
     %Change{
-      next_billing_date: effective_date,
+      next_interval_starts: effective_date,
       next_billing_amount: next_billing_amount,
-      following_billing_date: following_billing_date,
+      following_interval_starts: following_interval_starts,
       credit_amount: credit_amount,
       credit_amount_applied: zero(plan),
       credit_days_applied: days_credit,
@@ -333,7 +333,7 @@ defmodule Money.Subscription do
   defp plan_credit(%{price: price} = plan, effective_date, options) do
     plan_days = plan_days(plan, effective_date)
     price_per_day = Decimal.div(price.amount, Decimal.new(plan_days))
-    days_remaining = days_remaining(plan, options[:previous_billing_date], effective_date)
+    days_remaining = days_remaining(plan, options[:current_interval_started], effective_date)
 
     price_per_day
     |> Decimal.mult(Decimal.new(days_remaining))
@@ -354,11 +354,11 @@ defmodule Money.Subscription do
       |> Decimal.round(0, options[:round])
       |> Decimal.to_integer()
 
-    following_billing_date =
-      next_billing_date(plan, effective_date)
+    following_interval_starts =
+      next_interval_starts(plan, effective_date)
       |> Date.add(credit_days_applied)
 
-    {following_billing_date, credit_days_applied}
+    {following_interval_starts, credit_days_applied}
   end
 
   @doc """
@@ -368,7 +368,7 @@ defmodule Money.Subscription do
 
   * `plan` is any `Money.Subscription.Plan.t`
 
-  * `previous_billing_date` is a `Date.t`
+  * `current_interval_started` is a `Date.t`
 
   ## Returns
 
@@ -386,10 +386,10 @@ defmodule Money.Subscription do
 
   """
   @spec days_remaining(Plan.t(), Date.t()) :: integer
-  def plan_days(plan, previous_billing_date) do
+  def plan_days(plan, current_interval_started) do
     plan
-    |> next_billing_date(previous_billing_date)
-    |> Date.diff(previous_billing_date)
+    |> next_interval_starts(current_interval_started)
+    |> Date.diff(current_interval_started)
   end
 
   @doc """
@@ -399,10 +399,10 @@ defmodule Money.Subscription do
 
   * `plan` is any `Money.Subscription.Plan.t`
 
-  * `previous_billing_date` is a `Date.t`
+  * `current_interval_started` is a `Date.t`
 
   * `effective_date` is a `Date.t` after the
-    `previous_billing_date` and before the end of
+    `current_interval_started` and before the end of
     the `plan_days`
 
   ## Returns
@@ -419,9 +419,9 @@ defmodule Money.Subscription do
 
   """
   @spec days_remaining(Plan.t(), Date.t(), Date.t()) :: integer
-  def days_remaining(plan, previous_billing_date, effective_date \\ Date.utc_today()) do
+  def days_remaining(plan, current_interval_started, effective_date \\ Date.utc_today()) do
     plan
-    |> next_billing_date(previous_billing_date)
+    |> next_interval_starts(current_interval_started)
     |> Date.diff(effective_date)
   end
 
@@ -432,7 +432,7 @@ defmodule Money.Subscription do
 
   * `plan` is a `Money.Subscription.Plan.t`
 
-  * `previous_billing_date` is the date of the last bill that
+  * `current_interval_started` is the date of the last bill that
     represents the start of the billing period
 
   ## Returns
@@ -442,16 +442,16 @@ defmodule Money.Subscription do
   ## Example
 
       iex> plan = Money.Subscription.Plan.new!(Money.new!(:USD, 100), :month)
-      iex> Money.Subscription.next_billing_date(plan, ~D[2018-03-01])
+      iex> Money.Subscription.next_interval_starts(plan, ~D[2018-03-01])
       ~D[2018-04-01]
 
       iex> plan = Money.Subscription.Plan.new!(Money.new!(:USD, 100), :day, 30)
-      iex> Money.Subscription.next_billing_date(plan, ~D[2018-02-01])
+      iex> Money.Subscription.next_interval_starts(plan, ~D[2018-02-01])
       ~D[2018-03-03]
 
   """
-  @spec next_billing_date(Plan.t(), Date.t()) :: Date.t()
-  def next_billing_date(%{interval: :day, interval_count: count}, %{
+  @spec next_interval_starts(Plan.t(), Date.t()) :: Date.t()
+  def next_interval_starts(%{interval: :day, interval_count: count}, %{
         year: year,
         month: month,
         day: day,
@@ -465,15 +465,15 @@ defmodule Money.Subscription do
     date
   end
 
-  def next_billing_date(%{interval: :week, interval_count: count}, previous_billing_date) do
-    next_billing_date(%{interval: :day, interval_count: count * 7}, previous_billing_date)
+  def next_interval_starts(%{interval: :week, interval_count: count}, current_interval_started) do
+    next_interval_starts(%{interval: :day, interval_count: count * 7}, current_interval_started)
   end
 
-  def next_billing_date(
+  def next_interval_starts(
         %{interval: :month, interval_count: count} = plan,
-        %{year: year, month: month, day: day, calendar: calendar} = previous_billing_date
+        %{year: year, month: month, day: day, calendar: calendar} = current_interval_started
       ) do
-    months_in_this_year = months_in_year(previous_billing_date)
+    months_in_this_year = months_in_year(current_interval_started)
 
     {year, month} =
       if count + month <= months_in_this_year do
@@ -481,8 +481,8 @@ defmodule Money.Subscription do
       else
         months_left_this_year = months_in_this_year - month
         plan = %{plan | interval_count: count - months_left_this_year - 1}
-        previous_billing_date = %{previous_billing_date | year: year + 1, month: 1, day: day}
-        date = next_billing_date(plan, previous_billing_date)
+        current_interval_started = %{current_interval_started | year: year + 1, month: 1, day: day}
+        date = next_interval_starts(plan, current_interval_started)
         {Map.get(date, :year), Map.get(date, :month)}
       end
 
@@ -491,15 +491,15 @@ defmodule Money.Subscription do
       |> calendar.days_in_month(month)
       |> min(day)
 
-    {:ok, next_billing_date} = Date.new(year, month, day, calendar)
-    next_billing_date
+    {:ok, next_interval_starts} = Date.new(year, month, day, calendar)
+    next_interval_starts
   end
 
-  def next_billing_date(
+  def next_interval_starts(
         %{interval: :year, interval_count: count},
-        %{year: year} = previous_billing_date
+        %{year: year} = current_interval_started
       ) do
-    %{previous_billing_date | year: year + count}
+    %{current_interval_started | year: year + count}
   end
 
   ## Helpers

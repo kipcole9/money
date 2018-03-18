@@ -34,8 +34,8 @@ defmodule Money.Subscription.Change do
 
   defstruct [
     :next_billing_amount,
-    :next_billing_date,
-    :following_billing_date,
+    :next_interval_starts,
+    :following_interval_starts,
     :credit_amount_applied,
     :credit_amount,
     :credit_days_applied,
