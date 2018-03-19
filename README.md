@@ -376,7 +376,7 @@ The primary functions supporting subscriptions are:
 * Create a new subscription: `Money.Subscription.new/1`
 * Create a subscription plan: `Money.Subscription.Plan.new/3`
 * Change a from one plan to another: `Money.Subscription.change_plan/3`
-* Calculate the start date for the next interval of a plan: `Money.Subscription.next_period_starts/3`
+* Calculate the start date for the next interval of a plan: `Money.Subscription.next_interval_starts/3`
 * Calculate the number of days in a plan interval: `Money.Subscription.plan_days/3`
 * Calculate the number of days left in a plan interval: `Money.Subscription.days_remaining/4`
 
@@ -422,9 +422,9 @@ iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_sta
   credit_amount_applied: #Money<:USD, 0>,
   credit_days_applied: 0,
   credit_period_ends: nil,
-  following_billing_date: ~D[2018-05-01],
-  next_billing_amount: #Money<:USD, 10>,
-  next_billing_date: ~D[2018-04-01]
+  first_billing_amount: #Money<:USD, 10>,
+  first_interval_starts: ~D[2018-04-01],
+  next_interval_starts: ~D[2018-07-01]
 }
 
 # Change plans in the middle of the current plan period
@@ -436,9 +436,9 @@ iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_sta
   credit_amount_applied: #Money<:USD, 5.49>,
   credit_days_applied: 0,
   credit_period_ends: nil,
-  following_billing_date: ~D[2018-06-15],
-  next_billing_amount: #Money<:USD, 4.51>,
-  next_billing_date: ~D[2018-03-15]
+  first_billing_amount: #Money<:USD, 4.51>,
+  first_interval_starts: ~D[2018-03-15],
+  next_interval_starts: ~D[2018-06-15]
 }
 
 # Change plans in the middle of the current plan period
@@ -451,9 +451,9 @@ iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_sta
   credit_amount_applied: #Money<:USD, 0>,
   credit_days_applied: 51,
   credit_period_ends: ~D[2018-05-04],
-  following_billing_date: ~D[2018-08-05],
-  next_billing_amount: #Money<:USD, 10>,
-  next_billing_date: ~D[2018-03-15]
+  first_billing_amount: #Money<:USD, 10>,
+  first_interval_starts: ~D[2018-03-15],
+  next_interval_starts: ~D[2018-08-05]
 }
 ```
 
