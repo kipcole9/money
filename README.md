@@ -373,11 +373,12 @@ Subscriptions, especially in the context of a SaaS, can involve changing plans -
 
 The primary functions supporting subscriptions are:
 
+* Create a new subscription: `Money.Subscription.new/1`
 * Create a subscription plan: `Money.Subscription.Plan.new/3`
-* Change a from one plan to another: `Money.Subscription.change/4`
-* Calculate the next billing date for a plan: `Money.Subscription.next_billing_date/2`
-* Calculate the number of days in a billing period: `Money.Subscription.plan_days/2`
-* Calculate the number of days left in a billing period: `Money.Subscription.days_remaining/3`
+* Change a from one plan to another: `Money.Subscription.change_plan/3`
+* Calculate the start date for the next interval of a plan: `Money.Subscription.next_period_starts/3`
+* Calculate the number of days in a plan interval: `Money.Subscription.plan_days/3`
+* Calculate the number of days left in a plan interval: `Money.Subscription.days_remaining/4`
 
 ### Examples
 
@@ -402,7 +403,7 @@ iex> Money.Subscription.days_remaining current_plan, ~D[2018-03-01], ~D[2018-03-
 22
 
 # When is the next billing date
-iex> Money.Subscription.next_billing_date current_plan, ~D[2018-03-01]
+iex> Money.Subscription.next_interval_starts current_plan, ~D[2018-03-01]
 ~D[2018-04-01]
 
 # Create a new plan
@@ -414,7 +415,7 @@ iex> new_plan = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 3)
 }
 
 # Change plans at the end of the current billing period
-iex> Money.Subscription.change current_plan, new_plan, ~D[2018-03-01]
+iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01]
 %Money.Subscription.Change{
   carry_forward: #Money<:USD, 0>,
   credit_amount: #Money<:USD, 0>,
@@ -428,7 +429,7 @@ iex> Money.Subscription.change current_plan, new_plan, ~D[2018-03-01]
 
 # Change plans in the middle of the current plan period
 # and credit the balance of the current plan to the new plan
-iex> Money.Subscription.change current_plan, new_plan, ~D[2018-03-01], effective: ~D[2018-03-15]
+iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01], effective: ~D[2018-03-15]
 %Money.Subscription.Change{
   carry_forward: #Money<:USD, 0>,
   credit_amount: #Money<:USD, 5.49>,
@@ -443,7 +444,7 @@ iex> Money.Subscription.change current_plan, new_plan, ~D[2018-03-01], effective
 # Change plans in the middle of the current plan period
 # but instead of a monetary credit, apply the credit as
 # extra days on the new plan in the first billing period
-iex> Money.Subscription.change current_plan, new_plan, ~D[2018-03-01], effective: ~D[2018-03-15], prorate: :period
+iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01], effective: ~D[2018-03-15], prorate: :period
 %Money.Subscription.Change{
   carry_forward: #Money<:USD, 0>,
   credit_amount: #Money<:USD, 5.49>,
