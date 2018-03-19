@@ -25,7 +25,7 @@ defmodule Money.Subscription do
       be a credit on the current plan which needs to be applied
       to the new plan.
 
-  See `Money.Subscription.change/4`
+  See `Money.Subscription.change_plan/3`
 
   ### When the new plan is effective at the end of the current billing period
 
@@ -165,7 +165,7 @@ defmodule Money.Subscription do
   * `:first_interval_started` determines the anchor day for monthly billing.  For
     example if a monthly plan starts on January 31st then the next period will start
     on February 28th (or 29th).  But the period following that should be March 31st.
-    If `subscription_or_plan` is `Money.Subscription.t` then the `:first_interval_started`
+    If `subscription_or_plan` is a `Money.Subscription.t` then the `:first_interval_started`
     is automatically populated from the subscription. If `:first_interval_started` is
     `nil` then the date defined by `:effective` is used.
 
@@ -280,7 +280,7 @@ defmodule Money.Subscription do
     change_plan(current_plan, new_plan, options[:effective], options)
   end
 
-  # Change the plan at the end of the current billing period.  This requires
+  # Change the plan at the end of the current plan interval.  This requires
   # no proration and is therefore the easiest to calculate.
   defp change_plan(current_plan, new_plan, :next_period, options) do
     price = Map.get(new_plan, :price)
@@ -390,7 +390,7 @@ defmodule Money.Subscription do
   end
 
   @doc """
-  Returns number of days in the plan period
+  Returns number of days in the plan interval.
 
   ## Arguments
 
@@ -400,7 +400,7 @@ defmodule Money.Subscription do
 
   ## Returns
 
-  The number of days in the billing period
+  The number of days in the plan interval.
 
   ## Examples
 
@@ -421,7 +421,7 @@ defmodule Money.Subscription do
   end
 
   @doc """
-  Returns number of days remaining in the plan period
+  Returns number of days remaining in the plan interval.
 
   ## Arguments
 
@@ -435,7 +435,7 @@ defmodule Money.Subscription do
 
   ## Returns
 
-  The number of days remaining in the billing period
+  The number of days remaining in the plan interval
 
   ## Examples
 
@@ -454,7 +454,7 @@ defmodule Money.Subscription do
   end
 
   @doc """
-  Returns the next billing date for a plan
+  Returns the next billing date for a plan.
 
   ## Arguments
 

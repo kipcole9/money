@@ -351,7 +351,7 @@ As noted in the [configuration](#configuration) section, `ex_money` can preload 
 
 * `Money.ExchangeRates.retrieve_historic/1` and `Money.ExchangeRates.retrieve_historic/2` can be called to request retrieval of historic rates at any time.  This call will send a message to the retrieval service to request retrieval.  It does not return the rates.
 
-* `Money.ExchangeRates.historic_rates/1` is the partner function to `Money.ExchangeRates.latest_rates/1`.  It returns the exchange rates for a given date, and will return an error if no rates are available.
+* `Money.ExchangeRates.historic_rates/1` is the partner function to `Money.ExchangeRates.latest_rates/0`.  It returns the exchange rates for a given date, and will return an error if no rates are available.
 
 ### Financial Functions
 
