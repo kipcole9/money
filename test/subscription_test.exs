@@ -13,9 +13,9 @@ defmodule MoneySubscriptionTest do
 
     changeset = Money.Subscription.change_plan(p1, p2, current_interval_started: ~D[2018-03-01])
 
-    assert changeset.next_billing_amount == Money.new(:USD, 200)
+    assert changeset.first_billing_amount == Money.new(:USD, 200)
     assert changeset.first_interval_starts == ~D[2018-03-31]
-    assert changeset.following_interval_starts == ~D[2018-04-30]
+    assert changeset.next_interval_starts == ~D[2018-04-30]
   end
 
   test "plan change at 50% of period has no credit and correct billing dates" do
@@ -30,13 +30,13 @@ defmodule MoneySubscriptionTest do
         effective: ~D[2018-03-16]
       )
 
-    assert changeset.next_billing_amount == Money.new(:USD, "150.00")
+    assert changeset.first_billing_amount == Money.new(:USD, "150.00")
     assert changeset.first_interval_starts == ~D[2018-03-16]
-    assert changeset.following_interval_starts == ~D[2018-04-15]
+    assert changeset.next_interval_starts == ~D[2018-04-15]
     assert changeset.credit_amount_applied == Money.new(:USD, "50.00")
 
     assert Money.cmp!(
-             Money.add!(changeset.credit_amount_applied, changeset.next_billing_amount),
+             Money.add!(changeset.credit_amount_applied, changeset.first_billing_amount),
              p2.price
            ) == :eq
   end
@@ -62,8 +62,8 @@ defmodule MoneySubscriptionTest do
              credit_amount_applied: Money.zero(:CHF),
              credit_days_applied: 68,
              credit_period_ends: ~D[2018-04-22],
-             following_interval_starts: ~D[2018-10-21],
-             next_billing_amount: new.price,
+             next_interval_starts: ~D[2018-10-21],
+             first_billing_amount: new.price,
              first_interval_starts: today
            } ==
              Money.Subscription.change_plan(
@@ -96,8 +96,8 @@ defmodule MoneySubscriptionTest do
              credit_amount_applied: Money.zero(:CHF),
              credit_days_applied: 131,
              credit_period_ends: ~D[2018-05-11],
-             following_interval_starts: ~D[2018-11-09],
-             next_billing_amount: new.price,
+             next_interval_starts: ~D[2018-11-09],
+             first_billing_amount: new.price,
              first_interval_starts: today
            } ==
              Money.Subscription.change_plan(
@@ -121,8 +121,8 @@ defmodule MoneySubscriptionTest do
              credit_amount_applied: Money.zero(:CHF),
              credit_days_applied: 1,
              credit_period_ends: ~D[2018-01-14],
-             following_interval_starts: ~D[2021-01-15],
-             next_billing_amount: new.price,
+             next_interval_starts: ~D[2021-01-15],
+             first_billing_amount: new.price,
              first_interval_starts: today
            } ==
              Money.Subscription.change_plan(
@@ -152,8 +152,8 @@ defmodule MoneySubscriptionTest do
              credit_amount_applied: Money.new(:USD, "10.00"),
              credit_days_applied: 0,
              credit_period_ends: nil,
-             following_interval_starts: ~D[2018-01-15],
-             next_billing_amount: Money.zero(:USD),
+             next_interval_starts: ~D[2018-01-15],
+             first_billing_amount: Money.zero(:USD),
              first_interval_starts: ~D[2018-01-05]
            }
   end

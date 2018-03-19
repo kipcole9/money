@@ -90,7 +90,6 @@ defmodule Money.Subscription do
 
   defstruct id: nil,
             current_interval_started: nil,
-            next_interval_starts: nil,
             plans: [],
             created_at: nil
 
@@ -105,8 +104,24 @@ defmodule Money.Subscription do
       default_subscription_options()
       |> Keyword.merge(options)
 
+    options = Keyword.put(options, :current_interval_started, options[:effective_date])
+
+    plan = options[:plan]
+    effective_date = options[:effective_date]
+    next_interval_starts = next_interval_starts(plan, effective_date)
+    first_billing_amount = plan.price
+
+    changes = %Change{
+      first_interval_starts: effective_date,
+      next_interval_starts: next_interval_starts,
+      first_billing_amount: first_billing_amount,
+      credit_amount_applied: Money.zero(first_billing_amount),
+      credit_amount: Money.zero(first_billing_amount),
+      carry_forward: Money.zero(first_billing_amount)
+    }
+
     struct(__MODULE__, options)
-    |> Map.put(:plans, {options[:effective_date], options[:plan]})
+    |> Map.put(:plans, [{changes, plan}])
   end
 
   defp default_subscription_options do
@@ -120,10 +135,15 @@ defmodule Money.Subscription do
 
   ## Arguments
 
-  * `current_plan` is a map with at least the fields `interval`, `interval_count` and `price`
-  * `new_plan` is a map with at least the fields `interval`, `interval_count` and `price`
+  * `subscription_or_plan` is either a `Money.Subscription.t` or `Money.Subscription.Plan.t`
+    or a map with the same fields
+
+  * `new_plan` is a `Money.Subscription.Plan.t` or a map with at least the fields
+    `interval`, `interval_count` and `price`
+
   * `current_interval_started` is a `Date.t` or other map with the fields `year`, `month`,
     `day` and `calendar`
+
   * `options` is a keyword map of options the define how the change is to be made
 
   ## Options
@@ -146,33 +166,33 @@ defmodule Money.Subscription do
 
   A `Money.Subscription.Change.t` with the following elements:
 
-  * `:next_interval_starts` which is the next billing date derived from the option
-    `:effective` given to `change/4`
+  * `:first_interval_starts` which is the start date of the first interval for the new
+    plan
 
-  * `:next_billing_amount` is the amount to be billed, net of any credit, at
-    the `:next_interval_starts`
+  * `:first_billing_amount` is the amount to be billed, net of any credit, at
+    the `:first_billing_date`
 
-  * `:following_interval_starts` is the the billing date after the `:next_interval_starts`
-    including any `credit_days_applied`
+  * `:next_interval_starts` is the start date of the next interval after the `
+    first interval `including any `credit_days_applied`
 
   * `:credit_amount` is the amount of unconsumed credit of the current plan
 
   * `:credit_amount_applied` is the amount of credit applied to the new plan. If
-    the `:prorate` option is `:price` (the default) the next `:next_billing_amount`
+    the `:prorate` option is `:price` (the default) the next `:first_billing_amount`
     is the plan `:price` reduced by the `:credit_amount_applied`. If the `:prorate`
-    option is `:period` then the `:next_billing_amount` is not adjusted.  In this
-    case the `:following_interval_starts` is extended by the `:credit-days_applied`
+    option is `:period` then the `:first_billing_amount` is not adjusted.  In this
+    case the `:next_interval_date` is extended by the `:credit_days_applied`
     instead.
 
-  * `:credit_days_applied` is the number of days credit applied to the next billing
-    by adding days to the `:following_interval_starts`.
+  * `:credit_days_applied` is the number of days credit applied to the first billing
+    interval by adding days to the `:next_interval_date`.
 
   * `:credit_period_ends` is the date on which any applied credit is consumed or `nil`
 
   * `:carry_forward` is any amount of credit carried forward to a subsequent period.
     If non-zero this amount is a negative `Money.t`. It is non-zero when the credit
     amount for the current plan is greater than the price of the new plan.  In
-    this case the `:next_billing_amount` is zero.
+    this case the `:first_billing_amount` is zero.
 
   ## Examples
 
@@ -186,8 +206,8 @@ defmodule Money.Subscription do
         credit_amount_applied: Money.zero(:USD),
         credit_days_applied: 0,
         credit_period_ends: nil,
-        following_interval_starts: ~D[2018-03-01],
-        next_billing_amount: Money.new(:USD, 10),
+        next_interval_starts: ~D[2018-05-01],
+        first_billing_amount: Money.new(:USD, 10),
         first_interval_starts: ~D[2018-02-01]
       }
 
@@ -201,8 +221,8 @@ defmodule Money.Subscription do
         credit_amount_applied: Money.new(:USD, "5.49"),
         credit_days_applied: 0,
         credit_period_ends: nil,
-        following_interval_starts: ~D[2018-04-15],
-        next_billing_amount: Money.new(:USD, "4.51"),
+        next_interval_starts: ~D[2018-04-15],
+        first_billing_amount: Money.new(:USD, "4.51"),
         first_interval_starts: ~D[2018-01-15]
       }
 
@@ -216,8 +236,8 @@ defmodule Money.Subscription do
         credit_amount_applied: Money.zero(:USD),
         credit_days_applied: 50,
         credit_period_ends: ~D[2018-03-05],
-        following_interval_starts: ~D[2018-06-04],
-        next_billing_amount: Money.new(:USD, 10),
+        next_interval_starts: ~D[2018-06-04],
+        first_billing_amount: Money.new(:USD, 10),
         first_interval_starts: ~D[2018-01-15]
       }
 
@@ -226,21 +246,22 @@ defmodule Money.Subscription do
           subscription_or_plan :: __MODULE__.t() | Plan.t(),
           new_plan :: Map.t(),
           options :: Keyword.t()
-        ) :: Map.t()
+        ) :: Change.t()
   def change_plan(subscription_or_plan, new_plan, options \\ [])
 
   def change_plan(
-        %{plans: [{current_start_date, %{price: %Money{currency: currency}} = current_plan} | _]} =
+        %{plans: [{changes, %{price: %Money{currency: currency}} = current_plan} | _] = plans} =
           subscription,
         %{price: %Money{currency: currency}} = new_plan,
         options
       ) do
     options =
-      options_from(options, default_options())
-      |> Keyword.put_new(:current_start_date, current_start_date)
-      |> Keyword.put_new(:current_interval_started, subscription.current_interval_started)
+      change_plan_options_from(options, default_options())
+      |> Map.put(:current_first_interval_started, changes.first_interval_starts)
+      |> Map.put(:current_interval_started, subscription.current_interval_started)
 
-    change_plan(current_plan, new_plan, options[:effective], options)
+    changes = change_plan(current_plan, new_plan, options)
+    %__MODULE__{subscription | plans: [{changes, new_plan} | plans]}
   end
 
   def change_plan(
@@ -248,7 +269,7 @@ defmodule Money.Subscription do
         %{price: %Money{currency: currency}} = new_plan,
         options
       ) do
-    options = options_from(options, default_options())
+    options = change_plan_options_from(options, default_options())
     change_plan(current_plan, new_plan, options[:effective], options)
   end
 
@@ -260,9 +281,9 @@ defmodule Money.Subscription do
     zero = Money.zero(price.currency)
 
     %Change{
-      next_billing_amount: price,
+      first_billing_amount: price,
       first_interval_starts: first_interval_starts,
-      following_interval_starts: next_interval_starts(current_plan, first_interval_starts),
+      next_interval_starts: next_interval_starts(new_plan, first_interval_starts),
       credit_amount_applied: zero,
       credit_amount: zero,
       credit_days_applied: 0,
@@ -290,7 +311,7 @@ defmodule Money.Subscription do
 
     zero = zero(plan)
 
-    {next_billing_amount, carry_forward} =
+    {first_billing_amount, carry_forward} =
       if Money.cmp(prorate_price, zero) == :lt do
         {zero, prorate_price}
       else
@@ -299,8 +320,8 @@ defmodule Money.Subscription do
 
     %Change{
       first_interval_starts: effective_date,
-      next_billing_amount: next_billing_amount,
-      following_interval_starts: next_interval_starts(plan, effective_date),
+      first_billing_amount: first_billing_amount,
+      next_interval_starts: next_interval_starts(plan, effective_date),
       credit_amount: credit_amount,
       credit_amount_applied: Money.add!(credit_amount, carry_forward),
       credit_days_applied: 0,
@@ -312,16 +333,16 @@ defmodule Money.Subscription do
   # Extend the first period of the new plan by the amount of credit
   # on the current plan
   defp prorate(plan, credit_amount, effective_date, :period, options) do
-    {following_interval_starts, days_credit} =
+    {next_interval_starts, days_credit} =
       extend_period(plan, credit_amount, effective_date, options)
 
-    next_billing_amount = Map.get(plan, :price)
+    first_billing_amount = Map.get(plan, :price)
     credit_period_ends = Date.add(effective_date, days_credit - 1)
 
     %Change{
       first_interval_starts: effective_date,
-      next_billing_amount: next_billing_amount,
-      following_interval_starts: following_interval_starts,
+      first_billing_amount: first_billing_amount,
+      next_interval_starts: next_interval_starts,
       credit_amount: credit_amount,
       credit_amount_applied: zero(plan),
       credit_days_applied: days_credit,
@@ -354,11 +375,11 @@ defmodule Money.Subscription do
       |> Decimal.round(0, options[:round])
       |> Decimal.to_integer()
 
-    following_interval_starts =
+    next_interval_starts =
       next_interval_starts(plan, effective_date)
       |> Date.add(credit_days_applied)
 
-    {following_interval_starts, credit_days_applied}
+    {next_interval_starts, credit_days_applied}
   end
 
   @doc """
@@ -512,10 +533,14 @@ defmodule Money.Subscription do
     end
   end
 
-  defp options_from(options, default_options) do
-    default_options
-    |> Keyword.merge(options)
-    |> Enum.into(%{})
+  defp change_plan_options_from(options, default_options) do
+    options =
+      default_options
+      |> Keyword.merge(options)
+      |> Enum.into(%{})
+
+    require_options!(options, [:effective, :current_interval_started])
+    Map.put_new(options, :current_first_interval_started, options[:current_interval_started])
   end
 
   defp default_options do
@@ -527,5 +552,23 @@ defmodule Money.Subscription do
     |> Map.get(:price)
     |> Map.get(:currency)
     |> Money.zero()
+  end
+
+  defp require_options!(options, [h | []]) do
+    unless options[h] do
+      raise_change_plan_options_error(h)
+    end
+  end
+
+  defp require_options!(options, [h | t]) do
+    if options[h] do
+      require_options!(options, t)
+    else
+      raise_change_plan_options_error(h)
+    end
+  end
+
+  defp raise_change_plan_options_error(opt) do
+    raise ArgumentError, "change_plan requires the the option #{inspect(opt)}"
   end
 end
