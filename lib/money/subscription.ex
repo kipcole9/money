@@ -188,7 +188,7 @@ defmodule Money.Subscription do
         credit_period_ends: nil,
         following_interval_starts: ~D[2018-03-01],
         next_billing_amount: Money.new(:USD, 10),
-        next_interval_starts: ~D[2018-02-01]
+        first_interval_starts: ~D[2018-02-01]
       }
 
       # Change during the current plan generates a credit amount
@@ -203,7 +203,7 @@ defmodule Money.Subscription do
         credit_period_ends: nil,
         following_interval_starts: ~D[2018-04-15],
         next_billing_amount: Money.new(:USD, "4.51"),
-        next_interval_starts: ~D[2018-01-15]
+        first_interval_starts: ~D[2018-01-15]
       }
 
       # Change during the current plan generates a credit period
@@ -218,7 +218,7 @@ defmodule Money.Subscription do
         credit_period_ends: ~D[2018-03-05],
         following_interval_starts: ~D[2018-06-04],
         next_billing_amount: Money.new(:USD, 10),
-        next_interval_starts: ~D[2018-01-15]
+        first_interval_starts: ~D[2018-01-15]
       }
 
   """
@@ -256,13 +256,13 @@ defmodule Money.Subscription do
   # no proration and is therefore the easiest to calculate.
   defp change_plan(current_plan, new_plan, :next_period, options) do
     price = Map.get(new_plan, :price)
-    next_interval_starts = next_interval_starts(current_plan, options[:current_interval_started])
+    first_interval_starts = next_interval_starts(current_plan, options[:current_interval_started])
     zero = Money.zero(price.currency)
 
     %Change{
       next_billing_amount: price,
-      next_interval_starts: next_interval_starts,
-      following_interval_starts: next_interval_starts(current_plan, next_interval_starts),
+      first_interval_starts: first_interval_starts,
+      following_interval_starts: next_interval_starts(current_plan, first_interval_starts),
       credit_amount_applied: zero,
       credit_amount: zero,
       credit_days_applied: 0,
@@ -298,7 +298,7 @@ defmodule Money.Subscription do
       end
 
     %Change{
-      next_interval_starts: effective_date,
+      first_interval_starts: effective_date,
       next_billing_amount: next_billing_amount,
       following_interval_starts: next_interval_starts(plan, effective_date),
       credit_amount: credit_amount,
@@ -319,7 +319,7 @@ defmodule Money.Subscription do
     credit_period_ends = Date.add(effective_date, days_credit - 1)
 
     %Change{
-      next_interval_starts: effective_date,
+      first_interval_starts: effective_date,
       next_billing_amount: next_billing_amount,
       following_interval_starts: following_interval_starts,
       credit_amount: credit_amount,

@@ -14,7 +14,7 @@ defmodule MoneySubscriptionTest do
     changeset = Money.Subscription.change_plan(p1, p2, current_interval_started: ~D[2018-03-01])
 
     assert changeset.next_billing_amount == Money.new(:USD, 200)
-    assert changeset.next_interval_starts == ~D[2018-03-31]
+    assert changeset.first_interval_starts == ~D[2018-03-31]
     assert changeset.following_interval_starts == ~D[2018-04-30]
   end
 
@@ -31,7 +31,7 @@ defmodule MoneySubscriptionTest do
       )
 
     assert changeset.next_billing_amount == Money.new(:USD, "150.00")
-    assert changeset.next_interval_starts == ~D[2018-03-16]
+    assert changeset.first_interval_starts == ~D[2018-03-16]
     assert changeset.following_interval_starts == ~D[2018-04-15]
     assert changeset.credit_amount_applied == Money.new(:USD, "50.00")
 
@@ -64,7 +64,7 @@ defmodule MoneySubscriptionTest do
              credit_period_ends: ~D[2018-04-22],
              following_interval_starts: ~D[2018-10-21],
              next_billing_amount: new.price,
-             next_interval_starts: today
+             first_interval_starts: today
            } ==
              Money.Subscription.change_plan(
                old,
@@ -98,7 +98,7 @@ defmodule MoneySubscriptionTest do
              credit_period_ends: ~D[2018-05-11],
              following_interval_starts: ~D[2018-11-09],
              next_billing_amount: new.price,
-             next_interval_starts: today
+             first_interval_starts: today
            } ==
              Money.Subscription.change_plan(
                old,
@@ -123,7 +123,7 @@ defmodule MoneySubscriptionTest do
              credit_period_ends: ~D[2018-01-14],
              following_interval_starts: ~D[2021-01-15],
              next_billing_amount: new.price,
-             next_interval_starts: today
+             first_interval_starts: today
            } ==
              Money.Subscription.change_plan(
                old,
@@ -154,7 +154,7 @@ defmodule MoneySubscriptionTest do
              credit_period_ends: nil,
              following_interval_starts: ~D[2018-01-15],
              next_billing_amount: Money.zero(:USD),
-             next_interval_starts: ~D[2018-01-05]
+             first_interval_starts: ~D[2018-01-05]
            }
   end
 

@@ -33,13 +33,13 @@ defmodule Money.Subscription.Change do
   """
 
   defstruct [
-    :next_billing_amount,
-    :next_interval_starts,
-    :following_interval_starts,
-    :credit_amount_applied,
-    :credit_amount,
-    :credit_days_applied,
-    :credit_period_ends,
-    :carry_forward
+    next_billing_amount: Decimal.new(0),
+    first_interval_starts: nil,
+    following_interval_starts: nil,
+    credit_amount_applied: Decimal.new(0),
+    credit_amount: Decimal.new(0),
+    credit_days_applied: 0,
+    credit_period_ends: nil,
+    carry_forward: Decimal.new(0)
   ]
 end
