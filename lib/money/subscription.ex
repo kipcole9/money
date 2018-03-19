@@ -108,7 +108,7 @@ defmodule Money.Subscription do
 
     plan = options[:plan]
     effective_date = options[:effective_date]
-    next_interval_starts = next_interval_starts(plan, effective_date)
+    next_interval_starts = next_interval_starts(plan, effective_date, options)
     first_billing_amount = plan.price
 
     changes = %Change{
@@ -161,6 +161,13 @@ defmodule Money.Subscription do
   * `:round` determines whether when prorating the `:period` it is truncated or rounded up
     to the next nearest full `interval_count`. Valid values are `:down`, `:half_up`,
     `:half_even`, `:ceiling`, `:floor`, `:half_down`, `:up`.  The default is `:up`.
+
+  * `:first_interval_started` determines the anchor day for monthly billing.  For
+    example if a monthly plan starts on January 31st then the next period will start
+    on February 28th (or 29th).  But the period following that should be March 31st.
+    If `subscription_or_plan` is `Money.Subscription.t` then the `:first_interval_started`
+    is automatically populated from the subscription. If `:first_interval_started` is
+    `nil` then the date defined by `:effective` is used.
 
   ## Returns
 
@@ -257,7 +264,7 @@ defmodule Money.Subscription do
       ) do
     options =
       change_plan_options_from(options, default_options())
-      |> Map.put(:current_first_interval_started, changes.first_interval_starts)
+      |> Map.put(:first_interval_started, changes.first_interval_starts)
       |> Map.put(:current_interval_started, subscription.current_interval_started)
 
     changes = change_plan(current_plan, new_plan, options)
@@ -277,13 +284,13 @@ defmodule Money.Subscription do
   # no proration and is therefore the easiest to calculate.
   defp change_plan(current_plan, new_plan, :next_period, options) do
     price = Map.get(new_plan, :price)
-    first_interval_starts = next_interval_starts(current_plan, options[:current_interval_started])
+    first_interval_starts = next_interval_starts(current_plan, options[:current_interval_started], options)
     zero = Money.zero(price.currency)
 
     %Change{
       first_billing_amount: price,
       first_interval_starts: first_interval_starts,
-      next_interval_starts: next_interval_starts(new_plan, first_interval_starts),
+      next_interval_starts: next_interval_starts(new_plan, first_interval_starts, options),
       credit_amount_applied: zero,
       credit_amount: zero,
       credit_days_applied: 0,
@@ -321,7 +328,7 @@ defmodule Money.Subscription do
     %Change{
       first_interval_starts: effective_date,
       first_billing_amount: first_billing_amount,
-      next_interval_starts: next_interval_starts(plan, effective_date),
+      next_interval_starts: next_interval_starts(plan, effective_date, options),
       credit_amount: credit_amount,
       credit_amount_applied: Money.add!(credit_amount, carry_forward),
       credit_days_applied: 0,
@@ -352,9 +359,9 @@ defmodule Money.Subscription do
   end
 
   defp plan_credit(%{price: price} = plan, effective_date, options) do
-    plan_days = plan_days(plan, effective_date)
+    plan_days = plan_days(plan, effective_date, options)
     price_per_day = Decimal.div(price.amount, Decimal.new(plan_days))
-    days_remaining = days_remaining(plan, options[:current_interval_started], effective_date)
+    days_remaining = days_remaining(plan, options[:current_interval_started], effective_date, options)
 
     price_per_day
     |> Decimal.mult(Decimal.new(days_remaining))
@@ -366,7 +373,7 @@ defmodule Money.Subscription do
   # credit will fund on the new plan in days.
   defp extend_period(plan, credit, effective_date, options) do
     price = Map.get(plan, :price)
-    plan_days = plan_days(plan, effective_date)
+    plan_days = plan_days(plan, effective_date, options)
     price_per_day = Decimal.div(price.amount, Decimal.new(plan_days))
 
     credit_days_applied =
@@ -376,7 +383,7 @@ defmodule Money.Subscription do
       |> Decimal.to_integer()
 
     next_interval_starts =
-      next_interval_starts(plan, effective_date)
+      next_interval_starts(plan, effective_date, options)
       |> Date.add(credit_days_applied)
 
     {next_interval_starts, credit_days_applied}
@@ -406,10 +413,10 @@ defmodule Money.Subscription do
       30
 
   """
-  @spec days_remaining(Plan.t(), Date.t()) :: integer
-  def plan_days(plan, current_interval_started) do
+  @spec plan_days(Plan.t(), Date.t(), Keyword.t) :: integer
+  def plan_days(plan, current_interval_started, options \\ []) do
     plan
-    |> next_interval_starts(current_interval_started)
+    |> next_interval_starts(current_interval_started, options)
     |> Date.diff(current_interval_started)
   end
 
@@ -439,10 +446,10 @@ defmodule Money.Subscription do
       27
 
   """
-  @spec days_remaining(Plan.t(), Date.t(), Date.t()) :: integer
-  def days_remaining(plan, current_interval_started, effective_date \\ Date.utc_today()) do
+  @spec days_remaining(Plan.t(), Date.t(), Date.t(), Keyword.t) :: integer
+  def days_remaining(plan, current_interval_started, effective_date, options \\ []) do
     plan
-    |> next_interval_starts(current_interval_started)
+    |> next_interval_starts(current_interval_started, options)
     |> Date.diff(effective_date)
   end
 
@@ -471,13 +478,14 @@ defmodule Money.Subscription do
       ~D[2018-03-03]
 
   """
-  @spec next_interval_starts(Plan.t(), Date.t()) :: Date.t()
+  @spec next_interval_starts(Plan.t(), Date.t(), Keyword.t) :: Date.t()
+  def next_interval_starts(plan, current_interval_started, options \\ [])
   def next_interval_starts(%{interval: :day, interval_count: count}, %{
         year: year,
         month: month,
         day: day,
         calendar: calendar
-      }) do
+      }, _options) do
     {year, month, day} =
       (calendar.date_to_iso_days(year, month, day) + count)
       |> calendar.date_from_iso_days
@@ -486,14 +494,14 @@ defmodule Money.Subscription do
     date
   end
 
-  def next_interval_starts(%{interval: :week, interval_count: count}, current_interval_started) do
-    next_interval_starts(%{interval: :day, interval_count: count * 7}, current_interval_started)
+  def next_interval_starts(%{interval: :week, interval_count: count}, current_interval_started, options) do
+    next_interval_starts(%{interval: :day, interval_count: count * 7}, current_interval_started, options)
   end
 
   def next_interval_starts(
         %{interval: :month, interval_count: count} = plan,
-        %{year: year, month: month, day: day, calendar: calendar} = current_interval_started
-      ) do
+        %{year: year, month: month, day: day, calendar: calendar} = current_interval_started,
+        options) do
     months_in_this_year = months_in_year(current_interval_started)
 
     {year, month} =
@@ -503,14 +511,14 @@ defmodule Money.Subscription do
         months_left_this_year = months_in_this_year - month
         plan = %{plan | interval_count: count - months_left_this_year - 1}
         current_interval_started = %{current_interval_started | year: year + 1, month: 1, day: day}
-        date = next_interval_starts(plan, current_interval_started)
+        date = next_interval_starts(plan, current_interval_started, options)
         {Map.get(date, :year), Map.get(date, :month)}
       end
 
     day =
       year
       |> calendar.days_in_month(month)
-      |> min(day)
+      |> min(max(day, preferred_day(options)))
 
     {:ok, next_interval_starts} = Date.new(year, month, day, calendar)
     next_interval_starts
@@ -518,7 +526,8 @@ defmodule Money.Subscription do
 
   def next_interval_starts(
         %{interval: :year, interval_count: count},
-        %{year: year} = current_interval_started
+        %{year: year} = current_interval_started,
+        _options
       ) do
     %{current_interval_started | year: year + count}
   end
@@ -540,7 +549,7 @@ defmodule Money.Subscription do
       |> Enum.into(%{})
 
     require_options!(options, [:effective, :current_interval_started])
-    Map.put_new(options, :current_first_interval_started, options[:current_interval_started])
+    Map.put_new(options, :first_interval_started, options[:current_interval_started])
   end
 
   defp default_options do
@@ -570,5 +579,13 @@ defmodule Money.Subscription do
 
   defp raise_change_plan_options_error(opt) do
     raise ArgumentError, "change_plan requires the the option #{inspect(opt)}"
+  end
+
+  defp preferred_day(%{first_interval_started: %{day: day}}) do
+    day
+  end
+
+  defp preferred_day(_options) do
+    -1
   end
 end

@@ -18,6 +18,20 @@ defmodule MoneySubscriptionTest do
     assert changeset.next_interval_starts == ~D[2018-04-30]
   end
 
+  @tag :month
+  test "plan change on January 31th should preserve 31th even past february" do
+    p1 = %{interval: :month, interval_count: 1, price: Money.new(:USD, 100)}
+    p2 = %{interval: :month, interval_count: 1, price: Money.new(:USD, 200)}
+
+    changeset = Money.Subscription.change_plan(p1, p2,
+      current_interval_started: ~D[2018-01-30],
+      first_interval_started: ~D[2017-12-31])
+
+    assert changeset.first_billing_amount == Money.new(:USD, 200)
+    assert changeset.first_interval_starts == ~D[2018-02-28]
+    assert changeset.next_interval_starts == ~D[2018-03-31]
+  end
+
   test "plan change at 50% of period has no credit and correct billing dates" do
     p1 = %{interval: :day, interval_count: 30, price: Money.new(:USD, 100)}
     p2 = %{interval: :day, interval_count: 30, price: Money.new(:USD, 200)}
