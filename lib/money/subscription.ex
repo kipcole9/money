@@ -10,15 +10,36 @@ defmodule Money.Subscription do
   to the issues of calculating the carry-over amount or
   the carry-over period at the point of plan change.
 
+  ### Defining a subscription
+
+  A subscription records this current state and history of
+  all plans assigned over time to a subscriber.  The definition
+  is deliberately minimal to simplify integration into applications
+  that have a specific implementation of a subscription.
+
+  A new subscription is created with `Money.Subscription.new/1`
+  which has the following options:
+
+  * `:plan` which defines the initial plan for the subscription.
+  This option is required.
+
+  * `:effective_date` which determines the effective date of
+  the inital plan.  This option is required.
+
+  * `:id` any term used to uniquely identify this subscription. This
+  option is optional
+
   ### Changing a subscription plan
 
   Changing a subscription plan requires the following
   information be provided:
 
   * The definition of the current plan
+
   * The definition of the new plan
-  * The last billing date
+
   * The strategy for changing the plan which is either:
+
     * to have the effective date of the new plan be after
       the current billing period of the current plan
     * To change the plan immediately in which case there will
@@ -86,28 +107,59 @@ defmodule Money.Subscription do
   alias Money.Subscription.{Change, Plan}
 
   @type id :: term()
-  @type t :: %{id: id(), current_interval_started: DateTime.t(), plans: list(Plant.t())}
 
+  @typedoc "The Money.Subscription type"
+  @type t :: %{id: id(), plans: list(Plant.t()), created_at: DateTime.t}
+
+  @doc """
+  Struct defining a subscription
+
+  * `:id` any term that uniquely identifies this subscription
+
+  * `:plans` is a list of `{change, plan}` that records the history
+    of plans assigned to this subscription
+
+  * `:creted_at` records the datetime when the subscription was created
+  """
   defstruct id: nil,
-            current_interval_started: nil,
             plans: [],
             created_at: nil
 
   @doc """
-  * `:id` an id for the subscription
-  * `:plan` the initial plan
-  * `:effective_date` the effective date of the plan which
-    is the start of the billing period
+  Creates a new subscription
+
+  ## Arguments
+
+  * `plan` is any `Money.Subscription.Plan.t` the defines the initial plan
+
+  * `effective_date` is a `Date.t` that represents the effective
+    date of the initial plan. This defines the start of the first interval
+
+  * `:options` is a keyword list of options
+
+  ## Options
+
+  * `:id` is any term that an application can use to uniquely identify
+    this subscription.  It is not used in any function in this module.
+
+  * `:created_at` is a `DateTime.t` that records the timestamp when
+    the subscription was created.  The default is `DateTime.utc_now/0`
+
+  ## Returns
+
+  * a `Money.Subscription.t`
+
   """
-  def new(options \\ []) do
+  @since "2.3.0"
+  @spec new(plan :: Plan.t, effective_date :: Date.t) :: Subscription.t
+  def new(
+      %{price: _price, interval: _interval} = plan,
+      %{year: _year, month: _month, day: _day, calendar: _calendar} = effective_date,
+      options \\ []) do
     options =
       default_subscription_options()
       |> Keyword.merge(options)
 
-    options = Keyword.put(options, :current_interval_started, options[:effective_date])
-
-    plan = options[:plan]
-    effective_date = options[:effective_date]
     next_interval_starts = next_interval_starts(plan, effective_date, options)
     first_billing_amount = plan.price
 
@@ -128,6 +180,136 @@ defmodule Money.Subscription do
     [
       created_at: DateTime.utc_now()
     ]
+  end
+
+  @doc """
+  Retrieve the plan that is currently in affect.
+
+  The plan in affect is not necessarily the first
+  plan in the list.  We may have upgraded plans to
+  be in affect at some later time.
+
+  ## Arguments
+
+  * `subscription` is a `Money.Subscription.t` or any
+    map that provides the field `:plans`
+
+  ## Returns
+
+  * The `Money.Subscription.Plan.t` that is the plan currently in affect or
+    `nil`
+
+  """
+  @since "2.3.0"
+  @spec current_plan(Subscription.t) :: Plan.t | nil
+  def current_plan(%{plans: []}) do
+    nil
+  end
+
+  def current_plan(%{plans: [h | t]}) do
+    if current_plan?(h) do
+      h
+    else
+      current_plan(%{plans: t})
+    end
+  end
+
+  # Because we walk the list from most recent to oldest, the first
+  # plan that has a start date less than or equal to the current
+  # date is the one we want
+  @since "2.3.0"
+  @spec current_plan?(Change.t) :: boolean
+  defp current_plan?({%Change{first_interval_starts: start_date}, _}) do
+    Date.compare(start_date, Date.utc_today) in [:lt, :eq]
+  end
+
+  @doc """
+  Returns the start date of the current plan
+
+  ## Arguments
+
+  * `subscription` is a `Money.Subscription.t` or any
+    map that provides the field `:plans`
+
+  ## Returns
+
+  * The `date` that is the start date of the current plan
+
+  """
+  @since "2.3.0"
+  @spec current_plan_start_date(Subscription.t) :: Date.t
+  def current_plan_start_date(%{plans: _plans} = subscription) do
+    case current_plan(subscription) do
+      {changes, _plan} -> changes.first_interval_starts
+      _ -> nil
+    end
+  end
+
+  @doc """
+  Returns the first date of the current interval of a plan
+
+  ## Arguments
+
+  * `:subscription` is any`Money.Subscription.t`
+
+  ## Returns
+
+  * The `Date.t` that is the first date of the current interval
+
+  """
+  @since "2.3.0"
+  @spec current_interval_start_date(Subscription.t | Change.t) :: Date.t
+  def current_interval_start_date(%{plans: _plans} = subscription) do
+    case current_plan(subscription) do
+      {changes, plan} -> current_interval_start_date({changes, plan})
+      _ -> {:error, :no_current_plan}
+    end
+  end
+
+  def current_interval_start_date({%Change{first_interval_starts: start_date}, plan}) do
+    today = Date.utc_today
+    next_interval_starts = next_interval_starts(plan, start_date)
+
+    case compare_range(today, start_date, next_interval_starts) do
+      :less ->
+        current_interval_start_date({%Change{first_interval_starts: next_interval_starts}, plan})
+      :between ->
+        start_date
+      :greater ->
+        {:error, :no_current_plan}
+    end
+  end
+
+  defp compare_range(date, current, next) do
+    cond do
+      Date.compare(date, current) in [:gt, :eq] and Date.compare(date, next) == :lt ->
+        :between
+      Date.compare(current, date) == :lt ->
+        :less
+      Date.compare(date, next) == :gt ->
+        :greater
+    end
+  end
+
+  @doc """
+  Returns the latest plan for a subscription.
+
+  The latest plan may not be in affect since
+  its start date may be in the future.
+
+  ## Arguments
+
+  * `subscription` is a `Money.Subscription.t` or any
+    map that provides the field `:plans`
+
+  ## Returns
+
+  * The `Money.Subscription.Plan.t` that is the most recent
+    plan - whether or not it is the currently active plan.
+
+  """
+  def latest_plan(%{plans: [h | _t]}) do
+    h
   end
 
   @doc """
@@ -164,7 +346,7 @@ defmodule Money.Subscription do
 
   * `:first_interval_started` determines the anchor day for monthly billing.  For
     example if a monthly plan starts on January 31st then the next period will start
-    on February 28th (or 29th).  But the period following that should be March 31st.
+    on February 28th (or 29th).  The period following that should, however, be March 31st.
     If `subscription_or_plan` is a `Money.Subscription.t` then the `:first_interval_started`
     is automatically populated from the subscription. If `:first_interval_started` is
     `nil` then the date defined by `:effective` is used.
@@ -263,9 +445,11 @@ defmodule Money.Subscription do
         options
       ) do
     options =
-      change_plan_options_from(options, default_options())
-      |> Map.put(:first_interval_started, changes.first_interval_starts)
-      |> Map.put(:current_interval_started, subscription.current_interval_started)
+      options
+      |> Keyword.put(:first_interval_started, changes.first_interval_starts)
+      |> Keyword.put(:current_interval_started, subscription.current_interval_started)
+      |> change_plan_options_from(default_options())
+      |> Enum.into(Keyword.new)
 
     changes = change_plan(current_plan, new_plan, options)
     %__MODULE__{subscription | plans: [{changes, new_plan} | plans]}
@@ -478,7 +662,7 @@ defmodule Money.Subscription do
       ~D[2018-03-03]
 
   """
-  @spec next_interval_starts(Plan.t(), Date.t(), Keyword.t) :: Date.t()
+  @spec next_interval_starts(Plan.t(), Date.t(), Keyword.t | Map.t) :: Date.t()
   def next_interval_starts(plan, current_interval_started, options \\ [])
   def next_interval_starts(%{interval: :day, interval_count: count}, %{
         year: year,
@@ -502,6 +686,7 @@ defmodule Money.Subscription do
         %{interval: :month, interval_count: count} = plan,
         %{year: year, month: month, day: day, calendar: calendar} = current_interval_started,
         options) do
+    options = if is_list(options), do: options, else: Enum.into(options, %{})
     months_in_this_year = months_in_year(current_interval_started)
 
     {year, month} =
@@ -533,12 +718,12 @@ defmodule Money.Subscription do
   end
 
   ## Helpers
-
+  @default_months_in_year
   defp months_in_year(%{year: year, calendar: calendar}) do
     if function_exported?(calendar, :months_in_year, 1) do
       calendar.months_in_year(year)
     else
-      12
+      @default_month_in_year
     end
   end
 

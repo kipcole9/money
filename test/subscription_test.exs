@@ -18,7 +18,6 @@ defmodule MoneySubscriptionTest do
     assert changeset.next_interval_starts == ~D[2018-04-30]
   end
 
-  @tag :month
   test "plan change on January 31th should preserve 31th even past february" do
     p1 = %{interval: :month, interval_count: 1, price: Money.new(:USD, 100)}
     p2 = %{interval: :month, interval_count: 1, price: Money.new(:USD, 200)}
@@ -177,5 +176,10 @@ defmodule MoneySubscriptionTest do
              %{interval: :month, interval_count: 1},
              ~D[2018-01-31]
            ) == ~D[2018-02-28]
+  end
+
+  @tag :sub
+  test "That we can create a subscription" do
+    Subscription.new Plan.new!(Money.new(:USD, 200), :month, 3), ~D[2018-01-01]
   end
 end
