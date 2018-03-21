@@ -463,6 +463,15 @@ defmodule Money.Subscription do
   * `current_interval_started` is the date of the last bill that
     represents the start of the billing period
 
+  ## Options
+
+    * `:first_interval_started` determines the anchor day for monthly billing.  For
+      example if a monthly plan starts on January 31st then the next period will start
+      on February 28th (or 29th).  But the period following that should be March 31st.
+      If `subscription_or_plan` is a `Money.Subscription.t` then the `:first_interval_started`
+      is automatically populated from the subscription. If `:first_interval_started` is
+      `nil` then the date defined by `:effective` is used.
+
   ## Returns
 
   The next billing date as a `Date.t`.
@@ -502,6 +511,8 @@ defmodule Money.Subscription do
         %{interval: :month, interval_count: count} = plan,
         %{year: year, month: month, day: day, calendar: calendar} = current_interval_started,
         options) do
+    options = Enum.into(options, %{})
+
     months_in_this_year = months_in_year(current_interval_started)
 
     {year, month} =
