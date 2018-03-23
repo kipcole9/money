@@ -373,7 +373,7 @@ Subscriptions, especially in the context of a SaaS, can involve changing plans -
 
 The primary functions supporting subscriptions are:
 
-* Create a new subscription: `Money.Subscription.new/1`
+* Create a new subscription: `Money.Subscription.new/3`
 * Create a subscription plan: `Money.Subscription.Plan.new/3`
 * Change a from one plan to another: `Money.Subscription.change_plan/3`
 * Calculate the start date for the next interval of a plan: `Money.Subscription.next_interval_starts/3`
@@ -455,8 +455,72 @@ iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_sta
   first_interval_starts: ~D[2018-03-15],
   next_interval_starts: ~D[2018-08-05]
 }
-```
 
+# Create a subscription
+iex> plan = Money.Subscription.Plan.new!(Money.new(:USD, 200), :month, 3)
+iex> subscription = Money.Subscription.new! plan, ~D[2018-01-01]
+%Money.Subscription{
+  created_at: #DateTime<2018-03-23 07:45:44.418916Z>,
+  id: nil,
+  plans: [
+    {%Money.Subscription.Change{
+       carry_forward: #Money<:USD, 0>,
+       credit_amount: #Money<:USD, 0>,
+       credit_amount_applied: #Money<:USD, 0>,
+       credit_days_applied: 0,
+       credit_period_ends: nil,
+       first_billing_amount: #Money<:USD, 200>,
+       first_interval_starts: ~D[2018-01-01],
+       next_interval_starts: ~D[2018-04-01]
+     },
+     %Money.Subscription.Plan{
+       interval: :month,
+       interval_count: 3,
+       price: #Money<:USD, 200>
+     }}
+  ]
+}
+
+# Change a subscription's plan
+iex> new_plan = Money.Subscription.Plan.new!(Money.new(:USD, 150), :day, 30)
+iex> Money.Subscription.change_plan! subscription, new_plan
+%Money.Subscription{
+  created_at: #DateTime<2018-03-23 07:47:48.593973Z>,
+  id: nil,
+  plans: [
+    {%Money.Subscription.Change{
+       carry_forward: #Money<:USD, 0>,
+       credit_amount: #Money<:USD, 0>,
+       credit_amount_applied: #Money<:USD, 0>,
+       credit_days_applied: 0,
+       credit_period_ends: nil,
+       first_billing_amount: #Money<:USD, 150>,
+       first_interval_starts: ~D[2018-04-01],
+       next_interval_starts: ~D[2018-05-01]
+     },
+     %Money.Subscription.Plan{
+       interval: :day,
+       interval_count: 30,
+       price: #Money<:USD, 150>
+     }},
+    {%Money.Subscription.Change{
+       carry_forward: #Money<:USD, 0>,
+       credit_amount: #Money<:USD, 0>,
+       credit_amount_applied: #Money<:USD, 0>,
+       credit_days_applied: 0,
+       credit_period_ends: nil,
+       first_billing_amount: #Money<:USD, 200>,
+       first_interval_starts: ~D[2018-01-01],
+       next_interval_starts: ~D[2018-04-01]
+     },
+     %Money.Subscription.Plan{
+       interval: :month,
+       interval_count: 3,
+       price: #Money<:USD, 200>
+     }}
+  ]
+}
+```
 ## Serializing to a Postgres database with Ecto
 
 `Money` provides custom Ecto day types and a custom Postgres data type to provide serialization of `Money.t` types without losing precision whilst also maintaining the integrity of the `{currency_code, amount}` relationship.  To serialise and retrieve money types from a database the following steps should be followed:

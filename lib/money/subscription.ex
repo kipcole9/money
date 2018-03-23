@@ -474,9 +474,9 @@ defmodule Money.Subscription do
   * `:credit_amount` is the amount of unconsumed credit of the current plan
 
   * `:credit_amount_applied` is the amount of credit applied to the new plan. If
-    the `:prorate` option is `:price` (the default) the `:first_billing_amount`
+    the `:prorate` option is `:price` (the default) then `:first_billing_amount`
     is the plan `:price` reduced by the `:credit_amount_applied`. If the `:prorate`
-    option is `:period` then the `:first_billing_amount` is the plan `price and
+    option is `:period` then the `:first_billing_amount` is the plan `price` and
     the `:next_interval_date` is extended by the `:credit_days_applied`
     instead.
 
@@ -486,15 +486,15 @@ defmodule Money.Subscription do
   * `:credit_period_ends` is the date on which any applied credit is consumed or `nil`
 
   * `:carry_forward` is any amount of credit carried forward to a subsequent period.
-    If non-zero this amount is a negative `Money.t`. It is non-zero when the credit
-    amount for the current plan is greater than the price of the new plan.  In
+    If non-zero, this amount is a negative `Money.t`. It is non-zero when the credit
+    amount for the current plan is greater than the `:price` of the new plan.  In
     this case the `:first_billing_amount` is zero.
 
   ## Returns
 
-  * `{:ok, updated_subscription} or
+  * `{:ok, updated_subscription}` or
 
-  * `{:error, reason}
+  * `{:error, reason}`
 
   ## Examples
 
@@ -567,7 +567,7 @@ defmodule Money.Subscription do
       |> Enum.into(Keyword.new)
 
     if plan_pending?(subscription) do
-      {:error, {Subscription.PlanPending, "Can't change plan when a new plan is already pending"}}
+      {:error, {Money.Subscription.PlanPending, "Can't change plan when a new plan is already pending"}}
     else
       {:ok, changes} = change_plan(current_plan, new_plan, options)
       updated_subscription = %__MODULE__{subscription | plans: [{changes, new_plan} | plans]}

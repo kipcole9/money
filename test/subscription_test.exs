@@ -180,6 +180,76 @@ defmodule MoneySubscriptionTest do
 
   @tag :sub
   test "That we can create a subscription" do
-    Subscription.new Plan.new!(Money.new(:USD, 200), :month, 3), ~D[2018-01-01]
+    assert {:ok, s1} = Subscription.new Plan.new!(Money.new(:USD, 200), :month, 3), ~D[2018-01-01]
+  end
+
+  test "We can change plan in a subscription" do
+    p1 = Plan.new!(Money.new(:USD, 200), :month, 3)
+    p2 = Plan.new!(Money.new(:USD, 200), :day, 90)
+
+    s1 = Subscription.new! p1, ~D[2018-01-01]
+    c1 = Subscription.change_plan!(s1, p2)
+    assert c1.plans ==
+         [
+           {%Money.Subscription.Change{
+              carry_forward: Money.zero(:USD),
+              credit_amount: Money.zero(:USD),
+              credit_amount_applied: Money.zero(:USD),
+              credit_days_applied: 0,
+              credit_period_ends: nil,
+              first_billing_amount: Money.new(:USD, 200),
+              first_interval_starts: ~D[2018-04-01],
+              next_interval_starts: ~D[2018-06-30]
+            },
+            %Money.Subscription.Plan{
+              interval: :day,
+              interval_count: 90,
+              price: Money.new(:USD, 200)
+            }},
+           {%Money.Subscription.Change{
+              carry_forward: Money.zero(:USD),
+              credit_amount: Money.zero(:USD),
+              credit_amount_applied: Money.zero(:USD),
+              credit_days_applied: 0,
+              credit_period_ends: nil,
+              first_billing_amount: Money.new(:USD, 200),
+              first_interval_starts: ~D[2018-01-01],
+              next_interval_starts: ~D[2018-04-01]
+            },
+            %Money.Subscription.Plan{
+              interval: :month,
+              interval_count: 3,
+              price: Money.new(:USD, 200)
+            }}
+         ]
+
+    # Confirm we can't add a second pending plan
+    assert {:error, {Subscription.PlanPending,
+          "Can't change plan when a new plan is already pending"}} ==
+          Subscription.change_plan(c1, p1)
+  end
+
+  test "We can detect a pending plan" do
+    p1 = Plan.new!(Money.new(:USD, 200), :month, 3)
+    p2 = Plan.new!(Money.new(:USD, 200), :day, 90)
+
+    s1 = Subscription.new! p1, ~D[2018-01-01]
+    c1 = Subscription.change_plan!(s1, p2)
+
+    assert Subscription.plan_pending?(c1) == true
+  end
+
+  test "we can get current and latest plan" do
+    p1 = Plan.new!(Money.new(:USD, 200), :month, 3)
+    p2 = Plan.new!(Money.new(:USD, 200), :day, 90)
+
+    s1 = Subscription.new! p1, ~D[2018-01-01]
+    c1 = Subscription.change_plan!(s1, p2)
+
+    {_changes, current} = Subscription.current_plan(c1)
+    assert current == p1
+
+    {_changes, latest} = Subscription.latest_plan(c1)
+    assert latest == p2
   end
 end

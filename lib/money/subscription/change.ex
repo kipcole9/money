@@ -9,7 +9,7 @@ defmodule Money.Subscription.Change do
     the `:first_interval_starts`
 
   * `:next_interval_starts` is the start date of the next interval after the `
-    first interval `including any `credit_days_applied`
+    first interval including any `credit_days_applied`
 
   * `:credit_amount` is the amount of unconsumed credit of the current plan
 
