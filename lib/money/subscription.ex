@@ -480,7 +480,7 @@ defmodule Money.Subscription do
   * `current_interval_started` is a `Date.t` or other map with the fields `year`, `month`,
     `day` and `calendar`
 
-  * `options` is a keyword map of options the define how the change is to be made
+  * `options` is a keyword list of options the define how the change is to be made
 
   ## Options
 
@@ -868,19 +868,14 @@ defmodule Money.Subscription do
   def next_interval_starts(
         %{interval: :day, interval_count: count},
         %{
-          year: year,
-          month: month,
-          day: day,
-          calendar: calendar
-        },
+          year: _year,
+          month: _month,
+          day: _day,
+          calendar: _calendar
+        } = current_interval_started,
         _options
       ) do
-    {year, month, day} =
-      (date_to_iso_days(year, month, day, calendar) + count)
-      |> date_from_iso_days(calendar)
-
-    {:ok, date} = Date.new(year, month, day, calendar)
-    date
+    Date.add(current_interval_started, count)
   end
 
   def next_interval_starts(
@@ -932,32 +927,6 @@ defmodule Money.Subscription do
   end
 
   ## Helpers
-
-  if Version.compare(System.version(), "1.6.0") == :lt do
-    def date_to_iso_days(year, month, day, calendar) do
-      if calendar == Calendar.ISO do
-        calendar.date_to_iso_days_days(year, month, day)
-      else
-        calendar.date_to_iso_days(year, month, day)
-      end
-    end
-
-    def date_from_iso_days(iso_days, calendar) do
-      if calendar == Calendar.ISO do
-        calendar.date_from_iso_days_days(iso_days)
-      else
-        calendar.date_from_iso_days(iso_days)
-      end
-    end
-  else
-    def date_to_iso_days(year, month, day, calendar) do
-      calendar.date_to_iso_days(year, month, day)
-    end
-
-    def date_from_iso_days(iso_days, calendar) do
-      calendar.date_from_iso_days(iso_days)
-    end
-  end
 
   @default_months_in_year 12
   defp months_in_year(%{year: year, calendar: calendar}) do
