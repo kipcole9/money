@@ -32,6 +32,7 @@ defmodule Money.Subscription.Change do
 
   """
 
+  @typedoc "A plan change record struct"
   @type t :: %{
           first_billing_amount: Money.t(),
           first_interval_starts: Date.t(),
@@ -43,6 +44,9 @@ defmodule Money.Subscription.Change do
           carry_forward: Money.t()
         }
 
+  @doc """
+  A struct defining the changes between two plans
+  """
   defstruct first_billing_amount: nil,
             first_interval_starts: nil,
             next_interval_starts: nil,

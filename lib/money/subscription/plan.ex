@@ -1,10 +1,17 @@
 defmodule Money.Subscription.Plan do
   @moduledoc """
-  Prvoides a standard subscription plan structure
+  Defines a standard subscription plan data structure.
   """
+
+  @typedoc "A plan interval type"
   @type interval :: :day | :week | :month | :year
+
+  @typedoc "A integer interval count for a plan."
   @type interval_count :: non_neg_integer
 
+  @doc """
+  Defines the structure of a subscription plan.
+  """
   defstruct price: nil,
             interval: nil,
             interval_count: nil
@@ -13,7 +20,7 @@ defmodule Money.Subscription.Plan do
 
   @doc """
   Returns `{:ok, Money.Subscription.Plan.t}` or an `{:error, reason}`
-  tuple
+  tuple.
 
   ## Arguments
 
