@@ -11,7 +11,7 @@ defmodule MoneySubscriptionTest do
     p1 = %{interval: :day, interval_count: 30, price: Money.new(:USD, 100)}
     p2 = %{interval: :day, interval_count: 30, price: Money.new(:USD, 200)}
 
-    changeset = Money.Subscription.change_plan(p1, p2, current_interval_started: ~D[2018-03-01])
+    {:ok, changeset} = Money.Subscription.change_plan(p1, p2, current_interval_started: ~D[2018-03-01])
 
     assert changeset.first_billing_amount == Money.new(:USD, 200)
     assert changeset.first_interval_starts == ~D[2018-03-31]
@@ -22,7 +22,7 @@ defmodule MoneySubscriptionTest do
     p1 = %{interval: :month, interval_count: 1, price: Money.new(:USD, 100)}
     p2 = %{interval: :month, interval_count: 1, price: Money.new(:USD, 200)}
 
-    changeset = Money.Subscription.change_plan(p1, p2,
+    {:ok, changeset} = Money.Subscription.change_plan(p1, p2,
       current_interval_started: ~D[2018-01-30],
       first_interval_started: ~D[2017-12-31])
 
@@ -35,7 +35,7 @@ defmodule MoneySubscriptionTest do
     p1 = %{interval: :day, interval_count: 30, price: Money.new(:USD, 100)}
     p2 = %{interval: :day, interval_count: 30, price: Money.new(:USD, 200)}
 
-    changeset =
+    {:ok, changeset} =
       Money.Subscription.change_plan(
         p1,
         p2,
@@ -69,7 +69,7 @@ defmodule MoneySubscriptionTest do
       interval_count: 6
     }
 
-    assert %Change{
+    assert {:ok, %Change{
              carry_forward: Money.zero(:CHF),
              credit_amount: Money.new(:CHF, "67.20"),
              credit_amount_applied: Money.zero(:CHF),
@@ -78,7 +78,7 @@ defmodule MoneySubscriptionTest do
              next_interval_starts: ~D[2018-10-21],
              first_billing_amount: new.price,
              first_interval_starts: today
-           } ==
+           }} ==
              Money.Subscription.change_plan(
                old,
                new,
@@ -103,7 +103,7 @@ defmodule MoneySubscriptionTest do
       interval_count: 6
     }
 
-    assert %Change{
+    assert {:ok, %Change{
              carry_forward: Money.zero(:CHF),
              credit_amount: Money.new(:CHF, Decimal.new("130.00")),
              credit_amount_applied: Money.zero(:CHF),
@@ -112,7 +112,7 @@ defmodule MoneySubscriptionTest do
              next_interval_starts: ~D[2018-11-09],
              first_billing_amount: new.price,
              first_interval_starts: today
-           } ==
+           }} ==
              Money.Subscription.change_plan(
                old,
                new,
@@ -128,7 +128,7 @@ defmodule MoneySubscriptionTest do
     old = Money.Subscription.Plan.new!(Money.new(:CHF, Decimal.new("0.5")), :month)
     new = Money.Subscription.Plan.new!(Money.new(:CHF, Decimal.new(1000)), :month, 36)
 
-    assert %Change{
+    assert {:ok, %Change{
              carry_forward: Money.zero(:CHF),
              credit_amount: Money.new(:CHF, "0.30"),
              credit_amount_applied: Money.zero(:CHF),
@@ -137,7 +137,7 @@ defmodule MoneySubscriptionTest do
              next_interval_starts: ~D[2021-01-15],
              first_billing_amount: new.price,
              first_interval_starts: today
-           } ==
+           }} ==
              Money.Subscription.change_plan(
                old,
                new,
@@ -159,7 +159,7 @@ defmodule MoneySubscriptionTest do
         effective: ~D[2018-01-05]
       )
 
-    assert changeset == %Change{
+    assert changeset == {:ok, %Change{
              carry_forward: Money.new(:USD, "-790.00"),
              credit_amount: Money.new(:USD, "800.00"),
              credit_amount_applied: Money.new(:USD, "10.00"),
@@ -168,7 +168,7 @@ defmodule MoneySubscriptionTest do
              next_interval_starts: ~D[2018-01-15],
              first_billing_amount: Money.zero(:USD),
              first_interval_starts: ~D[2018-01-05]
-           }
+            }}
   end
 
   test "that month rollover works at end of month when next month is shorter" do
