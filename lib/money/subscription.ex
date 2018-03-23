@@ -112,14 +112,14 @@ defmodule Money.Subscription do
   @type id :: term()
 
   @typedoc "A Money.Subscription type"
-  @type t :: %{id: id(), plans: list(Plant.t()), created_at: DateTime.t()}
+  @type t :: %{id: id(), plans: list({Change.t, Plant.t()}), created_at: DateTime.t()}
 
   @doc """
   A `struct` defining a subscription
 
   * `:id` any term that uniquely identifies this subscription
 
-  * `:plans` is a list of `{change, plan}` that records the history
+  * `:plans` is a list of `{change, plan}` tuples that record the history
     of plans assigned to this subscription
 
   * `:created_at` records the `DateTime.t` when the subscription was created
@@ -874,8 +874,8 @@ defmodule Money.Subscription do
         _options
       ) do
     {year, month, day} =
-      (calendar.date_to_iso_days(year, month, day) + count)
-      |> calendar.date_from_iso_days
+      (date_to_iso_days(year, month, day, calendar) + count)
+      |> date_from_iso_days(calendar)
 
     {:ok, date} = Date.new(year, month, day, calendar)
     date
@@ -930,6 +930,33 @@ defmodule Money.Subscription do
   end
 
   ## Helpers
+
+  if Version.compare(System.version(), "1.6.0") == :lt do
+    def date_to_iso_days(year, month, day, calendar) do
+      if calendar == Calendar.ISO do
+        calendar.date_to_iso_days_days(year, month, day)
+      else
+        calendar.date_to_iso_days(year, month, day)
+      end
+    end
+
+    def date_from_iso_days(iso_days, calendar) do
+      if calendar == Calendar.ISO do
+        calendar.date_from_iso_days_days(iso_days)
+      else
+        calendar.date_from_iso_days(iso_days)
+      end
+    end
+  else
+    def date_to_iso_days(year, month, day, calendar) do
+      calendar.date_to_iso_days(year, month, day)
+    end
+
+    def date_from_iso_days(iso_days, calendar) do
+      calendar.date_from_iso_days(iso_days)
+    end
+  end
+
   @default_months_in_year 12
   defp months_in_year(%{year: year, calendar: calendar}) do
     if function_exported?(calendar, :months_in_year, 1) do

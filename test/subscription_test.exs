@@ -190,7 +190,7 @@ defmodule MoneySubscriptionTest do
 
   @tag :sub
   test "That we can create a subscription" do
-    assert {:ok, s1} = Subscription.new(Plan.new!(Money.new(:USD, 200), :month, 3), ~D[2018-01-01])
+    assert {:ok, _s1} = Subscription.new(Plan.new!(Money.new(:USD, 200), :month, 3), ~D[2018-01-01])
   end
 
   test "We can change plan in a subscription" do
