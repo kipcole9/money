@@ -3,7 +3,7 @@ defmodule Money.Subscription.Plan do
   Defines a standard subscription plan data structure.
   """
 
-  @typedoc "A plan interval type"
+  @typedoc "A plan interval type."
   @type interval :: :day | :week | :month | :year
 
   @typedoc "A integer interval count for a plan."
