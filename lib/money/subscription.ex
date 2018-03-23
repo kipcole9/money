@@ -412,9 +412,9 @@ defmodule Money.Subscription do
 
   def current_interval_start_date({%Change{first_interval_starts: start_date}, plan}, options) do
     next_interval_starts = next_interval_starts(plan, start_date)
-    today = options[:today] || Date.utc_today()
+    options = Keyword.put_new(options, :today, Date.utc_today)
 
-    case compare_range(today, start_date, next_interval_starts) do
+    case compare_range(options[:today], start_date, next_interval_starts) do
       :between ->
         start_date
 
@@ -679,8 +679,7 @@ defmodule Money.Subscription do
   end
 
   defp change_plan(current_plan, new_plan, :immediately, options) do
-    today = options[:today] || Date.utc_today()
-    change_plan(current_plan, new_plan, today, options)
+    change_plan(current_plan, new_plan, options[:today], options)
   end
 
   defp change_plan(current_plan, new_plan, effective_date, options) do
