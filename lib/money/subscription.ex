@@ -367,8 +367,12 @@ defmodule Money.Subscription do
 
   def current_interval_start_date(%{plans: _plans} = subscription, options) do
     case current_plan(subscription, options) do
-      {changes, plan} -> current_interval_start_date({changes, plan}, options)
-      _ -> {:error, {Subscription.NoCurrentPlan, "There is no current plan for the subscription"}}
+      {changes, plan} ->
+        current_interval_start_date({changes, plan}, options)
+
+      _ ->
+        {:error,
+         {Money.Subscription.NoCurrentPlan, "There is no current plan for the subscription"}}
     end
   end
 
@@ -381,10 +385,14 @@ defmodule Money.Subscription do
         start_date
 
       :less ->
-        current_interval_start_date({%Change{first_interval_starts: next_interval_starts}, plan})
+        current_interval_start_date(
+          {%Change{first_interval_starts: next_interval_starts}, plan},
+          options
+        )
 
       :greater ->
-        current_interval_start_date({%Change{first_interval_starts: next_interval_starts}, plan})
+        {:error,
+         {Money.Subscription.NoCurrentPlan, "The plan is not current for #{inspect(start_date)}"}}
     end
   end
 
@@ -396,7 +404,7 @@ defmodule Money.Subscription do
       Date.compare(current, date) == :lt ->
         :less
 
-      Date.compare(date, next) == :gt ->
+      Date.compare(next, date) == :gt ->
         :greater
     end
   end
@@ -552,7 +560,7 @@ defmodule Money.Subscription do
   @since "2.3.0"
   @spec change_plan(
           subscription_or_plan :: __MODULE__.t() | Plan.t(),
-          new_plan :: Map.t(),
+          new_plan :: Plan.t(),
           options :: Keyword.t()
         ) :: {:ok, Change.t()} | {:error, {Exception.t(), String.t()}}
 
@@ -601,7 +609,7 @@ defmodule Money.Subscription do
   @since "2.3.0"
   @spec change_plan!(
           subscription_or_plan :: __MODULE__.t() | Plan.t(),
-          new_plan :: Map.t(),
+          new_plan :: Plan.t(),
           options :: Keyword.t()
         ) :: Change.t() | no_return
 
@@ -645,7 +653,7 @@ defmodule Money.Subscription do
     {:ok, prorate(new_plan, credit, effective_date, options[:prorate], options)}
   end
 
-  # Reduce the price of the first period of the new plan by the
+  # Reduce the price of the first interval of the new plan by the
   # credit amount on the current plan
   defp prorate(plan, credit_amount, effective_date, :price, options) do
     prorate_price =
@@ -674,7 +682,7 @@ defmodule Money.Subscription do
     }
   end
 
-  # Extend the first period of the new plan by the amount of credit
+  # Extend the first interval of the new plan by the amount of credit
   # on the current plan
   defp prorate(plan, credit_amount, effective_date, :period, options) do
     {next_interval_starts, days_credit} =
@@ -708,7 +716,7 @@ defmodule Money.Subscription do
     |> Money.round(rounding_mode: options[:round])
   end
 
-  # Extend the billing period by the amount that
+  # Extend the interval by the amount that
   # credit will fund on the new plan in days.
   defp extend_period(plan, credit, effective_date, options) do
     price = Map.get(plan, :price)
@@ -729,7 +737,7 @@ defmodule Money.Subscription do
   end
 
   @doc """
-  Returns number of days in the plan interval.
+  Returns number of days in a plan interval.
 
   ## Arguments
 
@@ -739,7 +747,7 @@ defmodule Money.Subscription do
 
   ## Returns
 
-  The number of days in the plan interval.
+  The number of days in a plan interval.
 
   ## Examples
 
@@ -760,7 +768,7 @@ defmodule Money.Subscription do
   end
 
   @doc """
-  Returns number of days remaining in the plan interval.
+  Returns number of days remaining in a plan interval.
 
   ## Arguments
 
@@ -774,7 +782,7 @@ defmodule Money.Subscription do
 
   ## Returns
 
-  The number of days remaining in the plan interval
+  The number of days remaining in a plan interval
 
   ## Examples
 
@@ -793,18 +801,18 @@ defmodule Money.Subscription do
   end
 
   @doc """
-  Returns the next billing date for a plan.
+  Returns the next interval start date for a plan.
 
   ## Arguments
 
-  * `plan` is a `Money.Subscription.Plan.t`
+  * `plan` is any `Money.Subscription.Plan.t`
 
-  * `current_interval_started` is the date of the last bill that
-    represents the start of the billing period
+  * `:current_interval_started` is the `Date.t` that
+    represents the start of the current interval
 
   ## Returns
 
-  The next billing date as a `Date.t`.
+  The next interval start date as a `Date.t`.
 
   ## Example
 

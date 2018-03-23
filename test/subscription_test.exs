@@ -263,4 +263,39 @@ defmodule MoneySubscriptionTest do
     {_changes, latest} = Subscription.latest_plan(c1)
     assert latest == p2
   end
+
+  test "current interval start date with plan start earlier than today" do
+    today = ~D[2018-01-10]
+    start_date = ~D[2017-01-01]
+    plan = Plan.new!(Money.new(:USD, 100), :month, 1)
+
+    assert Subscription.current_interval_start_date(
+             {%Change{first_interval_starts: start_date}, plan},
+             today: today
+           ) == ~D[2018-01-01]
+  end
+
+  test "current interval start date with today within the first interval" do
+    today = ~D[2018-01-10]
+    start_date = ~D[2018-01-01]
+    plan = Plan.new!(Money.new(:USD, 100), :month, 1)
+
+    assert Subscription.current_interval_start_date(
+             {%Change{first_interval_starts: start_date}, plan},
+             today: today
+           ) == ~D[2018-01-01]
+  end
+
+  test "current interval start date with today earlier than the start date of the plan" do
+    today = ~D[2018-01-10]
+    start_date = ~D[2019-01-01]
+    plan = Plan.new!(Money.new(:USD, 100), :month, 1)
+
+    assert Subscription.current_interval_start_date(
+             {%Change{first_interval_starts: start_date}, plan},
+             today: today
+           ) ==
+             {:error,
+              {Subscription.NoCurrentPlan, "The plan is not current for #{inspect(start_date)}"}}
+  end
 end
