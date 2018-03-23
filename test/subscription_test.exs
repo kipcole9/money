@@ -264,7 +264,7 @@ defmodule MoneySubscriptionTest do
     assert latest == p2
   end
 
-  test "current interval start date with plan start earlier than today" do
+  test "current interval start date when the plan's starts earlier than today" do
     today = ~D[2018-01-10]
     start_date = ~D[2017-01-01]
     plan = Plan.new!(Money.new(:USD, 100), :month, 1)
@@ -275,7 +275,7 @@ defmodule MoneySubscriptionTest do
            ) == ~D[2018-01-01]
   end
 
-  test "current interval start date with today within the first interval" do
+  test "current interval start date when today is within the plan's first interval" do
     today = ~D[2018-01-10]
     start_date = ~D[2018-01-01]
     plan = Plan.new!(Money.new(:USD, 100), :month, 1)
@@ -286,7 +286,7 @@ defmodule MoneySubscriptionTest do
            ) == ~D[2018-01-01]
   end
 
-  test "current interval start date with today earlier than the start date of the plan" do
+  test "current interval start date when today is earlier than the plan's start date" do
     today = ~D[2018-01-10]
     start_date = ~D[2019-01-01]
     plan = Plan.new!(Money.new(:USD, 100), :month, 1)

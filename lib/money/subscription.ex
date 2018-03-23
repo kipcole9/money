@@ -1,6 +1,6 @@
 defmodule Money.Subscription do
   @moduledoc """
-  Provides functions to upgrade and downgrade subscriptions
+  Provides functions to create, upgrade and downgrade subscriptions
   from one plan to another.
 
   Since moving from one plan to another may require
@@ -17,31 +17,32 @@ defmodule Money.Subscription do
   is deliberately minimal to simplify integration into applications
   that have a specific implementation of a subscription.
 
-  A new subscription is created with `Money.Subscription.new/1`
-  which has the following options:
+  A new subscription is created with `Money.Subscription.new/3`
+  which has the following attributes:
 
-  * `:plan` which defines the initial plan for the subscription.
+  * `plan` which defines the initial plan for the subscription.
   This option is required.
 
-  * `:effective_date` which determines the effective date of
+  * `effective_date` which determines the effective date of
   the inital plan.  This option is required.
 
-  * `:id` any term used to uniquely identify this subscription. This
-  option is optional
+  * `options` which include `:created_at` and `:id` with which
+    a subscription may be annotated
 
   ### Changing a subscription plan
 
   Changing a subscription plan requires the following
   information be provided:
 
-  * The definition of the current plan
+  * A Subscription or the definition of the current plan
 
   * The definition of the new plan
 
   * The strategy for changing the plan which is either:
 
     * to have the effective date of the new plan be after
-      the current billing period of the current plan
+      the current interval of the current plan
+
     * To change the plan immediately in which case there will
       be a credit on the current plan which needs to be applied
       to the new plan.
@@ -94,25 +95,27 @@ defmodule Money.Subscription do
   This module calculates all subscription changes on the basis
   that billing is done in advance.  This primarily affects the
   calculation of plan credit when a plan changes.  The assumption
-  is that the period from the start of the plan to the point
-  of change has been consumed and therefore the credit is based
-  upon that period of the plan that has not yet been consumed.
+  is that the period from the start of the current interval to
+  the point of change has been consumed and therefore the credit
+  is based upon that period of the plan that has not yet been
+  consumed.
 
   If the calculation was based upon "payment in arrears" then
   the credit would actually be a debit since the part of the
-  current period consumed has not yet been paid for.
+  current period consumed has not yet been paid.
 
   """
 
   alias Money.Subscription.{Change, Plan}
 
+  @typedoc "An id that uniquely identifies a subscription"
   @type id :: term()
 
-  @typedoc "Money.Subscription type"
+  @typedoc "A Money.Subscription type"
   @type t :: %{id: id(), plans: list(Plant.t()), created_at: DateTime.t()}
 
   @doc """
-  Struct defining a subscription
+  A `struct` defining a subscription
 
   * `:id` any term that uniquely identifies this subscription
 
@@ -127,7 +130,7 @@ defmodule Money.Subscription do
             created_at: nil
 
   @doc """
-  Creates a new subscription
+  Creates a new subscription.
 
   ## Arguments
 
@@ -136,7 +139,7 @@ defmodule Money.Subscription do
   * `effective_date` is a `Date.t` that represents the effective
     date of the initial plan. This defines the start of the first interval
 
-  * `:options` is a keyword list of options
+  * `options` is a keyword list of options
 
   ## Options
 
@@ -148,7 +151,9 @@ defmodule Money.Subscription do
 
   ## Returns
 
-  * A `Money.Subscription.t`
+  * `{:ok, Money.Subscription.t}` or
+
+  * `{:error, {exception, message}}`
 
   """
   @since "2.3.0"
@@ -191,6 +196,33 @@ defmodule Money.Subscription do
     {:error, {Subscription.PlanError, "The plan #{inspect(plan)} is invalid."}}
   end
 
+  @doc """
+  Creates a new subscription or raises an exception.
+
+  ## Arguments
+
+  * `plan` is any `Money.Subscription.Plan.t` the defines the initial plan
+
+  * `effective_date` is a `Date.t` that represents the effective
+    date of the initial plan. This defines the start of the first interval
+
+  * `:options` is a keyword list of options
+
+  ## Options
+
+  * `:id` is any term that an application can use to uniquely identify
+    this subscription.  It is not used in any function in this module.
+
+  * `:created_at` is a `DateTime.t` that records the timestamp when
+    the subscription was created.  The default is `DateTime.utc_now/0`
+
+  ## Returns
+
+  * A `Money.Subscription.t` or
+
+  * raises an exception
+
+  """
   def new!(plan, effective_date, options \\ []) do
     case new(plan, effective_date, options) do
       {:ok, subscription} -> subscription
@@ -248,7 +280,7 @@ defmodule Money.Subscription do
   end
 
   @doc """
-  Returns a boolean indicating if there is a pending plan
+  Returns a `boolean` indicating if there is a pending plan.
 
   A pending plan is one where the subscription has changed
   plans but the plan is not yet in effect.  There can only
@@ -262,7 +294,7 @@ defmodule Money.Subscription do
 
   ## Options
 
-  * `:today` is a `Date.t` that represents effective
+  * `:today` is a `Date.t` that represents the effective
     date used to determine is there is a pending plan.
     The default is `Date.utc_today/1`.
 
@@ -280,13 +312,15 @@ defmodule Money.Subscription do
   end
 
   @doc """
-  Cancel a subscription's pending plan
+  Cancel a subscription's pending plan.
 
   A pending plan arise when a a `Subscription.change_plan/3` has
   been executed but the effective date is in the future.  Only
-  once plan may be pending at any one time so that if
-  `Subscription.change_plan/3` is attemtped a second time and
-  error will be returned.  `Subscription.cancel_pending_plan/2`
+  one plan may be pending at any one time so that if
+  `Subscription.change_plan/3` is attemtped a second time an
+  error tuple will be returned.
+
+  `Subscription.cancel_pending_plan/2`
   can be used to roll back the pending plan change.
 
   ## Arguments
@@ -319,7 +353,7 @@ defmodule Money.Subscription do
   end
 
   @doc """
-  Returns the start date of the current plan
+  Returns the start date of the current plan.
 
   ## Arguments
 
@@ -328,7 +362,7 @@ defmodule Money.Subscription do
 
   ## Returns
 
-  * The `date` that is the start date of the current plan
+  * The start `Date.t` of the current plan
 
   """
   @since "2.3.0"
@@ -341,7 +375,7 @@ defmodule Money.Subscription do
   end
 
   @doc """
-  Returns the first date of the current interval of a plan
+  Returns the first date of the current interval of a plan.
 
   ## Arguments
 
@@ -507,7 +541,7 @@ defmodule Money.Subscription do
 
   * `{:ok, updated_subscription}` or
 
-  * `{:error, reason}`
+  * `{:error, {exception, message}}`
 
   ## Examples
 
@@ -562,7 +596,7 @@ defmodule Money.Subscription do
           subscription_or_plan :: __MODULE__.t() | Plan.t(),
           new_plan :: Plan.t(),
           options :: Keyword.t()
-        ) :: {:ok, Change.t()} | {:error, {Exception.t(), String.t()}}
+        ) :: {:ok, Change.t() | Subscription.t} | {:error, {Exception.t(), String.t()}}
 
   def change_plan(subscription_or_plan, new_plan, options \\ [])
 
@@ -599,8 +633,9 @@ defmodule Money.Subscription do
   end
 
   @doc """
-  Change plan from the current plan to a new plan. Retuns
-  the plan or raises an exception on error.
+  Change plan from the current plan to a new plan.
+
+  Retuns the plan or raises an exception on error.
 
   See `Money.Subscription.change_plan/3` for the description
   of arguments, options and return.
