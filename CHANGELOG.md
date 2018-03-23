@@ -1,6 +1,6 @@
 # Changelog for Money v2.3.0
 
-This is the changelog for Money v2.3.0 released on March ___, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.3.0 released on March 24th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
@@ -8,7 +8,7 @@ This is the changelog for Money v2.3.0 released on March ___, 2018.  For older c
 
 ### Enhancements
 
-This version introduces a new module `Money.Subscription` that supports applications that manage subscriptions. These appications often need to support upgrading and downgrading plans.  This action involves the calculation of a credit amount from the current plan that is then applied to the new plan.  See `Money.Subscription` and `Money.Subscription.change/4`.
+This version introduces a new module `Money.Subscription` that supports applications that manage subscriptions. These appications often need to support upgrading and downgrading plans.  This action involves the calculation of a credit amount from the current plan that is then applied to the new plan.  See `Money.Subscription` and `Money.Subscription.change_plan/3`.
 
 * Add `Money.Subscription.new/1` to create a new subscription and its inital plan
 * Add `Money.Subscription.Plan.new/3` and `Money.Subscription.Plan.new!/3` to create a new plan
