@@ -795,6 +795,7 @@ defmodule Money.Subscription do
       30
 
   """
+  @since "2.3.0"
   @spec plan_days(Plan.t(), Date.t(), Keyword.t()) :: integer
   def plan_days(plan, current_interval_started, options \\ []) do
     plan
@@ -828,6 +829,7 @@ defmodule Money.Subscription do
       27
 
   """
+  @since "2.3.0"
   @spec days_remaining(Plan.t(), Date.t(), Date.t(), Keyword.t()) :: integer
   def days_remaining(plan, current_interval_started, effective_date, options \\ []) do
     plan
@@ -860,6 +862,7 @@ defmodule Money.Subscription do
       ~D[2018-03-03]
 
   """
+  @since "2.3.0"
   @spec next_interval_starts(Plan.t(), Date.t(), Keyword.t() | Map.t()) :: Date.t()
   def next_interval_starts(plan, current_interval_started, options \\ [])
 
