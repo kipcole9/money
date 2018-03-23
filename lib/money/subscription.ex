@@ -331,7 +331,7 @@ defmodule Money.Subscription do
 
   ## Options
 
-  * `:today` is a `Date.t` the is used to represent today.
+  * `:today` is a `Date.t` that represents today.
     The default is `Date.utc_today`
 
   ## Returns
@@ -386,7 +386,7 @@ defmodule Money.Subscription do
 
   ## Options
 
-  * `:today` is `Date.t` the represents the date of today.
+  * `:today` is a `Date.t` that represents today.
     The default is `Date.utc_today`
 
   ## Returns
