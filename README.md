@@ -216,19 +216,18 @@ end
 ## API Usage Examples
 
 ### Creating a %Money{} struct
-```elixir
-iex> Money.new(:USD, 100)
-#Money<:USD, 100>
 
-iex> Money.new(100, :USD)
-#Money<:USD, 100>
+    iex> Money.new(:USD, 100)
+    #Money<:USD, 100>
 
-iex> Money.new("CHF", "130.02")
-#Money<:CHF, 130.02>
+    iex> Money.new(100, :USD)
+    #Money<:USD, 100>
 
-iex> Money.new("thb", 11)
-#Money<:THB, 11>
-```
+    iex> Money.new("CHF", "130.02")
+    #Money<:CHF, 130.02>
+
+    iex> Money.new("thb", 11)
+    #Money<:THB, 11>
 
 The canonical representation of a currency code is an `atom` that is a valid
 [ISO4217](http://www.currency-iso.org/en/home/tables/table-a1.html) currency code. The amount of a `%Money{}` is represented by a `Decimal`.
@@ -266,7 +265,7 @@ The main API for formatting `Money` is `Money.to_string/2`. Additionally formatt
     iex> Money.to_string Money.new("thb", 11)
     {:ok, "THB11.00"}
 
-    # The default locale is `en-001` which is
+    # The default locale is "en-001" which is
     # "global english"
     iex> Money.to_string Money.new("USD", "234.467")
     {:ok, "$US234.47"}
@@ -292,7 +291,7 @@ The main API for formatting `Money` is `Money.to_string/2`. Additionally formatt
     iex> Money.to_string Money.new("EUR", "234.467"), locale: "fr"
     {:ok, "234,47 €"}
 
-**Note that the output is influenced by the locale in effect.**  By default the localed used is that returned by `Cldr.get_current_local/0`.  Its default value is "en-001".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
+**Note that the output is influenced by the locale in effect.**  By default the locale used is that returned by `Cldr.get_current_local/0`.  Its default value is "en-001".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
 
 ### Arithmetic Functions
 
@@ -390,145 +389,144 @@ The primary functions supporting subscriptions are:
 
 ### Examples
 
-```elixir
-# Create the current plan
-iex> current_plan = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 1)
-%Money.Subscription.Plan{
-  interval: :month,
-  interval_count: 1,
-  price: #Money<:USD, 10>
-}
+    # Create the current plan
+    iex> current_plan = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 1)
+    %Money.Subscription.Plan{
+      interval: :month,
+      interval_count: 1,
+      price: #Money<:USD, 10>
+    }
 
-# How many days in a billing period?
-iex> Money.Subscription.plan_days current_plan, ~D[2018-03-01]
-31
+    # How many days in a billing period?
+    iex> Money.Subscription.plan_days current_plan, ~D[2018-03-01]
+    31
 
-iex> Money.Subscription.plan_days current_plan, ~D[2018-02-01]
-28
+    iex> Money.Subscription.plan_days current_plan, ~D[2018-02-01]
+    28
 
-# How many days remaining in the current billing period
-iex> Money.Subscription.days_remaining current_plan, ~D[2018-03-01], ~D[2018-03-10]
-22
+    # How many days remaining in the current billing period
+    iex> Money.Subscription.days_remaining current_plan, ~D[2018-03-01], ~D[2018-03-10]
+    22
 
-# When is the next billing date
-iex> Money.Subscription.next_interval_starts current_plan, ~D[2018-03-01]
-~D[2018-04-01]
+    # When is the next billing date
+    iex> Money.Subscription.next_interval_starts current_plan, ~D[2018-03-01]
+    ~D[2018-04-01]
 
-# Create a new plan
-iex> new_plan = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 3)
-%Money.Subscription.Plan{
-  interval: :month,
-  interval_count: 3,
-  price: #Money<:USD, 10>
-}
+    # Create a new plan
+    iex> new_plan = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 3)
+    %Money.Subscription.Plan{
+      interval: :month,
+      interval_count: 3,
+      price: #Money<:USD, 10>
+    }
 
-# Change plans at the end of the current billing period
-iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01]
-%Money.Subscription.Change{
-  carry_forward: #Money<:USD, 0>,
-  credit_amount: #Money<:USD, 0>,
-  credit_amount_applied: #Money<:USD, 0>,
-  credit_days_applied: 0,
-  credit_period_ends: nil,
-  first_billing_amount: #Money<:USD, 10>,
-  first_interval_starts: ~D[2018-04-01],
-  next_interval_starts: ~D[2018-07-01]
-}
+    # Change plans at the end of the current billing period
+    iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01]
+    %Money.Subscription.Change{
+      carry_forward: #Money<:USD, 0>,
+      credit_amount: #Money<:USD, 0>,
+      credit_amount_applied: #Money<:USD, 0>,
+      credit_days_applied: 0,
+      credit_period_ends: nil,
+      first_billing_amount: #Money<:USD, 10>,
+      first_interval_starts: ~D[2018-04-01],
+      next_interval_starts: ~D[2018-07-01]
+    }
 
-# Change plans in the middle of the current plan period
-# and credit the balance of the current plan to the new plan
-iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01], effective: ~D[2018-03-15]
-%Money.Subscription.Change{
-  carry_forward: #Money<:USD, 0>,
-  credit_amount: #Money<:USD, 5.49>,
-  credit_amount_applied: #Money<:USD, 5.49>,
-  credit_days_applied: 0,
-  credit_period_ends: nil,
-  first_billing_amount: #Money<:USD, 4.51>,
-  first_interval_starts: ~D[2018-03-15],
-  next_interval_starts: ~D[2018-06-15]
-}
+    # Change plans in the middle of the current plan period
+    # and credit the balance of the current plan to the new plan
+    iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01], effective: ~D[2018-03-15]
+    %Money.Subscription.Change{
+      carry_forward: #Money<:USD, 0>,
+      credit_amount: #Money<:USD, 5.49>,
+      credit_amount_applied: #Money<:USD, 5.49>,
+      credit_days_applied: 0,
+      credit_period_ends: nil,
+      first_billing_amount: #Money<:USD, 4.51>,
+      first_interval_starts: ~D[2018-03-15],
+      next_interval_starts: ~D[2018-06-15]
+    }
 
-# Change plans in the middle of the current plan period
-# but instead of a monetary credit, apply the credit as
-# extra days on the new plan in the first billing period
-iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01], effective: ~D[2018-03-15], prorate: :period
-%Money.Subscription.Change{
-  carry_forward: #Money<:USD, 0>,
-  credit_amount: #Money<:USD, 5.49>,
-  credit_amount_applied: #Money<:USD, 0>,
-  credit_days_applied: 51,
-  credit_period_ends: ~D[2018-05-04],
-  first_billing_amount: #Money<:USD, 10>,
-  first_interval_starts: ~D[2018-03-15],
-  next_interval_starts: ~D[2018-08-05]
-}
+    # Change plans in the middle of the current plan period
+    # but instead of a monetary credit, apply the credit as
+    # extra days on the new plan in the first billing period
+    iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01], effective: ~D[2018-03-15], prorate: :period
+    %Money.Subscription.Change{
+      carry_forward: #Money<:USD, 0>,
+      credit_amount: #Money<:USD, 5.49>,
+      credit_amount_applied: #Money<:USD, 0>,
+      credit_days_applied: 51,
+      credit_period_ends: ~D[2018-05-04],
+      first_billing_amount: #Money<:USD, 10>,
+      first_interval_starts: ~D[2018-03-15],
+      next_interval_starts: ~D[2018-08-05]
+    }
 
-# Create a subscription
-iex> plan = Money.Subscription.Plan.new!(Money.new(:USD, 200), :month, 3)
-iex> subscription = Money.Subscription.new! plan, ~D[2018-01-01]
-%Money.Subscription{
-  created_at: #DateTime<2018-03-23 07:45:44.418916Z>,
-  id: nil,
-  plans: [
-    {%Money.Subscription.Change{
-       carry_forward: #Money<:USD, 0>,
-       credit_amount: #Money<:USD, 0>,
-       credit_amount_applied: #Money<:USD, 0>,
-       credit_days_applied: 0,
-       credit_period_ends: nil,
-       first_billing_amount: #Money<:USD, 200>,
-       first_interval_starts: ~D[2018-01-01],
-       next_interval_starts: ~D[2018-04-01]
-     },
-     %Money.Subscription.Plan{
-       interval: :month,
-       interval_count: 3,
-       price: #Money<:USD, 200>
-     }}
-  ]
-}
+    # Create a subscription
+    iex> plan = Money.Subscription.Plan.new!(Money.new(:USD, 200), :month, 3)
+    iex> subscription = Money.Subscription.new! plan, ~D[2018-01-01]
+    %Money.Subscription{
+      created_at: #DateTime<2018-03-23 07:45:44.418916Z>,
+      id: nil,
+      plans: [
+        {%Money.Subscription.Change{
+           carry_forward: #Money<:USD, 0>,
+           credit_amount: #Money<:USD, 0>,
+           credit_amount_applied: #Money<:USD, 0>,
+           credit_days_applied: 0,
+           credit_period_ends: nil,
+           first_billing_amount: #Money<:USD, 200>,
+           first_interval_starts: ~D[2018-01-01],
+           next_interval_starts: ~D[2018-04-01]
+         },
+         %Money.Subscription.Plan{
+           interval: :month,
+           interval_count: 3,
+           price: #Money<:USD, 200>
+         }}
+      ]
+    }
 
-# Change a subscription's plan
-iex> new_plan = Money.Subscription.Plan.new!(Money.new(:USD, 150), :day, 30)
-iex> Money.Subscription.change_plan! subscription, new_plan
-%Money.Subscription{
-  created_at: #DateTime<2018-03-23 07:47:48.593973Z>,
-  id: nil,
-  plans: [
-    {%Money.Subscription.Change{
-       carry_forward: #Money<:USD, 0>,
-       credit_amount: #Money<:USD, 0>,
-       credit_amount_applied: #Money<:USD, 0>,
-       credit_days_applied: 0,
-       credit_period_ends: nil,
-       first_billing_amount: #Money<:USD, 150>,
-       first_interval_starts: ~D[2018-04-01],
-       next_interval_starts: ~D[2018-05-01]
-     },
-     %Money.Subscription.Plan{
-       interval: :day,
-       interval_count: 30,
-       price: #Money<:USD, 150>
-     }},
-    {%Money.Subscription.Change{
-       carry_forward: #Money<:USD, 0>,
-       credit_amount: #Money<:USD, 0>,
-       credit_amount_applied: #Money<:USD, 0>,
-       credit_days_applied: 0,
-       credit_period_ends: nil,
-       first_billing_amount: #Money<:USD, 200>,
-       first_interval_starts: ~D[2018-01-01],
-       next_interval_starts: ~D[2018-04-01]
-     },
-     %Money.Subscription.Plan{
-       interval: :month,
-       interval_count: 3,
-       price: #Money<:USD, 200>
-     }}
-  ]
-}
-```
+    # Change a subscription's plan
+    iex> new_plan = Money.Subscription.Plan.new!(Money.new(:USD, 150), :day, 30)
+    iex> Money.Subscription.change_plan! subscription, new_plan
+    %Money.Subscription{
+      created_at: #DateTime<2018-03-23 07:47:48.593973Z>,
+      id: nil,
+      plans: [
+        {%Money.Subscription.Change{
+           carry_forward: #Money<:USD, 0>,
+           credit_amount: #Money<:USD, 0>,
+           credit_amount_applied: #Money<:USD, 0>,
+           credit_days_applied: 0,
+           credit_period_ends: nil,
+           first_billing_amount: #Money<:USD, 150>,
+           first_interval_starts: ~D[2018-04-01],
+           next_interval_starts: ~D[2018-05-01]
+         },
+         %Money.Subscription.Plan{
+           interval: :day,
+           interval_count: 30,
+           price: #Money<:USD, 150>
+         }},
+        {%Money.Subscription.Change{
+           carry_forward: #Money<:USD, 0>,
+           credit_amount: #Money<:USD, 0>,
+           credit_amount_applied: #Money<:USD, 0>,
+           credit_days_applied: 0,
+           credit_period_ends: nil,
+           first_billing_amount: #Money<:USD, 200>,
+           first_interval_starts: ~D[2018-01-01],
+           next_interval_starts: ~D[2018-04-01]
+         },
+         %Money.Subscription.Plan{
+           interval: :month,
+           interval_count: 3,
+           price: #Money<:USD, 200>
+         }}
+      ]
+    }
+
 ## Serializing to a Postgres database with Ecto
 
 `Money` provides custom Ecto day types and a custom Postgres data type to provide serialization of `Money.t` types without losing precision whilst also maintaining the integrity of the `{currency_code, amount}` relationship.  To serialise and retrieve money types from a database the following steps should be followed:
@@ -603,32 +601,28 @@ SELECT l0."amount", l0."inserted_at", l0."updated_at" FROM "ledgers" AS l0 []
 
 Since MySQL does not support composite types, the `:map` type is used which in MySQL is implemented as a `JSON` column.  The currency code and amount are serialised into this column.
 
-```elixir
-defmodule MoneyTest.Repo.Migrations.CreateLedger do
-  use Ecto.Migration
+    defmodule MoneyTest.Repo.Migrations.CreateLedger do
+      use Ecto.Migration
 
-  def change do
-    create table(:ledgers) do
-      add :amount, :map
-      timestamps()
+      def change do
+        create table(:ledgers) do
+          add :amount, :map
+          timestamps()
+        end
+      end
     end
-  end
-end
-```
 
 Create your schema using the `Money.Ecto.Map.Type` ecto type:
 
-```elixir
-defmodule Ledger do
-  use Ecto.Schema
+    defmodule Ledger do
+      use Ecto.Schema
 
-  schema "ledgers" do
-    field :amount, Money.Ecto.Map.Type
+      schema "ledgers" do
+        field :amount, Money.Ecto.Map.Type
 
-    timestamps()
-  end
-end
-```
+        timestamps()
+      end
+    end
 
 Insert into the database:
 
