@@ -266,7 +266,10 @@ The main API for formatting `Money` is `Money.to_string/2`. Additionally formatt
     iex> Money.to_string Money.new("thb", 11)
     {:ok, "THB11.00"}
 
-    iex> Money.to_string Money.new("USD", "234.467")
+    iex> Money.to_string Money.new("USD", "234.467") # default ex_cldr config
+    {:ok, "$USD234.47"}
+
+    iex> Money.to_string Money.new("USD", "234.467") # config :ex_cldr, default_locale: "en"
     {:ok, "$234.47"}
 
     iex> Money.to_string Money.new("USD", "234.467"), format: :long
