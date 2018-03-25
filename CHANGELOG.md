@@ -1,6 +1,12 @@
-# Changelog for Money v2.3.0
+# Changelog for Money v2.3.1
 
-This is the changelog for Money v2.3.0 released on March 24th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.3.1 released on March 26th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Clarify the examples of `Money.to_string/2` to note that the default locale is "en-001".  Thanks to @snewcomer. Closes #61.
+
+# Changelog for Money v2.3.0
 
 ### Bug Fixes
 

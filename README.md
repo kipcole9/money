@@ -266,7 +266,15 @@ The main API for formatting `Money` is `Money.to_string/2`. Additionally formatt
     iex> Money.to_string Money.new("thb", 11)
     {:ok, "THB11.00"}
 
+    # The default locale is `en-001` which is
+    # "global english"
     iex> Money.to_string Money.new("USD", "234.467")
+    {:ok, "$US234.47"}
+
+    # The locale "en" is "American English".  For
+    # UK English use the locale "en-GB".  Australian
+    # English is "en-AU" and so on.
+    iex> Money.to_string Money.new("USD", "234.467"), locale: "en"
     {:ok, "$234.47"}
 
     iex> Money.to_string Money.new("USD", "234.467"), format: :long
@@ -284,7 +292,7 @@ The main API for formatting `Money` is `Money.to_string/2`. Additionally formatt
     iex> Money.to_string Money.new("EUR", "234.467"), locale: "fr"
     {:ok, "234,47 €"}
 
-Note that the output is influenced by the locale in effect.  By default the localed used is that returned by `Cldr.get_current_local/0`.  Its default value is "en-001".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
+**Note that the output is influenced by the locale in effect.**  By default the localed used is that returned by `Cldr.get_current_local/0`.  Its default value is "en-001".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
 
 ### Arithmetic Functions
 
