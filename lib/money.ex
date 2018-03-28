@@ -120,6 +120,12 @@ defmodule Money do
       iex> Money.new(:EUR, "100.30")
       #Money<:EUR, 100.30>
 
+      iex> Money.new("EUR", "100.30")
+      #Money<:EUR, 100.30>
+
+      iex> Money.new("100.30", "eur")
+      #Money<:EUR, 100.30>
+
       iex> Money.new(:XYZZ, 100)
       {:error, {Money.UnknownCurrencyError, "The currency :XYZZ is invalid"}}
 
@@ -133,6 +139,25 @@ defmodule Money do
   """
   @spec new(currency_code, integer | Decimal.t() | String.t()) ::
           Money.t() | {:error, {Exceptiom.t(), String.t()}}
+
+  # generate new(binary, binary) functions
+  @currencies Enum.flat_map(Cldr.known_currencies(), &[to_string(&1), String.downcase(to_string(&1))])
+  for currency_code <- @currencies do
+    def new(unquote(currency_code), amount) when is_binary(amount) do
+      case validate_currency(unquote(currency_code)) do
+        {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
+
+        {:ok, code}                     -> new(code, Decimal.new(amount))
+      end
+    end
+    def new(amount, unquote(currency_code)) when is_binary(amount) do
+      case validate_currency(unquote(currency_code)) do
+        {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
+
+        {:ok, code}                     -> new(code, Decimal.new(amount))
+      end
+    end
+  end
 
   def new(currency_code, amount) when is_binary(currency_code) and is_integer(amount) do
     case validate_currency(currency_code) do
