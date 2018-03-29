@@ -80,8 +80,8 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:ex_cldr, "~> 1.4"},
-      {:ex_cldr_numbers, "~> 1.3"},
+      {:ex_cldr, "~> 1.5"},
+      {:ex_cldr_numbers, "~> 1.4"},
       {:decimal, "~> 1.4"},
       {:ecto, "~> 2.1", optional: true},
       {:phoenix_html, "~> 2.0", optional: true},

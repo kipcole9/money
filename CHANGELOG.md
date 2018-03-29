@@ -1,8 +1,12 @@
-# Changelog for Money v2.3.1
+# Changelog for Money v2.4.0
 
-This is the changelog for Money v2.3.1 released on March 26th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.4.0 released on March 29th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
+
+* Update ex_cldr dependency to version 1.5.0 which uses CLDR data version 33.
+
+* Update ex_cldr_numbers dependency to 1.4.0
 
 * Clarify the examples of `Money.to_string/2` to note that the default locale is "en-001".  Thanks to @snewcomer. Closes #61.
 
