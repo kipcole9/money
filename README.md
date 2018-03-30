@@ -660,11 +660,59 @@ Retrieve from the database:
 CAST(JSON_EXTRACT(amount_map, '$.amount') AS DECIMAL(20, 8)) AS amount;
 ```
 
+## Postgres Database functions
+
+Since the datatype used to store `Money` in Postgres is a composite type (called `:money_with_currency`), the standard aggregation functions like `sum` and `average` are not supported and the `order_by` clause doesn't perform as expected.  `Money` provides mechanisms to provide these functions.
+
+### Aggregate functions: sum()
+
+`Money` provides a migration generator which, when migrated to the database with `mix ecto.migrate`, supports performing `sum()` aggregation on `Money` types. The steps are:
+
+1. Generate the migration by executing `mix money.gen.postgres.aggregate_functions`
+
+2. Migrate the database by executive `mix ecto.migrate`
+
+3. Formulate an Ecto query to use the aggregate function `sum()`
+
+```elixir
+  # Formulate the query.  Note the required use of the type()
+  # expression which is needed to inform Ecto of the return
+  # type of the function
+  iex> q = Ecto.Query.select Item, [l], type(sum(l.price), l.price)
+  #Ecto.Query<from l in Item, select: type(sum(l.price), l.price)>
+  iex> Repo.all q
+  [debug] QUERY OK source="items" db=6.1ms
+  SELECT sum(l0."price")::money_with_currency FROM "items" AS l0 []
+  [#Money<:USD, 600.00000000>]
+```
+**Note** that to preserve the integrity of `Money` it is not permissable to aggregate money that has different currencies.  If you attempt to aggregate money with different currencies the query will abort and an exception will be raised:
+```elixir
+  iex> Repo.all q
+  [debug] QUERY ERROR source="items" db=4.5ms
+  SELECT sum(l0."price")::money_with_currency FROM "items" AS l0 []
+  ** (Postgrex.Error) ERROR 22033 (): Incompatible currency codes. Expected all currency codes to be USD
+````
+
+### Order_by with Money
+
+Since `:money_with_currency` is a composite type, the default `order_by` results may surprise since the ordering is based upon the type structure, not the money amount.  Postgres defines a means to access the components of a composite type and therefore sorting can be done in a more predictable fashion.  For example:
+```elixir
+  # In this example we are decomposing the the composite column called
+  # `price` and using the sub-field `amount` to perform the ordering.
+  iex> q = from l in Item, select: l.price, order_by: fragment("amount(price)")
+  #Ecto.Query<from l in Item, order_by: [asc: fragment("amount(price)")],
+   select: l.amount>
+  iex> Repo.all q
+  [debug] QUERY OK source="items" db=2.0ms
+  SELECT l0."price" FROM "items" AS l0 ORDER BY amount(price) []
+  [#Money<:USD, 100.00000000>, #Money<:USD, 200.00000000>,
+   #Money<:USD, 300.00000000>, #Money<:AUD, 300.00000000>]
+```
+**Note** that the results may still be unexpected.  The example above shows the correct ascending ordering by `amount(price)` however the ordering is not currency code aware and therefore mixed currencies will return a largely meaningless order.
+
 ## Installation
 
-ex_money can be installed by:
-
-  1. Adding `ex_money` to your list of dependencies in `mix.exs`:
+`Money` can be installed by adding `ex_money` to your list of dependencies in `mix.exs` and then executing `mix deps.get`
 
 ```elixir
 def deps do

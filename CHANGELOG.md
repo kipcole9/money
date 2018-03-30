@@ -1,6 +1,22 @@
-# Changelog for Money v2.4.0
+# Changelog for Money v2.5.0
 
-This is the changelog for Money v2.4.0 released on March 29th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.5.0 released on ____, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+Adds basic support for Postgres aggregation functions using the `Money.Ecto.Composite.Type` type definition. This allows expression in Ecto such as:
+
+```elixir
+  iex> q = Ecto.Query.select Ledger, [l], type(sum(l.amount), l.amount)
+  #Ecto.Query<from l in Ledger, select: type(sum(l.amount), l.amount)>
+  iex> Repo.all q
+  [debug] QUERY OK source="ledgers" db=6.1ms
+  SELECT sum(l0."amount")::money_with_currency FROM "ledgers" AS l0 []
+  [#Money<:USD, 600.00000000>]
+```
+This release supports only the `sum` aggregate function and only for Postgres.  A migration generator is provided that when executed with `mix ecto.migrate` will add the relevant functions to the Postgres database to support this functionality.  See the README for more information.
+
+# Changelog for Money v2.4.0
 
 ### Enhancements
 
