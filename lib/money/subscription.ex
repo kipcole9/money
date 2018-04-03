@@ -609,11 +609,11 @@ defmodule Money.Subscription do
     options =
       options
       |> Keyword.put(:first_interval_started, changes.first_interval_starts)
-      |> Keyword.put(:current_interval_started, current_interval_start_date(subscription))
+      |> Keyword.put(:current_interval_started, current_interval_start_date(subscription, options))
       |> change_plan_options_from(default_options())
       |> Enum.into(Keyword.new())
 
-    if plan_pending?(subscription) do
+    if plan_pending?(subscription, options) do
       {:error,
        {Money.Subscription.PlanPending, "Can't change plan when a new plan is already pending"}}
     else

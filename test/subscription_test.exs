@@ -193,12 +193,14 @@ defmodule MoneySubscriptionTest do
     assert {:ok, _s1} = Subscription.new(Plan.new!(Money.new(:USD, 200), :month, 3), ~D[2018-01-01])
   end
 
+  @tag :change
   test "We can change plan in a subscription" do
     p1 = Plan.new!(Money.new(:USD, 200), :month, 3)
     p2 = Plan.new!(Money.new(:USD, 200), :day, 90)
+    today = ~D[2018-01-15]
 
     s1 = Subscription.new!(p1, ~D[2018-01-01])
-    c1 = Subscription.change_plan!(s1, p2)
+    c1 = Subscription.change_plan!(s1, p2, today: today)
 
     assert c1.plans ==
              [
@@ -235,9 +237,10 @@ defmodule MoneySubscriptionTest do
              ]
 
     # Confirm we can't add a second pending plan
+    change_2 = Subscription.change_plan(c1, p1, today: today)
     assert {:error,
-            {Subscription.PlanPending, "Can't change plan when a new plan is already pending"}} ==
-             Subscription.change_plan(c1, p1)
+            {Subscription.PlanPending, "Can't change plan when a new plan is already pending"}} == change_2
+
   end
 
   test "We can detect a pending plan" do
