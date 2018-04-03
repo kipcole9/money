@@ -831,7 +831,7 @@ Grouping is done according the CLDR definitions.  For many languages the groupin
 
 **25. Prices at a single company will never range from five digits before the decimal to five digits after.**
 
-`Money` default precision is 28 decimal digits.  All arithmetic is done using arbitrary precision decimal arithemetic.  No round is performced unless either explicity performed or a money value is formatted for output.  When formatting rounding is applied according the locale-specific rules.
+`Money`'s default precision is 28 decimal digits.  All arithmetic is done using arbitrary precision decimal arithemetic.  No round is performed unless either explicitly requested or a money value is formatted for output.  When formatting rounding is applied according the locale-specific rules.
 
 **26. Prices contains only digits and punctuation. (Germans can write 12,- €)**
 

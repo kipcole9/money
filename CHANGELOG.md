@@ -16,6 +16,10 @@ Adds basic support for Postgres aggregation functions using the `Money.Ecto.Comp
 ```
 This release supports only the `sum` aggregate function and only for Postgres.  A migration generator is provided that when executed with `mix ecto.migrate` will add the relevant functions to the Postgres database to support this functionality.  See the README for more information.
 
+### Bug fixes
+
+* Fixes some typos in the "Falsehoods programmers believe about money" section of the changelog.  Thanks to @mindseyeblind
+
 # Changelog for Money v2.4.0
 
 ### Enhancements
