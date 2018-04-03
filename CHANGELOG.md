@@ -20,6 +20,8 @@ This release supports only the `sum` aggregate function and only for Postgres.  
 
 * Fixes some typos in the "Falsehoods programmers believe about money" section of the changelog.  Thanks to @mindseyeblind
 
+* Fixes the calculation of the `current_interval_start_date/2` and `plan_pending?/2` when the option `:today` with a date that is not `Date.utc_today/0` is passed
+
 # Changelog for Money v2.4.0
 
 ### Enhancements
