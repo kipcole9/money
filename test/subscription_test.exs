@@ -238,9 +238,10 @@ defmodule MoneySubscriptionTest do
 
     # Confirm we can't add a second pending plan
     change_2 = Subscription.change_plan(c1, p1, today: today)
-    assert {:error,
-            {Subscription.PlanPending, "Can't change plan when a new plan is already pending"}} == change_2
 
+    assert {:error,
+            {Subscription.PlanPending, "Can't change plan when a new plan is already pending"}} ==
+             change_2
   end
 
   test "We can detect a pending plan" do

@@ -69,7 +69,7 @@ defmodule Money.Mixfile do
   defp groups_for_modules do
     [
       "Exchange Rates": ~r/^Money.ExchangeRates.?/,
-      "Subscriptions": ~r/^Money.Subscription.?/,
+      Subscriptions: ~r/^Money.Subscription.?/,
       Ecto: ~r/^Money.Ecto.?/
     ]
   end

@@ -112,7 +112,7 @@ defmodule Money.Subscription do
   @type id :: term()
 
   @typedoc "A Money.Subscription type"
-  @type t :: %{id: id(), plans: list({Change.t, Plant.t()}), created_at: DateTime.t()}
+  @type t :: %{id: id(), plans: list({Change.t(), Plant.t()}), created_at: DateTime.t()}
 
   @doc """
   A `struct` defining a subscription
@@ -412,7 +412,7 @@ defmodule Money.Subscription do
 
   def current_interval_start_date({%Change{first_interval_starts: start_date}, plan}, options) do
     next_interval_starts = next_interval_starts(plan, start_date)
-    options = Keyword.put_new(options, :today, Date.utc_today)
+    options = Keyword.put_new(options, :today, Date.utc_today())
 
     case compare_range(options[:today], start_date, next_interval_starts) do
       :between ->
@@ -596,7 +596,7 @@ defmodule Money.Subscription do
           subscription_or_plan :: __MODULE__.t() | Plan.t(),
           new_plan :: Plan.t(),
           options :: Keyword.t()
-        ) :: {:ok, Change.t() | Subscription.t} | {:error, {Exception.t(), String.t()}}
+        ) :: {:ok, Change.t() | Subscription.t()} | {:error, {Exception.t(), String.t()}}
 
   def change_plan(subscription_or_plan, new_plan, options \\ [])
 
