@@ -1,10 +1,12 @@
 # Changelog for Money v2.5.0
 
-This is the changelog for Money v2.5.0 released on ____, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.5.0 released on April 9th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 
-Adds basic support for Postgres aggregation functions using the `Money.Ecto.Composite.Type` type definition. This allows expression in Ecto such as:
+* Adds support for ISO4217 "X" currency codes.  Currency codes that start with "X" followed by two alphabetic characters are considered valid currency codes.  Some codes are defined, like "XAU" for "Gold".  The undefined codes are available for application-specific usage.  Note that from a `Cldr` perspective these codes are considered valid, but unknown.  This means they can be used anywhere as a currency for `Money`.  But `Cldr.known_currency?/1` will return `false` for these codes since there is no definition for them in `CLDR`.
+
+* Adds basic support for Postgres aggregation functions using the `Money.Ecto.Composite.Type` type definition. This allows expression in Ecto such as:
 
 ```elixir
   iex> q = Ecto.Query.select Ledger, [l], type(sum(l.amount), l.amount)
