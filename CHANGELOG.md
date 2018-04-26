@@ -1,3 +1,11 @@
+# Changelog for Money v2.6.0
+
+This is the changelog for Money v2.6.0 released on ____, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Change the definition of the `money_with_currency` composite Postgres type from `numeric(20,8)` to `numeric`.  This provides for a much wider precision and scale.  It also means the retrieving `Money.t` data from the database will be returned with the same scale and when it was stored.  Closes xx.  Thanks to @doughsay.
+
 # Changelog for Money v2.5.0
 
 This is the changelog for Money v2.5.0 released on April 9th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

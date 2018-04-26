@@ -544,7 +544,7 @@ mix money.gen.postgres.migration
 ```elixir
 mix ecto.migrate
 07:09:28.637 [info]  == Running MoneyTest.Repo.Migrations.AddMoneyWithCurrencyTypeToPostgres.up/0 forward
-07:09:28.640 [info]  execute "CREATE TYPE public.money_with_currency AS (currency_code char(3), amount numeric(20,8))"
+07:09:28.640 [info]  execute "CREATE TYPE public.money_with_currency AS (currency_code char(3), amount numeric)"
 07:09:28.647 [info]  == Migrated in 0.0s
 ```
 
@@ -580,10 +580,10 @@ end
 5. Insert into the database:
 
 ```elixir
-iex> Repo.insert %Ledger{amount: Money.new(:USD, 100)}
+iex> Repo.insert %Ledger{amount: Money.new(:USD, "100.00")}
 [debug] QUERY OK db=4.5ms
 INSERT INTO "ledgers" ("amount","inserted_at","updated_at") VALUES ($1,$2,$3)
-[{"USD", #Decimal<100>}, {{2016, 10, 7}, {23, 12, 13, 0}}, {{2016, 10, 7}, {23, 12, 13, 0}}]
+[{"USD", #Decimal<100.00>}, {{2016, 10, 7}, {23, 12, 13, 0}}, {{2016, 10, 7}, {23, 12, 13, 0}}]
 ```
 
 6. Retrieve from the database:
@@ -592,7 +592,7 @@ INSERT INTO "ledgers" ("amount","inserted_at","updated_at") VALUES ($1,$2,$3)
 iex> Repo.all Ledger
 [debug] QUERY OK source="ledgers" db=5.3ms decode=0.1ms queue=0.1ms
 SELECT l0."amount", l0."inserted_at", l0."updated_at" FROM "ledgers" AS l0 []
-[%Ledger{__meta__: #Ecto.Schema.Metadata<:loaded, "ledgers">, amount: #<:USD, 100.00000000>,
+[%Ledger{__meta__: #Ecto.Schema.Metadata<:loaded, "ledgers">, amount: #<:USD, 100.00>,
   inserted_at: ~N[2017-02-21 00:15:40.979576],
   updated_at: ~N[2017-02-21 00:15:40.991391]}]
 ```

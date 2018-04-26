@@ -6,7 +6,8 @@ if Code.ensure_loaded?(Ecto) do
     import Mix.Generator
     import Mix.Ecto
 
-    @shortdoc "Generates a migration to create the :money_with_currency composite database type for Postgres"
+    @shortdoc "Generates a migration to create the :money_with_currency composite " <>
+              "database type for Postgres"
 
     @moduledoc """
     Generates a migration to add a composite type called `:money_with_currency`
@@ -52,7 +53,7 @@ if Code.ensure_loaded?(Ecto) do
 
       def up do
         execute \"\"\"
-          CREATE TYPE public.money_with_currency AS (currency_code char(3), amount numeric(20,8))
+          CREATE TYPE public.money_with_currency AS (currency_code char(3), amount numeric)
         \"\"\"
       end
 
