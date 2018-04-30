@@ -4,7 +4,7 @@ This is the changelog for Money v2.6.0 released on ____, 2018.  For older change
 
 ### Enhancements
 
-* Change the definition of the `money_with_currency` composite Postgres type from `numeric(20,8)` to `numeric`.  This provides for a much wider precision and scale.  It also means the retrieving `Money.t` data from the database will be returned with the same scale and when it was stored.  Closes xx.  Thanks to @doughsay.
+* Change the definition of the `money_with_currency` composite Postgres type from `numeric(20,8)` to `numeric`.  This provides for a much wider precision and scale.  It also means that retrieving `Money.t` data from the database will be returned with the same scale as when it was stored.  Closes #67.  Thanks to @doughsay.
 
 * Adds support for crypto currencies.  See `Money.Crypto` for details.
 
