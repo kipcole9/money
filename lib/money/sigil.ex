@@ -14,7 +14,7 @@ defmodule Money.Sigil do
       #Money<:USD, 1000.34>
 
   """
-
+  @spec sigil_M(binary, list) :: Money.t() | {:error, Exception.t String.t}
   def sigil_M(amount, [_, _, _] = currency) do
     Money.new(to_decimal(amount), atomize(currency))
   end

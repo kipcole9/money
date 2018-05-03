@@ -433,7 +433,7 @@ defmodule Money.ExchangeRates.Retriever do
     parts = String.split(date_string, "..")
 
     case parts do
-      [date] -> schedule_work(Date.from_iso8601(date))
+      [date] -> schedule_work(Date.from_iso8601(date), cache_module)
       [from, to] -> schedule_work({Date.from_iso8601(from), Date.from_iso8601(to)}, cache_module)
     end
   end

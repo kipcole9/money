@@ -112,7 +112,7 @@ defmodule Money.Subscription do
   @type id :: term()
 
   @typedoc "A Money.Subscription type"
-  @type t :: %{id: id(), plans: list({Change.t(), Plant.t()}), created_at: DateTime.t()}
+  @type t :: %__MODULE__{id: id(), plans: list({Change.t(), Plant.t()}), created_at: DateTime.t()}
 
   @doc """
   A `struct` defining a subscription
@@ -157,7 +157,7 @@ defmodule Money.Subscription do
 
   """
   @since "2.3.0"
-  @spec new(plan :: Plan.t(), effective_date :: Date.t()) :: Subscription.t()
+  @spec new(plan :: Plan.t(), effective_date :: Date.t(), Keyword.t()) :: {:ok, Subscription.t()} | {:error, Exceiption.t(), String.t()}
   def new(plan, effective_date, options \\ [])
 
   def new(
@@ -223,6 +223,7 @@ defmodule Money.Subscription do
   * raises an exception
 
   """
+  @spec new!(plan :: Plan.t(), effective_date :: Date.t(), Keyword.t()) :: Subscription.t() | no_return()
   def new!(plan, effective_date, options \\ []) do
     case new(plan, effective_date, options) do
       {:ok, subscription} -> subscription
@@ -255,7 +256,7 @@ defmodule Money.Subscription do
 
   """
   @since "2.3.0"
-  @spec current_plan(Subscription.t()) :: Plan.t() | nil
+  @spec current_plan(Subscription.t() | map, Keyword.t()) :: Plan.t() | nil
   def current_plan(subscription, options \\ [])
 
   def current_plan(%{plans: []}, _options) do
@@ -273,7 +274,6 @@ defmodule Money.Subscription do
   # Because we walk the list from most recent to oldest, the first
   # plan that has a start date less than or equal to the current
   # date is the one we want
-  @spec current_plan?(Change.t(), Keyword.t()) :: boolean
   defp current_plan?({%Change{first_interval_starts: start_date}, _}, options) do
     today = options[:today] || Date.utc_today()
     Date.compare(start_date, today) in [:lt, :eq]
@@ -305,7 +305,7 @@ defmodule Money.Subscription do
   """
 
   @since "2.3.0"
-  @spec plan_pending?(Subscription.t(), Keyword.t()) :: boolean
+  @spec plan_pending?(Subscription.t(), Keyword.t()) :: boolean()
   def plan_pending?(%{plans: [{changes, _plan} | _t]}, options \\ []) do
     today = options[:today] || Date.utc_today()
     Date.compare(changes.first_interval_starts, today) == :gt
@@ -395,7 +395,7 @@ defmodule Money.Subscription do
 
   """
   @since "2.3.0"
-  @spec current_interval_start_date(Subscription.t() | {Change.t(), Plan.t()}, Keyword.t()) ::
+  @spec current_interval_start_date(Subscription.t() | {Change.t(), Plan.t()} | map(), Keyword.t()) ::
           Date.t()
   def current_interval_start_date(subscription_or_changeset, options \\ [])
 
@@ -461,7 +461,7 @@ defmodule Money.Subscription do
 
   """
   @since "2.3.0"
-  @spec latest_plan(Subscription.t()) :: {Change.t(), Plan.t()}
+  @spec latest_plan(Subscription.t() | map()) :: {Change.t(), Plan.t()}
   def latest_plan(%{plans: [h | _t]}) do
     h
   end
@@ -646,7 +646,7 @@ defmodule Money.Subscription do
           subscription_or_plan :: __MODULE__.t() | Plan.t(),
           new_plan :: Plan.t(),
           options :: Keyword.t()
-        ) :: Change.t() | no_return
+        ) :: Change.t() | no_return()
 
   def change_plan!(subscription_or_plan, new_plan, options \\ []) do
     case change_plan(subscription_or_plan, new_plan, options) do
@@ -795,7 +795,7 @@ defmodule Money.Subscription do
 
   """
   @since "2.3.0"
-  @spec plan_days(Plan.t(), Date.t(), Keyword.t()) :: integer
+  @spec plan_days(Plan.t(), Date.t(), Keyword.t()) :: integer()
   def plan_days(plan, current_interval_started, options \\ []) do
     plan
     |> next_interval_starts(current_interval_started, options)

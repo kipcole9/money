@@ -22,11 +22,11 @@ defmodule Money.ExchangeRates.Api.Test do
   end
 
   def get_historic_rates(~D[2017-01-01], _config) do
-    {:ok, %{AUD: Decimal.new(0.5), EUR: Decimal.new(1.1), USD: Decimal.new(0.7)}}
+    {:ok, %{AUD: Decimal.new("0.5"), EUR: Decimal.new("1.1"), USD: Decimal.new("0.7")}}
   end
 
   def get_historic_rates(~D[2017-01-02], _config) do
-    {:ok, %{AUD: Decimal.new(0.4), EUR: Decimal.new(0.9), USD: Decimal.new(0.6)}}
+    {:ok, %{AUD: Decimal.new("0.4"), EUR: Decimal.new("0.9"), USD: Decimal.new("0.6")}}
   end
 
   def get_historic_rates(~D[2017-02-01], _config) do
@@ -42,6 +42,6 @@ defmodule Money.ExchangeRates.Api.Test do
   end
 
   defp get_rates(@latest_url) do
-    {:ok, %{AUD: Decimal.new(0.7), EUR: Decimal.new(1.2), USD: Decimal.new(1)}}
+    {:ok, %{AUD: Decimal.new("0.7"), EUR: Decimal.new("1.2"), USD: Decimal.new(1)}}
   end
 end

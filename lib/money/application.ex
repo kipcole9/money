@@ -46,10 +46,6 @@ defmodule Money.Application do
     |> String.replace_leading("Elixir.", "")
   end
 
-  defp api_module_name(name) do
-    name
-  end
-
   @doc false
   def maybe_log_deprecation do
     case Application.fetch_env(:ex_money, :delay_before_first_retrieval) do

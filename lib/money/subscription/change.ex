@@ -33,14 +33,14 @@ defmodule Money.Subscription.Change do
   """
 
   @typedoc "A plan change record struct."
-  @type t :: %{
+  @type t :: %__MODULE__{
           first_billing_amount: Money.t(),
           first_interval_starts: Date.t(),
           next_interval_starts: Date.t(),
           credit_amount_applied: Money.t(),
           credit_amount: Money.t(),
-          credit_days_applied: non_neg_integer,
-          credit_period_end: Date.t(),
+          credit_days_applied: non_neg_integer(),
+          credit_period_ends: Date.t(),
           carry_forward: Money.t()
         }
 
