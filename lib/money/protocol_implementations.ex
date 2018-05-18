@@ -33,13 +33,12 @@ if Code.ensure_compiled?(Gringotts.Money) do
       {currency(money), integer, exponent}
     end
 
-    @simple_format "###.##"
     def to_string(%Money{} = money) do
       rounded_string =
         money
         |> Money.round
         |> Map.get(:amount)
-        |> Cldr.Number.to_string!(format: @simple_format)
+        |> Cldr.Number.to_string!
 
       {currency(money), rounded_string}
     end
