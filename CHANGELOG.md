@@ -1,12 +1,14 @@
 # Changelog for Money v2.6.0
 
-This is the changelog for Money v2.6.0 released on ____, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.6.0 released on May 30th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 
 * Change the definition of the `money_with_currency` composite Postgres type from `numeric(20,8)` to `numeric`.  This provides for a much wider precision and scale.  It also means that retrieving `Money.t` data from the database will be returned with the same scale as when it was stored.  Closes #67.  Thanks to @doughsay.
 
-* Adds support for crypto currencies.  See `Money.Crypto` for details.
+* Relaxes the requirements for [ex_cldr](https://hex.pm/packages/ex_cldr) and [ex_cldr_numbers](https://hex.pm/packages/ex_cldr_numbers)
+
+* Adds json encoding for `Money.t` for [jason](https://hex.pm/packages/jason) and [poison](https://hex.pm/packages/poison)
 
 # Changelog for Money v2.5.0
 

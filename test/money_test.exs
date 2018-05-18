@@ -481,4 +481,12 @@ defmodule MoneyTest do
     assert Money.to_integer_exp(Money.new(:COP, 1234), currency_digits: :accounting) ==
              {:COP, 1234, 0, Money.new(:COP, 0)}
   end
+
+  test "json encoding for Jason" do
+    assert Jason.encode Money.new("0.0020", :USD) == {:ok, "{\"currency\":\"USD\",\"amount\":\"0.0020\"}"}
+  end
+
+  test "json encoding for Poison" do
+    assert Poison.encode Money.new("0.0020", :USD) == {:ok, "{\"currency\":\"USD\",\"amount\":\"0.0020\"}"}
+  end
 end
