@@ -1504,4 +1504,32 @@ defmodule Money do
   def json_library do
     @json_library
   end
+
+  if Code.ensure_compiled?(Gringotts.Money) do
+    defimpl Gringotts.Money do
+      def currency(%Money{currency: currency}) do
+        Atom.to_string(currency)
+      end
+
+      def value(%Money{amount: amount}) do
+        amount
+      end
+
+      def to_integer(%Money{} = money) do
+        {_currency, integer, exponent, _remainder} = Money.to_integer_exp(money)
+        {currency(money), integer, exponent}
+      end
+
+      @simple_format "###.##"
+      def to_string(%Money{} = money) do
+        rounded_string =
+          money
+          |> Money.round
+          |> Map.get(:amount)
+          |> Cldr.Number.to_string!(format: @simple_format)
+
+        {currency(money), rounded_string}
+      end
+    end
+  end
 end
