@@ -89,7 +89,8 @@ defmodule Money.Mixfile do
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
       {:jason, "~> 1.0", optional: true},
       {:poison, "~> 2.2 or ~> 3.1", optional: true},
-      {:stream_data, "~> 0.4.1", only: [:dev, :test]}
+      {:stream_data, "~> 0.4.1", only: [:dev, :test]},
+      {:gringotts, "~>1.1", optional: true}
     ]
   end
 
