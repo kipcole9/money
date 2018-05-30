@@ -10,6 +10,8 @@ This is the changelog for Money v2.6.0 released on May 30th, 2018.  For older ch
 
 * Adds json encoding for `Money.t` for [jason](https://hex.pm/packages/jason) and [poison](https://hex.pm/packages/poison)
 
+* Fix some typespecs.  Thanks to @danschultzer.
+
 # Changelog for Money v2.5.0
 
 This is the changelog for Money v2.5.0 released on April 9th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
