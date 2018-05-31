@@ -10,6 +10,16 @@ defimpl Inspect, for: Money do
   end
 end
 
+if Code.ensure_compiled?(Jason) do
+  defimpl Jason.Encoder, for: Money do
+    def encode(struct, opts) do
+      struct
+      |> Map.take([:currency, :amount])
+      |> Jason.Encode.map(opts)
+    end
+  end
+end
+
 if Code.ensure_compiled?(Phoenix.HTML.Safe) do
   defimpl Phoenix.HTML.Safe, for: Money do
     def to_iodata(money) do

@@ -42,14 +42,6 @@ defmodule Money do
   @type currency_code :: atom() | String.t()
   @type amount :: float() | integer() | Decimal.t() | String.t()
 
-  if Code.ensure_loaded?(Jason) do
-    @derive Jason.Encoder
-  end
-
-  if Code.ensure_loaded?(Poison) do
-    @derive Poison.Encoder
-  end
-
   @enforce_keys [:currency, :amount]
   defstruct currency: nil, amount: nil
 
