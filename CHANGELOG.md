@@ -1,3 +1,11 @@
+# Changelog for Money v2.6.1
+
+This is the changelog for Money v2.6.0 released on May 301st, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Moves the `Jason.Encoder` protocol implementation to the protocol implementation file.  This prevents some circular compilation issues when using the `:cldr` compiler.
+
 # Changelog for Money v2.6.0
 
 This is the changelog for Money v2.6.0 released on May 30th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
