@@ -46,7 +46,7 @@ defmodule Money do
     @derive Jason.Encoder
   end
 
-  if Code.ensure_loaded?(Posion) do
+  if Code.ensure_loaded?(Poison) do
     @derive Poison.Encoder
   end
 
