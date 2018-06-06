@@ -2,6 +2,7 @@ defmodule Money.GringottsTest do
   use ExUnit.Case
 
   alias Gringotts.Money, as: MoneyProtocol
+
   describe "Gringotts.Money protocol implementation" do
     test "currency is an upcase String.t" do
       the_currency = MoneyProtocol.currency(Money.new(0, :USD))

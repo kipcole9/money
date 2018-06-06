@@ -7,7 +7,7 @@ if Code.ensure_loaded?(Ecto) do
     import Mix.Ecto
 
     @shortdoc "Generates a migration to create the :money_with_currency composite " <>
-              "database type for Postgres"
+                "database type for Postgres"
 
     @moduledoc """
     Generates a migration to add a composite type called `:money_with_currency`

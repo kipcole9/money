@@ -132,7 +132,8 @@ defmodule Money do
         "use Money.from_float/2"}}
 
   """
-  @spec new(amount | currency_code, amount | currency_code) :: Money.t() | {:error, {Exceptiom.t(), String.t()}}
+  @spec new(amount | currency_code, amount | currency_code) ::
+          Money.t() | {:error, {Exception.t(), String.t()}}
 
   def new(currency_code, amount) when is_binary(currency_code) and is_integer(amount) do
     case validate_currency(currency_code) do
@@ -288,7 +289,8 @@ defmodule Money do
   """
   @since "2.0.0"
   @max_precision_allowed 15
-  @spec from_float(float | currency_code, float | currency_code) :: Money.t() | {:error, {Exception.t(), String.t()}}
+  @spec from_float(float | currency_code, float | currency_code) ::
+          Money.t() | {:error, {Exception.t(), String.t()}}
 
   def from_float(currency_code, amount)
       when (is_binary(currency_code) or is_atom(currency_code)) and is_float(amount) do
@@ -535,7 +537,8 @@ defmodule Money do
         "Received :USD and :AUD."}}
 
   """
-  @spec add(money_1 :: Money.t(), money_2 :: Money.t()) :: {:ok, Money.t()} | {:error, {Exception.t, String.t}}
+  @spec add(money_1 :: Money.t(), money_2 :: Money.t()) ::
+          {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
   def add(%Money{currency: same_currency, amount: amount_a}, %Money{
         currency: same_currency,
         amount: amount_b
@@ -682,7 +685,8 @@ defmodule Money do
       {:error, {ArgumentError, "Cannot multiply money by \\"xx\\""}}
 
   """
-  @spec mult(Money.t(), Cldr.Math.number_or_decimal()) :: {:ok, Money.t()} | {:error, {Exception.t, String.t}}
+  @spec mult(Money.t(), Cldr.Math.number_or_decimal()) ::
+          {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
   def mult(%Money{currency: code, amount: amount}, number) when is_number(number) do
     {:ok, %Money{currency: code, amount: Decimal.mult(amount, Decimal.new(number))}}
   end
@@ -755,7 +759,8 @@ defmodule Money do
       {:error, {ArgumentError, "Cannot divide money by \\"xx\\""}}
 
   """
-  @spec div(Money.t(), Cldr.Math.number_or_decimal()) :: {:ok, Money.t()} | {:error, {Exception.t, String.t}}
+  @spec div(Money.t(), Cldr.Math.number_or_decimal()) ::
+          {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
   def div(%Money{currency: code, amount: amount}, number) when is_number(number) do
     {:ok, %Money{currency: code, amount: Decimal.div(amount, Decimal.new(number))}}
   end
@@ -1183,8 +1188,9 @@ defmodule Money do
       {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :CHF"}}
 
   """
-  @spec to_currency(Money.t(), currency_code(), Map.t()) ::
+  @spec to_currency(Money.t(), currency_code(), map()) ::
           {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
+
   def to_currency(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
 
   def to_currency(%Money{currency: currency} = money, to_currency, _rates)
@@ -1249,26 +1255,27 @@ defmodule Money do
     |> do_to_currency!
   end
 
-  @spec to_currency!(Money.t(), currency_code, Map.t) :: Money.t() | no_return()
+  @spec to_currency!(Money.t(), currency_code, map()) :: Money.t() | no_return()
   def to_currency!(%Money{} = money, currency, rates) do
     money
     |> to_currency(currency, rates)
     |> do_to_currency!
   end
 
-  defp do_to_currency!(result) do
-    case result do
-      {:ok, converted} -> converted
-      {:error, {exception, reason}} -> raise exception, reason
-    end
+  defp do_to_currency!({:ok, converted}) do
+    converted
+  end
+
+  defp do_to_currency!({:error, {exception, reason}}) do
+    raise exception, reason
   end
 
   @doc """
-  Calls `Decimal.reduce/1` on the given `%Money{}`
+  Calls `Decimal.reduce/1` on the given `Money.t()`
 
   This will reduce the coefficient and exponent of the
   decimal amount in a standard way that may aid in
-  native comparison of `%Money{}` items.
+  native comparison of `%Money.t()` items.
 
   ## Example
 

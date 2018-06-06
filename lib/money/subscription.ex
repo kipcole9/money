@@ -106,13 +106,14 @@ defmodule Money.Subscription do
 
   """
 
+  alias Money.Subscription
   alias Money.Subscription.{Change, Plan}
 
   @typedoc "An id that uniquely identifies a subscription"
   @type id :: term()
 
   @typedoc "A Money.Subscription type"
-  @type t :: %__MODULE__{id: id(), plans: list({Change.t(), Plant.t()}), created_at: DateTime.t()}
+  @type t :: %__MODULE__{id: id(), plans: list({Change.t(), Plan.t()}), created_at: DateTime.t()}
 
   @doc """
   A `struct` defining a subscription
@@ -157,7 +158,9 @@ defmodule Money.Subscription do
 
   """
   @since "2.3.0"
-  @spec new(plan :: Plan.t(), effective_date :: Date.t(), Keyword.t()) :: {:ok, Subscription.t()} | {:error, Exceiption.t(), String.t()}
+  @spec new(plan :: Plan.t(), effective_date :: Date.t(), Keyword.t()) ::
+          {:ok, Subscription.t()} | {:error, {Exception.t(), String.t()}}
+
   def new(plan, effective_date, options \\ [])
 
   def new(
@@ -223,7 +226,8 @@ defmodule Money.Subscription do
   * raises an exception
 
   """
-  @spec new!(plan :: Plan.t(), effective_date :: Date.t(), Keyword.t()) :: Subscription.t() | no_return()
+  @spec new!(plan :: Plan.t(), effective_date :: Date.t(), Keyword.t()) ::
+          Subscription.t() | no_return()
   def new!(plan, effective_date, options \\ []) do
     case new(plan, effective_date, options) do
       {:ok, subscription} -> subscription
@@ -862,7 +866,7 @@ defmodule Money.Subscription do
 
   """
   @since "2.3.0"
-  @spec next_interval_starts(Plan.t(), Date.t(), Keyword.t() | Map.t()) :: Date.t()
+  @spec next_interval_starts(Plan.t(), Date.t(), Keyword.t() | map()) :: Date.t()
   def next_interval_starts(plan, current_interval_started, options \\ [])
 
   def next_interval_starts(

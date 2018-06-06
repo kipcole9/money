@@ -112,7 +112,7 @@ defmodule Money.ExchangeRates do
   Returns `{:ok, map_of_rates}` or `{:error, reason}`
 
   """
-  @callback get_latest_rates(config :: Money.Config.t()) :: {:ok, Map.t()} | {:error, binary}
+  @callback get_latest_rates(config :: Money.ExchangeRates.Config.t()) :: {:ok, map()} | {:error, binary}
 
   @doc """
   Invoked to return the historic exchange rates from the configured
@@ -123,8 +123,8 @@ defmodule Money.ExchangeRates do
   Returns `{:ok, map_of_historic_rates}` or `{:error, reason}`
 
   """
-  @callback get_historic_rates(Date.t(), config :: Money.Config.t()) ::
-              {:ok, Map.t()} | {:error, binary}
+  @callback get_historic_rates(Date.t(), config :: Money.ExchangeRates.Config.t()) ::
+              {:ok, map()} | {:error, binary}
 
   @doc """
   Decode the body returned from the API request and
@@ -132,7 +132,7 @@ defmodule Money.ExchangeRates do
   an upcased atom key representing an ISO 4217 currency
   code and the value must be a Decimal number.
   """
-  @callback decode_rates(any) :: Map.t()
+  @callback decode_rates(any) :: map()
 
   @doc """
   Given the default configuration, returns an updated configuration at runtime
@@ -143,11 +143,12 @@ defmodule Money.ExchangeRates do
 
   * `config` is the configuration returned by `Money.ExchangeRates.default_config/0`
 
-  The callback is expected to return a `%Money.ExchangeRates.Config{}` struct
+  The callback is expected to return a `%Money.ExchangeRates.Config.t()` struct
   which may have been updated.  The configuration key `:retriever_options` is
   available for any service-specific configuration.
+
   """
-  @callback init(config :: Money.Config.t()) :: Money.Config.t()
+  @callback init(config :: Money.ExchangeRates.Config.t()) :: Money.ExchangeRates.Config.t()
   @optional_callbacks init: 1
 
   require Logger
@@ -176,6 +177,16 @@ defmodule Money.ExchangeRates do
 
   # Defines the configuration for the exchange rates mechanism.
   defmodule Config do
+    @type t :: %__MODULE__{
+      retrieve_every: non_neg_integer | nil,
+      api_module: module() | nil,
+      callback_module: module() | nil,
+      log_levels: map(),
+      preload_historic_rates: Date.t | Date.Range.t | {Date.t, Date.t} | nil,
+      retriever_options: map() | nil,
+      cache_module: module() | nil
+    }
+
     defstruct retrieve_every: nil,
               api_module: nil,
               callback_module: nil,
@@ -219,7 +230,7 @@ defmodule Money.ExchangeRates do
   through `Money.ExchangeRates.retrieve_latest_rates/0`.
 
   """
-  @spec latest_rates() :: {:ok, Map.t()} | {:error, {Exception.t(), binary}}
+  @spec latest_rates() :: {:ok, map()} | {:error, {Exception.t(), binary}}
   def latest_rates do
     case cache().latest_rates() do
       {:ok, rates} -> {:ok, rates}
@@ -247,7 +258,7 @@ defmodule Money.ExchangeRates do
   through `Money.ExchangeRates.retrieve_historic_rates/1`.
 
   """
-  @spec historic_rates(Date.t()) :: {:ok, Map.t()} | {:error, {Exception.t(), binary}}
+  @spec historic_rates(Date.t()) :: {:ok, map()} | {:error, {Exception.t(), binary}}
   def historic_rates(date) do
     case cache().historic_rates(date) do
       {:ok, rates} -> {:ok, rates}

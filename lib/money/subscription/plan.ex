@@ -9,6 +9,13 @@ defmodule Money.Subscription.Plan do
   @typedoc "A integer interval count for a plan."
   @type interval_count :: non_neg_integer
 
+  @typedoc "A Subscription Plan"
+  @type t :: %__MODULE__{
+          price: Decimal.t() | nil,
+          interval: interval,
+          interval_count: interval_count
+        }
+
   @doc """
   Defines the structure of a subscription plan.
   """
@@ -66,7 +73,9 @@ defmodule Money.Subscription.Plan do
       {:error, {Money.Invalid, "Invalid subscription plan definition"}}
 
   """
-  @spec new(Money.t(), interval(), interval_count()) :: {:ok, Plan.t()} | {:error, Exception.t(), String.t()}
+  @spec new(Money.t(), interval(), interval_count()) ::
+          {:ok, t()} | {:error, Exception.t(), String.t()}
+
   def new(price, interval, interval_count \\ 1)
 
   def new(%Money{} = price, interval, interval_count)
@@ -94,7 +103,7 @@ defmodule Money.Subscription.Plan do
       }
 
   """
-  @spec new!(Money.t(), interval(), interval_count()) :: Plan.t() | no_return()
+  @spec new!(Money.t(), interval(), interval_count()) :: t() | no_return()
   def new!(price, interval, interval_count \\ 1)
 
   def new!(price, interval, interval_count) do

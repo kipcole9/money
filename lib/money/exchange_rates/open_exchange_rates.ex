@@ -75,7 +75,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   service although it can be called outside that context as
   required.
   """
-  @spec get_latest_rates(Money.ExchangeRates.Config.t()) :: {:ok, Map.t()} | {:error, String.t()}
+  @spec get_latest_rates(Money.ExchangeRates.Config.t()) :: {:ok, map()} | {:error, String.t()}
   def get_latest_rates(config) do
     url = config.retriever_options.url
     app_id = config.retriever_options.app_id
