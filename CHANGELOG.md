@@ -1,3 +1,11 @@
+# Changelog for Money v2.6.1
+
+This is the changelog for Money v2.6.1 released on ____, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Added tests for `Gingotts.Protocol`
+
 # Changelog for Money v2.6.0
 
 This is the changelog for Money v2.6.0 released on May 30th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
