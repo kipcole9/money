@@ -1,10 +1,18 @@
-# Changelog for Money v2.6.1
+# Changelog for Money v2.6.2
 
-This is the changelog for Money v2.6.1 released on ____, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.6.2 released on ____, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 
 * Added tests for `Gingotts.Protocol`
+
+# Changelog for Money v2.6.1
+
+This is the changelog for Money v2.6.0 released on May 301st, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Moves the `Jason.Encoder` protocol implementation to the protocol implementation file.  This prevents some circular compilation issues when using the `:cldr` compiler.
 
 # Changelog for Money v2.6.0
 
