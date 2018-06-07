@@ -74,7 +74,7 @@ defmodule Money.Subscription.Plan do
 
   """
   @spec new(Money.t(), interval(), interval_count()) ::
-          {:ok, t()} | {:error, Exception.t(), String.t()}
+          {:ok, t()} | {:error, {Exception.t(), String.t()}}
 
   def new(price, interval, interval_count \\ 1)
 

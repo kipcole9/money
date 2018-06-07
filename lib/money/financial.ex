@@ -27,6 +27,7 @@ defmodule Money.Financial do
 
       iex> Money.Financial.future_value Money.new(:USD, 10000), 0.02, 4
       #Money<:USD, 10824.32160000>
+
   """
   @spec future_value(Money.t(), number, number) :: Money.t()
   @one Decimal.new(1)
@@ -163,11 +164,12 @@ defmodule Money.Financial do
       #Money<:USD, 15118.84367220444038002337042>
       iex> Money.Financial.net_present_value flows, 0.08
       #Money<:USD, 15218.84367220444038002337042>
+
   """
   @spec net_present_value(list({integer, Money.t()}), number) :: Money.t()
   def net_present_value([{period, %Money{currency: currency}} | _] = flows, interest_rate)
       when is_integer(period) and is_number(interest_rate) do
-    net_present_value(flows, interest_rate, Money.new(currency, 0))
+    net_present_value(flows, interest_rate, Money.zero(currency))
   end
 
   @spec net_present_value(list({integer, Money.t()}), number, Money.t()) :: Money.t()
@@ -188,7 +190,7 @@ defmodule Money.Financial do
   * `future_value` is a %Money{} representation of the future value
 
   * `interest_rate` is a float representation of an interest rate.  For
-  example, 12% would be represented as `0.12`
+    example, 12% would be represented as `0.12`
 
   * `periods` in an integer number of a period
 
@@ -199,6 +201,7 @@ defmodule Money.Financial do
 
       iex> Money.Financial.net_present_value Money.new(:USD, 10000), 0.13, 2, Money.new(:USD, 100)
       #Money<:USD, 7731.466833737959119743127888>
+
   """
   @spec net_present_value(Money.t(), number, number) :: Money.t()
   def net_present_value(%Money{currency: currency} = future_value, interest_rate, periods) do
@@ -215,7 +218,8 @@ defmodule Money.Financial do
   Calculates the interal rate of return for a given list of cash flows.
 
   * `flows` is a list of tuples representing a cash flow.  Each flow is
-  represented as a tuple of the form `{period, %Money{}}`
+    represented as a tuple of the form `{period, %Money{}}`
+
   """
   @spec internal_rate_of_return(list({integer, Money.t()})) :: number()
   def internal_rate_of_return([{_period, %Money{}} | _other_flows] = flows) do
@@ -262,6 +266,7 @@ defmodule Money.Financial do
 
       iex> Money.Financial.interest_rate Money.new(:USD, 10000), Money.new(:USD, "10824.3216"), 4
       #Decimal<0.02>
+
   """
   @spec interest_rate(Money.t(), Money.t(), number) :: Decimal.t()
   def interest_rate(

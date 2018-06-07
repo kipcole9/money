@@ -34,6 +34,8 @@ defmodule Money do
 
   """
 
+  import Kernel, except: [round: 1]
+
   @typedoc """
   Money is composed of an atom representation of an ISO4217 currency code and
   a `Decimal` representation of an amount.
@@ -44,8 +46,6 @@ defmodule Money do
 
   @enforce_keys [:currency, :amount]
   defstruct currency: nil, amount: nil
-
-  import Kernel, except: [round: 1, div: 1]
 
   @json_library Application.get_env(:ex_money, :json_library, Cldr.Config.json_library())
   unless Code.ensure_loaded?(@json_library) do
@@ -81,6 +81,7 @@ defmodule Money do
   @default_rounding_mode :half_even
 
   alias Cldr.Currency
+  alias Money.ExchangeRates
 
   defdelegate validate_currency(currency_code), to: Cldr
   defdelegate known_currencies, to: Cldr
@@ -1188,8 +1189,11 @@ defmodule Money do
       {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :CHF"}}
 
   """
-  @spec to_currency(Money.t(), currency_code(), map()) ::
-          {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
+  @spec to_currency(
+          Money.t(),
+          currency_code(),
+          ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {Exception.t(), String.t()}}
+        ) :: {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
 
   def to_currency(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
 
@@ -1226,7 +1230,7 @@ defmodule Money do
   @doc """
   Convert `money` from one currency to another and raises on error
 
-  ## Options
+  ## Arguments
 
   * `money` is any `Money.t` struct returned by `Cldr.Currency.new/2`
 
@@ -1248,14 +1252,14 @@ defmodule Money do
       ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
 
   """
-  @spec to_currency!(Money.t(), currency_code) :: Money.t() | no_return()
-  def to_currency!(%Money{} = money, currency) do
-    money
-    |> to_currency(currency)
-    |> do_to_currency!
-  end
+  @spec to_currency!(
+          Money.t(),
+          currency_code(),
+          ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {Exception.t(), String.t()}}
+        ) :: Money.t() | no_return
 
-  @spec to_currency!(Money.t(), currency_code, map()) :: Money.t() | no_return()
+  def to_currency!(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
+
   def to_currency!(%Money{} = money, currency, rates) do
     money
     |> to_currency(currency, rates)
