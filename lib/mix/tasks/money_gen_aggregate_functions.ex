@@ -51,11 +51,11 @@ if Code.ensure_loaded?(Ecto) do
       use Ecto.Migration
 
       def up do
-        execute <%= Money.DDL.define_aggregate_functions %>
+        execute <%= inspect(Money.DDL.define_aggregate_functions) %>
       end
 
       def down do
-        execute <%= Money.DDL.drop_aggregate_functions %>
+        execute <%= inspect(Money.DDL.drop_aggregate_functions) %>
       end
     end
     """)
