@@ -1,0 +1,1 @@
+CREATE TYPE public.money_with_currency AS (currency_code char(3), amount numeric);
