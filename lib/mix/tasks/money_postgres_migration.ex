@@ -52,13 +52,11 @@ if Code.ensure_loaded?(Ecto) do
       use Ecto.Migration
 
       def up do
-        execute \"\"\"
-          CREATE TYPE public.money_with_currency AS (currency_code char(3), amount numeric)
-        \"\"\"
+        execute <%= Money.DDL.create_money_with_currency %>
       end
 
       def down do
-        execute "DROP TYPE public.money_with_currency"
+        execute <%= Money.DDL.drop_money_with_currency %>
       end
     end
     """)

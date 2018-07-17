@@ -1,10 +1,12 @@
-# Changelog for Money v2.6.2
+# Changelog for Money v2.7.0
 
-This is the changelog for Money v2.6.2 released on ____, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.7.0 released on July 17th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 
 * Added tests for `Gingotts.Protocol`
+
+* Separates the Ecto migrations from the SQL contained therein so that non-Ecto users can leverage the DDL to create/drop the `money_with_currency` type and the creation/deletion of aggregate functions for `money_with_currency`.  See the module `Money.DDL`.
 
 # Changelog for Money v2.6.1
 
