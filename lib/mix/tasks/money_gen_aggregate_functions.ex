@@ -30,7 +30,12 @@ if Code.ensure_loaded?(Ecto) do
 
         assigns = [mod: Module.concat([repo, Migrations, camelize(name)])]
 
-        create_file(file, migration_template(assigns))
+        content =
+          assigns
+          |> migration_template
+          |> Code.format_string!
+
+        create_file(file, content)
 
         if open?(file) and Mix.shell().yes?("Do you want to run this migration?") do
           Mix.Task.run("ecto.migrate", [repo])
@@ -51,11 +56,11 @@ if Code.ensure_loaded?(Ecto) do
       use Ecto.Migration
 
       def up do
-        execute <%= inspect(Money.DDL.define_aggregate_functions) %>
+        <%= Money.DDL.execute_each(Money.DDL.define_aggregate_functions) %>
       end
 
       def down do
-        execute <%= inspect(Money.DDL.drop_aggregate_functions) %>
+        <%= Money.DDL.execute_each(Money.DDL.drop_aggregate_functions) %>
       end
     end
     """)

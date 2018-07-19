@@ -288,7 +288,7 @@ defmodule Money do
           "Reduce the precision or call Money.new/2 with a Decimal or String amount"}}
 
   """
-  @since "2.0.0"
+  # @doc since: "2.0.0"
   @max_precision_allowed 15
   @spec from_float(float | currency_code, float | currency_code) ::
           Money.t() | {:error, {Exception.t(), String.t()}}
@@ -338,7 +338,7 @@ defmodule Money do
           (ex_money) lib/money.ex:293: Money.from_float!/2
 
   """
-  @since "2.0.0"
+  # @doc since: "2.0.0"
   @spec from_float!(currency_code, float) :: Money.t() | no_return()
 
   def from_float!(currency_code, amount) do

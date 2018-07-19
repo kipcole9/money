@@ -157,7 +157,9 @@ defmodule Money.Subscription do
   * `{:error, {exception, message}}`
 
   """
-  @since "2.3.0"
+
+  # @doc since: "2.3.0"
+
   @spec new(plan :: Plan.t(), effective_date :: Date.t(), Keyword.t()) ::
           {:ok, Subscription.t()} | {:error, {Exception.t(), String.t()}}
 
@@ -259,7 +261,7 @@ defmodule Money.Subscription do
     `nil`
 
   """
-  @since "2.3.0"
+  # @doc since: "2.3.0"
   @spec current_plan(Subscription.t() | map, Keyword.t()) :: Plan.t() | nil
   def current_plan(subscription, options \\ [])
 
@@ -308,7 +310,7 @@ defmodule Money.Subscription do
 
   """
 
-  @since "2.3.0"
+  # @doc since: "2.3.0"
   @spec plan_pending?(Subscription.t(), Keyword.t()) :: boolean()
   def plan_pending?(%{plans: [{changes, _plan} | _t]}, options \\ []) do
     today = options[:today] || Date.utc_today()
@@ -346,7 +348,7 @@ defmodule Money.Subscription do
   the subscription is returned unchanged.
 
   """
-  @since "2.3.0"
+  # @doc since: "2.3.0"
   @spec cancel_pending_plan(Subscription.t(), Keyword.t()) :: Subscription.t()
   def cancel_pending_plan(%{plans: [_plan | other_plans]} = subscription, options \\ []) do
     if plan_pending?(subscription, options) do
@@ -369,7 +371,7 @@ defmodule Money.Subscription do
   * The start `Date.t` of the current plan
 
   """
-  @since "2.3.0"
+  # @doc since: "2.3.0"
   @spec current_plan_start_date(Subscription.t()) :: Date.t()
   def current_plan_start_date(%{plans: _plans} = subscription) do
     case current_plan(subscription) do
@@ -398,7 +400,7 @@ defmodule Money.Subscription do
   * The `Date.t` that is the first date of the current interval
 
   """
-  @since "2.3.0"
+  # @doc since: "2.3.0"
   @spec current_interval_start_date(Subscription.t() | {Change.t(), Plan.t()} | map(), Keyword.t()) ::
           Date.t()
   def current_interval_start_date(subscription_or_changeset, options \\ [])
@@ -464,7 +466,7 @@ defmodule Money.Subscription do
     plan - whether or not it is the currently active plan.
 
   """
-  @since "2.3.0"
+  # @doc since: "2.3.0"
   @spec latest_plan(Subscription.t() | map()) :: {Change.t(), Plan.t()}
   def latest_plan(%{plans: [h | _t]}) do
     h
@@ -595,7 +597,7 @@ defmodule Money.Subscription do
       }}
 
   """
-  @since "2.3.0"
+  # @doc since: "2.3.0"
   @spec change_plan(
           subscription_or_plan :: __MODULE__.t() | Plan.t(),
           new_plan :: Plan.t(),
@@ -645,7 +647,7 @@ defmodule Money.Subscription do
   of arguments, options and return.
 
   """
-  @since "2.3.0"
+  # @doc since: "2.3.0"
   @spec change_plan!(
           subscription_or_plan :: __MODULE__.t() | Plan.t(),
           new_plan :: Plan.t(),
@@ -798,7 +800,7 @@ defmodule Money.Subscription do
       30
 
   """
-  @since "2.3.0"
+  # @doc since: "2.3.0"
   @spec plan_days(Plan.t(), Date.t(), Keyword.t()) :: integer()
   def plan_days(plan, current_interval_started, options \\ []) do
     plan
@@ -832,7 +834,7 @@ defmodule Money.Subscription do
       27
 
   """
-  @since "2.3.0"
+  # @doc since: "2.3.0"
   @spec days_remaining(Plan.t(), Date.t(), Date.t(), Keyword.t()) :: integer
   def days_remaining(plan, current_interval_started, effective_date, options \\ []) do
     plan
@@ -865,7 +867,7 @@ defmodule Money.Subscription do
       ~D[2018-03-03]
 
   """
-  @since "2.3.0"
+  # @doc since: "2.3.0"
   @spec next_interval_starts(Plan.t(), Date.t(), Keyword.t() | map()) :: Date.t()
   def next_interval_starts(plan, current_interval_started, options \\ [])
 

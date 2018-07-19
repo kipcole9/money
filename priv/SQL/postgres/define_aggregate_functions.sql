@@ -28,6 +28,7 @@ AS $$
   END;
 $$;
 
+
 CREATE AGGREGATE sum(money_with_currency)
 (
   sfunc = money_state_function,
