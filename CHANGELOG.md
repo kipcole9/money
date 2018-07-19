@@ -1,6 +1,6 @@
 # Changelog for Money v2.7.0
 
-This is the changelog for Money v2.7.0 released on July 17th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.7.0 released on July 20th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 
