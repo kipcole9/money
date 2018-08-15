@@ -1,3 +1,11 @@
+# Changelog for Money v2.7.1
+
+This is the changelog for Money v2.7.1 released on August 16th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Correct the name of the Subscription exception modules.  Thanks to @Joe-noh.  Closes #75.
+
 # Changelog for Money v2.7.0
 
 This is the changelog for Money v2.7.0 released on July 20th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
