@@ -30,7 +30,7 @@ defmodule Money.Invalid do
   end
 end
 
-defmodule Subscription.NoCurrentPlan do
+defmodule Money.Subscription.NoCurrentPlan do
   defexception [:message]
 
   def exception(message) do
@@ -38,7 +38,7 @@ defmodule Subscription.NoCurrentPlan do
   end
 end
 
-defmodule Subscription.PlanError do
+defmodule Money.Subscription.PlanError do
   defexception [:message]
 
   def exception(message) do
@@ -46,7 +46,7 @@ defmodule Subscription.PlanError do
   end
 end
 
-defmodule Subscription.DateError do
+defmodule Money.Subscription.DateError do
   defexception [:message]
 
   def exception(message) do
@@ -54,7 +54,7 @@ defmodule Subscription.DateError do
   end
 end
 
-defmodule Subscription.PlanPending do
+defmodule Money.Subscription.PlanPending do
   defexception [:message]
 
   def exception(message) do
