@@ -1197,20 +1197,27 @@ defmodule Money do
 
   def to_currency(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
 
-  def to_currency(%Money{currency: currency} = money, to_currency, _rates)
-      when currency == to_currency do
+  def to_currency(%Money{} = money, currency, {:ok, %{} = rates}) do
+    to_currency(money, currency, rates)
+  end
+
+  def to_currency(_money, _to_currency, {:error, reason}) do
+    {:error, reason}
+  end
+
+  def to_currency(%Money{currency: currency} = money, currency, _rates) do
     {:ok, money}
   end
 
-  def to_currency(%Money{currency: currency} = money, to_currency, %{} = rates)
-      when is_atom(to_currency) or is_binary(to_currency) do
-    with {:ok, to_code} <- validate_currency(to_currency) do
-      if currency == to_code, do: money, else: to_currency(money, to_currency, {:ok, rates})
+  def to_currency(%Money{} = money, to_currency, %{} = rates)
+      when is_binary(to_currency) do
+    with {:ok, currency_code} <- validate_currency(to_currency) do
+      to_currency(money, currency_code, rates)
     end
   end
 
-  def to_currency(%Money{currency: from_currency, amount: amount}, to_currency, {:ok, rates})
-      when is_atom(to_currency) or is_binary(to_currency) do
+  def to_currency(%Money{currency: from_currency, amount: amount}, to_currency, %{} = rates)
+      when is_atom(to_currency) do
     with {:ok, currency_code} <- validate_currency(to_currency),
          {:ok, base_rate} <- get_rate(from_currency, rates),
          {:ok, conversion_rate} <- get_rate(currency_code, rates) do
@@ -1221,10 +1228,6 @@ defmodule Money do
 
       {:ok, Money.new(to_currency, converted_amount)}
     end
-  end
-
-  def to_currency(_money, _to_currency, {:error, reason}) do
-    {:error, reason}
   end
 
   @doc """

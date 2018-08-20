@@ -398,6 +398,11 @@ defmodule MoneyTest do
     assert Money.to_currency(Money.new(:USD, 100), :AUD, rates) == {:ok, Money.new(:AUD, 200)}
   end
 
+  test "money conversion with binary to_currency that is the same as from currency" do
+    rates = %{USD: Decimal.new(0.3), AUD: Decimal.new(2)}
+    assert Money.to_currency(Money.new(:USD, 100), "USD", rates) == {:ok, Money.new(:USD, 100)}
+  end
+
   test "money to_string" do
     assert Money.to_string(Money.new(:USD, 100)) == {:ok, "$100.00"}
   end

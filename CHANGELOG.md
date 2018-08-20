@@ -1,3 +1,11 @@
+# Changelog for Money v2.7.2
+
+This is the changelog for Money v2.7.2 released on August 21st, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Converting from currency to a binary `to_currency` is a no-op as it already is for an atom `to_currency`.  Thanks to @lostkobrakai.  Closes #76.
+
 # Changelog for Money v2.7.1
 
 This is the changelog for Money v2.7.1 released on August 16th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
