@@ -10,9 +10,9 @@ defmodule Money.DDL do
   @default_db :postgres
 
   @supported_db_types :code.priv_dir(:ex_money)
-    |> Path.join("SQL")
-    |> File.ls!
-    |> Enum.map(&String.to_atom/1)
+                      |> Path.join("SQL")
+                      |> File.ls!()
+                      |> Enum.map(&String.to_atom/1)
 
   @doc """
   Returns the SQL string which when executed will
@@ -116,6 +116,7 @@ defmodule Money.DDL do
   """
   def execute(sql) do
     sql = String.trim_trailing(sql, "\n")
+
     if String.contains?(sql, "\n") do
       "execute \"\"\"\n" <> sql <> "\n\"\"\""
     else
@@ -126,17 +127,16 @@ defmodule Money.DDL do
   defp read_sql_file(db_type, file_name) when db_type in @supported_db_types do
     base_dir(db_type)
     |> Path.join(file_name)
-    |> File.read!
+    |> File.read!()
   end
 
   defp read_sql_file(db_type, file_name) do
-    raise ArgumentError, "Database type #{db_type} does not have a SQL definition " <>
-                         "file #{inspect file_name}"
+    raise ArgumentError,
+          "Database type #{db_type} does not have a SQL definition " <> "file #{inspect(file_name)}"
   end
 
   defp base_dir(db_type) do
     :code.priv_dir(:ex_money)
     |> Path.join(["SQL", "/#{db_type}"])
   end
-
 end

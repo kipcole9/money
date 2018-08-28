@@ -15,8 +15,9 @@ defmodule Money.ExchangeRates.Retriever do
   """
 
   use GenServer
-
   require Logger
+
+  @etag_cache :etag_cache
 
   @doc """
   Starts the exchange rates retrieval service
@@ -192,7 +193,7 @@ defmodule Money.ExchangeRates.Retriever do
   end
 
   def retrieve_rates(url, config) when is_list(url) do
-    headers = if_none_match_header(url, config)
+    headers = if_none_match_header(url)
 
     :httpc.request(:get, {url, headers}, [], [])
     |> process_response(url, config)
@@ -200,12 +201,12 @@ defmodule Money.ExchangeRates.Retriever do
 
   defp process_response({:ok, {{_version, 200, 'OK'}, headers, body}}, url, config) do
     rates = config.api_module.decode_rates(body)
-    save_etag(headers, url, config)
+    cache_etag(headers, url)
     {:ok, rates}
   end
 
-  defp process_response({:ok, {{_version, 304, 'Not Modified'}, headers, _body}}, url, config) do
-    save_etag(headers, url, config)
+  defp process_response({:ok, {{_version, 304, 'Not Modified'}, headers, _body}}, url, _config) do
+    cache_etag(headers, url)
     {:ok, :not_modified}
   end
 
@@ -221,8 +222,8 @@ defmodule Money.ExchangeRates.Retriever do
     {:error, sys_message}
   end
 
-  defp if_none_match_header(url, config) do
-    case config.cache_module.get(url) do
+  defp if_none_match_header(url) do
+    case get_etag(url) do
       {etag, date} ->
         [
           {'If-None-Match', etag},
@@ -234,15 +235,26 @@ defmodule Money.ExchangeRates.Retriever do
     end
   end
 
-  defp save_etag(headers, url, config) do
+  defp cache_etag(headers, url) do
     etag = :proplists.get_value('etag', headers)
     date = :proplists.get_value('date', headers)
 
-    if etag != :undefined && date != :undedefined do
-      config.cache_module.put(url, {etag, date})
+    if etag?(etag, date) do
+      :ets.insert(@etag_cache, {url, {etag, date}})
     else
-      config.cache_module.put(url, nil)
+      :ets.delete(@etag_cache, url)
     end
+  end
+
+  defp get_etag(url) do
+    case :ets.lookup(@etag_cache, url) do
+      [{^url, cached_value}] -> cached_value
+      [] -> nil
+    end
+  end
+
+  defp etag?(etag, date) do
+    etag != :undefined && date != :undedefined
   end
 
   #
@@ -263,6 +275,10 @@ defmodule Money.ExchangeRates.Retriever do
     if config.preload_historic_rates do
       log(config, :info, "Preloading historic rates for #{inspect(config.preload_historic_rates)}")
       schedule_work(config.preload_historic_rates, config.cache_module)
+    end
+
+    if :ets.info(@etag_cache) == :undefined do
+      :ets.new(@etag_cache, [:named_table, :public])
     end
 
     {:ok, config}

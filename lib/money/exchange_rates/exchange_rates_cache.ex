@@ -39,18 +39,6 @@ defmodule Money.ExchangeRates.Cache do
   """
   @callback store_historic_rates(map(), Date.t()) :: :ok
 
-  @doc """
-  Return the value for a given key in the
-  cache.
-  """
-  @callback get(any()) :: any()
-
-  @doc """
-  Put the given value under the given
-  key in the cache.
-  """
-  @callback put(any(), any()) :: any()
-
   def latest_rates do
     cache().latest_rates
   end

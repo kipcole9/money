@@ -103,7 +103,7 @@ defmodule Money.ExchangeRates do
 
   """
 
-  @type t :: %{Money.currency_code() => Decimal.t}
+  @type t :: %{Money.currency_code() => Decimal.t()}
 
   @doc """
   Invoked to return the latest exchange rates from the configured

@@ -34,7 +34,7 @@ if Code.ensure_loaded?(Ecto) do
         content =
           assigns
           |> migration_template
-          |> Code.format_string!
+          |> Code.format_string!()
 
         create_file(file, content)
 

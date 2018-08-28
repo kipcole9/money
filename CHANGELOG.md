@@ -1,3 +1,11 @@
+# Changelog for Money v2.8.0
+
+This is the changelog for Money v2.8.0 released on August 29th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Separates the caching of etags from the caching of exchange rates.  Previously the same cache behaviour (and therefore each implementation) was expected to support a key/value store but this is an unreasonable assumption. Etags are now cached in an `ets` table separate from the exchange rates cache.  As a result, the `get/1` and `put/2` functions are removed from the `Money.ExchangeRates.Cache` behaviour.  Thanks to @lostkobrakai.  Closes #74.
+
 # Changelog for Money v2.7.3
 
 This is the changelog for Money v2.7.3 released on August 28th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
