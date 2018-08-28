@@ -1,3 +1,13 @@
+# Changelog for Money v2.7.3
+
+This is the changelog for Money v2.7.3 released on August 28th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fixes the implementation of `Money.ExchangeRates.last_update/0` to match the documentation.  Thanks to @xavier.  Closes #77.
+
+* Updates `ex_doc` dependency.
+
 # Changelog for Money v2.7.2
 
 This is the changelog for Money v2.7.2 released on August 21st, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
