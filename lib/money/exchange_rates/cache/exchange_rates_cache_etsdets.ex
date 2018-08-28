@@ -34,7 +34,7 @@ defmodule Money.ExchangeRates.Cache.EtsDets do
             {:error, {Money.ExchangeRateError, "Last updated date is not known"}}
 
           last_updated ->
-            last_updated
+            {:ok, last_updated}
         end
       end
 

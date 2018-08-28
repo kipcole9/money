@@ -294,11 +294,8 @@ defmodule Money.ExchangeRates do
         utc_offset: 0, year: 2016, zone_abbr: "UTC"}}
 
   """
-  @spec last_updated() :: {:ok, DateTime.t()} | nil
+  @spec last_updated() :: {:ok, DateTime.t()} | {:error, {Exception.t(), binary}}
   def last_updated do
-    case cache().last_updated() do
-      {:ok, last_updated} -> {:ok, last_updated}
-      _ -> nil
-    end
+    cache().last_updated()
   end
 end

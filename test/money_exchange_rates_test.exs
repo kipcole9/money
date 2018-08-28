@@ -110,4 +110,11 @@ defmodule Money.ExchangeRates.Test do
     Money.ExchangeRates.default_config()
     |> Money.ExchangeRates.Retriever.reconfigure()
   end
+
+  test "that the last_udpated timestamp is returned in a success tuple" do
+    # warm up cache
+    Money.ExchangeRates.Retriever.latest_rates()
+
+    assert {:ok, %DateTime{}} = Money.ExchangeRates.last_updated()
+  end
 end
