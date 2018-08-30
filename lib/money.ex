@@ -1164,7 +1164,7 @@ defmodule Money do
   @doc """
   Convert `money` from one currency to another.
 
-  ## Options
+  ## Arguments
 
   * `money` is any `Money.t` struct returned by `Cldr.Currency.new/2`
 
@@ -1182,10 +1182,10 @@ defmodule Money do
       Money.to_currency(Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.new(0.7345)})
       {:ok, #Money<:AUD, 73.4500>}
 
-      iex> Money.to_currency Money.new(:USD, 100) , :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+      iex> Money.to_currency Money.new(:USD, 100), :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
       {:error, {Cldr.UnknownCurrencyError, "The currency :AUDD is invalid"}}
 
-      iex> Money.to_currency Money.new(:USD, 100) , :CHF, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+      iex> Money.to_currency Money.new(:USD, 100), :CHF, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
       {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :CHF"}}
 
   """
@@ -1218,14 +1218,9 @@ defmodule Money do
 
   def to_currency(%Money{currency: from_currency, amount: amount}, to_currency, %{} = rates)
       when is_atom(to_currency) do
-    with {:ok, currency_code} <- validate_currency(to_currency),
-         {:ok, base_rate} <- get_rate(from_currency, rates),
-         {:ok, conversion_rate} <- get_rate(currency_code, rates) do
-      converted_amount =
-        amount
-        |> Decimal.div(base_rate)
-        |> Decimal.mult(conversion_rate)
-
+    with {:ok, to_currency_code} <- validate_currency(to_currency),
+         {:ok, cross_rate} <- cross_rate(from_currency, to_currency_code, rates) do
+      converted_amount = Decimal.mult(amount, cross_rate)
       {:ok, Money.new(to_currency, converted_amount)}
     end
   end
@@ -1245,13 +1240,13 @@ defmodule Money do
 
   ## Examples
 
-      iex> Money.to_currency! Money.new(:USD, 100) , :AUD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+      iex> Money.to_currency! Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
       #Money<:AUD, 73.4500>
 
-      iex> Money.to_currency! Money.new("USD", 100) , "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.new(0.7345)}
+      iex> Money.to_currency! Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.new(0.7345)}
       #Money<:AUD, 73.4500>
 
-      Money.to_currency! Money.new(:USD, 100) , :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+      Money.to_currency! Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
       ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
 
   """
@@ -1274,6 +1269,103 @@ defmodule Money do
   end
 
   defp do_to_currency!({:error, {exception, reason}}) do
+    raise exception, reason
+  end
+
+  @doc """
+  Returns the effective cross-rate to convert from one currency
+  to another.
+
+  ## Arguments
+
+  * `from` is any `Money.t` struct returned by `Cldr.Currency.new/2` or a valid
+     currency code
+
+  * `to_currency` is a valid currency code into which the `money` is converted
+
+  * `rates` is a `Map` of currency rates where the map key is an upcased
+    atom or string and the value is a Decimal conversion factor.  The default is the
+    latest available exchange rates returned from `Money.ExchangeRates.latest_rates()`
+
+  ## Examples
+
+      Money.cross_rate(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
+      {:ok, #Decimal<0.7345>}
+
+      Money.cross_rate Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+      ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
+
+  """
+  @spec cross_rate(
+          Money.t() | currency_code,
+          currency_code,
+          ExchangeRates.t() | {:ok, ExchangeRates.t()}
+        ) :: {:ok, Decimal.t()} | {:error, {Exception.t(), String.t()}}
+
+  def cross_rate(from, to, rates \\ Money.ExchangeRates.latest_rates())
+
+  def cross_rate(from, to, {:ok, rates}) do
+    cross_rate(from, to, rates)
+  end
+
+  def cross_rate(%Money{currency: from_currency}, to_currency, %{} = rates) do
+    cross_rate(from_currency, to_currency, rates)
+  end
+
+  def cross_rate(from_currency, to_currency, %{} = rates) do
+    with {:ok, from_code} <- validate_currency(from_currency),
+         {:ok, to_code} <- validate_currency(to_currency),
+         {:ok, from_rate} <- get_rate(from_code, rates),
+         {:ok, to_rate} <- get_rate(to_code, rates) do
+      {:ok, Decimal.div(to_rate, from_rate)}
+    end
+  end
+
+  @doc """
+  Returns the effective cross-rate to convert from one currency
+  to another.
+
+  ## Arguments
+
+  * `from` is any `Money.t` struct returned by `Cldr.Currency.new/2` or a valid
+     currency code
+
+  * `to_currency` is a valid currency code into which the `money` is converted
+
+  * `rates` is a `Map` of currency rates where the map key is an upcased
+    atom or string and the value is a Decimal conversion factor.  The default is the
+    latest available exchange rates returned from `Money.ExchangeRates.latest_rates()`
+
+  ## Examples
+
+      iex> Money.cross_rate!(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
+      #Decimal<0.7345>
+
+      iex> Money.cross_rate!(:USD, :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
+      #Decimal<0.7345>
+
+      Money.cross_rate Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")}
+      ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
+
+  """
+  @spec cross_rate!(
+          Money.t() | currency_code,
+          currency_code,
+          ExchangeRates.t() | {:ok, ExchangeRates.t()}
+        ) :: {:ok, Decimal.t()} | {:error, {Exception.t(), String.t()}}
+
+  def cross_rate!(from, to_currency, rates \\ Money.ExchangeRates.latest_rates())
+
+  def cross_rate!(from, to_currency, rates) do
+    cross_rate(from, to_currency, rates)
+    |> do_cross_rate!
+  end
+
+  defp do_cross_rate!({:ok, rate}) do
+    rate
+  end
+
+  defp do_cross_rate!({:error, {exception, reason}}) do
     raise exception, reason
   end
 

@@ -1,3 +1,11 @@
+# Changelog for Money v2.9.0
+
+This is the changelog for Money v2.9.0 released on August 30th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Adds `Money.cross_rate/3` to return the effective exchange rate between a `Money.t` and a currency code, or between two currency codes.  Thanks to @lostkobrakai.  Closes #78.
+
 # Changelog for Money v2.8.0
 
 This is the changelog for Money v2.8.0 released on August 29th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
