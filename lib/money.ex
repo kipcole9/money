@@ -1352,7 +1352,7 @@ defmodule Money do
           Money.t() | currency_code,
           currency_code,
           ExchangeRates.t() | {:ok, ExchangeRates.t()}
-        ) :: {:ok, Decimal.t()} | {:error, {Exception.t(), String.t()}}
+        ) :: Decimal.t() | no_return
 
   def cross_rate!(from, to_currency, rates \\ Money.ExchangeRates.latest_rates())
 
