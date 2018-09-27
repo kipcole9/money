@@ -39,36 +39,37 @@ defmodule MoneyTest.Ecto do
       assert unquote(ecto_type_module).dump(100) == :error
     end
 
-    test "#{inspect(ecto_type_module)}: cast a money struct" do
-      assert unquote(ecto_type_module).cast(Money.new(:USD, 100) == Money.new(:USD, 100))
+    test "#{inspect(ecto_type_module)}: cast a map with the current structure but an empty amount" do
+      assert unquote(ecto_type_module).cast(%{"currency" => "USD", "amount" => ""})  == {:ok, nil}
     end
 
-    test "#{inspect(ecto_type_module)}: cast a money tuple" do
-      assert unquote(ecto_type_module).cast({:USD, Decimal.new(100)} == Money.new(:USD, 100))
+    test "#{inspect(ecto_type_module)}: cast a money struct" do
+      assert unquote(ecto_type_module).cast(Money.new(:USD, 100)) == {:ok, Money.new(:USD, 100)}
     end
+
+    # Money tuple no longer supported for casting
+    # test "#{inspect(ecto_type_module)}: cast a money tuple" do
+    #   assert unquote(ecto_type_module).cast({:USD, Decimal.new(100)}) == {:ok, Money.new(:USD, 100)}
+    # end
 
     test "#{inspect(ecto_type_module)}: cast a map with string keys and values" do
       assert unquote(ecto_type_module).cast(
-               %{"currency" => "USD", "amount" => "100"} == Money.new(:USD, 100)
-             )
+               %{"currency" => "USD", "amount" => "100"}) == {:ok, Money.new(:USD, 100)}
     end
 
     test "#{inspect(ecto_type_module)}: cast a map with string keys and numeric amount" do
       assert unquote(ecto_type_module).cast(
-               %{"currency" => "USD", "amount" => 100} == Money.new(:USD, 100)
-             )
+               %{"currency" => "USD", "amount" => 100}) == {:ok, Money.new(:USD, 100)}
     end
 
     test "#{inspect(ecto_type_module)}: cast a map with string keys, atom currency, and string amount" do
       assert unquote(ecto_type_module).cast(
-               %{"currency" => :USD, "amount" => "100"} == Money.new(100, :USD)
-             )
+               %{"currency" => :USD, "amount" => "100"}) == {:ok, Money.new(100, :USD)}
     end
 
     test "#{inspect(ecto_type_module)}: cast a map with string keys, atom currency, and numeric amount" do
       assert unquote(ecto_type_module).cast(
-               %{"currency" => :USD, "amount" => 100} == Money.new(100, :USD)
-             )
+               %{"currency" => :USD, "amount" => 100}) == {:ok, Money.new(100, :USD)}
     end
 
     test "#{inspect(ecto_type_module)}: cast a map with string keys and invalid currency" do
@@ -78,22 +79,20 @@ defmodule MoneyTest.Ecto do
 
     test "#{inspect(ecto_type_module)}: cast a map with atom keys and values" do
       assert unquote(ecto_type_module).cast(
-               %{currency: "USD", amount: "100"} == Money.new(100, :USD)
-             )
+               %{currency: "USD", amount: "100"}) == {:ok, Money.new(100, :USD)}
     end
 
     test "#{inspect(ecto_type_module)}: cast a map with atom keys and numeric amount" do
-      assert unquote(ecto_type_module).cast(%{currency: "USD", amount: 100} == Money.new(100, :USD))
+      assert unquote(ecto_type_module).cast(%{currency: "USD", amount: 100}) == {:ok, Money.new(100, :USD)}
     end
 
     test "#{inspect(ecto_type_module)}: cast a map with atom keys, atom currency, and numeric amount" do
-      assert unquote(ecto_type_module).cast(%{currency: :USD, amount: 100} == Money.new(100, :USD))
+      assert unquote(ecto_type_module).cast(%{currency: :USD, amount: 100}) == {:ok, Money.new(100, :USD)}
     end
 
     test "#{inspect(ecto_type_module)}: cast a map with atom keys, atom currency, and string amount" do
       assert unquote(ecto_type_module).cast(
-               %{currency: :USD, amount: "100"} == Money.new(100, :USD)
-             )
+               %{currency: :USD, amount: "100"}) == {:ok, Money.new(100, :USD)}
     end
 
     test "#{inspect(ecto_type_module)}: cast a map with atom keys and invalid currency" do

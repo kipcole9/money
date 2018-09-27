@@ -41,6 +41,10 @@ if Code.ensure_loaded?(Ecto.Type) do
       {:ok, money}
     end
 
+    def cast(%{"currency" => _, "amount" => ""}) do
+      {:ok, nil}
+    end
+
     def cast(%{"currency" => currency, "amount" => amount})
         when (is_binary(currency) or is_atom(currency)) and is_integer(amount) do
       with decimal_amount <- Decimal.new(amount),

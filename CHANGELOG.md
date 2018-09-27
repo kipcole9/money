@@ -1,3 +1,15 @@
+# Changelog for Money v2.9.1
+
+This is the changelog for Money v2.9.1 released on September 27th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Allows casting of money maps with the correct structure of `currency` and `amount` but an empty amount. The result is `{:ok, nil}`.  Closes #80.  Thanks to @lostkobrakai.
+
+* Fixed some tests for `Money.Ecto.Composite.Type` and `Money.Ecto.Map.Type`
+
+* Removed tests for casting money tuples since these are no longer supported
+
 # Changelog for Money v2.9.0
 
 This is the changelog for Money v2.9.0 released on August 30th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
