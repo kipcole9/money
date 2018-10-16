@@ -12,4 +12,4 @@ config :ex_money,
   json_library: Jason,
   exchange_rates_cache: Money.ExchangeRates.Cache.Dets
 
-config :ex_cldr, locales: ["en", "root", "zh-Hans", "zh", "it", "fr", "es", "pt"]
+config :ex_cldr, locales: ["en", "root", "zh-Hans", "zh", "it", "fr", "es", "pt", "de"]

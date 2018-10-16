@@ -93,11 +93,18 @@ defmodule Money do
   Returns a %Money{} struct from a currency code and a currency amount or
   an error tuple of the form `{:error, {exception, message}}`.
 
-  ## Options
+  ## Arguments
 
   * `currency_code` is an ISO4217 three-character upcased binary or atom
 
   * `amount` is an integer, string or Decimal
+
+  ## Options
+
+  `:locale` is any known locale.  The locale is used to normalize any
+  binary (String) amounts to a form that can be consumed by `Decimal.new/1`.
+  This consists of removing any localised grouping characters and replacing
+  the localised decimal separator with a ".".
 
   Note that the `currency_code` and `amount` arguments can be supplied in
   either order,
@@ -125,7 +132,10 @@ defmodule Money do
       iex> Money.new(:XYZZ, 100)
       {:error, {Money.UnknownCurrencyError, "The currency :XYZZ is invalid"}}
 
-      iex(1)> Money.new 123.445, :USD
+      iex> Money.new("1.000,99", :EUR, locale: "de")
+      #Money<:EUR, 1000.99>
+
+      iex> Money.new 123.445, :USD
       {:error,
        {Money.InvalidAmountError,
         "Float amounts are not supported in new/2 due to potenial " <>
@@ -133,32 +143,35 @@ defmodule Money do
         "use Money.from_float/2"}}
 
   """
-  @spec new(amount | currency_code, amount | currency_code) ::
+  @spec new(amount | currency_code, amount | currency_code, Keyword.t()) ::
           Money.t() | {:error, {Exception.t(), String.t()}}
 
-  def new(currency_code, amount) when is_binary(currency_code) and is_integer(amount) do
+  def new(currency_code, amount, options \\ [])
+
+  def new(currency_code, amount, options) when is_binary(currency_code) and is_integer(amount) do
     case validate_currency(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
-      {:ok, code} -> new(code, amount)
+      {:ok, code} -> new(code, amount, options)
     end
   end
 
-  def new(amount, currency_code) when is_binary(currency_code) and is_integer(amount) do
-    new(currency_code, amount)
+  def new(amount, currency_code, options) when is_binary(currency_code) and is_integer(amount) do
+    new(currency_code, amount, options)
   end
 
-  def new(currency_code, amount) when is_atom(currency_code) and is_integer(amount) do
-    case validate_currency(currency_code) do
-      {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
-      {:ok, code} -> %Money{amount: Decimal.new(amount), currency: code}
+  def new(currency_code, amount, _options) when is_atom(currency_code) and is_integer(amount) do
+    with {:ok, code} <- validate_currency(currency_code) do
+      %Money{amount: Decimal.new(amount), currency: code}
+    else
+      {:error, {Cldr.UnknownCurrencyError, message}} -> {:error, {Money.UnknownCurrencyError, message}}
     end
   end
 
-  def new(amount, currency_code) when is_integer(amount) and is_atom(currency_code) do
-    new(currency_code, amount)
+  def new(amount, currency_code, options) when is_integer(amount) and is_atom(currency_code) do
+    new(currency_code, amount, options)
   end
 
-  def new(currency_code, %Decimal{} = amount)
+  def new(currency_code, %Decimal{} = amount, _options)
       when is_atom(currency_code) or is_binary(currency_code) do
     case validate_currency(currency_code) do
       {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
@@ -166,13 +179,15 @@ defmodule Money do
     end
   end
 
-  def new(%Decimal{} = amount, currency_code)
+  def new(%Decimal{} = amount, currency_code, options)
       when is_atom(currency_code) or is_binary(currency_code) do
-    new(currency_code, amount)
+    new(currency_code, amount, options)
   end
 
-  def new(currency_code, amount) when is_atom(currency_code) and is_binary(amount) do
-    new(currency_code, Decimal.new(amount))
+  def new(currency_code, amount, options) when is_atom(currency_code) and is_binary(amount) do
+    with {:ok, decimal} <- parse_decimal(amount, options[:locale]) do
+      new(currency_code, decimal, options)
+    end
   rescue
     Decimal.Error ->
       {
@@ -181,28 +196,31 @@ defmodule Money do
       }
   end
 
-  def new(amount, currency_code) when is_atom(currency_code) and is_binary(amount) do
-    new(currency_code, amount)
+  def new(amount, currency_code, options) when is_atom(currency_code) and is_binary(amount) do
+    new(currency_code, amount, options)
   end
 
-  def new(_currency_code, amount) when is_float(amount) do
+  def new(_currency_code, amount, _options) when is_float(amount) do
     {:error,
      {Money.InvalidAmountError,
       "Float amounts are not supported in new/2 due to potenial rounding " <>
         "and precision issues.  If absolutely required, use Money.from_float/2"}}
   end
 
-  def new(amount, currency_code) when is_float(amount) do
-    new(currency_code, amount)
+  def new(amount, _currency_code, _options) when is_float(amount) do
+    {:error,
+     {Money.InvalidAmountError,
+      "Float amounts are not supported in new/2 due to potenial rounding " <>
+        "and precision issues.  If absolutely required, use Money.from_float/2"}}
   end
 
-  def new(param_a, param_b) when is_binary(param_a) and is_binary(param_b) do
+  def new(param_a, param_b, options) when is_binary(param_a) and is_binary(param_b) do
     with {:ok, currency_code} <- validate_currency(param_a) do
-      new(currency_code, param_b)
+      new(currency_code, param_b, options)
     else
       {:error, _} ->
         with {:ok, currency_code} <- validate_currency(param_b) do
-          new(currency_code, param_a)
+          new(currency_code, param_a, options)
         else
           {:error, _} ->
             {:error,
@@ -1613,4 +1631,21 @@ defmodule Money do
   def json_library do
     @json_library
   end
+
+  defp parse_decimal(string, nil) do
+    {:ok, Decimal.new(string)}
+  end
+
+  defp parse_decimal(string, locale) do
+    with {:ok, locale} <- Cldr.validate_locale(locale),
+         {:ok, symbols} <- Cldr.Number.Symbol.number_symbols_for(locale) do
+       decimal =
+         string
+         |> String.replace(symbols.latn.group, "")
+         |> String.replace(symbols.latn.decimal, ".")
+         |> Decimal.new
+
+       {:ok, decimal}
+     end
+   end
 end

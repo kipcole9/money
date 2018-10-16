@@ -229,10 +229,13 @@ end
     iex> Money.new("thb", 11)
     #Money<:THB, 11>
 
+    iex> Money.new("1.000,99", :EUR, locale: "de")
+    "1000.99"
+
 The canonical representation of a currency code is an `atom` that is a valid
 [ISO4217](http://www.currency-iso.org/en/home/tables/table-a1.html) currency code. The amount of a `%Money{}` is represented by a `Decimal`.
 
-Note that the arguments to `Money.new/2` can be supplied in either order.
+Note that the amount and currency code arguments to `Money.new/3` can be supplied in either order.
 
 ### Float amounts cannot be provided to `Money.new/2`
 

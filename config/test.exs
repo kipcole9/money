@@ -18,4 +18,4 @@ config :ex_money,
 
 config :ex_cldr,
   default_locale: "en",
-  locales: ["en", "root"]
+  locales: ["en", "root", "de"]

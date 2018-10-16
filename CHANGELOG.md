@@ -1,3 +1,21 @@
+# Changelog for Money v2.10.0
+
+This is the changelog for Money v2.10.0 released on October 17th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Adds an optional parameter `options` to `Money.new/2` which is now `Money.new/3`.  `options` is a keyword list of options.  Only one option is valid, `:locale` which, if specified must be in `Cldr.known_locales`  The locale is used to transform any binary amounts passed to `Money.new/3` such that localised grouping characters and decimal characters are normalised to the Elixir requirements.  For example before this change the following example would error because the decimal point is a separator in the "de" locale and the decimal character `,` is invalid in Elixir number literals.
+
+    iex> Money.new("1.000,99", :EUR)
+    {:error, {Money.InvalidAmountError, "Amount cannot be converted to a number: \"1.000,99\""}}
+
+* Using the `:locale` parameter it is now possible to specify the locale transform for number string literals:
+
+    iex> Money.new("1.000,99", :EUR, locale: "de")
+    #Money<:EUR, 1000.99>
+
+Thanks to @f34nk for the suggestion.
+
 # Changelog for Money v2.9.1
 
 This is the changelog for Money v2.9.1 released on September 27th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
