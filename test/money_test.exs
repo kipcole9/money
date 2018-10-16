@@ -75,6 +75,16 @@ defmodule MoneyTest do
     assert money.amount == Decimal.new(1234)
   end
 
+  test "create a new currency with a locale to normalise an amount string" do
+    money = Money.new(:USD, "1.234.567,99", locale: "de")
+    assert money.currency == :USD
+    assert money.amount == Decimal.new("1234567.99")
+
+    money = Money.new(:USD, "1,234,567.99", locale: "en")
+    assert money.currency == :USD
+    assert money.amount == Decimal.new("1234567.99")
+  end
+
   test "create a new money struct from a tuple" do
     money = Money.from_tuple({"USD", 1234})
     assert money.currency == :USD
