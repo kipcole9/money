@@ -39,9 +39,9 @@ defmodule Money.Currency do
        :NGN, :NIO, :NOK, :NPR, :NZD, :OMR, :PAB, :PEN, :PGK, :PHP, :PKR, :PLN, :PYG,
        :QAR, :RON, :RSD, :RUB, :RWF, :SAR, :SBD, :SCR, :SDG, :SEK, :SGD, :SHP, :SLL,
        :SOS, :SRD, :SSP, :STN, :SVC, :SYP, :SZL, :THB, :TJS, :TMT, :TND, :TOP, :TRY,
-       :TTD, :TWD, :TZS, :UAH, :UGX, :USD, :USN, :UYI, :UYU, :UZS, :VEF, :VND, :VUV,
-       :WST, :XAF, :XAG, :XAU, :XBA, :XBB, :XBC, :XBD, :XCD, :XDR, :XOF, :XPD, :XPF,
-       :XPT, :XSU, :XTS, :XUA, :XXX, :YER, :ZAR, :ZMW, :ZWL]
+       :TTD, :TWD, :TZS, :UAH, :UGX, :USD, :USN, :UYI, :UYU, :UYW, :UZS, :VES, :VND,
+       :VUV, :WST, :XAF, :XAG, :XAU, :XBA, :XBB, :XBC, :XBD, :XCD, :XDR, :XOF, :XPD,
+       :XPF, :XPT, :XSU, :XTS, :XUA, :XXX, :YER, :ZAR, :ZMW, :ZWL]
 
   """
   def known_current_currencies do
@@ -62,8 +62,8 @@ defmodule Money.Currency do
        :LUF, :LUL, :LVL, :LVR, :MAF, :MCF, :MDC, :MGF, :MKN, :MLF, :MRO, :MTL, :MTP,
        :MVP, :MXP, :MZE, :MZM, :NIC, :NLG, :PEI, :PES, :PLZ, :PTE, :RHD, :ROL, :RUR,
        :SDD, :SDP, :SIT, :SKK, :SRG, :STD, :SUR, :TJR, :TMM, :TPE, :TRL, :UAK, :UGS,
-       :USS, :UYP, :VEB, :VNN, :XEU, :XFO, :XFU, :XRE, :YDD, :YUD, :YUM, :YUN, :YUR,
-       :ZAL, :ZMK, :ZRN, :ZRZ, :ZWD, :ZWR]
+       :USS, :UYP, :VEB, :VEF, :VNN, :XEU, :XFO, :XFU, :XRE, :YDD, :YUD, :YUM, :YUN,
+       :YUR, :ZAL, :ZMK, :ZRN, :ZRZ, :ZWD, :ZWR]
 
   """
   def known_historic_currencies do
@@ -95,11 +95,11 @@ defmodule Money.Currency do
        :RON, :RSD, :RUB, :RUR, :RWF, :SAR, :SBD, :SCR, :SDD, :SDG, :SDP, :SEK, :SGD,
        :SHP, :SIT, :SKK, :SLL, :SOS, :SRD, :SRG, :SSP, :STD, :STN, :SUR, :SVC, :SYP,
        :SZL, :THB, :TJR, :TJS, :TMM, :TMT, :TND, :TOP, :TPE, :TRL, :TRY, :TTD, :TWD,
-       :TZS, :UAH, :UAK, :UGS, :UGX, :USD, :USN, :USS, :UYI, :UYP, :UYU, :UZS, :VEB,
-       :VEF, :VND, :VNN, :VUV, :WST, :XAF, :XAG, :XAU, :XBA, :XBB, :XBC, :XBD, :XCD,
-       :XDR, :XEU, :XFO, :XFU, :XOF, :XPD, :XPF, :XPT, :XRE, :XSU, :XTS, :XUA, :XXX,
-       :YDD, :YER, :YUD, :YUM, :YUN, :YUR, :ZAL, :ZAR, :ZMK, :ZMW, :ZRN, :ZRZ, :ZWD,
-       :ZWL, :ZWR]
+       :TZS, :UAH, :UAK, :UGS, :UGX, :USD, :USN, :USS, :UYI, :UYP, :UYU, :UYW, :UZS,
+       :VEB, :VEF, :VES, :VND, :VNN, :VUV, :WST, :XAF, :XAG, :XAU, :XBA, :XBB, :XBC,
+       :XBD, :XCD, :XDR, :XEU, :XFO, :XFU, :XOF, :XPD, :XPF, :XPT, :XRE, :XSU, :XTS,
+       :XUA, :XXX, :YDD, :YER, :YUD, :YUM, :YUN, :YUR, :ZAL, :ZAR, :ZMK, :ZMW, :ZRN,
+       :ZRZ, :ZWD, :ZWL, :ZWR]
 
   """
   def known_tender_currencies do

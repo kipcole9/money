@@ -1,3 +1,11 @@
+# Changelog for Money v2.11.0
+
+This is the changelog for Money v2.10.0 released on October 18th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Updated dependency on [ex_cldr](https://hex.pm/packages/ex_cldr) to version 1.8 which uses CLDR version 34 data.
+
 # Changelog for Money v2.10.0
 
 This is the changelog for Money v2.10.0 released on October 17th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

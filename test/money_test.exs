@@ -494,7 +494,7 @@ defmodule MoneyTest do
 
   test "that we can use accounting digits for to_integer_exp" do
     assert Money.to_integer_exp(Money.new(:COP, 1234), currency_digits: :accounting) ==
-             {:COP, 1234, 0, Money.new(:COP, 0)}
+             {:COP, 123400, -2, Money.new(:COP, 0)}
   end
 
   test "json encoding for Jason" do
