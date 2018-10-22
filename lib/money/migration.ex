@@ -2,7 +2,7 @@ defmodule Money.Migration do
   @moduledoc false
 
   [%{status: {:ok, ecto_version}}] =
-    if Version.compare(System.version(), "1.6.0") in [:gt, :eq] do
+    if Version.compare(System.version(), "1.7.0") in [:gt, :eq] do
       Mix.Dep.filter_by_name([:ecto], Mix.Dep.cached)
     else
       Mix.Dep.loaded_by_name([:ecto], Mix.Dep.cached)

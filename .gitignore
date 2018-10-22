@@ -24,3 +24,6 @@ erl_crash.dump
 
 # Mac stuff
 .DS_Store
+
+# asdf
+.tool-versions
