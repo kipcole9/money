@@ -25,6 +25,7 @@ With Ecto 3 (ecto_sql) the configuration would be:
     defp deps do
       [
         {:ecto_sql, "~> 3.0-rc"},
+        {:ecto, "~> 3.0-rc", override: true},
         {:postgrex, "~> 0.14-rc"},
         {:ex_money, "~> 2.12"},
         {:jason, "~> 1.0"}
