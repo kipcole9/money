@@ -86,14 +86,25 @@ defmodule Money.Mixfile do
       {:ex_cldr_numbers, "~> 1.6"},
       {:decimal, "~> 1.4"},
       {:phoenix_html, "~> 2.0", optional: true},
-      {:ex_doc, "~> 0.18", only: :dev},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
       {:jason, "~> 1.0", optional: true},
       {:poison, "~> 2.2 or ~> 3.1", optional: true},
       {:stream_data, "~> 0.4.1", only: [:dev, :test]},
       {:gringotts, "~>1.1", optional: true},
-      ecto_version(System.get_env("ECTO_VERSION"))
+      ecto_version(System.get_env("ECTO_VERSION")),
+      ex_doc_version(System.version())
     ]
+  end
+
+  defp ex_doc_version(version) do
+    cond do
+      Version.compare(version, "1.7.0") in [:gt, :eq] ->
+        {:ex_doc, "~> 0.19", only: :dev}
+      Version.compare(version, "1.6.0") == :lt ->
+        {:ex_doc, ">= 0.17.0 and < 0.18.0", only: :dev}
+      Version.compare(version, "1.7.0") == :lt ->
+        {:ex_doc, ">= 0.18.0 and < 0.19.0", only: :dev}
+    end
   end
 
   defp ecto_version(nil), do: {:ecto, "~> 2.1 or ~> 3.0", optional: true}

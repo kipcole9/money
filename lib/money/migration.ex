@@ -29,4 +29,14 @@ defmodule Money.Migration do
       Mix.Ecto.migrations_path(repo)
     end
   end
+
+  if function_exported?(Code, :format_string!, 1) do
+    def format_string!(string) do
+      Code.format_string!(string)
+    end
+  else
+    def format_string!(string) do
+      string
+    end
+  end
 end
