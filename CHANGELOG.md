@@ -31,7 +31,7 @@ In `config.exs` you would likely have:
         {:ecto, "~> 2.1"},
         {:postgrex, "> 0.0.0"},
         {:ex_money, "~> 2.6"},
-        {:jason, "~> 1.0"}
+        {:jason, "~> 1.0"},
         ...
       ]
     end
@@ -46,7 +46,7 @@ With Ecto 3 (ecto_sql) the configuration would be:
         {:ecto, "~> 3.0-rc", override: true},
         {:postgrex, "~> 0.14-rc"},
         {:ex_money, "~> 2.12"},
-        {:jason, "~> 1.0"}
+        {:jason, "~> 1.0"},
         ...
       ]
     end
