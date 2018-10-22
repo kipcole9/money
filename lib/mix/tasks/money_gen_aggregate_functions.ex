@@ -3,8 +3,9 @@ if Code.ensure_loaded?(Ecto) do
     use Mix.Task
 
     import Mix.Generator
-    import Mix.Ecto
+    import Mix.Ecto, except: [migrations_path: 1]
     import Macro, only: [camelize: 1, underscore: 1]
+    import Money.Migration
 
     @shortdoc "Generates a migration to create aggregate types for money_with_currency"
 

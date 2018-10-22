@@ -1,6 +1,42 @@
+# Changelog for Money v2.12.0
+
+This is the changelog for Money v2.12.0 released on October 22nd, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+Supports [Ecto version 3.x (ecto_sql)](https://hex.pm/packages/ecto_sql) release candidate. When upgrading from Ecto 2 to Ecto 3 the following configuration changes are applied:
+
+In `config.exs` you would likely have:
+
+    defp deps do
+      [
+        {:ecto, "~> 2.1"},
+        {:postgrex, "> 0.0.0"},
+        {:ex_money, "~> 2.6"},
+        {:jason, "~> 1.0"}
+        ...
+      ]
+    end
+
+With Ecto 3 (ecto_sql) the configuration would be:
+
+    # Change to the release versions when
+    # available on hex
+    defp deps do
+      [
+        {:ecto_sql, "~> 3.0-rc"},
+        {:postgrex, "~> 0.14-rc"},
+        {:ex_money, "~> 2.12"},
+        {:jason, "~> 1.0"}
+        ...
+      ]
+    end
+
+**Note that `:ecto_sql` uses `:db_connection` version 2.0 which has its own connection pooling and `:poolboy` is no longer required.**
+
 # Changelog for Money v2.11.0
 
-This is the changelog for Money v2.10.0 released on October 18th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.11.0 released on October 18th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 
