@@ -96,8 +96,8 @@ defmodule Money.Mixfile do
     ]
   end
 
-  defp ecto_version(nil), do: {:ecto, "~> 2.1", optional: true}
-  defp ecto_version("2"), do: {:ecto, "~> 2.1", optional: true}
+  defp ecto_version(nil), do: {:ecto, "~> 2.1 or 3.0.0-rc", optional: true}
+  defp ecto_version("2"), do: {:ecto, "~> 2.1 or 3.0.0-rc", optional: true}
   defp ecto_version("3"), do: {:ecto_sql, "~> 3.0.0-rc", optional: true}
   defp ecto_version(other) do
     raise "$ECTO_VERSION should be either nil, 2 or 3.  Found #{inspect other}"
