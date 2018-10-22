@@ -1,26 +1,7 @@
 defmodule Money.Migration do
   @moduledoc false
 
-  [%{status: {:ok, ecto_version}}] =
-    if Version.compare(System.version(), "1.7.0") in [:gt, :eq] do
-      Mix.Dep.filter_by_name([:ecto], Mix.Dep.cached)
-    else
-      Mix.Dep.loaded_by_name([:ecto], Mix.Dep.cached)
-    end
-
-  {ecto_major_version, _} = Integer.parse(ecto_version)
-  @ecto_version ecto_version
-  @ecto_major_version ecto_major_version
-
-  def ecto_version do
-    @ecto_version
-  end
-
-  def ecto_major_version do
-    @ecto_major_version
-  end
-
-  if @ecto_major_version >= 3  do
+  if Code.ensure_loaded(Ecto.Migrator) && function_exported?(Ecto.Migrator, :migrations_path, 1) do
     def migrations_path(repo) do
       Ecto.Migrator.migrations_path(repo)
     end
@@ -30,7 +11,7 @@ defmodule Money.Migration do
     end
   end
 
-  if function_exported?(Code, :format_string!, 1) do
+  if Code.ensure_loaded(Code) && function_exported?(Code, :format_string!, 1) do
     def format_string!(string) do
       Code.format_string!(string)
     end

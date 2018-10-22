@@ -1,3 +1,11 @@
+# Changelog for Money v2.12.2
+
+This is the changelog for Money v2.12.2 released on October 23rd, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Sometimes `Mix.Dep.cached/0` returns a structure which doesn't identify the version of the dependency loaded.  Therefore in this version we just check if the function `Ecto.Migrator.migrations_path/0` exists.  Thanks to @hl for the issue. Closes #86.
+
 # Changelog for Money v2.12.1
 
 This is the changelog for Money v2.12.1 released on October 22nd, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
