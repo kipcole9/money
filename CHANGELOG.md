@@ -1,10 +1,12 @@
-# Changelog for Money v2.12.0
+# Changelog for Money v2.12.1
 
 This is the changelog for Money v2.12.1 released on October 22nd, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
 * Fixed error which assumed that `Mix.Dep.loaded_by_name/2` was renamed in Elixir 1.6 but in fact it was renamed to `Mix.Dep.loaded_by_name/2` in Elixir 1.7.
+
+* Fix and error in defining compiler paths for tests to ensure compatibility for Elixir 1.5, 1.6 and 1.7
 
 # Changelog for Money v2.12.0
 
