@@ -1,3 +1,11 @@
+# Changelog for Money v2.12.3
+
+This is the changelog for Money v2.12.3 released on ______, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Use `Code.ensure_loaded?/1` not `Code.ensure_loaded/1` in Money.Migration
+
 # Changelog for Money v2.12.2
 
 This is the changelog for Money v2.12.2 released on October 23rd, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
