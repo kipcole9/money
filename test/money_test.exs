@@ -85,18 +85,6 @@ defmodule MoneyTest do
     assert money.amount == Decimal.new("1234567.99")
   end
 
-  test "create a new money struct from a tuple" do
-    money = Money.from_tuple({"USD", 1234})
-    assert money.currency == :USD
-    assert money.amount == Decimal.new(1234)
-  end
-
-  test "create a new! money struct from a tuple with bang method" do
-    money = Money.from_tuple!({"USD", 1234})
-    assert money.currency == :USD
-    assert money.amount == Decimal.new(1234)
-  end
-
   test "create a new money struct from a number and atom currency with bang method" do
     money = Money.new!(:USD, 1234)
     assert money.currency == :USD
@@ -145,17 +133,7 @@ defmodule MoneyTest do
               {Money.InvalidAmountError, "Amount cannot be converted to a number: \"2134ff\""}}
   end
 
-  test "raise when creating a new money struct from a tuple with an invalid currency code" do
-    assert_raise Money.UnknownCurrencyError, "The currency \"ABCD\" is invalid", fn ->
-      Money.from_tuple!({"ABCD", 1234})
-    end
-  end
-
   test "raise when creating a new money struct from invalid input" do
-    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
-      Money.from_tuple!({1234, "ABCDE"})
-    end
-
     assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
       Money.new!("ABCDE", 100)
     end

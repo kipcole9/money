@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "2.12.3"
+  @version "3.0.0-rc.0"
 
   def project do
     [
@@ -82,15 +82,15 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:ex_cldr, "~> 1.8"},
-      {:ex_cldr_numbers, "~> 1.6"},
+      {:ex_cldr, path: "../cldr"},
+      {:ex_cldr_numbers, path: "../cldr_numbers"},
       {:decimal, "~> 1.4"},
       {:phoenix_html, "~> 2.0", optional: true},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
       {:jason, "~> 1.0", optional: true},
       {:stream_data, "~> 0.4.1", only: [:dev, :test]},
       {:gringotts, "~>1.1", optional: true},
-      ecto_version(System.get_env("ECTO_VERSION")),
+      {:ecto_sql, "~> 3.0", optional: true},
       ex_doc_version(System.version())
     ]
   end
@@ -106,13 +106,7 @@ defmodule Money.Mixfile do
     end
   end
 
-  defp ecto_version(nil), do: {:ecto, "~> 2.1 or ~> 3.0", optional: true}
-  defp ecto_version("2"), do: {:ecto, "~> 2.1", optional: true}
-  defp ecto_version("3"), do: {:ecto_sql, "~> 3.0", optional: true}
-  defp ecto_version(other) do
-    raise "$ECTO_VERSION should be either nil, 2 or 3.  Found #{inspect other}"
-  end
-
   defp elixirc_paths(:test), do: ["lib", "test", "test/support"]
+  defp elixirc_paths(:dev), do: ["lib", "mix"]
   defp elixirc_paths(_), do: ["lib"]
 end

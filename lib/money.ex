@@ -80,7 +80,7 @@ defmodule Money do
   # as bankers rounding
   @default_rounding_mode :half_even
 
-  alias Cldr.Currency
+  alias Money.Currency
   alias Money.ExchangeRates
 
   defdelegate validate_currency(currency_code), to: Cldr
@@ -185,7 +185,7 @@ defmodule Money do
   end
 
   def new(currency_code, amount, options) when is_atom(currency_code) and is_binary(amount) do
-    with {:ok, decimal} <- parse_decimal(amount, options[:locale]) do
+    with {:ok, decimal} <- parse_decimal(amount, options[:locale], options[:backend]) do
       new(currency_code, decimal, options)
     end
   rescue
@@ -367,80 +367,6 @@ defmodule Money do
   end
 
   @doc """
-  Returns a %Money{} struct from a tuple consistenting of a currency code and
-  a currency amount.  The format of the argument is a 2-tuple where:
-
-  ## Options
-
-  * `currency_code` is an ISO4217 three-character upcased binary
-
-  * `amount` is an integer or Decimal
-
-  This function is typically called from Ecto when it's loading a `%Money{}`
-  struct from the database.
-
-  ## Example
-
-      iex> Money.from_tuple({"USD", 100})
-      #Money<:USD, 100>
-
-      iex> Money.from_tuple({100, "USD"})
-      #Money<:USD, 100>
-
-  """
-  @deprecated "Use new/2 instead.  Will be removed in Money 3.0"
-  @spec from_tuple({binary, number}) :: Money.t()
-
-  def from_tuple({currency_code, amount}) when is_binary(currency_code) and is_integer(amount) do
-    case validate_currency(currency_code) do
-      {:error, {_exception, message}} ->
-        {:error, {Money.UnknownCurrencyError, message}}
-
-      {:ok, code} ->
-        %Money{amount: Decimal.new(amount), currency: code}
-    end
-  end
-
-  def from_tuple({amount, currency_code}) when is_binary(currency_code) and is_integer(amount) do
-    from_tuple({currency_code, amount})
-  end
-
-  @doc """
-  Returns a %Money{} struct from a tuple consistenting of a currency code and
-  a currency amount.  Raises an exception if the currency code is invalid.
-
-  ## Options
-
-  * `currency_code` is an ISO4217 three-character upcased binary
-
-  * `amount` is an integer, float or Decimal
-
-  This function is typically called from Ecto when it's loading a %Money{}
-  struct from the database.
-
-  ## Example
-
-      iex> Money.from_tuple!({"USD", 100})
-      #Money<:USD, 100>
-
-      Money.from_tuple!({"NO!", 100})
-      ** (Money.UnknownCurrencyError) Currency "NO!" is not known
-          (ex_money) lib/money.ex:130: Money.new!/1
-
-  """
-  @deprecated "Use new/2 instead.  Will be removed in Money 3.0"
-  def from_tuple!({currency_code, amount}) when is_binary(currency_code) and is_integer(amount) do
-    case money = new(currency_code, amount) do
-      {:error, {exception, message}} -> raise exception, message
-      _ -> money
-    end
-  end
-
-  def from_tuple!({amount, currency_code}) when is_binary(currency_code) and is_integer(amount) do
-    from_tuple!({currency_code, amount})
-  end
-
-  @doc """
   Returns a formatted string representation of a `Money{}`.
 
   Formatting is performed according to the rules defined by CLDR. See
@@ -475,8 +401,10 @@ defmodule Money do
 
   """
   def to_string(%Money{} = money, options \\ []) do
-    options = merge_options(options, currency: money.currency)
-    Cldr.Number.to_string(money.amount, options)
+    default_options = [backend: Money.default_backend(), currency: money.currency]
+    options = Keyword.merge(default_options, options)
+    backend = options[:backend]
+    Cldr.Number.to_string(money.amount, backend, options)
   end
 
   @doc """
@@ -504,8 +432,9 @@ defmodule Money do
 
   """
   def to_string!(%Money{} = money, options \\ []) do
-    options = merge_options(options, currency: money.currency)
-    Cldr.Number.to_string!(money.amount, options)
+    with {:ok, string} <- Money.to_string(money, options) do
+      string
+    end
   end
 
   @doc """
@@ -1455,7 +1384,7 @@ defmodule Money do
       |> Money.reduce()
 
     {:ok, remainder} = Money.sub(money, new_money)
-    {:ok, currency} = Cldr.Currency.currency_for_code(money.currency)
+    {:ok, currency} = Currency.currency_for_code(money.currency)
     digits = digits_from_opts(currency, opts[:currency_digits])
     exponent = -digits
     exponent_adjustment = abs(exponent - new_money.amount.exp)
@@ -1504,7 +1433,7 @@ defmodule Money do
   @spec from_integer(integer, currency_code) :: Money.t() | {:error, Exception.t(), String.t()}
   def from_integer(amount, currency) when is_integer(amount) do
     with {:ok, currency} <- validate_currency(currency),
-         {:ok, %{iso_digits: digits}} <- Cldr.Currency.currency_for_code(currency) do
+         {:ok, %{iso_digits: digits}} <- Currency.currency_for_code(currency) do
       sign = if amount < 0, do: -1, else: 1
       digits = if digits == 0, do: 0, else: -digits
 
@@ -1623,22 +1552,22 @@ defmodule Money do
     end
   end
 
-  defp merge_options(options, required) do
-    Keyword.merge(options, required, fn _k, _v1, v2 -> v2 end)
-  end
-
   @doc false
   def json_library do
     @json_library
   end
 
-  defp parse_decimal(string, nil) do
+  defp parse_decimal(string, nil, _backend) do
     {:ok, Decimal.new(string)}
   end
 
-  defp parse_decimal(string, locale) do
-    with {:ok, locale} <- Cldr.validate_locale(locale),
-         {:ok, symbols} <- Cldr.Number.Symbol.number_symbols_for(locale) do
+  defp parse_decimal(string, locale, nil) do
+    parse_decimal(string, locale, default_backend())
+  end
+
+  defp parse_decimal(string, locale, backend) do
+    with {:ok, locale} <- Cldr.validate_locale(locale, backend),
+         {:ok, symbols} <- Cldr.Number.Symbol.number_symbols_for(locale, backend) do
        decimal =
          string
          |> String.replace(symbols.latn.group, "")
@@ -1647,5 +1576,18 @@ defmodule Money do
 
        {:ok, decimal}
      end
+   end
+
+   @app_name Mix.Project.config |> Keyword.get(:app)
+   @doc false
+   def app_name do
+     @app_name
+   end
+
+   @doc false
+   @default_backend Application.get_env(@app_name, :default_cldr_backend) ||
+     raise "A default backend must be configured"
+   def default_backend() do
+     @default_backend
    end
 end

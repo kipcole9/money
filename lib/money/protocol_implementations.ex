@@ -48,7 +48,7 @@ if Code.ensure_compiled?(Gringotts.Money) do
         money
         |> Money.round()
         |> Map.get(:amount)
-        |> Cldr.Number.to_string!()
+        |> Module.concat(Money.default_backend(), Number).to_string!
 
       {currency(money), rounded_string}
     end

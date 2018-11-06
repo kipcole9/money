@@ -4,20 +4,20 @@ defmodule Money.Currency do
   legal tender currencies.
   """
 
-  @current_currencies Cldr.Config.get_locale(Cldr.get_current_locale().cldr_locale_name)
-                      |> Map.get(:currencies)
+  @currencies Cldr.Config.get_locale("en")
+              |> Map.get(:currencies)
+
+  @current_currencies @currencies
                       |> Enum.filter(fn {_code, currency} -> !is_nil(currency.iso_digits) end)
                       |> Enum.map(fn {code, _currency} -> code end)
                       |> Enum.sort()
 
-  @historic_currencies Cldr.Config.get_locale(Cldr.get_current_locale().cldr_locale_name)
-                       |> Map.get(:currencies)
+  @historic_currencies @currencies
                        |> Enum.filter(fn {_code, currency} -> is_nil(currency.iso_digits) end)
                        |> Enum.map(fn {code, _currency} -> code end)
                        |> Enum.sort()
 
-  @tender_currencies Cldr.Config.get_locale(Cldr.get_current_locale().cldr_locale_name)
-                     |> Map.get(:currencies)
+  @tender_currencies @currencies
                      |> Enum.filter(fn {_code, currency} -> currency.tender end)
                      |> Enum.map(fn {code, _currency} -> code end)
                      |> Enum.sort()
@@ -104,5 +104,9 @@ defmodule Money.Currency do
   """
   def known_tender_currencies do
     @tender_currencies
+  end
+
+  def currency_for_code(code) do
+    Cldr.Currency.currency_for_code(code, Money.default_backend())
   end
 end

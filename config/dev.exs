@@ -10,6 +10,5 @@ config :ex_money,
   log_info: :info,
   log_success: :info,
   json_library: Jason,
-  exchange_rates_cache: Money.ExchangeRates.Cache.Dets
-
-config :ex_cldr, locales: ["en", "root", "zh-Hans", "zh", "it", "fr", "es", "pt", "de"]
+  exchange_rates_cache: Money.ExchangeRates.Cache.Dets,
+  default_cldr_backend: Test.Cldr
