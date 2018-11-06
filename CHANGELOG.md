@@ -1,6 +1,8 @@
 # Changelog for Money v2.12.3
 
-This is the changelog for Money v2.12.3 released on ______, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v2.12.3 released on November 6th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+This is expected to be the last release of Money 2.x.  The upcoming Money 3.0 will be based on the rearchitected [ex_cldr](https://github.com/kipcole9/cldr) version 2 which will will have some breaking changes.
 
 ### Bug Fixes
 

@@ -88,7 +88,6 @@ defmodule Money.Mixfile do
       {:phoenix_html, "~> 2.0", optional: true},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
       {:jason, "~> 1.0", optional: true},
-      {:poison, "~> 2.2 or ~> 3.1", optional: true},
       {:stream_data, "~> 0.4.1", only: [:dev, :test]},
       {:gringotts, "~>1.1", optional: true},
       ecto_version(System.get_env("ECTO_VERSION")),
@@ -109,7 +108,7 @@ defmodule Money.Mixfile do
 
   defp ecto_version(nil), do: {:ecto, "~> 2.1 or ~> 3.0", optional: true}
   defp ecto_version("2"), do: {:ecto, "~> 2.1", optional: true}
-  defp ecto_version("3"), do: {:ecto_sql, "~> 3.0.0-rc", optional: true}
+  defp ecto_version("3"), do: {:ecto_sql, "~> 3.0", optional: true}
   defp ecto_version(other) do
     raise "$ECTO_VERSION should be either nil, 2 or 3.  Found #{inspect other}"
   end
