@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "3.0.0-rc.0"
+  @version "3.0.0"
 
   def project do
     [
@@ -84,12 +84,12 @@ defmodule Money.Mixfile do
     [
       {:ex_cldr, "~> 2.0"},
       {:ex_cldr_numbers, "~> 2.0"},
-      {:decimal, "~> 1.4"},
+      {:decimal, "~> 1.5"},
       {:phoenix_html, "~> 2.0", optional: true},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
       {:jason, "~> 1.0", optional: true},
       {:stream_data, "~> 0.4.1", only: [:dev, :test]},
-      {:gringotts, "~>1.1", optional: true},
+      {:gringotts, "~>1.1", only: :test, optional: true},
       {:ecto_sql, "~> 3.0", optional: true},
       ex_doc_version(System.version())
     ]
@@ -98,11 +98,11 @@ defmodule Money.Mixfile do
   defp ex_doc_version(version) do
     cond do
       Version.compare(version, "1.7.0") in [:gt, :eq] ->
-        {:ex_doc, "~> 0.19", only: :dev}
+        {:ex_doc, "~> 0.19", only: [:dev, :release]}
       Version.compare(version, "1.6.0") == :lt ->
-        {:ex_doc, ">= 0.17.0 and < 0.18.0", only: :dev}
+        {:ex_doc, ">= 0.17.0 and < 0.18.0", only: [:dev, :release]}
       Version.compare(version, "1.7.0") == :lt ->
-        {:ex_doc, ">= 0.18.0 and < 0.19.0", only: :dev}
+        {:ex_doc, ">= 0.18.0 and < 0.19.0", only: [:dev, :release]}
     end
   end
 

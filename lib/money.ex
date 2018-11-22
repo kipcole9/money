@@ -635,8 +635,12 @@ defmodule Money do
   """
   @spec mult(Money.t(), Cldr.Math.number_or_decimal()) ::
           {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
-  def mult(%Money{currency: code, amount: amount}, number) when is_number(number) do
+  def mult(%Money{currency: code, amount: amount}, number) when is_integer(number) do
     {:ok, %Money{currency: code, amount: Decimal.mult(amount, Decimal.new(number))}}
+  end
+
+  def mult(%Money{currency: code, amount: amount}, number) when is_float(number) do
+    {:ok, %Money{currency: code, amount: Decimal.mult(amount, Decimal.from_float(number))}}
   end
 
   def mult(%Money{currency: code, amount: amount}, %Decimal{} = number) do
@@ -709,8 +713,12 @@ defmodule Money do
   """
   @spec div(Money.t(), Cldr.Math.number_or_decimal()) ::
           {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
-  def div(%Money{currency: code, amount: amount}, number) when is_number(number) do
+  def div(%Money{currency: code, amount: amount}, number) when is_integer(number) do
     {:ok, %Money{currency: code, amount: Decimal.div(amount, Decimal.new(number))}}
+  end
+
+  def div(%Money{currency: code, amount: amount}, number) when is_float(number) do
+    {:ok, %Money{currency: code, amount: Decimal.div(amount, Decimal.from_float(number))}}
   end
 
   def div(%Money{currency: code, amount: amount}, %Decimal{} = number) do
@@ -1089,7 +1097,7 @@ defmodule Money do
       -digits
       |> Cldr.Math.power_of_10()
       |> Kernel.*(increment)
-      |> Decimal.new()
+      |> Decimal.from_float()
 
     rounded_amount =
       money.amount
@@ -1123,16 +1131,16 @@ defmodule Money do
 
   ## Examples
 
-      Money.to_currency(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)})
+      Money.to_currency(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)})
       {:ok, #Money<:AUD, 73.4500>}
 
-      Money.to_currency(Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.new(0.7345)})
+      Money.to_currency(Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.from_float(0.7345)})
       {:ok, #Money<:AUD, 73.4500>}
 
-      iex> Money.to_currency Money.new(:USD, 100), :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+      iex> Money.to_currency Money.new(:USD, 100), :AUDD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
       {:error, {Cldr.UnknownCurrencyError, "The currency :AUDD is invalid"}}
 
-      iex> Money.to_currency Money.new(:USD, 100), :CHF, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+      iex> Money.to_currency Money.new(:USD, 100), :CHF, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
       {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :CHF"}}
 
   """
@@ -1187,13 +1195,13 @@ defmodule Money do
 
   ## Examples
 
-      iex> Money.to_currency! Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+      iex> Money.to_currency! Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
       #Money<:AUD, 73.4500>
 
-      iex> Money.to_currency! Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.new(0.7345)}
+      iex> Money.to_currency! Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.from_float(0.7345)}
       #Money<:AUD, 73.4500>
 
-      Money.to_currency! Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+      Money.to_currency! Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
       ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
 
   """
@@ -1578,7 +1586,7 @@ defmodule Money do
      end
    end
 
-   @app_name Mix.Project.config |> Keyword.get(:app)
+   @app_name Money.Mixfile.project |> Keyword.get(:app)
    @doc false
    def app_name do
      @app_name

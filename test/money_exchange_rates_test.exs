@@ -5,12 +5,12 @@ defmodule Money.ExchangeRates.Test do
   alias Money.ExchangeRates
 
   test "Get exchange rates from ExchangeRates.Retriever" do
-    test_result = {:ok, %{USD: Decimal.new(1), AUD: Decimal.new(0.7), EUR: Decimal.new(1.2)}}
+    test_result = {:ok, %{USD: Decimal.new(1), AUD: Decimal.new("0.7"), EUR: Decimal.new("1.2")}}
     assert Money.ExchangeRates.latest_rates() == test_result
   end
 
   test "Get exchange rates from ExchangeRates" do
-    test_result = {:ok, %{USD: Decimal.new(1), AUD: Decimal.new(0.7), EUR: Decimal.new(1.2)}}
+    test_result = {:ok, %{USD: Decimal.new(1), AUD: Decimal.new("0.7"), EUR: Decimal.new("1.2")}}
     assert Money.ExchangeRates.latest_rates() == test_result
   end
 
@@ -44,7 +44,7 @@ defmodule Money.ExchangeRates.Test do
                :AUD,
                ExchangeRates.historic_rates(~D[2017-01-01])
              )
-             |> Money.round() == Money.new(:AUD, Decimal.new(71.43))
+             |> Money.round() == Money.new(:AUD, Decimal.new("71.43"))
     end)
   end
 

@@ -272,8 +272,8 @@ defmodule MoneyTest do
   test "Split %Money{} into 3 equal parts" do
     m1 = Money.new(:USD, 100)
     {m2, m3} = Money.split(m1, 3)
-    assert Money.cmp(m2, Money.new(:USD, Decimal.new(33.33))) == :eq
-    assert Money.cmp(m3, Money.new(:USD, Decimal.new(0.01))) == :eq
+    assert Money.cmp(m2, Money.new(:USD, Decimal.new("33.33"))) == :eq
+    assert Money.cmp(m3, Money.new(:USD, Decimal.new("0.01"))) == :eq
   end
 
   property "check that money split sums to the original value" do
@@ -387,7 +387,7 @@ defmodule MoneyTest do
   end
 
   test "money conversion with binary to_currency that is the same as from currency" do
-    rates = %{USD: Decimal.new(0.3), AUD: Decimal.new(2)}
+    rates = %{USD: Decimal.new("0.3"), AUD: Decimal.new(2)}
     assert Money.to_currency(Money.new(:USD, 100), "USD", rates) == {:ok, Money.new(:USD, 100)}
   end
 

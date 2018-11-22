@@ -58,7 +58,8 @@ An optional callback module can also be defined.  This module defines a `rates_r
       log_failure: :warn,
       log_info: :info,
       log_success: nil,
-      json_library: Cldr.Config.json_library()
+      json_library: Cldr.Config.json_library(),
+      default_cldr_backend: MyApp.Cldr
 
 **Note** that `ex_money` does not define a json library dependency and therefore it is the users responsibility to configure a required json library as a dependency in the applications `mix.exs`.
 
@@ -87,23 +88,18 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
 * `:json_library` determines which json library to be used for decoding.  Two common options are `Poison` and `Jason`. The default is `Cldr.Config.json_library/0` which is currently configured by default as Poison.
 
+* `:default_cldr_backend` defines the `Cldr` backend module that is default for `Money`.  See the [ex_cldr documentation](https://hexdocs.pm/ex_cldr/2.0.0/readme.html) for further information on how to define this module.  **This is a required option**.
+
 ### Configuring locales to support localised formatting
 
-`Money` uses [ex_cldr](https://hex.pm/packages/ex_cldr) and [ex_cldr_numbers](https://hex.pm/packages/ex_cldr_numbers) to support configuring locales and providing localed formatting.
+`Money` uses [ex_cldr](https://hex.pm/packages/ex_cldr) and [ex_cldr_numbers](https://hex.pm/packages/ex_cldr_numbers) to support configuring locales and providing locale formatting.  These packages are also the source of currency definitions, names, formats and so on.
 
-By default `ex_cldr` configures `en-001` (global english) as its only and default locale.  A minimal configuration to add any of the more then 500 known locales is below.  Full configuration information is contained in the [readme for ex_cldr](https://github.com/kipcole9/cldr#configuration).
-
+To use `Cldr` and therefore `Money`, a backend module must be defined.  This module will host the `Cldr` data and public API used by `Money`.  A simple example would be:
 ```
-config :ex_cldr,
-  default_locale: "en-001",
-  locales: ["fr", "zh-Hant", "en-GB", "bs", "pl", "ru", "th", "he", "af"]
+defmodule MyApp.Cldr do
+  use Cldr, locales: ["en", "fr", "zh"], default_locale: "en"
+end
 ```
-
-* You can determine what locales are available to be configured by calling `Cldr.available_locale_names/0`.
-
-* `Cldr.set_current_locale/1` will set the default locale for the process
-
-* The `:locale` option can be used with `Money.to_string/2`.  If not provided as an option then `Money.to_string/2` will call `Cldr.get_current_locale/0` if one is set, otherwise it will use `Cldr.default_locale/0` which is set in the configuration.
 
 ### Preloading historic exchange rates
 

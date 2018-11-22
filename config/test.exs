@@ -17,6 +17,3 @@ config :ex_money,
   log_info: nil,
   default_cldr_backend: Test.Cldr
 
-config :ex_cldr,
-  default_locale: "en",
-  locales: ["en", "root", "de"]

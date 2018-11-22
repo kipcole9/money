@@ -35,7 +35,7 @@ defmodule Money.Financial do
       when is_number(interest_rate) and is_number(periods) do
     fv =
       interest_rate
-      |> Decimal.new()
+      |> Decimal.from_float()
       |> Decimal.add(@one)
       |> Math.power(periods)
       |> Decimal.mult(amount)
@@ -95,7 +95,7 @@ defmodule Money.Financial do
       when is_number(interest_rate) and is_number(periods) and periods >= 0 do
     pv_1 =
       interest_rate
-      |> Decimal.new()
+      |> Decimal.from_float()
       |> Decimal.add(@one)
       |> Math.power(periods)
 
@@ -297,16 +297,16 @@ defmodule Money.Financial do
       iex> Money.Financial.periods Money.new(:USD, 1500), Money.new(:USD, 2000), 0.005
       #Decimal<57.68013595323872502502238648>
   """
-  @spec periods(Money.t(), Money.t(), number) :: Decimal.t()
+  @spec periods(Money.t(), Money.t(), float) :: Decimal.t()
   def periods(
         %Money{currency: pv_currency, amount: pv_amount} = _present_value,
         %Money{currency: fv_currency, amount: fv_amount} = _future_value,
         interest_rate
       )
-      when pv_currency == fv_currency and is_number(interest_rate) and interest_rate > 0 do
+      when pv_currency == fv_currency and is_float(interest_rate) and interest_rate > 0 do
     Decimal.div(
       Math.log(Decimal.div(fv_amount, pv_amount)),
-      Math.log(Decimal.add(@one, Decimal.new(interest_rate)))
+      Math.log(Decimal.add(@one, Decimal.from_float(interest_rate)))
     )
   end
 
@@ -326,14 +326,14 @@ defmodule Money.Financial do
       iex> Money.Financial.payment Money.new(:USD, 100), 0.12, 20
       #Money<:USD, 13.38787800396606622792492299>
   """
-  @spec payment(Money.t(), number, number) :: Money.t()
+  @spec payment(Money.t(), float, number) :: Money.t()
   def payment(
         %Money{currency: pv_currency, amount: pv_amount} = _present_value,
         interest_rate,
         periods
       )
-      when is_number(interest_rate) and interest_rate > 0 and is_number(periods) and periods > 0 do
-    interest_rate = Decimal.new(interest_rate)
+      when is_float(interest_rate) and interest_rate > 0 and is_number(periods) and periods > 0 do
+    interest_rate = Decimal.from_float(interest_rate)
     p1 = Decimal.mult(pv_amount, interest_rate)
     p2 = Decimal.sub(@one, Decimal.add(@one, interest_rate) |> Math.power(-periods))
     Money.new(pv_currency, Decimal.div(p1, p2))
