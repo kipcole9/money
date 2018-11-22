@@ -394,7 +394,7 @@ defmodule Money do
       {:ok, "¥1,234"}
 
       iex> Money.to_string Money.new(:THB, 1234)
-      {:ok, "THB1,234.00"}
+      {:ok, "THB 1,234.00"}
 
       iex> Money.to_string Money.new(:USD, 1234), format: :long
       {:ok, "1,234 US dollars"}
@@ -425,7 +425,7 @@ defmodule Money do
       "¥1,234"
 
       iex> Money.to_string! Money.new(:THB, 1234)
-      "THB1,234.00"
+      "THB 1,234.00"
 
       iex> Money.to_string! Money.new(:USD, 1234), format: :long
       "1,234 US dollars"
@@ -1585,9 +1585,8 @@ defmodule Money do
    end
 
    @doc false
-   @default_backend Application.get_env(@app_name, :default_cldr_backend) ||
-     raise "A default backend must be configured"
    def default_backend() do
-     @default_backend
+     Application.get_env(@app_name, :default_cldr_backend) ||
+            raise "A default backend must be configured"
    end
 end

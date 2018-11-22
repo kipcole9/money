@@ -3,8 +3,10 @@ defmodule Money.Currency do
   Functions to return lists of known, historic and
   legal tender currencies.
   """
+  @data_dir [:code.priv_dir(:ex_cldr), "/cldr/locales"] |> :erlang.iolist_to_binary
+  @config   %{data_dir: @data_dir, locales: ["en"], default_locale: "en"}
 
-  @currencies Cldr.Config.get_locale("en")
+  @currencies Cldr.Config.get_locale("en", @config)
               |> Map.get(:currencies)
 
   @current_currencies @currencies

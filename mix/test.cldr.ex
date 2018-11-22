@@ -1,4 +1,4 @@
-defmodule Test.Cldr do
-  use Cldr, locales: ["en", "de", "it", "es"]
+defmodule Money.Cldr do
+  use Cldr, locales: ["en", "de", "it", "es"], default_locale: "en"
 
 end
