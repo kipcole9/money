@@ -1,6 +1,7 @@
 CREATE OR REPLACE FUNCTION money_state_function(agg_state money_with_currency, money money_with_currency)
 RETURNS money_with_currency
 IMMUTABLE
+STRICT
 LANGUAGE plpgsql
 AS $$
   DECLARE
