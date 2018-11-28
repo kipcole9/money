@@ -295,7 +295,7 @@ defmodule Money.ExchangeRates.Retriever do
   end
 
   @doc false
-  def termina(other, _config) do
+  def terminate(other, _config) do
     Logger.error("[ExchangeRates.Retriever] Terminate called with unhandled #{inspect(other)}")
   end
 
