@@ -4,7 +4,7 @@ This is the changelog for Money v3.1.0 released on December 30th, 2018.  For old
 
 ### Bug Fixes
 
-* Fix type in `exchange_rates_retriever.ex`.  Thanks to @lostkobrakai.  Closes #91.
+* Fix typo in `exchange_rates_retriever.ex`.  Thanks to @lostkobrakai.  Closes #91.
 
 * Remove obsolete `cldr` compiler
 
