@@ -1,3 +1,13 @@
+# Changelog for Money v3.1.1
+
+This is the changelog for Money v3.1.1 released on December 30th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fix type in `exchange_rates_retriever.ex`.  Thanks to @lostkobrakai.  Closes #91.
+
+* Remove obsolete `cldr` compiler
+
 # Changelog for Money v3.1.0
 
 This is the changelog for Money v3.1.0 released on ____, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

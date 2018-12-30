@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "3.1.0"
+  @version "3.1.1"
 
   def project do
     [
@@ -20,7 +20,7 @@ defmodule Money.Mixfile do
       aliases: aliases(),
       elixirc_paths: elixirc_paths(Mix.env()),
       dialyzer: [ignore_warnings: ".dialyzer_ignore_warnings"],
-      compilers: Mix.compilers() ++ [:cldr]
+      compilers: Mix.compilers()
     ]
   end
 
