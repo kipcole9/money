@@ -10,7 +10,7 @@ This is the changelog for Money v3.1.1 released on December 30th, 2018.  For old
 
 * Changes the `sum` aggregate function for `money_with_currency` to be `STRICT` which means it handles `NULL` columns in the same way as the standard `SUM` function.  Thanks to @lostkobrakai.  Closes #88.
 
-### Bug Fixes
+* Fixes documentation link errors
 
 * Fix unhandled terminate typo error in exchange rates server. Thanks to @xavier. Closes #90.
 
