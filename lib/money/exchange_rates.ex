@@ -230,7 +230,7 @@ defmodule Money.ExchangeRates do
 
   This function looks up the latest exchange rates in a an ETS table
   called `:exchange_rates`.  The actual retrieval of rates is requested
-  through `Money.ExchangeRates.retrieve_latest_rates/0`.
+  through `Money.ExchangeRates.Retriever.latest_rates/0`.
 
   """
   @spec latest_rates() :: {:ok, map()} | {:error, {Exception.t(), binary}}
@@ -258,7 +258,7 @@ defmodule Money.ExchangeRates do
 
   This function looks up the historic exchange rates in a an ETS table
   called `:exchange_rates`.  The actual retrieval of rates is requested
-  through `Money.ExchangeRates.retrieve_historic_rates/1`.
+  through `Money.ExchangeRates.Retriever.historic_rates/1`.
 
   """
   @spec historic_rates(Date.t()) :: {:ok, map()} | {:error, {Exception.t(), binary}}

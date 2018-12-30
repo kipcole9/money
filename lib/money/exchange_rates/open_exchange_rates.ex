@@ -66,7 +66,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
 
   * `config` is the retrieval configuration. When invoked from the
   exchange rates services this will be the config returned from
-  `Money.ExchangeRates.OpenExchangeRates.config/1`
+  `Money.ExchangeRates.config/0`
 
   Returns:
 
@@ -77,6 +77,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   Typically this function is called by the exchange rates retrieval
   service although it can be called outside that context as
   required.
+
   """
   @spec get_latest_rates(Money.ExchangeRates.Config.t()) :: {:ok, map()} | {:error, String.t()}
   def get_latest_rates(config) do
@@ -102,7 +103,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
 
   * `config` is the retrieval configuration. When invoked from the
     exchange rates services this will be the config returned from
-    `Money.ExchangeRates.OpenExchangeRates.config/1`
+    `Money.ExchangeRates.config/0`
 
   Returns:
 

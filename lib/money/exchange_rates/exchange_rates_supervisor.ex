@@ -96,8 +96,8 @@ defmodule Money.ExchangeRates.Supervisor do
   * `:running` if the service is running. In this
     state the valid action is `Money.ExchangeRates.Service.stop/0`
   * `:stopped` if it is stopped. In this state
-    the valid actions are `Money.ExchangeRates.restart/0`
-    or `Money.ExchangeRates.delete/0`
+    the valid actions are `Money.ExchangeRates.Supervisor.restart_retriever/0`
+    or `Money.ExchangeRates.Supervisor.delete_retriever/0`
   * `:not_started` if it is not configured
     in the supervisor and is not running.  In
     this state the only valid action is
