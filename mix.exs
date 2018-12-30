@@ -84,7 +84,6 @@ defmodule Money.Mixfile do
     [
       {:ex_cldr, "~> 2.0"},
       {:ex_cldr_numbers, "~> 2.0"},
-      {:cldr_utils, path: "../cldr_utils", override: true},
       {:decimal, "~> 1.5"},
       {:phoenix_html, "~> 2.0", optional: true},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
