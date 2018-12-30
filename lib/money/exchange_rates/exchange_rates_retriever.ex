@@ -254,7 +254,7 @@ defmodule Money.ExchangeRates.Retriever do
   end
 
   defp etag?(etag, date) do
-    etag != :undefined && date != :undedefined
+    etag != :undefined && date != :undefined
   end
 
   #
