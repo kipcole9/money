@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "3.1.0"
+  @version "3.1.1"
 
   def project do
     [
@@ -64,7 +64,8 @@ defmodule Money.Mixfile do
       extras: ["README.md", "CHANGELOG.md", "LICENSE.md"],
       main: "readme",
       groups_for_modules: groups_for_modules(),
-      logo: "logo.png"
+      logo: "logo.png",
+      skip_undefined_reference_warnings_on: ["changelog"]
     ]
   end
 

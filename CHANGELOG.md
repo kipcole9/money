@@ -1,3 +1,11 @@
+# Changelog for Money v3.1.1
+
+This is the changelog for Money v3.1.0 released on January ____, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Correctly generate `migrations_path/1` function based upon whether `Ecto` is configured and which version
+
 # Changelog for Money v3.1.0
 
 This is the changelog for Money v3.1.0 released on December 30th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
@@ -22,12 +30,12 @@ The primary purpose of this release is to support ex_cldr version 2.0
 
 ### Breaking changes
 
-* 'Money.from_tuple/1' has been removed
+* `Money.from_tuple/1` has been removed
 * Uses [ex_cldr](https://hex.pm/packages/ex_cldr/2.0.0) version 2.  Please see [the changelog](https://github.com/kipcole9/cldr/blob/v2.0.1/CHANGELOG.md#migrating-from-cldr-1x-to-cldr-version-2x) for configuration changes that are required.
 * Requires a default_cldr_backend to be configured in `config.exs`.  For example:
 ```
   config :ex_money,
     ...
-    default_cldr_backend: Test.Cldr
+    default_cldr_backend: MyApp.Cldr
   end
 ```

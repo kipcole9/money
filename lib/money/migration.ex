@@ -5,7 +5,9 @@ defmodule Money.Migration do
     def migrations_path(repo) do
       Ecto.Migrator.migrations_path(repo)
     end
-  else
+  end
+
+  if Code.ensure_loaded?(Mix.Ecto) && function_exported?(Mix.Ecto, :migrations_path, 1) do
     def migrations_path(repo) do
       Mix.Ecto.migrations_path(repo)
     end
