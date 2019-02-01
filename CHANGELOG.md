@@ -1,10 +1,14 @@
-# Changelog for Money v3.1.1
+# Changelog for Money v3.2.0
 
-This is the changelog for Money v3.1.0 released on January ____, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v3.1.0 released on February 1st, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
 * Correctly generate `migrations_path/1` function based upon whether `Ecto` is configured and which version
+
+### Enhancements
+
+* Adds `Money.parse/2` which will parse a string comprising a currency code and an amount. It will return a `Money.t` or an error.  This function may be helpful in supporting money input in HTML forms.
 
 # Changelog for Money v3.1.0
 

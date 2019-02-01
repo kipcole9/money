@@ -234,7 +234,7 @@ defmodule Money do
   Returns a %Money{} struct from a currency code and a currency amount. Raises an
   exception if the current code is invalid.
 
-  ## Options
+  ## Arguments
 
   * `currency_code` is an ISO4217 three-character upcased binary or atom
 
@@ -287,7 +287,7 @@ defmodule Money do
   introduced upstream. This function therefore should be used with
   great care and its use should be considered potentially harmful.
 
-  ## Options
+  ## Arguments
 
   * `currency_code` is an ISO4217 three-character upcased binary or atom
 
@@ -340,7 +340,7 @@ defmodule Money do
   introduced upstream. This function therefore should be used with
   great care and its use should be considered potentially harmful.
 
-  ## Options
+  ## Arguments
 
   * `currency_code` is an ISO4217 three-character upcased binary or atom
 
@@ -364,6 +364,80 @@ defmodule Money do
       {:error, {exception, reason}} -> raise exception, reason
       money -> money
     end
+  end
+
+  @doc """
+  Parse a string and return a `Money.t` or an error.
+
+  The string to be parsed is required to have a currency
+  code and an amount.  The currency code may be placed
+  before the amount or after, but not both.
+
+  Parsing is strict.  Additional text surrounding the
+  currency code and amount will cause the parse to
+  fail.
+
+  ## Arguments
+
+  * `string` is a string to be parsed
+
+  * `options` is a keyword list of options that is
+    passed to `Money.new/3`
+
+  ## Examples
+
+      iex> Money.parse("USD 100")
+      #Money<:USD, 100>
+
+      iex> Money.parse "USD 100,00", locale: "de"
+      #Money<:USD, 100.00>
+
+      iex> Money.parse("100 USD")
+      #Money<:USD, 100>
+
+      iex> Money.parse("100")
+      {:error,
+       {Money.Invalid,
+        "A currency code must be specified but was not found in \\"100\\""}}
+
+      iex> Money.parse("USD 100 with trailing text")
+      {:error, {Money.Invalid, "Could not parse \\"USD 100 with trailing text\\"."}}
+
+  """
+  # @doc since: "2.1.0"
+  @regex Regex.compile!("^(?<currency_before>[a-zA-Z]{3})?(?<amount>[^a-zA-Z]*)(?<currency_after>[a-zA-Z]{3})?$")
+  def parse(string, options \\ []) do
+    @regex
+    |> Regex.named_captures(String.trim(string))
+    |> do_parse(string, options)
+  end
+
+  defp do_parse(%{"currency_before" => "", "currency_after" => ""}, string, _options) do
+    {:error, {Money.Invalid,
+    "A currency code must be specified but was not found in #{inspect string}"}}
+  end
+
+  defp do_parse(%{"amount" => ""}, string, _options) do
+    {:error, {Money.Invalid,
+    "An amount must be specified but was not found in #{inspect string}"}}
+  end
+
+  defp do_parse(%{"currency_before" => "", "currency_after" => currency, "amount" => amount}, _, options) do
+    Money.new(currency, String.trim(amount), options)
+  end
+
+  defp do_parse(%{"currency_before" => currency, "currency_after" => "", "amount" => amount}, _, options) do
+    Money.new(currency, String.trim(amount), options)
+  end
+
+  defp do_parse(%{"currency_before" => currency_before, "currency_after" => currency_after}, _, _options) do
+    {:error, {Money.Invalid,
+    "A currency code can only be specified once.  Found both #{inspect currency_before} and #{inspect currency_after}."}}
+  end
+
+  defp do_parse(_captures, string, _options) do
+    {:error, {Money.Invalid,
+    "Could not parse #{inspect string}."}}
   end
 
   @doc """

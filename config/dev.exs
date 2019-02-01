@@ -11,4 +11,4 @@ config :ex_money,
   log_success: :info,
   json_library: Jason,
   exchange_rates_cache: Money.ExchangeRates.Cache.Dets,
-  default_cldr_backend: Test.Cldr
+  default_cldr_backend: Money.Cldr
