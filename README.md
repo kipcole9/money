@@ -239,6 +239,12 @@ The canonical representation of a currency code is an `atom` that is a valid
 
 Note that the amount and currency code arguments to `Money.new/3` can be supplied in either order.
 
+### Casting a money type (basic support for HTML forms)
+
+`Money` supports form field inputs that are a single string combining both a currency code and an amount.  When a form field (or other data) is [cast](https://hexdocs.pm/ecto/Ecto.Changeset.html#cast/4) then `Money` will attempt to parse a string field into a `Money.t` using `Money.parse/2`. Therefore simple money form input can be supported with a single input field of `type=text`.
+
+Note that when parsing the input text, the amount is interpreted in the context of the current locale set on the default backend configured for `ex_money`.  This affects how separator characters are interpreted in exactly the same way as is done for `Money.new/3`.
+
 ### Float amounts cannot be provided to `Money.new/2`
 
 Float have well-known issues in computing due to issues of rounding and potential precision loss.  Internally `Money` uses `Decimal` to store the amount which allows arbitrary precision arithmetic.  `Money` also uses the `numeric` type in Postgres to preserve precision and even goes to far as to store the amount as a `string` in `MySQL` for the same reason.

@@ -23,21 +23,27 @@ defmodule MoneyTest.Parse do
     end
 
     test "parsing fails" do
-      assert Money.parse("100") == {:error,
-             {Money.Invalid,
-              "A currency code must be specified but was not found in \"100\""}}
+      assert Money.parse("100") ==
+               {:error,
+                {Money.Invalid, "A currency code must be specified but was not found in \"100\""}}
 
-      assert Money.parse("EUR") == {:error,
-             {Money.Invalid, "An amount must be specified but was not found in \"EUR\""}}
+      assert Money.parse("EUR") ==
+               {:error, {Money.Invalid, "An amount must be specified but was not found in \"EUR\""}}
 
       assert Money.parse("EUR 100 USD") ==
-        {:error, {Money.Invalid, "A currency code can only be specified once.  Found both \"EUR\" and \"USD\"."}}
+               {:error,
+                {Money.Invalid,
+                 "A currency code can only be specified once. Found both \"EUR\" and \"USD\"."}}
 
       string = "EUR 100 And some bogus extra stuff"
-      assert {:error, {Money.Invalid, "Could not parse \"" <> string <> "\"."}} == Money.parse(string)
+
+      assert {:error, {Money.Invalid, "Could not parse \"" <> string <> "\"."}} ==
+               Money.parse(string)
 
       string = "100 EUR And some bogus extra stuff"
-      assert {:error, {Money.Invalid, "Could not parse \"" <> string <> "\"."}} == Money.parse(string)
+
+      assert {:error, {Money.Invalid, "Could not parse \"" <> string <> "\"."}} ==
+               Money.parse(string)
     end
   end
 end

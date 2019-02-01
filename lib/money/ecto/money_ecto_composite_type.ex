@@ -72,6 +72,13 @@ if Code.ensure_loaded?(Ecto.Type) do
       cast(%{"currency" => currency, "amount" => amount})
     end
 
+    def cast(string) when is_binary(string) do
+      case Money.parse(string) do
+        {:error, _} -> :error
+        money -> {:ok, money}
+      end
+    end
+
     def cast(_money) do
       :error
     end

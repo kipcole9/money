@@ -55,9 +55,9 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
     rates
     |> Cldr.Map.atomize_keys()
     |> Enum.map(fn
-        {k, v} when is_float(v) -> {k, Decimal.from_float(v)}
-        {k, v} when is_integer(v) -> {k, Decimal.new(v)}
-       end)
+      {k, v} when is_float(v) -> {k, Decimal.from_float(v)}
+      {k, v} when is_integer(v) -> {k, Decimal.new(v)}
+    end)
     |> Enum.into(%{})
   end
 

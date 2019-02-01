@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "3.2.0"
+  @version "3.2.1"
 
   def project do
     [
@@ -100,8 +100,10 @@ defmodule Money.Mixfile do
     cond do
       Version.compare(version, "1.7.0") in [:gt, :eq] ->
         {:ex_doc, "~> 0.19", only: [:dev, :release]}
+
       Version.compare(version, "1.6.0") == :lt ->
         {:ex_doc, ">= 0.17.0 and < 0.18.0", only: [:dev, :release]}
+
       Version.compare(version, "1.7.0") == :lt ->
         {:ex_doc, ">= 0.18.0 and < 0.19.0", only: [:dev, :release]}
     end

@@ -163,7 +163,8 @@ defmodule Money do
     with {:ok, code} <- validate_currency(currency_code) do
       %Money{amount: Decimal.new(amount), currency: code}
     else
-      {:error, {Cldr.UnknownCurrencyError, message}} -> {:error, {Money.UnknownCurrencyError, message}}
+      {:error, {Cldr.UnknownCurrencyError, message}} ->
+        {:error, {Money.UnknownCurrencyError, message}}
     end
   end
 
@@ -404,40 +405,43 @@ defmodule Money do
       {:error, {Money.Invalid, "Could not parse \\"USD 100 with trailing text\\"."}}
 
   """
-  # @doc since: "2.1.0"
-  @regex Regex.compile!("^(?<currency_before>[a-zA-Z]{3})?(?<amount>[^a-zA-Z]*)(?<currency_after>[a-zA-Z]{3})?$")
-  def parse(string, options \\ []) do
+  # @doc since: "3.2.0"
+  @currency "[a-zA-Z]{3}"
+  @regex Regex.compile!("^(?<cb>#{@currency})?(?<amount>[^a-zA-Z]*)(?<ca>#{@currency})?$")
+  @spec parse(String.t(), Keyword.t()) :: Money.t() | {:error, {Exception.t(), String.t()}}
+  def parse(string, options \\ [])
+
+  def parse(string, options) do
     @regex
     |> Regex.named_captures(String.trim(string))
     |> do_parse(string, options)
   end
 
-  defp do_parse(%{"currency_before" => "", "currency_after" => ""}, string, _options) do
-    {:error, {Money.Invalid,
-    "A currency code must be specified but was not found in #{inspect string}"}}
+  defp do_parse(%{"cb" => "", "ca" => ""}, string, _options) do
+    {:error,
+     {Money.Invalid, "A currency code must be specified but was not found in #{inspect(string)}"}}
   end
 
   defp do_parse(%{"amount" => ""}, string, _options) do
-    {:error, {Money.Invalid,
-    "An amount must be specified but was not found in #{inspect string}"}}
+    {:error, {Money.Invalid, "An amount must be specified but was not found in #{inspect(string)}"}}
   end
 
-  defp do_parse(%{"currency_before" => "", "currency_after" => currency, "amount" => amount}, _, options) do
+  defp do_parse(%{"cb" => "", "ca" => currency, "amount" => amount}, _, options) do
     Money.new(currency, String.trim(amount), options)
   end
 
-  defp do_parse(%{"currency_before" => currency, "currency_after" => "", "amount" => amount}, _, options) do
+  defp do_parse(%{"cb" => currency, "ca" => "", "amount" => amount}, _, options) do
     Money.new(currency, String.trim(amount), options)
   end
 
-  defp do_parse(%{"currency_before" => currency_before, "currency_after" => currency_after}, _, _options) do
-    {:error, {Money.Invalid,
-    "A currency code can only be specified once.  Found both #{inspect currency_before} and #{inspect currency_after}."}}
+  defp do_parse(%{"cb" => cb, "ca" => ca}, _, _options) do
+    {:error,
+     {Money.Invalid,
+      "A currency code can only be specified once. Found both #{inspect(cb)} and #{inspect(ca)}."}}
   end
 
   defp do_parse(_captures, string, _options) do
-    {:error, {Money.Invalid,
-    "Could not parse #{inspect string}."}}
+    {:error, {Money.Invalid, "Could not parse #{inspect(string)}."}}
   end
 
   @doc """
@@ -1639,8 +1643,12 @@ defmodule Money do
     @json_library
   end
 
-  defp parse_decimal(string, nil, _backend) do
-    {:ok, Decimal.new(string)}
+  defp parse_decimal(string, nil, nil) do
+    parse_decimal(string, default_backend().get_locale, default_backend())
+  end
+
+  defp parse_decimal(string, nil, backend) do
+    parse_decimal(string, backend.get_locale, backend)
   end
 
   defp parse_decimal(string, locale, nil) do
@@ -1650,25 +1658,25 @@ defmodule Money do
   defp parse_decimal(string, locale, backend) do
     with {:ok, locale} <- Cldr.validate_locale(locale, backend),
          {:ok, symbols} <- Cldr.Number.Symbol.number_symbols_for(locale, backend) do
-       decimal =
-         string
-         |> String.replace(symbols.latn.group, "")
-         |> String.replace(symbols.latn.decimal, ".")
-         |> Decimal.new
+      decimal =
+        string
+        |> String.replace(symbols.latn.group, "")
+        |> String.replace(symbols.latn.decimal, ".")
+        |> Decimal.new()
 
-       {:ok, decimal}
-     end
-   end
+      {:ok, decimal}
+    end
+  end
 
-   @app_name Money.Mixfile.project |> Keyword.get(:app)
-   @doc false
-   def app_name do
-     @app_name
-   end
+  @app_name Money.Mixfile.project() |> Keyword.get(:app)
+  @doc false
+  def app_name do
+    @app_name
+  end
 
-   @doc false
-   def default_backend() do
-     Application.get_env(@app_name, :default_cldr_backend) ||
-            raise "A default backend must be configured"
-   end
+  @doc false
+  def default_backend() do
+    Application.get_env(@app_name, :default_cldr_backend) ||
+      raise "A default backend must be configured"
+  end
 end
