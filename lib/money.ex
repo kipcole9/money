@@ -479,11 +479,17 @@ defmodule Money do
 
   """
   def to_string(%Money{} = money, options \\ []) do
-    default_options = [backend: Money.default_backend(), currency: money.currency]
+    default_options = [backend: Money.default_backend(), currency: money.currency, force_zero_sign: false]
     options = Keyword.merge(default_options, options)
-    backend = options[:backend]
-    Cldr.Number.to_string(money.amount, backend, options)
+    
+    money.amount
+    |> force_zero_sign(options[:force_zero_sign])
+    |> Cldr.Number.to_string(options[:backend], options)
   end
+  
+  defp force_zero_sign(%Decimal{coef: 0} = amount, 1), do: %{amount | sign: 1}
+  defp force_zero_sign(%Decimal{coef: 0} = amount, -1), do: %{amount | sign: -1}
+  defp force_zero_sign(amount, _), do: amount
 
   @doc """
   Returns a formatted string representation of a `Money{}` or raises if
