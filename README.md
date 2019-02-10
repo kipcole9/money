@@ -239,6 +239,40 @@ The canonical representation of a currency code is an `atom` that is a valid
 
 Note that the amount and currency code arguments to `Money.new/3` can be supplied in either order.
 
+### Parsing money strings
+
+`Money` provides an ability to parse strings that contain a currency and an amount.  The currency can be represented in different ways depending on the locale.
+
+```
+  # These are the strings available for a given currency
+  # and locale that are recognised during parsing
+  iex> Cldr.Currency.strings_for_currency :AUD, "de"
+  ["aud", "au$", "australischer dollar", "australische dollar"]
+
+  iex> Money.parse "$au 12 346", locale: "fr"
+  #Money<:AUD, 12346>
+
+  iex> Money.parse "12 346 dollar australien", locale: "fr"
+  #Money<:AUD, 12346>
+
+  iex> Money.parse "A$ 12346", locale: "en"
+  #Money<:AUD, 12346>
+
+  iex> Money.parse "australian dollar 12346.45", locale: "en"
+  #Money<:AUD, 12346.45>
+
+  # Note that the decimal separator in the "de" locale
+  # is a `.`
+  iex> Money.parse "AU$ 12346,45", locale: "de"
+  #Money<:AUD, 12346.45>
+
+  # Round trip formatting is supported
+  iex> {:ok, string} = Cldr.Number.to_string 1234, Money.Cldr, currency: :AUD
+  {:ok, "A$1,234.00"}
+  iex> Money.parse string
+  #Money<:AUD, 1234.00>
+```
+
 ### Casting a money type (basic support for HTML forms)
 
 `Money` supports form field inputs that are a single string combining both a currency code and an amount.  When a form field (or other data) is [cast](https://hexdocs.pm/ecto/Ecto.Changeset.html#cast/4) then `Money` will attempt to parse a string field into a `Money.t` using `Money.parse/2`. Therefore simple money form input can be supported with a single input field of `type=text`.

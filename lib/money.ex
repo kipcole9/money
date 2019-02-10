@@ -402,19 +402,36 @@ defmodule Money do
         "A currency code must be specified but was not found in \\"100\\""}}
 
       iex> Money.parse("USD 100 with trailing text")
-      {:error, {Money.Invalid, "Could not parse \\"USD 100 with trailing text\\"."}}
+      {:error, {Money.Invalid, "A currency code can only be specified once. " <>
+      "Found both \\"usd\\" and \\"with trailing text\\"."}}
 
   """
   # @doc since: "3.2.0"
-  @currency "[a-zA-Z]{3}"
-  @regex Regex.compile!("^(?<cb>#{@currency})?(?<amount>[^a-zA-Z]*)(?<ca>#{@currency})?$")
+  @currency "[^0-9,. ]*"
+  @amount "[0-9][0-9,. ]+"
+  @regex Regex.compile!("^(?<cb>#{@currency})?(?<amount>#{@amount})?(?<ca>#{@currency})?$")
   @spec parse(String.t(), Keyword.t()) :: Money.t() | {:error, {Exception.t(), String.t()}}
   def parse(string, options \\ [])
 
   def parse(string, options) do
     @regex
     |> Regex.named_captures(String.trim(string))
+    |> trim_and_lower("ca")
+    |> trim_and_lower("cb")
     |> do_parse(string, options)
+  end
+
+  defp trim_and_lower(nil, _key) do
+    nil
+  end
+
+  defp trim_and_lower(map, key) do
+    value =
+      map
+      |> Map.get(key)
+      |> String.trim
+      |> String.downcase
+    Map.put(map, key, value)
   end
 
   defp do_parse(%{"cb" => "", "ca" => ""}, string, _options) do
@@ -427,11 +444,11 @@ defmodule Money do
   end
 
   defp do_parse(%{"cb" => "", "ca" => currency, "amount" => amount}, _, options) do
-    Money.new(currency, String.trim(amount), options)
+    maybe_create_money(currency, amount, options)
   end
 
   defp do_parse(%{"cb" => currency, "ca" => "", "amount" => amount}, _, options) do
-    Money.new(currency, String.trim(amount), options)
+    maybe_create_money(currency, amount, options)
   end
 
   defp do_parse(%{"cb" => cb, "ca" => ca}, _, _options) do
@@ -442,6 +459,18 @@ defmodule Money do
 
   defp do_parse(_captures, string, _options) do
     {:error, {Money.Invalid, "Could not parse #{inspect(string)}."}}
+  end
+
+  defp maybe_create_money(currency, amount, options) do
+    backend = Keyword.get(options, :backend, Money.default_backend)
+    locale = Keyword.get(options, :locale, backend.get_locale)
+    {currency_filter, options} = Keyword.pop(options, :filter, :all)
+    amount = String.trim(amount)
+
+    with {:ok, currency_strings} <- Cldr.Currency.currency_strings(locale, backend, currency_filter) do
+      currency = Map.get(currency_strings, currency) || currency
+      Money.new(currency, amount, options)
+    end
   end
 
   @doc """

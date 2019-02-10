@@ -18,32 +18,33 @@ defmodule MoneyTest.Parse do
       assert Money.parse("100.00USD") == Money.new(:USD, "100.00")
     end
 
+    test "parsing with currency strings that are not codes" do
+      assert Money.parse("australian dollar 12346.45") == Money.new(:AUD, "12346.45")
+      assert Money.parse("12346.45 australian dollars") == Money.new(:AUD, "12346.45")
+    end
+
     test "parses with locale specific separators" do
       assert Money.parse("100,00USD", locale: "de") == Money.new(:USD, "100.00")
     end
 
     test "parsing fails" do
       assert Money.parse("100") ==
-               {:error,
+              {:error,
                 {Money.Invalid, "A currency code must be specified but was not found in \"100\""}}
 
       assert Money.parse("EUR") ==
-               {:error, {Money.Invalid, "An amount must be specified but was not found in \"EUR\""}}
+              {:error, {Money.Invalid, "An amount must be specified but was not found in \"EUR\""}}
 
       assert Money.parse("EUR 100 USD") ==
-               {:error,
+              {:error,
                 {Money.Invalid,
-                 "A currency code can only be specified once. Found both \"EUR\" and \"USD\"."}}
+                 "A currency code can only be specified once. Found both \"eur\" and \"usd\"."}}
 
-      string = "EUR 100 And some bogus extra stuff"
+      assert Money.parse("EUR 100 And some bogus extra stuff") ==
+              {:error, {Money.Invalid,
+                "A currency code can only be specified once. " <>
+                "Found both \"eur\" and \"and some bogus extra stuff\"."}}
 
-      assert {:error, {Money.Invalid, "Could not parse \"" <> string <> "\"."}} ==
-               Money.parse(string)
-
-      string = "100 EUR And some bogus extra stuff"
-
-      assert {:error, {Money.Invalid, "Could not parse \"" <> string <> "\"."}} ==
-               Money.parse(string)
     end
   end
 end

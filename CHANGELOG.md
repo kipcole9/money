@@ -1,3 +1,34 @@
+# Changelog for Money v3.2.2
+
+This is the changelog for Money v3.2.2 released on February 10th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Improves parsing of money strings. Parsing now uses various strings that [CLDR](https://cldr.unicode.org) knows about.  Some examples:
+
+```
+  iex> Money.parse "$au 12 346", locale: "fr"
+  #Money<:AUD, 12346>
+  iex> Money.parse "12 346 dollar australien", locale: "fr"
+  #Money<:AUD, 12346>
+  iex> Money.parse "A$ 12346", locale: "en"
+  #Money<:AUD, 12346>
+  iex> Money.parse "australian dollar 12346.45", locale: "en"
+  #Money<:AUD, 12346.45>
+  iex> Money.parse "AU$ 12346,45", locale: "de"
+  #Money<:AUD, 12346.45>
+
+  # Can also return the strings available for a given currency
+  # and locale
+  iex> Cldr.Currency.strings_for_currency :AUD, "de"
+  ["aud", "au$", "australischer dollar", "australische dollar"]
+
+  # Round trip formatting also seems to be ok
+  iex> {:ok, string} = Cldr.Number.to_string 1234, Money.Cldr, currency: :AUD
+  {:ok, "A$1,234.00"}
+  iex> Money.parse string
+  #Money<:AUD, 1234.00>
+```
 # Changelog for Money v3.2.1
 
 This is the changelog for Money v3.2.1 released on February 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
