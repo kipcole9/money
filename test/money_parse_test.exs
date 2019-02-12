@@ -31,6 +31,26 @@ defmodule MoneyTest.Parse do
       assert Money.parse("99.99€") == Money.new(:EUR, "99.99")
     end
 
+    test "currency filtering" do
+      assert Money.parse("100 afghan afghanis") == Money.new(:AFA, 100)
+
+      assert Money.parse("100 afghan afghanis", currency_filter: [:current, :tender]) ==
+        {:error,
+         {Money.Invalid,
+           "Unable to create money from \"afghan afghanis\" and \"100\""
+        }}
+    end
+
+    test "fuzzy matching of currencies" do
+      assert Money.parse("100 eurosports", fuzzy: 0.8) == Money.new(:EUR, 100)
+
+      assert Money.parse("100 eurosports", fuzzy: 0.9) ==
+        {:error,
+         {Money.Invalid,
+           "Unable to create money from \"eurosports\" and \"100\""
+        }}
+    end
+
     test "parsing fails" do
       assert Money.parse("100") ==
               {:error,

@@ -383,7 +383,50 @@ defmodule Money do
   * `string` is a string to be parsed
 
   * `options` is a keyword list of options that is
-    passed to `Money.new/3`
+    passed to `Money.new/3` with the exception of
+    the options listed below
+
+  ## Options
+
+  * `backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module. THe default is `Money.default_backend()`
+
+  * `locale_name` is any valid locale name returned by `Cldr.known_locale_names/1`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+    The default is `<backend>.get_locale()`
+
+  * `currency_filter` is an `atom` or list of `atoms` representing the
+    currency types to be considered for a match. If a list of
+    atoms is given, the currency must meet all criteria for
+    it to be considered.
+
+    * `:all`, the default, considers all currencies
+
+    * `:current` considers those currencies that have a `:to`
+      date of nil and which also is a known ISO4217 currency
+
+    * `:historic` is the opposite of `:current`
+
+    * `:tender` considers currencies that are legal tender
+
+    * `:unannotated` considers currencies that don't have
+      "(some string)" in their names.  These are usually
+      financial instruments.
+
+  * `fuzzy` is a float greater than `0.0` and less than or
+    equal to `1.0` which is used as input to the
+    `String.jaro_distance/2` to determine is the provided
+    currency string is *close enough* to a known currency
+    string for it to identify definitively a currency code.
+    It is recommended to use numbers greater than `0.8` in
+    order to reduce false positives.
+
+  ## Returns
+
+  * a `Money.t` if parsing is successful or
+
+  * `{:error, {exception, reason}}` if an error is
+    detected.
 
   ## Examples
 
@@ -396,14 +439,29 @@ defmodule Money do
       iex> Money.parse("100 USD")
       #Money<:USD, 100>
 
+      iex> Money.parse("100 eurosports", fuzzy: 0.8)
+      #Money<:EUR, 100>
+
+      iex> Money.parse("100 eurosports", fuzzy: 0.9)
+      {:error,
+       {Money.Invalid, "Unable to create money from \\"eurosports\\" and \\"100\\""}}
+
+      iex> Money.parse("100 afghan afghanis")
+      #Money<:AFA, 100>
+
+      iex> Money.parse("100 afghan afghanis", currency_filter: [:current, :tender])
+      {:error,
+       {Money.Invalid, "Unable to create money from \\"afghan afghanis\\" and \\"100\\""}}
+
       iex> Money.parse("100")
       {:error,
        {Money.Invalid,
         "A currency code must be specified but was not found in \\"100\\""}}
 
       iex> Money.parse("USD 100 with trailing text")
-      {:error, {Money.Invalid, "A currency code can only be specified once. " <>
-      "Found both \\"usd\\" and \\"with trailing text\\"."}}
+      {:error,
+        {Money.Invalid, "A currency code can only be specified once. " <>
+          "Found both \\"usd\\" and \\"with trailing text\\"."}}
 
   """
   # @doc since: "3.2.0"
@@ -464,13 +522,41 @@ defmodule Money do
   defp maybe_create_money(currency, amount, options) do
     backend = Keyword.get(options, :backend, Money.default_backend)
     locale = Keyword.get(options, :locale, backend.get_locale)
-    {currency_filter, options} = Keyword.pop(options, :filter, :all)
+    {currency_filter, options} = Keyword.pop(options, :currency_filter, :all)
+    {fuzzy, options} = Keyword.pop(options, :fuzzy, nil)
     amount = String.trim(amount)
 
-    with {:ok, currency_strings} <- Cldr.Currency.currency_strings(locale, backend, currency_filter) do
-      currency = Map.get(currency_strings, currency) || currency
+    with {:ok, currency_strings} <- Cldr.Currency.currency_strings(locale, backend, currency_filter),
+         {:ok, currency} <- find_currency(currency_strings, currency, fuzzy) do
       Money.new(currency, amount, options)
     end
+  end
+
+  defp find_currency(currency_strings, currency, nil) do
+    {:ok, Map.get(currency_strings, currency, currency)}
+  end
+
+  defp find_currency(currency_strings, currency, fuzzy)
+        when is_float(fuzzy) and fuzzy > 0.0 and fuzzy <= 1.0 do
+
+    {distance, currency_code} =
+      currency_strings
+      |> Enum.map(fn {k, v} -> {String.jaro_distance(k, currency), v} end)
+      |> Enum.sort(fn {k1, _v1}, {k2, _v2} -> k1 > k2 end)
+      |> hd
+
+    if distance >= fuzzy do
+      {:ok, currency_code}
+    else
+      {:ok, currency}
+    end
+  end
+
+  defp find_currency(_currency_strings, _currency, fuzzy) do
+    {:error, {
+      ArgumentError,
+      "option :fuzzy must be a number > 0.0 and <= 1.0. Found #{inspect fuzzy}"
+    }}
   end
 
   @doc """

@@ -1,3 +1,19 @@
+# Changelog for Money v3.2.4
+
+This is the changelog for Money v3.2.4 released on ____, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Adds a `:fuzzy` option to `Money.parse/2` that uses `String.jaro_distance/2` to help determine if the provided currency text can be resolved as a currency code.  For example:
+```
+  iex> Money.parse("100 eurosports", fuzzy: 0.8)
+  #Money<:EUR, 100>
+
+  iex> Money.parse("100 eurosports", fuzzy: 0.9)
+  {:error,
+   {Money.Invalid, "Unable to create money from \\"eurosports\\" and \\"100\\""}}
+```
+
 # Changelog for Money v3.2.3
 
 This is the changelog for Money v3.2.3 released on February 12th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

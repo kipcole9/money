@@ -241,7 +241,7 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
 
 ### Parsing money strings
 
-`Money` provides an ability to parse strings that contain a currency and an amount.  The currency can be represented in different ways depending on the locale.
+`Money` provides an ability to parse strings that contain a currency and an amount.  The currency can be represented in different ways depending on the locale. See `Money.parse/2` for further information.  Some examples are:
 
 ```
   # These are the strings available for a given currency
@@ -271,6 +271,25 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
   {:ok, "A$1,234.00"}
   iex> Money.parse string
   #Money<:AUD, 1234.00>
+
+  # Fuzzy matching is possible
+  iex> Money.parse("100 eurosports", fuzzy: 0.8)
+  #Money<:EUR, 100>
+
+  iex> Money.parse("100 eurosports", fuzzy: 0.9)
+  {:error,
+   {Money.Invalid, "Unable to create money from \\"eurosports\\" and \\"100\\""}}
+
+  # Eligible currencies can be filtered
+  iex> Money.parse("100 eurosports", fuzzy: 0.8, currency_filter: [:current, :tender])
+  #Money<:EUR, 100>
+
+  iex> Money.parse "100 afghan afghanis"
+  #Money<:AFA, 100>
+
+  iex> Money.parse "100 afghan afghanis", currency_filter: [:current, :tender]
+  {:error,
+   {Money.Invalid, "Unable to create money from \"afghan afghanis\" and \"100\""}}
 ```
 
 ### Casting a money type (basic support for HTML forms)
