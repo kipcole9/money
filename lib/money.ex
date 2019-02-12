@@ -409,7 +409,7 @@ defmodule Money do
   # @doc since: "3.2.0"
   @currency "[^0-9,. ]*"
   @amount "[0-9][0-9,. ]+"
-  @regex Regex.compile!("^(?<cb>#{@currency})?(?<amount>#{@amount})?(?<ca>#{@currency})?$")
+  @regex Regex.compile!("^(?<cb>#{@currency})?(?<amount>#{@amount})?(?<ca>#{@currency})?$", [:unicode])
   @spec parse(String.t(), Keyword.t()) :: Money.t() | {:error, {Exception.t(), String.t()}}
   def parse(string, options \\ [])
 

@@ -27,6 +27,10 @@ defmodule MoneyTest.Parse do
       assert Money.parse("100,00USD", locale: "de") == Money.new(:USD, "100.00")
     end
 
+    test "parses euro (unicode symbol)" do
+      assert Money.parse("99.99€") == Money.new(:EUR, "99.99")
+    end
+
     test "parsing fails" do
       assert Money.parse("100") ==
               {:error,

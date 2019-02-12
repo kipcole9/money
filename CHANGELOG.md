@@ -1,3 +1,11 @@
+# Changelog for Money v3.2.3
+
+This is the changelog for Money v3.2.3 released on February 12th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Correctly parse money strings with unicode currency symbols like "€". Closes #95.  Thanks to @crbelaus.
+
 # Changelog for Money v3.2.2
 
 This is the changelog for Money v3.2.2 released on February 10th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
