@@ -1,6 +1,10 @@
 # Changelog for Money v3.2.4
 
-This is the changelog for Money v3.2.4 released on ____, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v3.2.4 released on February 13th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Updates to [ex_cldr_currencies version 2.1.2](https://hex.pm/packages/ex_cldr_currencies/2.1.2) which correctly removes duplicate currency strings when the same string referred to different currency codes. See the [changelog](https://github.com/kipcole9/cldr_currencies/blob/v2.1.2/CHANGELOG.md) for further detail.
 
 ### Enhancements
 

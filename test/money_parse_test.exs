@@ -32,12 +32,12 @@ defmodule MoneyTest.Parse do
     end
 
     test "currency filtering" do
-      assert Money.parse("100 afghan afghanis") == Money.new(:AFA, 100)
+      assert Money.parse("100 Mexican silver pesos") == Money.new(:MXP, 100)
 
-      assert Money.parse("100 afghan afghanis", currency_filter: [:current, :tender]) ==
+      assert Money.parse("100 Mexican silver pesos", currency_filter: [:current, :tender]) ==
         {:error,
          {Money.Invalid,
-           "Unable to create money from \"afghan afghanis\" and \"100\""
+           "Unable to create money from \"mexican silver pesos\" and \"100\""
         }}
     end
 

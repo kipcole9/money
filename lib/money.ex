@@ -447,11 +447,7 @@ defmodule Money do
        {Money.Invalid, "Unable to create money from \\"eurosports\\" and \\"100\\""}}
 
       iex> Money.parse("100 afghan afghanis")
-      #Money<:AFA, 100>
-
-      iex> Money.parse("100 afghan afghanis", currency_filter: [:current, :tender])
-      {:error,
-       {Money.Invalid, "Unable to create money from \\"afghan afghanis\\" and \\"100\\""}}
+      #Money<:AFN, 100>
 
       iex> Money.parse("100")
       {:error,
