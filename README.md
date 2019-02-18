@@ -593,7 +593,7 @@ The primary functions supporting subscriptions are:
 
 ## Serializing to a Postgres database with Ecto
 
-`Money` provides custom Ecto day types and a custom Postgres data type to provide serialization of `Money.t` types without losing precision whilst also maintaining the integrity of the `{currency_code, amount}` relationship.  To serialise and retrieve money types from a database the following steps should be followed:
+`Money` provides custom Ecto data types and a custom Postgres data type to provide serialization of `Money.t` types without losing precision whilst also maintaining the integrity of the `{currency_code, amount}` relationship.  To serialise and retrieve money types from a database the following steps should be followed:
 
 1. First generate the migration to create the custom type:
 
@@ -734,7 +734,7 @@ Since the datatype used to store `Money` in Postgres is a composite type (called
 
 1. Generate the migration by executing `mix money.gen.postgres.aggregate_functions`
 
-2. Migrate the database by executive `mix ecto.migrate`
+2. Migrate the database by executing `mix ecto.migrate`
 
 3. Formulate an Ecto query to use the aggregate function `sum()`
 
