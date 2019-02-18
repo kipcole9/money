@@ -31,7 +31,7 @@ defmodule Money.Application do
     if !api_module_present? do
       Logger.error(
         "[ex_money] ExchangeRates api module #{api_module_name(api_module)} could not be loaded. " <>
-          "  Does it exist?"
+          "Does it exist?"
       )
 
       Logger.warn("ExchangeRates service will not be started.")

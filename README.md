@@ -278,7 +278,7 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
 
   iex> Money.parse("100 eurosports", fuzzy: 0.9)
   {:error,
-   {Money.Invalid, "Unable to create money from \\"eurosports\\" and \\"100\\""}}
+   {Money.Invalid, "Unable to create money from \"eurosports\" and \"100\""}}
 
   # Eligible currencies can be filtered
   iex> Money.parse("100 eurosports", fuzzy: 0.8, currency_filter: [:current, :tender])
