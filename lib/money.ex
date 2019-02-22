@@ -367,6 +367,21 @@ defmodule Money do
     end
   end
 
+  # The set of grouping chars and decimal chars comes
+  # from CLDR's "misc" category for the "en" locale.
+  # Ideally we would be generating these characters
+  # from the locale files directly.
+  @grouping_chars ",،٫、︐︑﹐﹑，､"
+  @decimal_chars ".․。︒﹒．｡"
+  @currency "[^0-9#{@grouping_chars}#{@decimal_chars}]+"
+  @amount "[0-9][0-9#{@grouping_chars}#{@decimal_chars}]+"
+  @regex Regex.compile!("^(?<cb>#{@currency})?(?<amount>#{@amount})?(?<ca>#{@currency})?$", "u")
+
+  @doc false
+  def parser_regex do
+    @regex
+  end
+
   @doc """
   Parse a string and return a `Money.t` or an error.
 
@@ -461,9 +476,6 @@ defmodule Money do
 
   """
   # @doc since: "3.2.0"
-  @currency "[^0-9,. ]*"
-  @amount "[0-9][0-9,. ]+"
-  @regex Regex.compile!("^(?<cb>#{@currency})?(?<amount>#{@amount})?(?<ca>#{@currency})?$", [:unicode])
   @spec parse(String.t(), Keyword.t()) :: Money.t() | {:error, {Exception.t(), String.t()}}
   def parse(string, options \\ [])
 
@@ -1208,13 +1220,22 @@ defmodule Money do
       such as :AUD and :CHF which have an accounting increment of 0.01
       but a minimum cash increment of 0.05.
 
+    * `:round_up_to` is an integer value representing a fractional amount
+      to which the money value is rounded up.
+
   ## Notes
 
-  There are two kinds of rounding applied:
+  There are three kinds of rounding applied:
 
   1. Round to the appropriate number of fractional digits
 
-  2. Apply an appropriate rounding increment.  Most currencies
+  2. Round up to a defined fractional value. For example,
+     round #Money<:USD, 2.34> to #Money<:USD, 2.99>. The
+     number is interpreted in the context of the number of
+     fractional digits in a given currency.  For example `USD`
+     is 2 digits, for `JPY` it is zero digits.
+
+  3. Apply an appropriate rounding increment.  Most currencies
      round to the same precision as the number of decimal digits, but some
      such as :AUD and :CHF round to a minimum such as 0.05 when its a cash
      amount.
@@ -1230,11 +1251,20 @@ defmodule Money do
       Money.round Money.new("123.7456", :JPY)
       #Money<:JPY, 124>
 
+      Money.round Money.new("123.76", :USD), round_up_to: 99
+      #Money<:USD, 123.99>
+
+      # JPY has no fractional digits so this is equivalent to
+      # rounding to the next yen
+      Money.round Money.new("123.7456", :JPY), round_up_to: 99
+      #Money<:JPY, 124>
+
   """
   @spec round(Money.t(), Keyword.t()) :: Money.t()
   def round(%Money{} = money, opts \\ []) do
     money
     |> round_to_decimal_digits(opts)
+    |> round_up_to(opts)
     |> round_to_nearest(opts)
   end
 
@@ -1303,6 +1333,29 @@ defmodule Money do
 
   defp increment_from_opts(currency, _) do
     currency.rounding
+  end
+
+  defp round_up_to(money, opts) do
+    up_to = Keyword.get(opts, :round_up_to, 0)
+    do_round_upto(money, up_to)
+  end
+
+  defp do_round_upto(money, 0) do
+    money
+  end
+
+  @one Decimal.new(1)
+  defp do_round_upto(%Money{currency: code, amount: amount}, upto) when is_integer(upto) do
+    with {:ok, currency} <- Currency.currency_for_code(code) do
+      digits = currency.digits |> IO.inspect
+      diff = Decimal.from_float((100 - upto) * :math.pow(10, -digits))
+      new_amount =
+        Decimal.round(amount, 0)
+        |> Decimal.add(@one)
+        |> Decimal.sub(diff)
+
+      Money.new(code, new_amount)
+    end
   end
 
   @doc """
