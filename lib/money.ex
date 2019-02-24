@@ -1220,20 +1220,11 @@ defmodule Money do
       such as :AUD and :CHF which have an accounting increment of 0.01
       but a minimum cash increment of 0.05.
 
-    * `:round_up_to` is an integer value representing a fractional amount
-      to which the money value is rounded up.
-
   ## Notes
 
-  There are three kinds of rounding applied:
+  There are two kinds of rounding applied:
 
   1. Round to the appropriate number of fractional digits
-
-  2. Round up to a defined fractional value. For example,
-     round #Money<:USD, 2.34> to #Money<:USD, 2.99>. The
-     number is interpreted in the context of the number of
-     fractional digits in a given currency.  For example `USD`
-     is 2 digits, for `JPY` it is zero digits.
 
   3. Apply an appropriate rounding increment.  Most currencies
      round to the same precision as the number of decimal digits, but some
@@ -1248,15 +1239,7 @@ defmodule Money do
       iex> Money.round Money.new("123.7456", :CHF)
       #Money<:CHF, 123.75>
 
-      Money.round Money.new("123.7456", :JPY)
-      #Money<:JPY, 124>
-
-      Money.round Money.new("123.76", :USD), round_up_to: 99
-      #Money<:USD, 123.99>
-
-      # JPY has no fractional digits so this is equivalent to
-      # rounding to the next yen
-      Money.round Money.new("123.7456", :JPY), round_up_to: 99
+      iex> Money.round Money.new("123.7456", :JPY)
       #Money<:JPY, 124>
 
   """
@@ -1264,7 +1247,6 @@ defmodule Money do
   def round(%Money{} = money, opts \\ []) do
     money
     |> round_to_decimal_digits(opts)
-    |> round_up_to(opts)
     |> round_to_nearest(opts)
   end
 
@@ -1305,6 +1287,10 @@ defmodule Money do
     end
   end
 
+  defp round_to_nearest({:error, _} = error, _opts) do
+    error
+  end
+
   defp do_round_to_nearest(money, _digits, 0, _opts) do
     money
   end
@@ -1335,26 +1321,56 @@ defmodule Money do
     currency.rounding
   end
 
-  defp round_up_to(money, opts) do
-    up_to = Keyword.get(opts, :round_up_to, 0)
-    do_round_upto(money, up_to)
-  end
 
-  defp do_round_upto(money, 0) do
+  @doc """
+  Set the fractional part of a `Money`.
+
+  ## Arguments
+
+  * `money` is a `%Money{}` struct
+
+  * `fraction` is an integer amount that will be set
+    as the fraction of the `money`
+
+  ## Notes
+
+  The fraction can only be set if it matches the number of
+  decimal digits for the currency associated with the `money`.
+
+  ## Examples
+
+      iex> Money.put_fraction Money.new(:USD, "2.49"), 99
+      #Money<:USD, 2.99>
+
+      iex> Money.put_fraction Money.new(:USD, "2.49"), 999
+      {:error,
+       {Money.InvalidAmountError, "Rounding up to 999 is invalid for currency :USD"}}
+
+  """
+  def put_fraction(money, fraction \\ 0)
+
+  def put_fraction(%Money{} = money, 0) do
     money
   end
 
   @one Decimal.new(1)
-  defp do_round_upto(%Money{currency: code, amount: amount}, upto) when is_integer(upto) do
-    with {:ok, currency} <- Currency.currency_for_code(code) do
-      digits = currency.digits |> IO.inspect
-      diff = Decimal.from_float((100 - upto) * :math.pow(10, -digits))
-      new_amount =
-        Decimal.round(amount, 0)
-        |> Decimal.add(@one)
-        |> Decimal.sub(diff)
+  @zero Decimal.new(0)
 
-      Money.new(code, new_amount)
+  def put_fraction(%Money{currency: code, amount: amount}, upto) when is_integer(upto) do
+    with {:ok, currency} <- Currency.currency_for_code(code) do
+      digits = currency.digits
+      diff = Decimal.from_float((100 - upto) * :math.pow(10, -digits))
+      if Decimal.cmp(diff, @one) == :lt && Decimal.cmp(@zero, diff) == :lt do
+        new_amount =
+          Decimal.round(amount, 0)
+          |> Decimal.add(@one)
+          |> Decimal.sub(diff)
+
+        Money.new(code, new_amount)
+      else
+        {:error, {Money.InvalidAmountError,
+          "Rounding up to #{inspect upto} is invalid for currency #{inspect code}"}}
+      end
     end
   end
 

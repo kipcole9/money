@@ -1,18 +1,17 @@
-# Changelog for Cldr v3.2.5
+# Changelog for Cldr v3.3.0
 
-This is the changelog for Cldr v2.2.6 released on ______, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Cldr v3.3.0 released on February 24th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
 
 ### Enhancements
 
-* Adds the option `:round_up_to` to `Money.round/2`. This will set the fractional part of a money to the specified integer amount.  As examples:
+* Adds `Money.put_fraction/2`. This will set the fractional part of a money to the specified integer amount.  Examples:
 ```
-  Money.round Money.new("123.76", :USD), round_up_to: 99
-  #Money<:USD, 123.99>
+  iex> Money.put_fraction Money.new(:USD, "2.49"), 99
+  #Money<:USD, 2.99>
 
-  # JPY has no fractional digits so this is equivalent to
-  # rounding to the next yen
-  Money.round Money.new("123.7456", :JPY), round_up_to: 99
-  #Money<:JPY, 124>
+  iex> Money.put_fraction Money.new(:USD, "2.49"), 999
+  {:error,
+   {Money.InvalidAmountError, "Rounding up to 999 is invalid for currency :USD"}}
 ```
 
 ### Bug Fixes
