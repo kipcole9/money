@@ -1,3 +1,11 @@
+# Changelog for Cldr v3.3.1
+
+This is the changelog for Cldr v3.3.1 released on March 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+
+### Bug Fixes
+
+* Fix or silence dialyzer warnings
+
 # Changelog for Cldr v3.3.0
 
 This is the changelog for Cldr v3.3.0 released on February 24th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)

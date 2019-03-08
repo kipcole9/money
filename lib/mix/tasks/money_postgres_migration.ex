@@ -19,6 +19,8 @@ if Code.ensure_loaded?(Ecto) do
     """
 
     @doc false
+    @dialyzer {:no_return, run: 1}
+
     def run(args) do
       no_umbrella!("money.gen.migration")
       repos = parse_repo(args)

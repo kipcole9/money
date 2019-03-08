@@ -161,7 +161,7 @@ defmodule Money.Subscription do
   # @doc since: "2.3.0"
 
   @spec new(plan :: Plan.t(), effective_date :: Date.t(), Keyword.t()) ::
-          {:ok, Subscription.t()} | {:error, {Exception.t(), String.t()}}
+          {:ok, Subscription.t()} | {:error, {module(), String.t()}}
 
   def new(plan, effective_date, options \\ [])
 
@@ -230,6 +230,7 @@ defmodule Money.Subscription do
   """
   @spec new!(plan :: Plan.t(), effective_date :: Date.t(), Keyword.t()) ::
           Subscription.t() | no_return()
+
   def new!(plan, effective_date, options \\ []) do
     case new(plan, effective_date, options) do
       {:ok, subscription} -> subscription
@@ -263,6 +264,7 @@ defmodule Money.Subscription do
   """
   # @doc since: "2.3.0"
   @spec current_plan(Subscription.t() | map, Keyword.t()) :: Plan.t() | nil
+
   def current_plan(subscription, options \\ [])
 
   def current_plan(%{plans: []}, _options) do
@@ -280,8 +282,10 @@ defmodule Money.Subscription do
   # Because we walk the list from most recent to oldest, the first
   # plan that has a start date less than or equal to the current
   # date is the one we want
+  @spec current_plan?({Change.t(), Plan.t()}, Keyword.t) :: boolean
+
   defp current_plan?({%Change{first_interval_starts: start_date}, _}, options) do
-    today = options[:today] || Date.utc_today()
+    today = Keyword.get(options, :today, Date.utc_today())
     Date.compare(start_date, today) in [:lt, :eq]
   end
 
@@ -372,11 +376,13 @@ defmodule Money.Subscription do
 
   """
   # @doc since: "2.3.0"
-  @spec current_plan_start_date(Subscription.t()) :: Date.t()
+  @spec current_plan_start_date(Subscription.t()) :: Date.t() | nil
+  @dialyzer {:nowarn_function, current_plan_start_date: 1}
+
   def current_plan_start_date(%{plans: _plans} = subscription) do
     case current_plan(subscription) do
       {changes, _plan} -> changes.first_interval_starts
-      _ -> nil
+      nil -> nil
     end
   end
 
@@ -403,6 +409,9 @@ defmodule Money.Subscription do
   # @doc since: "2.3.0"
   @spec current_interval_start_date(Subscription.t() | {Change.t(), Plan.t()} | map(), Keyword.t()) ::
           Date.t()
+
+  @dialyzer {:nowarn_function, current_interval_start_date: 2}
+
   def current_interval_start_date(subscription_or_changeset, options \\ [])
 
   def current_interval_start_date(%{plans: _plans} = subscription, options) do
@@ -599,10 +608,12 @@ defmodule Money.Subscription do
   """
   # @doc since: "2.3.0"
   @spec change_plan(
-          subscription_or_plan :: __MODULE__.t() | Plan.t(),
+          subscription_or_plan :: Subscription.t() | Plan.t(),
           new_plan :: Plan.t(),
           options :: Keyword.t()
-        ) :: {:ok, Change.t() | Subscription.t()} | {:error, {Exception.t(), String.t()}}
+        ) :: {:ok, Change.t() | Subscription.t()} | {:error, {module(), String.t()}}
+
+  @dialyzer {:nowarn_function, change_plan: 3}
 
   def change_plan(subscription_or_plan, new_plan, options \\ [])
 
@@ -617,14 +628,14 @@ defmodule Money.Subscription do
       |> Keyword.put(:first_interval_started, changes.first_interval_starts)
       |> Keyword.put(:current_interval_started, current_interval_start_date(subscription, options))
       |> change_plan_options_from(default_options())
-      |> Enum.into(Keyword.new())
+      |> Keyword.new()
 
     if plan_pending?(subscription, options) do
       {:error,
        {Money.Subscription.PlanPending, "Can't change plan when a new plan is already pending"}}
     else
       {:ok, changes} = change_plan(current_plan, new_plan, options)
-      updated_subscription = %__MODULE__{subscription | plans: [{changes, new_plan} | plans]}
+      updated_subscription = %{subscription | plans: [{changes, new_plan} | plans]}
       {:ok, updated_subscription}
     end
   end
@@ -649,7 +660,7 @@ defmodule Money.Subscription do
   """
   # @doc since: "2.3.0"
   @spec change_plan!(
-          subscription_or_plan :: __MODULE__.t() | Plan.t(),
+          subscription_or_plan :: t() | Plan.t(),
           new_plan :: Plan.t(),
           options :: Keyword.t()
         ) :: Change.t() | no_return()
@@ -868,7 +879,7 @@ defmodule Money.Subscription do
 
   """
   # @doc since: "2.3.0"
-  @spec next_interval_starts(Plan.t(), Date.t(), Keyword.t() | map()) :: Date.t()
+  @spec next_interval_starts(Plan.t(), Date.t(), Keyword.t()) :: Date.t()
   def next_interval_starts(plan, current_interval_started, options \\ [])
 
   def next_interval_starts(
@@ -890,7 +901,7 @@ defmodule Money.Subscription do
         options
       ) do
     next_interval_starts(
-      %{interval: :day, interval_count: count * 7},
+      %Plan{interval: :day, interval_count: count * 7},
       current_interval_started,
       options
     )
@@ -901,7 +912,7 @@ defmodule Money.Subscription do
         %{year: year, month: month, day: day, calendar: calendar} = current_interval_started,
         options
       ) do
-    options = if is_list(options), do: options, else: Enum.into(options, %{})
+    # options = if is_list(options), do: options, else: Enum.into(options, %{})
     months_in_this_year = months_in_year(current_interval_started)
 
     {year, month} =
@@ -947,10 +958,9 @@ defmodule Money.Subscription do
     options =
       default_options
       |> Keyword.merge(options)
-      |> Enum.into(%{})
 
     require_options!(options, [:effective, :current_interval_started])
-    Map.put_new(options, :first_interval_started, options[:current_interval_started])
+    Keyword.put_new(options, :first_interval_started, options[:current_interval_started])
   end
 
   defp default_options do
@@ -982,11 +992,11 @@ defmodule Money.Subscription do
     raise ArgumentError, "change_plan requires the the option #{inspect(opt)}"
   end
 
-  defp preferred_day(%{first_interval_started: %{day: day}}) do
-    day
+  defp preferred_day(options) do
+    case Keyword.get(options, :first_interval_started) do
+      %{day: day} -> day
+      _ -> -1
+    end
   end
 
-  defp preferred_day(_options) do
-    -1
-  end
 end

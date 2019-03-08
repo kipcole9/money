@@ -11,7 +11,7 @@ defmodule Money.Subscription.Plan do
 
   @typedoc "A Subscription Plan"
   @type t :: %__MODULE__{
-          price: Decimal.t() | nil,
+          price: Money.t() | nil,
           interval: interval,
           interval_count: interval_count
         }
@@ -74,7 +74,7 @@ defmodule Money.Subscription.Plan do
 
   """
   @spec new(Money.t(), interval(), interval_count()) ::
-          {:ok, t()} | {:error, {Exception.t(), String.t()}}
+          {:ok, t()} | {:error, {module(), String.t()}}
 
   def new(price, interval, interval_count \\ 1)
 

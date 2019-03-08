@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "3.3.0"
+  @version "3.3.1"
 
   def project do
     [
@@ -19,7 +19,10 @@ defmodule Money.Mixfile do
       test_coverage: [tool: ExCoveralls],
       aliases: aliases(),
       elixirc_paths: elixirc_paths(Mix.env()),
-      dialyzer: [ignore_warnings: ".dialyzer_ignore_warnings"],
+      dialyzer: [
+        ignore_warnings: ".dialyzer_ignore_warnings",
+        plt_add_apps: ~w(inets jason mix phoenix_html ecto ecto_sql)a
+      ],
       compilers: Mix.compilers()
     ]
   end
@@ -87,7 +90,7 @@ defmodule Money.Mixfile do
       {:ex_cldr_numbers, "~> 2.0"},
       {:decimal, "~> 1.5"},
       {:phoenix_html, "~> 2.0", optional: true},
-      {:dialyxir, "~> 0.5", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
       {:jason, "~> 1.0", optional: true},
       {:stream_data, "~> 0.4.1", only: [:dev, :test]},
       {:gringotts, "~>1.1", only: :test, optional: true},

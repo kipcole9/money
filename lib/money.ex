@@ -144,7 +144,7 @@ defmodule Money do
 
   """
   @spec new(amount | currency_code, amount | currency_code, Keyword.t()) ::
-          Money.t() | {:error, {Exception.t(), String.t()}}
+          Money.t() | {:error, {module(), String.t()}}
 
   def new(currency_code, amount, options \\ [])
 
@@ -310,7 +310,7 @@ defmodule Money do
   # @doc since: "2.0.0"
   @max_precision_allowed 15
   @spec from_float(float | currency_code, float | currency_code) ::
-          Money.t() | {:error, {Exception.t(), String.t()}}
+          Money.t() | {:error, {module(), String.t()}}
 
   def from_float(currency_code, amount)
       when (is_binary(currency_code) or is_atom(currency_code)) and is_float(amount) do
@@ -403,8 +403,8 @@ defmodule Money do
 
   ## Options
 
-  * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module. THe default is `Money.default_backend()`
+  * `backend` is any module() that includes `use Cldr` and therefore
+    is a `Cldr` backend module(). THe default is `Money.default_backend()`
 
   * `locale_name` is any valid locale name returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
@@ -476,7 +476,7 @@ defmodule Money do
 
   """
   # @doc since: "3.2.0"
-  @spec parse(String.t(), Keyword.t()) :: Money.t() | {:error, {Exception.t(), String.t()}}
+  @spec parse(String.t(), Keyword.t()) :: Money.t() | {:error, {module(), String.t()}}
   def parse(string, options \\ [])
 
   def parse(string, options) do
@@ -687,7 +687,7 @@ defmodule Money do
 
   """
   @spec add(money_1 :: Money.t(), money_2 :: Money.t()) ::
-          {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
+          {:ok, Money.t()} | {:error, {module(), String.t()}}
   def add(%Money{currency: same_currency, amount: amount_a}, %Money{
         currency: same_currency,
         amount: amount_b
@@ -757,7 +757,7 @@ defmodule Money do
 
   """
   @spec sub(money_1 :: Money.t(), money_2 :: Money.t()) ::
-          {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
+          {:ok, Money.t()} | {:error, {module(), String.t()}}
 
   def sub(%Money{currency: same_currency, amount: amount_a}, %Money{
         currency: same_currency,
@@ -835,7 +835,7 @@ defmodule Money do
 
   """
   @spec mult(Money.t(), Cldr.Math.number_or_decimal()) ::
-          {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
+          {:ok, Money.t()} | {:error, {module(), String.t()}}
   def mult(%Money{currency: code, amount: amount}, number) when is_integer(number) do
     {:ok, %Money{currency: code, amount: Decimal.mult(amount, Decimal.new(number))}}
   end
@@ -913,7 +913,7 @@ defmodule Money do
 
   """
   @spec div(Money.t(), Cldr.Math.number_or_decimal()) ::
-          {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
+          {:ok, Money.t()} | {:error, {module(), String.t()}}
   def div(%Money{currency: code, amount: amount}, number) when is_integer(number) do
     {:ok, %Money{currency: code, amount: Decimal.div(amount, Decimal.new(number))}}
   end
@@ -1009,7 +1009,7 @@ defmodule Money do
 
   *  `:gt` | `:eq` | `:lt` or
 
-  * `{:error, {Exception.t, String.t}}`
+  * `{:error, {module(), String.t}}`
 
   ## Examples
 
@@ -1029,7 +1029,7 @@ defmodule Money do
 
   """
   @spec cmp(money_1 :: Money.t(), money_2 :: Money.t()) ::
-          :gt | :eq | :lt | {:error, {Exception.t(), String.t()}}
+          :gt | :eq | :lt | {:error, {module(), String.t()}}
   def cmp(%Money{currency: same_currency, amount: amount_a}, %Money{
         currency: same_currency,
         amount: amount_b
@@ -1085,7 +1085,7 @@ defmodule Money do
 
   *  `-1` | `0` | `1` or
 
-  * `{:error, {Exception.t, String.t}}`
+  * `{:error, {module(), String.t}}`
 
   ## Examples
 
@@ -1105,7 +1105,7 @@ defmodule Money do
 
   """
   @spec compare(money_1 :: Money.t(), money_2 :: Money.t()) ::
-          -1 | 0 | 1 | {:error, {Exception.t(), String.t()}}
+          -1 | 0 | 1 | {:error, {module(), String.t()}}
   def compare(%Money{currency: same_currency, amount: amount_a}, %Money{
         currency: same_currency,
         amount: amount_b
@@ -1405,8 +1405,8 @@ defmodule Money do
   @spec to_currency(
           Money.t(),
           currency_code(),
-          ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {Exception.t(), String.t()}}
-        ) :: {:ok, Money.t()} | {:error, {Exception.t(), String.t()}}
+          ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
+        ) :: {:ok, Money.t()} | {:error, {module(), String.t()}}
 
   def to_currency(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
 
@@ -1466,7 +1466,7 @@ defmodule Money do
   @spec to_currency!(
           Money.t(),
           currency_code(),
-          ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {Exception.t(), String.t()}}
+          ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
         ) :: Money.t() | no_return
 
   def to_currency!(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
@@ -1513,7 +1513,7 @@ defmodule Money do
           Money.t() | currency_code,
           currency_code,
           ExchangeRates.t() | {:ok, ExchangeRates.t()}
-        ) :: {:ok, Decimal.t()} | {:error, {Exception.t(), String.t()}}
+        ) :: {:ok, Decimal.t()} | {:error, {module(), String.t()}}
 
   def cross_rate(from, to, rates \\ Money.ExchangeRates.latest_rates())
 
@@ -1696,7 +1696,7 @@ defmodule Money do
       #Money<:COP, 200.12>
 
   """
-  @spec from_integer(integer, currency_code) :: Money.t() | {:error, Exception.t(), String.t()}
+  @spec from_integer(integer, currency_code) :: Money.t() | {:error, module(), String.t()}
   def from_integer(amount, currency) when is_integer(amount) do
     with {:ok, currency} <- validate_currency(currency),
          {:ok, %{iso_digits: digits}} <- Currency.currency_for_code(currency) do
@@ -1769,7 +1769,7 @@ defmodule Money do
   def get_env(key, default, :module) do
     key
     |> get_env(default)
-    |> to_module
+    |> to_module()
   end
 
   def get_env(key, default, :boolean) do
