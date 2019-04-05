@@ -780,7 +780,10 @@ Since `:money_with_currency` is a composite type, the default `order_by` results
 
 ```elixir
 def deps do
-  [{:ex_money, "~> 1.0"}]
+  [
+    {:ex_money, "~> 3.0"},
+    ...
+  ]
 end
 ```
 
