@@ -755,7 +755,7 @@ Since the datatype used to store `Money` in Postgres is a composite type (called
   [debug] QUERY ERROR source="items" db=4.5ms
   SELECT sum(l0."price")::money_with_currency FROM "items" AS l0 []
   ** (Postgrex.Error) ERROR 22033 (): Incompatible currency codes. Expected all currency codes to be USD
-````
+```
 
 ### Order_by with Money
 
