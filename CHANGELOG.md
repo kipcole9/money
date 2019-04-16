@@ -1,3 +1,17 @@
+# Changelog for Cldr v3.4.2
+
+This is the changelog for Cldr v3.4.2 released on April 16th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+
+### Bug Fixes
+
+* `Money.put_fraction/2` now correctly allows setting the fraction to 0.
+
+### Enhancements
+
+* `Money.round/2` allows setting `:currency_digits` to an integer number of digits in addition to the options `:iso`, `:cash` and `:accounting`.  The default remains `:iso`.
+
+* Improves the documentation for `Money.to_string/2`.
+
 # Changelog for Cldr v3.4.1
 
 This is the changelog for Cldr v3.4.1 released on April 5th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)

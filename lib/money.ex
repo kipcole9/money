@@ -1238,10 +1238,9 @@ defmodule Money do
       as "banker's rounding"
 
     * `:currency_digits` which determines the rounding increment.
-      The valid options are `:cash`, `:accounting` and `:iso`.  The
-      default is `:iso`. The rounding increment applies to currencies
-      such as :AUD and :CHF which have an accounting increment of 0.01
-      but a minimum cash increment of 0.05.
+      The valid options are `:cash`, `:accounting` and `:iso` or
+      an integer value representing the rounding factor.  The
+      default is `:iso`.
 
   ## Notes
 
@@ -1251,13 +1250,17 @@ defmodule Money do
 
   3. Apply an appropriate rounding increment.  Most currencies
      round to the same precision as the number of decimal digits, but some
-     such as :AUD and :CHF round to a minimum such as 0.05 when its a cash
-     amount.
+     such as `:CHF` round to a minimum such as `0.05` when its a cash
+     amount. The rounding increment is applied when the option
+     `:currency_digits` is set to `:cash`
 
   ## Examples
 
       iex> Money.round Money.new("123.73", :CHF), currency_digits: :cash
       #Money<:CHF, 123.75>
+
+      iex> Money.round Money.new("123.73", :CHF), currency_digits: 0
+      #Money<:CHF, 124>
 
       iex> Money.round Money.new("123.7456", :CHF)
       #Money<:CHF, 123.75>
@@ -1298,8 +1301,8 @@ defmodule Money do
     currency.cash_digits
   end
 
-  defp digits_from_opts(currency, _) do
-    currency.iso_digits
+  defp digits_from_opts(_currency, digits) when is_integer(digits) do
+    digits
   end
 
   defp round_to_nearest(%Money{currency: code} = money, opts) do
@@ -1359,11 +1362,16 @@ defmodule Money do
 
   The fraction can only be set if it matches the number of
   decimal digits for the currency associated with the `money`.
+  Therefore, for a currency with 2 decimal digits, the
+  maximum for `fraction` is `99`.
 
   ## Examples
 
       iex> Money.put_fraction Money.new(:USD, "2.49"), 99
       #Money<:USD, 2.99>
+
+      iex> Money.put_fraction Money.new(:USD, "2.49"), 0
+      #Money<:USD, 2.0>
 
       iex> Money.put_fraction Money.new(:USD, "2.49"), 999
       {:error,
@@ -1372,10 +1380,6 @@ defmodule Money do
   """
   def put_fraction(money, fraction \\ 0)
 
-  def put_fraction(%Money{} = money, 0) do
-    money
-  end
-
   @one Decimal.new(1)
   @zero Decimal.new(0)
 
@@ -1383,7 +1387,7 @@ defmodule Money do
     with {:ok, currency} <- Currency.currency_for_code(code) do
       digits = currency.digits
       diff = Decimal.from_float((100 - upto) * :math.pow(10, -digits))
-      if Decimal.cmp(diff, @one) == :lt && Decimal.cmp(@zero, diff) == :lt do
+      if Decimal.cmp(diff, @one) in [:lt, :eq] && Decimal.cmp(@zero, diff) in [:lt, :eq] do
         new_amount =
           Decimal.round(amount, 0)
           |> Decimal.add(@one)
