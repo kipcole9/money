@@ -575,16 +575,25 @@ defmodule Money do
   as a currency which applies the appropriate rounding and fractional digits
   for the currency.
 
-  ## Options
+  ## Arguments
 
-  * `money_1` is any valid `Money.t` type returned
+  * `money` is any valid `Money.t` type returned
     by `Money.new/2`
+
+  * `options` is a keyword list of options
 
   ## Returns
 
   * `{:ok, string}` or
 
   * `{:error, reason}`
+
+  ## Options
+
+  * `:backend` is any CLDR backend module.  The default is
+    `Money.default_backend()`.
+
+  * Any other options are passed to `Cldr.Number.to_string/3`
 
   ## Examples
 
@@ -609,13 +618,27 @@ defmodule Money do
   end
 
   @doc """
-  Returns a formatted string representation of a `Money{}` or raises if
+  Returns a formatted string representation of a `Money.t` or raises if
   there is an error.
 
   Formatting is performed according to the rules defined by CLDR. See
   `Cldr.Number.to_string!/2` for formatting options.  The default is to format
   as a currency which applies the appropriate rounding and fractional digits
   for the currency.
+
+  ## Arguments
+
+  * `money` is any valid `Money.t` type returned
+    by `Money.new/2`
+
+  * `options` is a keyword list of options
+
+  ## Options
+
+  * `:backend` is any CLDR backend module.  The default is
+    `Money.default_backend()`.
+
+  * Any other options are passed to `Cldr.Number.to_string/3`
 
   ## Examples
 
