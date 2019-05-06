@@ -61,8 +61,6 @@ An optional callback module can also be defined.  This module defines a `rates_r
       json_library: Cldr.Config.json_library(),
       default_cldr_backend: MyApp.Cldr
 
-**Note** that `ex_money` does not define a json library dependency and therefore it is the users responsibility to configure a required json library as a dependency in the applications `mix.exs`.
-
 ### Configuration key definitions
 
 * `:exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is `:never`. An `atom` value is interpreted to mean that there should be no periodic retrieval.
@@ -86,9 +84,29 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
 * `:retriever_options` is available for exchange rate retriever module developers as a place to add retriever-specific configuration information.  This information should be added in the `init/1` callback in the retriever module.  See `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
 
-* `:json_library` determines which json library to be used for decoding.  Two common options are `Poison` and `Jason`. The default is `Cldr.Config.json_library/0` which is currently configured by default as Poison.
+* `:json_library` determines which json library to be used for decoding.  Two common options are `Poison` and `Jason`. The default is `Cldr.Config.json_library/0` which is currently configured by default as `Jason`.
 
 * `:default_cldr_backend` defines the `Cldr` backend module that is default for `Money`.  See the [ex_cldr documentation](https://hexdocs.pm/ex_cldr/2.0.0/readme.html) for further information on how to define this module.  **This is a required option**.
+
+### JSON library configuration
+
+Note that `ex_money` does not define a json library dependency and therefore it is the users responsibility to configure the required json library as a dependency in the application's `mix.exs`.
+
+The recommended library is [jason](https://hex.pm/packages/jason) which would be configured as:
+```
+  defp deps do
+    [
+      {:jason, "~> 1.0"},
+      ...
+    ]
+  end
+```
+`ex_money` depends on `ex_cldr` which provides currency and localisation data. The default configuration of `ex_money` uses the default `json_library` from `ex_cldr`.  This can be configured as follows in `config.exs`:
+```
+config :ex_cldr,
+  json_library: Jason
+```
+In most cases this is not required since the presence of `Jason` (or `Poison`) is automatic.
 
 ### Configuring locales to support localised formatting
 
