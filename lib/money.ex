@@ -610,6 +610,7 @@ defmodule Money do
       {:ok, "1,234 US dollars"}
 
   """
+  @spec to_string(Money.t(), Keyword.t()) :: {:ok, String.t()} | {:error, term}
   def to_string(%Money{} = money, options \\ []) do
     default_options = [backend: Money.default_backend(), currency: money.currency]
     options = Keyword.merge(default_options, options)
@@ -655,6 +656,7 @@ defmodule Money do
       "1,234 US dollars"
 
   """
+  @spec to_string!(Money.t(), Keyword.t()) :: String.t()
   def to_string!(%Money{} = money, options \\ []) do
     with {:ok, string} <- Money.to_string(money, options) do
       string
