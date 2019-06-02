@@ -95,6 +95,7 @@ defmodule Money.Mixfile do
       {:stream_data, "~> 0.4.1", only: [:dev, :test]},
       {:gringotts, "~>1.1", only: :test, optional: true},
       {:ecto_sql, "~> 3.0", optional: true},
+      {:benchee, "~> 1.0", optional: true, only: :dev},
       ex_doc_version(System.version())
     ]
   end

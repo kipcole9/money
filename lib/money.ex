@@ -657,7 +657,7 @@ defmodule Money do
       "1,234 US dollars"
 
   """
-  @spec to_string(Money.t(), Keyword.t()) :: String.t() | no_return()
+  @spec to_string!(Money.t(), Keyword.t()) :: String.t() | no_return()
 
   def to_string!(%Money{} = money, options \\ []) do
     case to_string(money, options) do
