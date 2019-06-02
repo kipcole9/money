@@ -658,6 +658,12 @@ defmodule Money do
   def to_string!(%Money{} = money, options \\ []) do
     with {:ok, string} <- Money.to_string(money, options) do
       string
+    else
+      {:error, {type, message}} when is_atom(type) and is_binary(message) ->
+        raise type, message
+
+      other ->
+        raise "Error converting money to string: " <> inspect(other)
     end
   end
 

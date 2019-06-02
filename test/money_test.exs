@@ -180,6 +180,19 @@ defmodule MoneyTest do
     assert Money.to_string(money) == {:ok, "$1,234.00"}
   end
 
+  test "to_string works via protocol" do
+    money = Money.new(1234, :USD)
+    assert to_string(money) == "$1,234.00"
+  end
+
+  test "to_string! raises if there is an error" do
+    money = Money.new(1234, :USD)
+
+    assert_raise Cldr.FormatCompileError, fn ->
+      Money.to_string!(money, format: "0#")
+    end
+  end
+
   test "adding two money structs with same currency" do
     assert Money.add!(Money.new(:USD, 100), Money.new(:USD, 100)) == Money.new(:USD, 200)
   end
