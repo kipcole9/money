@@ -1,3 +1,15 @@
+# Changelog for Cldr v3.4.3
+
+This is the changelog for Cldr v3.4.3 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+
+### Bug Fixes
+
+* Ensure `Money.to_string!/2` properly raises
+
+* Add specs for `Money.to_string/2` and `Money.to_string!/2`
+
+Thanks to @rodrigues for the report and PR.
+
 # Changelog for Cldr v3.4.2
 
 This is the changelog for Cldr v3.4.2 released on April 16th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
