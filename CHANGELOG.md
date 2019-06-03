@@ -7,11 +7,16 @@ This is the changelog for Cldr v3.4.4 released on June 2nd, 2019.  For older cha
 * Supports passing an `Cldr.Number.Formation.Options.t` as alternative to a `Keyword.t` for options to `Money.to_string/2`.  Performance is doubled when using pre-validated options which is useful if formatting is being executed in a tight loop.
 
 An example of this usage is:
-```
-iex> money = Money.new(:USD, 100)
-iex> options = [currency: money.currency]
-iex> {:ok, options} = Cldr.Number.Format.Options.validate_options(0, backend, options)
-iex> Money.to_string(money, options)
+
+```elixir
+  iex> money = Money.new(:USD, 100)
+
+  # Apply any options required as a keyword list
+  # Money will take care of managing the `:currency` option
+  iex> options = []
+
+  iex> {:ok, options} = Cldr.Number.Format.Options.validate_options(0, backend, options)
+  iex> Money.to_string(money, options)
 ```
 
 The `0` in `validate_options` is used to determine the sign of the amount because that can influence formatting - for example the accounting format often uses `(1234)` as its format.  If you know your amounts are always positive, just use `0`.
@@ -19,15 +24,20 @@ The `0` in `validate_options` is used to determine the sign of the amount becaus
 If the use case may have both positive and negative amounts, generate two option sets (one with the positive number and one with the negative).  Then use the appropriate option set.  For example:
 
 ```elixir
-money = Money.new(:USD, 1234)
-{:ok, positive_options} = Cldr.Number.Format.Options.validate_options(0, backend, options)
-{:ok, negative_options} = Cldr.Number.Format.Options.validate_options(-1, backend, options)
+  money = Money.new(:USD, 1234)
 
-if Money.cmp(money, Money.zero(:USD)) == :gt do
-  Money.to_string(money, options_with_positive_format)
-else
-  Money.to_string(money, options_with_negative_format)
-end
+  # Add options as required
+  # Money will take care of managing the `:currency` option
+  options = []
+
+  {:ok, positive_options} = Cldr.Number.Format.Options.validate_options(0, backend, options)
+  {:ok, negative_options} = Cldr.Number.Format.Options.validate_options(-1, backend, options)
+
+  if Money.cmp(money, Money.zero(:USD)) == :gt do
+    Money.to_string(money, options_with_positive_format)
+  else
+    Money.to_string(money, options_with_negative_format)
+  end
 ```
 
 # Changelog for Cldr v3.4.3
