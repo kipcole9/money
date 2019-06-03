@@ -610,12 +610,20 @@ defmodule Money do
       {:ok, "1,234 US dollars"}
 
   """
-  @spec to_string(Money.t(), Keyword.t()) :: {:ok, String.t()} | {:error, {atom, String.t()}}
+  @spec to_string(Money.t(), Keyword.t() | Cldr.Number.Format.Options.t) :: {:ok, String.t()} | {:error, {atom, String.t()}}
 
-  def to_string(%Money{} = money, options \\ []) do
+  def to_string(money, options \\ [])
+
+  def to_string(%Money{} = money, options) when is_list(options) do
     default_options = [backend: Money.default_backend(), currency: money.currency]
     options = Keyword.merge(default_options, options)
     backend = options[:backend]
+    Cldr.Number.to_string(money.amount, backend, options)
+  end
+
+  def to_string(%Money{} = money, %Cldr.Number.Format.Options{} = options) do
+    options = Map.put(options, :currency, money.currency)
+    backend = Map.get(options, :backend, Money.default_backend)
     Cldr.Number.to_string(money.amount, backend, options)
   end
 

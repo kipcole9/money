@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "3.4.3"
+  @version "3.4.4"
 
   def project do
     [
@@ -96,6 +96,7 @@ defmodule Money.Mixfile do
       {:gringotts, "~>1.1", only: :test, optional: true},
       {:ecto_sql, "~> 3.0", optional: true},
       {:benchee, "~> 1.0", optional: true, only: :dev},
+      {:exprof, "~> 0.2", only: :dev, runtime: false},
       ex_doc_version(System.version())
     ]
   end

@@ -1,3 +1,35 @@
+# Changelog for Cldr v3.4.4
+
+This is the changelog for Cldr v3.4.4 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+
+### Enhancements
+
+* Supports passing an `Cldr.Number.Formation.Options.t` as alternative to a `Keyword.t` for options to `Money.to_string/2`.  Performance is doubled when using pre-validated options which is useful if formatting is being executed in a tight loop.
+
+An example of this usage is:
+```
+iex> money = Money.new(:USD, 100)
+iex> options = [currency: money.currency]
+iex> {:ok, options} = Cldr.Number.Format.Options.validate_options(0, backend, options)
+iex> Money.to_string(money, options)
+```
+
+The `0` in `validate_options` is used to determine the sign of the amount because that can influence formatting - for example the accounting format often uses `(1234)` as its format.  If you know your amounts are always positive, just use `0`.
+
+If the use case may have both positive and negative amounts, generate two option sets (one with the positive number and one with the negative).  The use the appropriate option set.  For example:
+
+```elixir
+money = Money.new(:USD, 1234)
+{:ok, positive_options} = Cldr.Number.Format.Options.validate_options(0, backend, options)
+{:ok, negative_options} = Cldr.Number.Format.Options.validate_options(-1, backend, options)
+
+if Money.cmp(money, Money.zero(:USD)) == :gt do
+  Money.to_string(money, options_with_positive_format)
+else
+  Money.to_string(money, options_with_negative_format)
+end
+```
+
 # Changelog for Cldr v3.4.3
 
 This is the changelog for Cldr v3.4.3 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
