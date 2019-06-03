@@ -24,20 +24,20 @@ The `0` in `validate_options` is used to determine the sign of the amount becaus
 If the use case may have both positive and negative amounts, generate two option sets (one with the positive number and one with the negative).  Then use the appropriate option set.  For example:
 
 ```elixir
-  money = Money.new(:USD, 1234)
+  iex> money = Money.new(:USD, 1234)
 
   # Add options as required
   # Money will take care of managing the `:currency` option
-  options = []
+  iex> options = []
 
-  {:ok, positive_options} = Cldr.Number.Format.Options.validate_options(0, backend, options)
-  {:ok, negative_options} = Cldr.Number.Format.Options.validate_options(-1, backend, options)
+  iex> {:ok, positive_options} = Cldr.Number.Format.Options.validate_options(0, backend, options)
+  iex> {:ok, negative_options} = Cldr.Number.Format.Options.validate_options(-1, backend, options)
 
-  if Money.cmp(money, Money.zero(:USD)) == :gt do
-    Money.to_string(money, positive_options)
-  else
-    Money.to_string(money, negative_options)
-  end
+  iex> if Money.cmp(money, Money.zero(:USD)) == :gt do
+  ...>   Money.to_string(money, positive_options)
+  ...> else
+  ...>   Money.to_string(money, negative_options)
+  ...> end
 ```
 
 # Changelog for Cldr v3.4.3
