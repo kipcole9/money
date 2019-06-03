@@ -16,7 +16,7 @@ iex> Money.to_string(money, options)
 
 The `0` in `validate_options` is used to determine the sign of the amount because that can influence formatting - for example the accounting format often uses `(1234)` as its format.  If you know your amounts are always positive, just use `0`.
 
-If the use case may have both positive and negative amounts, generate two option sets (one with the positive number and one with the negative).  The use the appropriate option set.  For example:
+If the use case may have both positive and negative amounts, generate two option sets (one with the positive number and one with the negative).  Then use the appropriate option set.  For example:
 
 ```elixir
 money = Money.new(:USD, 1234)
