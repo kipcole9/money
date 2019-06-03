@@ -34,9 +34,9 @@ If the use case may have both positive and negative amounts, generate two option
   {:ok, negative_options} = Cldr.Number.Format.Options.validate_options(-1, backend, options)
 
   if Money.cmp(money, Money.zero(:USD)) == :gt do
-    Money.to_string(money, options_with_positive_format)
+    Money.to_string(money, positive_options)
   else
-    Money.to_string(money, options_with_negative_format)
+    Money.to_string(money, negative_options)
   end
 ```
 
