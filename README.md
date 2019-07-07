@@ -34,7 +34,7 @@ How is this opinion expressed?
 
 ## Prerequisities
 
-* `Money` is supported on Elixir 1.5 and later only
+* `Money` is supported on Elixir 1.6 and later only
 
 ## Exchange rates and currency conversion
 
