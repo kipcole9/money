@@ -1,3 +1,11 @@
+# Changelog for Cldr v4.0.0
+
+This is the changelog for Cldr v4.0.0 released on July 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+
+### Breaking Changes
+
+* FUnctions related to the serialization of money types has been extracted to its own library, [ex_money_sql](https://hex.pm/packages/ex_money_sql).  For applications using the dependency `ex_money` that *do not* require serialization no changes are required.  For applications using serialization, the dependency should be changed to `ex_money_sql` (which in turn depends on `ex_money`.
+
 # Changelog for Cldr v3.4.4
 
 This is the changelog for Cldr v3.4.4 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)

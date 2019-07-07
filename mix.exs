@@ -1,13 +1,13 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "3.4.4"
+  @version "4.0.0"
 
   def project do
     [
       app: :ex_money,
       version: @version,
-      elixir: "~> 1.5",
+      elixir: "~> 1.6",
       name: "Money",
       source_url: "https://github.com/kipcole9/money",
       docs: docs(),
@@ -28,7 +28,7 @@ defmodule Money.Mixfile do
   end
 
   defp description do
-    "Money functions for the serialization of and operations on a money data type."
+    "Money functions for operations on and localization of a money data type."
   end
 
   defp package do
@@ -43,13 +43,11 @@ defmodule Money.Mixfile do
       },
       files: [
         "lib",
-        "priv/SQL",
         "config",
         "mix.exs",
         "README.md",
         "CHANGELOG.md",
-        "LICENSE.md",
-        "ROADMAP.md"
+        "LICENSE.md"
       ]
     ]
   end
@@ -75,8 +73,7 @@ defmodule Money.Mixfile do
   defp groups_for_modules do
     [
       "Exchange Rates": ~r/^Money.ExchangeRates.?/,
-      Subscriptions: ~r/^Money.Subscription.?/,
-      Ecto: ~r/^Money.Ecto.?/
+      Subscriptions: ~r/^Money.Subscription.?/
     ]
   end
 
@@ -94,7 +91,6 @@ defmodule Money.Mixfile do
       {:jason, "~> 1.0", optional: true},
       {:stream_data, "~> 0.4.1", only: [:dev, :test]},
       {:gringotts, "~>1.1", only: :test, optional: true},
-      {:ecto_sql, "~> 3.0", optional: true},
       {:benchee, "~> 1.0", optional: true, only: :dev},
       {:exprof, "~> 0.2", only: :dev, runtime: false},
       ex_doc_version(System.version())

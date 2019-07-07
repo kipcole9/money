@@ -1,1 +1,0 @@
-DROP TYPE public.money_with_currency;
