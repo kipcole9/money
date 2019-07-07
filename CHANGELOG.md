@@ -1,6 +1,6 @@
-# Changelog for Cldr v4.0.0
+# Changelog for Money v4.0.0
 
-This is the changelog for Cldr v4.0.0 released on July 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v4.0.0 released on July 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
 
 ### Breaking Changes
 
@@ -8,9 +8,9 @@ This is the changelog for Cldr v4.0.0 released on July 8th, 2019.  For older cha
 
 * Supports Elixir 1.6 and later only
 
-# Changelog for Cldr v3.4.4
+# Changelog for Money v3.4.4
 
-This is the changelog for Cldr v3.4.4 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.4.4 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
 
 ### Enhancements
 
@@ -50,9 +50,9 @@ If the use case may have both positive and negative amounts, generate two option
   ...> end
 ```
 
-# Changelog for Cldr v3.4.3
+# Changelog for Money v3.4.3
 
-This is the changelog for Cldr v3.4.3 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.4.3 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
 
 ### Bug Fixes
 
@@ -62,9 +62,9 @@ This is the changelog for Cldr v3.4.3 released on June 2nd, 2019.  For older cha
 
 Thanks to @rodrigues for the report and PR.
 
-# Changelog for Cldr v3.4.2
+# Changelog for Money v3.4.2
 
-This is the changelog for Cldr v3.4.2 released on April 16th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.4.2 released on April 16th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
 
 ### Bug Fixes
 
@@ -76,33 +76,33 @@ This is the changelog for Cldr v3.4.2 released on April 16th, 2019.  For older c
 
 * Improves the documentation for `Money.to_string/2`.
 
-# Changelog for Cldr v3.4.1
+# Changelog for Money v3.4.1
 
-This is the changelog for Cldr v3.4.1 released on April 5th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.4.1 released on April 5th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
 
 ### Bug Fixes
 
 * Fix `README.md` markdown formatting error.  Thanks to @fireproofsocks for the report and @lostkobrakai for the fix.  Closes #99.
 
-# Changelog for Cldr v3.4.0
+# Changelog for Money v3.4.0
 
-This is the changelog for Cldr v3.4.0 released on March 28th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.4.0 released on March 28th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
 
 ### Enhancements
 
 * Updates to [CLDR version 35.0.0](http://cldr.unicode.org/index/downloads/cldr-35) released on March 27th 2019 through `ex_cldr` version 2.6.0.
 
-# Changelog for Cldr v3.3.1
+# Changelog for Money v3.3.1
 
-This is the changelog for Cldr v3.3.1 released on March 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.3.1 released on March 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
 
 ### Bug Fixes
 
 * Fix or silence dialyzer warnings
 
-# Changelog for Cldr v3.3.0
+# Changelog for Money v3.3.0
 
-This is the changelog for Cldr v3.3.0 released on February 24th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.3.0 released on February 24th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
 
 ### Enhancements
 
