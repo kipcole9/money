@@ -7,7 +7,7 @@ defmodule Money.Mixfile do
     [
       app: :ex_money,
       version: @version,
-      elixir: "~> 1.6",
+      elixir: "~> 1.5",
       name: "Money",
       source_url: "https://github.com/kipcole9/money",
       docs: docs(),
