@@ -6,7 +6,7 @@ This is the changelog for Cldr v4.0.0 released on July 8th, 2019.  For older cha
 
 * Functions related to the serialization of money types has been extracted to its own library, [ex_money_sql](https://hex.pm/packages/ex_money_sql).  For applications using the dependency `ex_money` that *do not* require serialization no changes are required.  For applications using serialization, the dependency should be changed to `ex_money_sql` (which in turn depends on `ex_money`.
 
-* Requires Elixir 1.6 and later only
+* Supports Elixir 1.6 and later only
 
 # Changelog for Cldr v3.4.4
 
