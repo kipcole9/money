@@ -34,7 +34,7 @@ defmodule Money do
 
   """
 
-  import Kernel, except: [round: 1]
+  import Kernel, except: [round: 1, abs: 1]
 
   @typedoc """
   Money is composed of an atom representation of an ISO4217 currency code and
@@ -696,6 +696,31 @@ defmodule Money do
   @spec to_decimal(money :: Money.t()) :: Decimal.t()
   def to_decimal(%Money{amount: amount}) do
     amount
+  end
+
+  @doc """
+  The absolute value of a `Money` amount.
+  Returns a `Money` type with a positive sign for the amount.
+
+  ## Options
+
+  * `money` is any valid `Money.t` type returned
+    by `Money.new/2`
+
+  ## Returns
+
+  * a `Money.t`
+
+  ## Example
+
+      iex> m = Money.new("USD", -100)
+      iex> Money.abs(m)
+      #Money<:USD, 100>
+
+  """
+  @spec abs(money :: Money.t()) :: Money.t()
+  def abs(%Money{currency: currency, amount: amount}) do
+    %Money{currency: currency, amount: Decimal.abs(amount)}
   end
 
   @doc """
@@ -1693,7 +1718,7 @@ defmodule Money do
     {:ok, currency} = Currency.currency_for_code(money.currency)
     digits = digits_from_opts(currency, opts[:currency_digits])
     exponent = -digits
-    exponent_adjustment = abs(exponent - new_money.amount.exp)
+    exponent_adjustment = Kernel.abs(exponent - new_money.amount.exp)
     integer = Cldr.Math.power_of_10(exponent_adjustment) * new_money.amount.coef
 
     {money.currency, integer, exponent, remainder}
@@ -1744,7 +1769,7 @@ defmodule Money do
       digits = if digits == 0, do: 0, else: -digits
 
       sign
-      |> Decimal.new(abs(amount), digits)
+      |> Decimal.new(Kernel.abs(amount), digits)
       |> Money.new(currency)
     end
   end

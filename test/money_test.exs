@@ -193,6 +193,14 @@ defmodule MoneyTest do
     end
   end
 
+  test "abs value of a negative value returns positive value" do
+    assert Money.abs(Money.new(:USD, -100)) == Money.new(:USD, 100)
+  end
+
+  test "abs value of a positive value returns positive value" do
+    assert Money.abs(Money.new(:USD, 100)) == Money.new(:USD, 100)
+  end
+
   test "adding two money structs with same currency" do
     assert Money.add!(Money.new(:USD, 100), Money.new(:USD, 100)) == Money.new(:USD, 200)
   end
