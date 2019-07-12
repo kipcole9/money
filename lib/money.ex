@@ -677,7 +677,7 @@ defmodule Money do
   @doc """
   Returns the amount part of a `Money` type as a `Decimal`
 
-  ## Options
+  ## Arguments
 
   * `money` is any valid `Money.t` type returned
     by `Money.new/2`
@@ -702,7 +702,7 @@ defmodule Money do
   The absolute value of a `Money` amount.
   Returns a `Money` type with a positive sign for the amount.
 
-  ## Options
+  ## Arguments
 
   * `money` is any valid `Money.t` type returned
     by `Money.new/2`
@@ -726,7 +726,7 @@ defmodule Money do
   @doc """
   Add two `Money` values.
 
-  ## Options
+  ## Arguments
 
   * `money_1` and `money_2` are any valid `Money.t` types returned
     by `Money.new/2`
@@ -770,7 +770,7 @@ defmodule Money do
   @doc """
   Add two `Money` values and raise on error.
 
-  ## Options
+  ## Arguments
 
   * `money_1` and `money_2` are any valid `Money.t` types returned
     by `Money.new/2`
@@ -839,7 +839,7 @@ defmodule Money do
 
   Returns either `{:ok, money}` or `{:error, reason}`.
 
-  ## Options
+  ## Arguments
 
   * `money_1` and `money_2` are any valid `Money.t` types returned
     by `Money.new/2`
@@ -871,7 +871,7 @@ defmodule Money do
   @doc """
   Multiply a `Money` value by a number.
 
-  ## Options
+  ## Arguments
 
   * `money` is any valid `Money.t` type returned
     by `Money.new/2`
@@ -916,7 +916,7 @@ defmodule Money do
   @doc """
   Multiply a `Money` value by a number and raise on error.
 
-  ## Options
+  ## Arguments
 
   * `money` is any valid `Money.t` types returned
     by `Money.new/2`
@@ -949,7 +949,7 @@ defmodule Money do
   @doc """
   Divide a `Money` value by a number.
 
-  ## Options
+  ## Arguments
 
   * `money` is any valid `Money.t` types returned
     by `Money.new/2`
@@ -994,7 +994,7 @@ defmodule Money do
   @doc """
   Divide a `Money` value by a number and raise on error.
 
-  ## Options
+  ## Arguments
 
   * `money` is any valid `Money.t` types returned
     by `Money.new/2`
@@ -1026,7 +1026,7 @@ defmodule Money do
   @doc """
   Returns a boolean indicating if two `Money` values are equal
 
-  ## Options
+  ## Arguments
 
   * `money_1` and `money_2` are any valid `Money.t` types returned
     by `Money.new/2`
@@ -1061,7 +1061,7 @@ defmodule Money do
   than the second :gt is returned, if less than :lt is returned, if both
   numbers are equal :eq is returned.
 
-  ## Options
+  ## Arguments
 
   * `money_1` and `money_2` are any valid `Money.t` types returned
     by `Money.new/2`
@@ -1108,7 +1108,7 @@ defmodule Money do
   @doc """
   Compares two `Money` values numerically and raises on error.
 
-  ## Options
+  ## Arguments
 
   * `money_1` and `money_2` are any valid `Money.t` types returned
     by `Money.new/2`
@@ -1137,7 +1137,7 @@ defmodule Money do
   than the second #Integer<1> is returned, if less than Integer<-1> is
   returned. Otherwise, if both numbers are equal Integer<0> is returned.
 
-  ## Options
+  ## Arguments
 
   * `money_1` and `money_2` are any valid `Money.t` types returned
     by `Money.new/2`
@@ -1186,7 +1186,7 @@ defmodule Money do
   @doc """
   Compares two `Money` values numerically and raises on error.
 
-  ## Options
+  ## Arguments
 
   * `money_1` and `money_2` are any valid `Money.t` types returned
     by `Money.new/2`
@@ -1215,7 +1215,7 @@ defmodule Money do
   precision and rounding and ensuring that the parts sum to the original
   amount.
 
-  ## Options
+  ## Arguments
 
   * `money` is a `%Money{}` struct
 

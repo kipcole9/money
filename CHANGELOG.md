@@ -1,3 +1,13 @@
+# Changelog for Money v4.1.0
+
+This is the changelog for Money v4.1.0 released on July 13th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+
+### Enhancements
+
+* Adds `Money.abs/1`. Thanks to @jeremyjh.
+
+* Improve `@doc` consistency using `## Arguments` not `## Options`.
+
 # Changelog for Money v4.0.0
 
 This is the changelog for Money v4.0.0 released on July 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
