@@ -507,4 +507,25 @@ defmodule MoneyTest do
              Money.new("0.0020", :USD) == {:ok, "{\"currency\":\"USD\",\"amount\":\"0.0020\"}"}
            )
   end
+  
+  test "an exception is raised if no default backend" do
+    backend = Application.get_env(:ex_money, :default_cldr_backend)
+    Application.put_env(:ex_money, :default_cldr_backend, nil)
+    assert_raise Cldr.NoDefaultBackendError, fn ->
+      Cldr.default_backend()
+    end
+    Application.put_env(:ex_money, :default_cldr_backend, backend)
+  end
+  
+  test "that cldr default backend is used if there is no money default backend" do
+    money_backend = Application.get_env(:ex_money, :default_cldr_backend)
+    cldr_backend = Application.get_env(:ex_cldr, :default_backend)
+    Application.put_env(:ex_money, :default_cldr_backend, nil)
+    Application.put_env(:ex_cldr, :default_backend, Test.Cldr)
+    
+    assert Money.default_backend() == Test.Cldr
+
+    Application.put_env(:ex_money, :default_cldr_backend, money_backend)
+    Application.put_env(:ex_cldr, :default_backend, cldr_backend)
+  end
 end

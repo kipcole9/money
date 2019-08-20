@@ -1921,7 +1921,13 @@ defmodule Money do
 
   @doc false
   def default_backend() do
-    Application.get_env(@app_name, :default_cldr_backend) ||
-      raise "A default backend must be configured"
+    cldr_default_backend = Application.get_env(Cldr.Config.app_name(), :default_backend)
+    Application.get_env(@app_name, :default_cldr_backend) || cldr_default_backend ||
+      raise """
+        A default backend must be configured in config.exs as either:
+          config ex_cldr, default_backend: MyApp.Cldr
+        or
+          config ex_money, default_cldr_backend: MyApp.Cldr
+      """
   end
 end

@@ -1,3 +1,15 @@
+# Changelog for Money v4.2.0
+
+This is the changelog for Money v4.2.0 released on 19 August, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+
+### Bug Fixes
+
+* Move the `Money.Migration` module to [ex_money_ecto](https://hex.pm/packages/ex_money_sql) where it belongs
+
+### Enhancements
+
+* `Money.default_backend/0` will now either use the backend configured under the `:default_cldr_backend` key of `ex_money` or `Cldr.default_locale/0`. In either case an exeption will be raised if no default backend is configured.
+
 # Changelog for Money v4.1.0
 
 This is the changelog for Money v4.1.0 released on July 13th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)

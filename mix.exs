@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "4.1.0"
+  @version "4.2.0"
 
   def project do
     [
@@ -21,7 +21,7 @@ defmodule Money.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env()),
       dialyzer: [
         ignore_warnings: ".dialyzer_ignore_warnings",
-        plt_add_apps: ~w(inets jason mix phoenix_html ecto ecto_sql)a
+        plt_add_apps: ~w(inets jason mix phoenix_html)a
       ],
       compilers: Mix.compilers()
     ]
