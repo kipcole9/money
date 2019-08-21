@@ -2,7 +2,7 @@ defmodule Money.Financial do
   @moduledoc """
   A set of financial functions, primarily related to discounted cash flows.
 
-  Some of the algorithms are from http://www.financeformulas.net
+  Some of the algorithms are from [finance formulas](http://www.financeformulas.net)
   """
   alias Cldr.Math
 
