@@ -10,6 +10,12 @@ defmodule MoneyTest.Parse do
       assert Money.parse("USD 100.00") == Money.new(:USD, "100.00")
     end
 
+    test "parses with a single digit amount" do
+      assert Money.parse("USD 1") == Money.new(:USD, 1)
+      assert Money.parse("USD1") == Money.new(:USD, 1)
+      assert Money.parse("USD9") == Money.new(:USD, 9)
+    end
+
     test "parses with currency code out back" do
       assert Money.parse("100 USD") == Money.new(:USD, 100)
       assert Money.parse("100USD") == Money.new(:USD, 100)

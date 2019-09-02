@@ -1,3 +1,11 @@
+# Changelog for Money v4.2.1
+
+This is the changelog for Money v4.2.1 released on September 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+
+### Bug Fixes
+
+* Fixes parsing of money amount that have a single digit amount. Closes #107.  Thanks to @njwest
+
 # Changelog for Money v4.2.0
 
 This is the changelog for Money v4.2.0 released on 21 August, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)

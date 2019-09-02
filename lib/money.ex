@@ -374,7 +374,7 @@ defmodule Money do
   @grouping_chars ",،٫、︐︑﹐﹑，､"
   @decimal_chars ".․。︒﹒．｡"
   @currency "[^0-9#{@grouping_chars}#{@decimal_chars}]+"
-  @amount "[0-9][0-9#{@grouping_chars}#{@decimal_chars}]+"
+  @amount "[0-9][0-9#{@grouping_chars}#{@decimal_chars}]*"
   @regex Regex.compile!("^(?<cb>#{@currency})?(?<amount>#{@amount})?(?<ca>#{@currency})?$", "u")
 
   @doc false
