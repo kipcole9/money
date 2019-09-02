@@ -16,7 +16,7 @@ This is the changelog for Money v4.2.0 released on 21 August, 2019.  For older c
 
 ### Enhancements
 
-* `Money.default_backend/0` will now either use the backend configured under the `:default_cldr_backend` key of `ex_money` or `Cldr.default_locale/0`. In either case an exeption will be raised if no default backend is configured.
+* `Money.default_backend/0` will now either use the backend configured under the `:default_cldr_backend` key of `ex_money` or `Cldr.default_backend/0`. In either case an exeption will be raised if no default backend is configured.
 
 # Changelog for Money v4.1.0
 
