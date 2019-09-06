@@ -404,7 +404,7 @@ defmodule Money do
   ## Options
 
   * `backend` is any module() that includes `use Cldr` and therefore
-    is a `Cldr` backend module(). THe default is `Money.default_backend()`
+    is a `Cldr` backend module(). The default is `Money.default_backend()`
 
   * `locale_name` is any valid locale name returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
@@ -528,7 +528,7 @@ defmodule Money do
   end
 
   defp maybe_create_money(currency, amount, options) do
-    backend = Keyword.get(options, :backend, Money.default_backend)
+    backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
     locale = Keyword.get(options, :locale, backend.get_locale)
     {currency_filter, options} = Keyword.pop(options, :currency_filter, :all)
     {fuzzy, options} = Keyword.pop(options, :fuzzy, nil)
@@ -1913,8 +1913,8 @@ defmodule Money do
     end
   end
 
-  @app_name Money.Mixfile.project() |> Keyword.get(:app)
   @doc false
+  @app_name Money.Mixfile.project() |> Keyword.get(:app)
   def app_name do
     @app_name
   end

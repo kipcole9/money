@@ -1,3 +1,11 @@
+# Changelog for Money v4.2.2
+
+This is the changelog for Money v4.2.2 released on September 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+
+### Bug Fixes
+
+* Use `Keyword.get_lazy` when the default is `Cldr.default_backend/0` to avoid exceptions when no default backend is configured. Thanks to @Lostkobrakai. Closes #108.
+
 # Changelog for Money v4.2.1
 
 This is the changelog for Money v4.2.1 released on September 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
