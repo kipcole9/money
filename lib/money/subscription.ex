@@ -282,7 +282,7 @@ defmodule Money.Subscription do
   # Because we walk the list from most recent to oldest, the first
   # plan that has a start date less than or equal to the current
   # date is the one we want
-  @spec current_plan?({Change.t(), Plan.t()}, Keyword.t) :: boolean
+  @spec current_plan?({Change.t(), Plan.t()}, Keyword.t()) :: boolean
 
   defp current_plan?({%Change{first_interval_starts: start_date}, _}, options) do
     today = Keyword.get(options, :today, Date.utc_today())
@@ -998,5 +998,4 @@ defmodule Money.Subscription do
       _ -> -1
     end
   end
-
 end

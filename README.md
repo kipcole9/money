@@ -115,7 +115,10 @@ In most cases this is not required since the presence of `Jason` (or `Poison`) i
 To use `Cldr` and therefore `Money`, a backend module must be defined.  This module will host the `Cldr` data and public API used by `Money`.  A simple example would be:
 ```
 defmodule MyApp.Cldr do
-  use Cldr, locales: ["en", "fr", "zh"], default_locale: "en"
+  use Cldr,
+    locales: ["en", "fr", "zh"],
+    default_locale: "en",
+    providers: [Cldr.Number, Money]
 end
 ```
 

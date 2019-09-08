@@ -253,29 +253,31 @@ defmodule Money do
         (ex_money) lib/money.ex:177: Money.new!/2
 
   """
-  @spec new!(amount | currency_code, amount | currency_code) :: Money.t() | no_return()
+  @spec new!(amount | currency_code, amount | currency_code, Keyword.t()) :: Money.t() | no_return()
 
-  def new!(currency_code, amount)
+  def new!(currency_code, amount, options \\ [])
+
+  def new!(currency_code, amount, options)
       when is_binary(currency_code) or is_atom(currency_code) do
-    case money = new(currency_code, amount) do
+    case money = new(currency_code, amount, options) do
       {:error, {exception, message}} -> raise exception, message
       _ -> money
     end
   end
 
-  def new!(amount, currency_code)
+  def new!(amount, currency_code, options)
       when (is_binary(currency_code) or is_atom(currency_code)) and is_number(amount) do
-    new!(currency_code, amount)
+    new!(currency_code, amount, options)
   end
 
-  def new!(%Decimal{} = amount, currency_code)
+  def new!(%Decimal{} = amount, currency_code, options)
       when is_binary(currency_code) or is_atom(currency_code) do
-    new!(currency_code, amount)
+    new!(currency_code, amount, options)
   end
 
-  def new!(currency_code, %Decimal{} = amount)
+  def new!(currency_code, %Decimal{} = amount, options)
       when is_binary(currency_code) or is_atom(currency_code) do
-    new!(currency_code, amount)
+    new!(currency_code, amount, options)
   end
 
   @doc """
@@ -500,8 +502,9 @@ defmodule Money do
     value =
       map
       |> Map.get(key)
-      |> String.trim
-      |> String.downcase
+      |> String.trim()
+      |> String.downcase()
+
     Map.put(map, key, value)
   end
 
@@ -539,7 +542,8 @@ defmodule Money do
     {fuzzy, options} = Keyword.pop(options, :fuzzy, nil)
     amount = String.trim(amount)
 
-    with {:ok, currency_strings} <- Cldr.Currency.currency_strings(locale, backend, currency_filter),
+    with {:ok, currency_strings} <-
+           Cldr.Currency.currency_strings(locale, backend, currency_filter),
          {:ok, currency} <- find_currency(currency_strings, currency, fuzzy) do
       Money.new(currency, amount, options)
     end
@@ -550,8 +554,7 @@ defmodule Money do
   end
 
   defp find_currency(currency_strings, currency, fuzzy)
-        when is_float(fuzzy) and fuzzy > 0.0 and fuzzy <= 1.0 do
-
+       when is_float(fuzzy) and fuzzy > 0.0 and fuzzy <= 1.0 do
     {distance, currency_code} =
       currency_strings
       |> Enum.map(fn {k, v} -> {String.jaro_distance(k, currency), v} end)
@@ -566,10 +569,11 @@ defmodule Money do
   end
 
   defp find_currency(_currency_strings, _currency, fuzzy) do
-    {:error, {
-      ArgumentError,
-      "option :fuzzy must be a number > 0.0 and <= 1.0. Found #{inspect fuzzy}"
-    }}
+    {:error,
+     {
+       ArgumentError,
+       "option :fuzzy must be a number > 0.0 and <= 1.0. Found #{inspect(fuzzy)}"
+     }}
   end
 
   @doc """
@@ -615,7 +619,8 @@ defmodule Money do
       {:ok, "1,234 US dollars"}
 
   """
-  @spec to_string(Money.t(), Keyword.t() | Cldr.Number.Format.Options.t) :: {:ok, String.t()} | {:error, {atom, String.t()}}
+  @spec to_string(Money.t(), Keyword.t() | Cldr.Number.Format.Options.t()) ::
+          {:ok, String.t()} | {:error, {atom, String.t()}}
 
   def to_string(money, options \\ [])
 
@@ -628,7 +633,7 @@ defmodule Money do
 
   def to_string(%Money{} = money, %Cldr.Number.Format.Options{} = options) do
     options = Map.put(options, :currency, money.currency)
-    backend = Map.get(options, :backend, Money.default_backend)
+    backend = Map.get(options, :backend, Money.default_backend())
     Cldr.Number.to_string(money.amount, backend, options)
   end
 
@@ -1390,7 +1395,6 @@ defmodule Money do
     currency.rounding
   end
 
-
   @doc """
   Set the fractional part of a `Money`.
 
@@ -1430,6 +1434,7 @@ defmodule Money do
     with {:ok, currency} <- Currency.currency_for_code(code) do
       digits = currency.digits
       diff = Decimal.from_float((100 - upto) * :math.pow(10, -digits))
+
       if Decimal.cmp(diff, @one) in [:lt, :eq] && Decimal.cmp(@zero, diff) in [:lt, :eq] do
         new_amount =
           Decimal.round(amount, 0)
@@ -1438,8 +1443,9 @@ defmodule Money do
 
         Money.new(code, new_amount)
       else
-        {:error, {Money.InvalidAmountError,
-          "Rounding up to #{inspect upto} is invalid for currency #{inspect code}"}}
+        {:error,
+         {Money.InvalidAmountError,
+          "Rounding up to #{inspect(upto)} is invalid for currency #{inspect(code)}"}}
       end
     end
   end
@@ -1927,6 +1933,7 @@ defmodule Money do
   @doc false
   def default_backend() do
     cldr_default_backend = Application.get_env(Cldr.Config.app_name(), :default_backend)
+
     Application.get_env(@app_name, :default_cldr_backend) || cldr_default_backend ||
       raise """
         A default backend must be configured in config.exs as either:

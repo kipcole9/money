@@ -1,3 +1,15 @@
+# Changelog for Money v4.3.0
+
+This is the changelog for Money v4.3.0 released on September 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+
+### Enhancements
+
+* Adds a `Money` backend in the same spirit as other libraries that leverge [ex_cldr](https://hex,pm/packages/ex_cldr). Thanks to @Lostkobrakai. Closes #108. All of the functions in the `Money` module may also be called on a backend module `<backend>.Money.fun` without having to specify a backend module since this is implicit.
+
+### Bug Fixes
+
+* `Money.new!/3` replaces `Money.new!/2` to accept options. Thanks to @Lostkobrakai. Closes #109.
+
 # Changelog for Money v4.2.2
 
 This is the changelog for Money v4.2.2 released on September 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)

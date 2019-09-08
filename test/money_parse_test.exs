@@ -41,40 +41,35 @@ defmodule MoneyTest.Parse do
       assert Money.parse("100 Mexican silver pesos") == Money.new(:MXP, 100)
 
       assert Money.parse("100 Mexican silver pesos", currency_filter: [:current, :tender]) ==
-        {:error,
-         {Money.Invalid,
-           "Unable to create money from \"mexican silver pesos\" and \"100\""
-        }}
+               {:error,
+                {Money.Invalid, "Unable to create money from \"mexican silver pesos\" and \"100\""}}
     end
 
     test "fuzzy matching of currencies" do
       assert Money.parse("100 eurosports", fuzzy: 0.8) == Money.new(:EUR, 100)
 
       assert Money.parse("100 eurosports", fuzzy: 0.9) ==
-        {:error,
-         {Money.Invalid,
-           "Unable to create money from \"eurosports\" and \"100\""
-        }}
+               {:error, {Money.Invalid, "Unable to create money from \"eurosports\" and \"100\""}}
     end
 
     test "parsing fails" do
       assert Money.parse("100") ==
-              {:error,
+               {:error,
                 {Money.Invalid, "A currency code must be specified but was not found in \"100\""}}
 
       assert Money.parse("EUR") ==
-              {:error, {Money.Invalid, "An amount must be specified but was not found in \"EUR\""}}
+               {:error, {Money.Invalid, "An amount must be specified but was not found in \"EUR\""}}
 
       assert Money.parse("EUR 100 USD") ==
-              {:error,
+               {:error,
                 {Money.Invalid,
                  "A currency code can only be specified once. Found both \"eur\" and \"usd\"."}}
 
       assert Money.parse("EUR 100 And some bogus extra stuff") ==
-              {:error, {Money.Invalid,
-                "A currency code can only be specified once. " <>
-                "Found both \"eur\" and \"and some bogus extra stuff\"."}}
-
+               {:error,
+                {Money.Invalid,
+                 "A currency code can only be specified once. " <>
+                   "Found both \"eur\" and \"and some bogus extra stuff\"."}}
     end
   end
 end

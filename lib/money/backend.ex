@@ -11,16 +11,30 @@ defmodule Money.Backend do
         @moduledoc false
         if Cldr.Config.include_module_docs?(config.generate_docs) do
           @moduledoc """
-          Supports the CLDR Message format
+          A backend module for Money.
+
+          This module provides the same api as the Money
+          module however:
+
+          * It matches the standard behaviour of other
+          `ex_cldr` based libraries in maintaining the
+          main public API on the backend module
+
+          * It does not require the `:backend` option to
+          be provided since that is implied through the
+          use of the backend module.
+
+          All the functions in this module delegate to
+          the functions in `Money`.
 
           """
         end
 
         defdelegate validate_currency(currency_code), to: Cldr
         defdelegate known_currencies, to: Cldr
-        defdelegate known_current_currencies, to: :'Elixir.Money'
-        defdelegate known_historic_currencies, to: :'Elixir.Money'
-        defdelegate known_tender_currencies, to: :'Elixir.Money'
+        defdelegate known_current_currencies, to: :"Elixir.Money"
+        defdelegate known_historic_currencies, to: :"Elixir.Money"
+        defdelegate known_tender_currencies, to: :"Elixir.Money"
 
         @doc """
         Returns a %:'Elixir.Money'{} struct from a currency code and a currency amount or
@@ -44,31 +58,31 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.new(:USD, 100)
+            iex> #{inspect(__MODULE__)}.new(:USD, 100)
             #Money<:USD, 100>
 
-            iex> Money.new(100, :USD)
+            iex> #{inspect(__MODULE__)}.new(100, :USD)
             #Money<:USD, 100>
 
-            iex> Money.new("USD", 100)
+            iex> #{inspect(__MODULE__)}.new("USD", 100)
             #Money<:USD, 100>
 
-            iex> Money.new("thb", 500)
+            iex> #{inspect(__MODULE__)}.new("thb", 500)
             #Money<:THB, 500>
 
-            iex> Money.new("EUR", Decimal.new(100))
+            iex> #{inspect(__MODULE__)}.new("EUR", Decimal.new(100))
             #Money<:EUR, 100>
 
-            iex> Money.new(:EUR, "100.30")
+            iex> #{inspect(__MODULE__)}.new(:EUR, "100.30")
             #Money<:EUR, 100.30>
 
-            iex> Money.new(:XYZZ, 100)
+            iex> #{inspect(__MODULE__)}.new(:XYZZ, 100)
             {:error, {Money.UnknownCurrencyError, "The currency :XYZZ is invalid"}}
 
-            iex> Money.new("1.000,99", :EUR, locale: "de")
+            iex> #{inspect(__MODULE__)}.new("1.000,99", :EUR, locale: "de")
             #Money<:EUR, 1000.99>
 
-            iex> Money.new 123.445, :USD
+            iex> #{inspect(__MODULE__)}.new 123.445, :USD
             {:error,
              {Money.InvalidAmountError,
               "Float amounts are not supported in new/2 due to potenial " <>
@@ -76,11 +90,16 @@ defmodule Money.Backend do
               "use Money.from_float/2"}}
 
         """
-        @spec new(:'Elixir.Money'.amount | :'Elixir.Money'.currency_code, :'Elixir.Money'.amount | :'Elixir.Money'.currency_code) ::
-                :'Elixir.Money'.t() | {:error, {module(), String.t()}}
+        @spec new(
+                :"Elixir.Money".amount() | :"Elixir.Money".currency_code(),
+                :"Elixir.Money".amount()
+                | :"Elixir.Money".currency_code(),
+                Keyword.t()
+              ) ::
+                :"Elixir.Money".t() | {:error, {module(), String.t()}}
 
-        def new(currency_code, amount) do
-          :'Elixir.Money'.new(currency_code, amount)
+        def new(currency_code, amount, options \\ []) do
+          :"Elixir.Money".new(currency_code, amount, options)
         end
 
         @doc """
@@ -100,10 +119,16 @@ defmodule Money.Backend do
               (ex_money) lib/money.ex:177: Money.new!/2
 
         """
-        @spec new!(:'Elixir.Money'.amount | :'Elixir.Money'.currency_code, :'Elixir.Money'.amount | :'Elixir.Money'.currency_code) :: :'Elixir.Money'.t() | no_return()
+        @spec new!(
+                :"Elixir.Money".amount() | :"Elixir.Money".currency_code(),
+                :"Elixir.Money".amount()
+                | :"Elixir.Money".currency_code(),
+                Keyword.t()
+              ) ::
+                :"Elixir.Money".t() | no_return()
 
-        def new!(currency_code, amount) do
-          :'Elixir.Money'.new!(currency_code, amount)
+        def new!(currency_code, amount, options \\ []) do
+          :"Elixir.Money".new!(currency_code, amount, options)
         end
 
         @doc """
@@ -129,10 +154,10 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.from_float 1.23456, :USD
+            iex> #{inspect(__MODULE__)}.from_float 1.23456, :USD
             #Money<:USD, 1.23456>
 
-            iex> Money.from_float 1.234567890987656, :USD
+            iex> #{inspect(__MODULE__)}.from_float 1.234567890987656, :USD
             {:error,
               {Money.InvalidAmountError,
                 "The precision of the float 1.234567890987656 is " <>
@@ -141,11 +166,14 @@ defmodule Money.Backend do
 
         """
         # @doc since: "2.0.0"
-        @spec from_float(float | :'Elixir.Money'.currency_code, float | :'Elixir.Money'.currency_code) ::
-                :'Elixir.Money'.t() | {:error, {module(), String.t()}}
+        @spec from_float(
+                float | :"Elixir.Money".currency_code(),
+                float | :"Elixir.Money".currency_code()
+              ) ::
+                :"Elixir.Money".t() | {:error, {module(), String.t()}}
 
         def from_float(currency_code, amount) do
-          :'Elixir.Money'.from_float(currency_code, amount)
+          :"Elixir.Money".from_float(currency_code, amount)
         end
 
         @doc """
@@ -166,7 +194,7 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.from_float!(:USD, 1.234)
+            iex> #{inspect(__MODULE__)}.from_float!(:USD, 1.234)
             #Money<:USD, 1.234>
 
             Money.from_float!(:USD, 1.234567890987654)
@@ -175,10 +203,11 @@ defmodule Money.Backend do
 
         """
         # @doc since: "2.0.0"
-        @spec from_float!(:'Elixir.Money'.currency_code, float) :: :'Elixir.Money'.t() | no_return()
+        @spec from_float!(:"Elixir.Money".currency_code(), float) ::
+                :"Elixir.Money".t() | no_return()
 
         def from_float!(currency_code, amount) do
-          :'Elixir.Money'.from_float!(currency_code, amount)
+          :"Elixir.Money".from_float!(currency_code, amount)
         end
 
         @doc """
@@ -244,40 +273,41 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.parse("USD 100")
+            iex> #{inspect(__MODULE__)}.parse("USD 100")
             #Money<:USD, 100>
 
-            iex> Money.parse "USD 100,00", locale: "de"
+            iex> #{inspect(__MODULE__)}.parse "USD 100,00", locale: "de"
             #Money<:USD, 100.00>
 
-            iex> Money.parse("100 USD")
+            iex> #{inspect(__MODULE__)}.parse("100 USD")
             #Money<:USD, 100>
 
-            iex> Money.parse("100 eurosports", fuzzy: 0.8)
+            iex> #{inspect(__MODULE__)}.parse("100 eurosports", fuzzy: 0.8)
             #Money<:EUR, 100>
 
-            iex> Money.parse("100 eurosports", fuzzy: 0.9)
+            iex> #{inspect(__MODULE__)}.parse("100 eurosports", fuzzy: 0.9)
             {:error,
              {Money.Invalid, "Unable to create money from \\"eurosports\\" and \\"100\\""}}
 
-            iex> Money.parse("100 afghan afghanis")
+            iex> #{inspect(__MODULE__)}.parse("100 afghan afghanis")
             #Money<:AFN, 100>
 
-            iex> Money.parse("100")
+            iex> #{inspect(__MODULE__)}.parse("100")
             {:error,
              {Money.Invalid,
               "A currency code must be specified but was not found in \\"100\\""}}
 
-            iex> Money.parse("USD 100 with trailing text")
+            iex> #{inspect(__MODULE__)}.parse("USD 100 with trailing text")
             {:error,
               {Money.Invalid, "A currency code can only be specified once. " <>
                 "Found both \\"usd\\" and \\"with trailing text\\"."}}
 
         """
         # @doc since: "3.2.0"
-        @spec parse(String.t(), Keyword.t()) :: :'Elixir.Money'.t() | {:error, {module(), String.t()}}
+        @spec parse(String.t(), Keyword.t()) ::
+                :"Elixir.Money".t() | {:error, {module(), String.t()}}
         def parse(string, options \\ []) do
-          :'Elixir.Money'.parse(string, options)
+          :"Elixir.Money".parse(string, options)
         end
 
         @doc """
@@ -310,27 +340,26 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.to_string Money.new(:USD, 1234)
+            iex> #{inspect(__MODULE__)}.to_string Money.new(:USD, 1234)
             {:ok, "$1,234.00"}
 
-            iex> Money.to_string Money.new(:JPY, 1234)
+            iex> #{inspect(__MODULE__)}.to_string Money.new(:JPY, 1234)
             {:ok, "¥1,234"}
 
-            iex> Money.to_string Money.new(:THB, 1234)
+            iex> #{inspect(__MODULE__)}.to_string Money.new(:THB, 1234)
             {:ok, "THB 1,234.00"}
 
-            iex> Money.to_string Money.new(:USD, 1234), format: :long
+            iex> #{inspect(__MODULE__)}.to_string Money.new(:USD, 1234), format: :long
             {:ok, "1,234 US dollars"}
 
         """
-        @spec to_string(:'Elixir.Money'.t(), Keyword.t() | Cldr.Number.Format.Options.t) ::
-          {:ok, String.t()} | {:error, {atom, String.t()}}
+        @spec to_string(:"Elixir.Money".t(), Keyword.t() | Cldr.Number.Format.Options.t()) ::
+                {:ok, String.t()} | {:error, {atom, String.t()}}
 
         def to_string(money, options \\ []) do
           options = Keyword.put(options, :backend, unquote(backend))
-          :'Elixir.Money'.to_string(money, options)
+          :"Elixir.Money".to_string(money, options)
         end
-
 
         @doc """
         Returns a formatted string representation of a `Money.t` or raises if
@@ -357,24 +386,24 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.to_string! Money.new(:USD, 1234)
+            iex> #{inspect(__MODULE__)}.to_string! Money.new(:USD, 1234)
             "$1,234.00"
 
-            iex> Money.to_string! Money.new(:JPY, 1234)
+            iex> #{inspect(__MODULE__)}.to_string! Money.new(:JPY, 1234)
             "¥1,234"
 
-            iex> Money.to_string! Money.new(:THB, 1234)
+            iex> #{inspect(__MODULE__)}.to_string! Money.new(:THB, 1234)
             "THB 1,234.00"
 
-            iex> Money.to_string! Money.new(:USD, 1234), format: :long
+            iex> #{inspect(__MODULE__)}.to_string! Money.new(:USD, 1234), format: :long
             "1,234 US dollars"
 
         """
-        @spec to_string!(:'Elixir.Money'.t(), Keyword.t()) :: String.t() | no_return()
+        @spec to_string!(:"Elixir.Money".t(), Keyword.t()) :: String.t() | no_return()
 
-        def to_string!(%:'Elixir.Money'{} = money, options \\ []) do
+        def to_string!(%:"Elixir.Money"{} = money, options \\ []) do
           options = Keyword.put(options, :backend, unquote(backend))
-          :'Elixir.Money'.to_string!(money, options)
+          :"Elixir.Money".to_string!(money, options)
         end
 
         @doc """
@@ -391,14 +420,14 @@ defmodule Money.Backend do
 
         ## Example
 
-            iex> m = Money.new("USD", 100)
-            iex> Money.to_decimal(m)
+            iex> m = #{inspect(__MODULE__)}.new("USD", 100)
+            iex> #{inspect(__MODULE__)}.to_decimal(m)
             #Decimal<100>
 
         """
-        @spec to_decimal(money :: :'Elixir.Money'.t()) :: Decimal.t()
-        def to_decimal(%:'Elixir.Money'{} = money) do
-          :'Elixir.Money'.to_decimal(money)
+        @spec to_decimal(money :: :"Elixir.Money".t()) :: Decimal.t()
+        def to_decimal(%:"Elixir.Money"{} = money) do
+          :"Elixir.Money".to_decimal(money)
         end
 
         @doc """
@@ -416,14 +445,14 @@ defmodule Money.Backend do
 
         ## Example
 
-            iex> m = Money.new("USD", -100)
-            iex> Money.abs(m)
+            iex> m = #{inspect(__MODULE__)}.new("USD", -100)
+            iex> #{inspect(__MODULE__)}.abs(m)
             #Money<:USD, 100>
 
         """
-        @spec abs(money :: :'Elixir.Money'.t()) :: :'Elixir.Money'.t()
-        def abs(%:'Elixir.Money'{} = money) do
-          :'Elixir.Money'.abs(money)
+        @spec abs(money :: :"Elixir.Money".t()) :: :"Elixir.Money".t()
+        def abs(%:"Elixir.Money"{} = money) do
+          :"Elixir.Money".abs(money)
         end
 
         @doc """
@@ -442,18 +471,18 @@ defmodule Money.Backend do
 
         ## Example
 
-            iex> Money.add Money.new(:USD, 200), Money.new(:USD, 100)
+            iex> #{inspect(__MODULE__)}.add Money.new(:USD, 200), Money.new(:USD, 100)
             {:ok, Money.new(:USD, 300)}
 
-            iex> Money.add Money.new(:USD, 200), Money.new(:AUD, 100)
+            iex> #{inspect(__MODULE__)}.add Money.new(:USD, 200), Money.new(:AUD, 100)
             {:error, {ArgumentError, "Cannot add monies with different currencies. " <>
               "Received :USD and :AUD."}}
 
         """
-        @spec add(money_1 :: :'Elixir.Money'.t(), money_2 :: :'Elixir.Money'.t()) ::
-                {:ok, :'Elixir.Money'.t()} | {:error, {module(), String.t()}}
-        def add(%:'Elixir.Money'{} = money_1, %:'Elixir.Money'{} = money_2) do
-          :'Elixir.Money'.add(money_1, money_2)
+        @spec add(money_1 :: :"Elixir.Money".t(), money_2 :: :"Elixir.Money".t()) ::
+                {:ok, :"Elixir.Money".t()} | {:error, {module(), String.t()}}
+        def add(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+          :"Elixir.Money".add(money_1, money_2)
         end
 
         @doc """
@@ -472,15 +501,15 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.add! Money.new(:USD, 200), Money.new(:USD, 100)
+            iex> #{inspect(__MODULE__)}.add! Money.new(:USD, 200), Money.new(:USD, 100)
             #Money<:USD, 300>
 
-            Money.add! Money.new(:USD, 200), Money.new(:CAD, 500)
+            #{inspect(__MODULE__)}.add! Money.new(:USD, 200), Money.new(:CAD, 500)
             ** (ArgumentError) Cannot add two %:'Elixir.Money'{} with different currencies. Received :USD and :CAD.
 
         """
-        def add!(%:'Elixir.Money'{} = money_1, %:'Elixir.Money'{} = money_2) do
-          :'Elixir.Money'.add!(money_1, money_2)
+        def add!(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+          :"Elixir.Money".add!(money_1, money_2)
         end
 
         @doc """
@@ -499,17 +528,16 @@ defmodule Money.Backend do
 
         ## Example
 
-            iex> Money.sub Money.new(:USD, 200), Money.new(:USD, 100)
+            iex> #{inspect(__MODULE__)}.sub Money.new(:USD, 200), Money.new(:USD, 100)
             {:ok, Money.new(:USD, 100)}
 
         """
-        @spec sub(money_1 :: :'Elixir.Money'.t(), money_2 :: :'Elixir.Money'.t()) ::
-                {:ok, :'Elixir.Money'.t()} | {:error, {module(), String.t()}}
+        @spec sub(money_1 :: :"Elixir.Money".t(), money_2 :: :"Elixir.Money".t()) ::
+                {:ok, :"Elixir.Money".t()} | {:error, {module(), String.t()}}
 
-        def sub(%:'Elixir.Money'{} = money_1, %:'Elixir.Money'{} = money_2) do
-          :'Elixir.Money'.sub(money_1, money_2)
+        def sub(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+          :"Elixir.Money".sub(money_1, money_2)
         end
-
 
         @doc """
         Subtract one `Money` value struct from another and raise on error.
@@ -529,17 +557,18 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.sub! Money.new(:USD, 200), Money.new(:USD, 100)
+            iex> #{inspect(__MODULE__)}.sub! Money.new(:USD, 200), Money.new(:USD, 100)
             #Money<:USD, 100>
 
-            Money.sub! Money.new(:USD, 200), Money.new(:CAD, 500)
+            #{inspect(__MODULE__)}.sub! Money.new(:USD, 200), Money.new(:CAD, 500)
             ** (ArgumentError) Cannot subtract monies with different currencies. Received :USD and :CAD.
 
         """
-        @spec sub!(money_1 :: :'Elixir.Money'.t(), money_2 :: :'Elixir.Money'.t()) :: :'Elixir.Money'.t() | none()
+        @spec sub!(money_1 :: :"Elixir.Money".t(), money_2 :: :"Elixir.Money".t()) ::
+                :"Elixir.Money".t() | none()
 
-        def sub!(%:'Elixir.Money'{} = money_1, %:'Elixir.Money'{} = money_2) do
-          :'Elixir.Money'.sub!(money_1, money_2)
+        def sub!(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+          :"Elixir.Money".sub!(money_1, money_2)
         end
 
         @doc """
@@ -562,18 +591,18 @@ defmodule Money.Backend do
 
         ## Example
 
-            iex> Money.mult(Money.new(:USD, 200), 2)
+            iex> #{inspect(__MODULE__)}.mult(Money.new(:USD, 200), 2)
             {:ok, Money.new(:USD, 400)}
 
-            iex> Money.mult(Money.new(:USD, 200), "xx")
+            iex> #{inspect(__MODULE__)}.mult(Money.new(:USD, 200), "xx")
             {:error, {ArgumentError, "Cannot multiply money by \\"xx\\""}}
 
         """
-        @spec mult(:'Elixir.Money'.t(), Cldr.Math.number_or_decimal()) ::
-                {:ok, :'Elixir.Money'.t()} | {:error, {module(), String.t()}}
+        @spec mult(:"Elixir.Money".t(), Cldr.Math.number_or_decimal()) ::
+                {:ok, :"Elixir.Money".t()} | {:error, {module(), String.t()}}
 
-        def mult(%:'Elixir.Money'{} = money, number) do
-          :'Elixir.Money'.mult(money, number)
+        def mult(%:"Elixir.Money"{} = money, number) do
+          :"Elixir.Money".mult(money, number)
         end
 
         @doc """
@@ -594,16 +623,17 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.mult!(Money.new(:USD, 200), 2)
+            iex> #{inspect(__MODULE__)}.mult!(Money.new(:USD, 200), 2)
             #Money<:USD, 400>
 
-            Money.mult!(Money.new(:USD, 200), :invalid)
+            #{inspect(__MODULE__)}.mult!(Money.new(:USD, 200), :invalid)
             ** (ArgumentError) Cannot multiply money by :invalid
 
         """
-        @spec mult!(:'Elixir.Money'.t(), Cldr.Math.number_or_decimal()) :: :'Elixir.Money'.t() | none()
-        def mult!(%:'Elixir.Money'{} = money, number) do
-          :'Elixir.Money'.mult!(money, number)
+        @spec mult!(:"Elixir.Money".t(), Cldr.Math.number_or_decimal()) ::
+                :"Elixir.Money".t() | none()
+        def mult!(%:"Elixir.Money"{} = money, number) do
+          :"Elixir.Money".mult!(money, number)
         end
 
         @doc """
@@ -626,18 +656,18 @@ defmodule Money.Backend do
 
         ## Example
 
-            iex> Money.div Money.new(:USD, 200), 2
+            iex> #{inspect(__MODULE__)}.div Money.new(:USD, 200), 2
             {:ok, Money.new(:USD, 100)}
 
-            iex> Money.div(Money.new(:USD, 200), "xx")
+            iex> #{inspect(__MODULE__)}.div(Money.new(:USD, 200), "xx")
             {:error, {ArgumentError, "Cannot divide money by \\"xx\\""}}
 
         """
-        @spec div(:'Elixir.Money'.t(), Cldr.Math.number_or_decimal()) ::
-                {:ok, :'Elixir.Money'.t()} | {:error, {module(), String.t()}}
+        @spec div(:"Elixir.Money".t(), Cldr.Math.number_or_decimal()) ::
+                {:ok, :"Elixir.Money".t()} | {:error, {module(), String.t()}}
 
-        def div(%:'Elixir.Money'{} = money_1, number) do
-          :'Elixir.Money'.div(money_1, number)
+        def div(%:"Elixir.Money"{} = money_1, number) do
+          :"Elixir.Money".div(money_1, number)
         end
 
         @doc """
@@ -658,15 +688,15 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.div Money.new(:USD, 200), 2
+            iex> #{inspect(__MODULE__)}.div Money.new(:USD, 200), 2
             {:ok, Money.new(:USD, 100)}
 
-            Money.div(Money.new(:USD, 200), "xx")
+            #{inspect(__MODULE__)}.div(Money.new(:USD, 200), "xx")
             ** (ArgumentError) "Cannot divide money by \\"xx\\""]}}
 
         """
-        def div!(%:'Elixir.Money'{} = money, number) do
-          :'Elixir.Money'.div!(money, number)
+        def div!(%:"Elixir.Money"{} = money, number) do
+          :"Elixir.Money".div!(money, number)
         end
 
         @doc """
@@ -683,16 +713,16 @@ defmodule Money.Backend do
 
         ## Example
 
-            iex> Money.equal? Money.new(:USD, 200), Money.new(:USD, 200)
+            iex> #{inspect(__MODULE__)}.equal? Money.new(:USD, 200), Money.new(:USD, 200)
             true
 
-            iex> Money.equal? Money.new(:USD, 200), Money.new(:USD, 100)
+            iex> #{inspect(__MODULE__)}.equal? Money.new(:USD, 200), Money.new(:USD, 100)
             false
 
         """
-        @spec equal?(money_1 :: :'Elixir.Money'.t(), money_2 :: :'Elixir.Money'.t()) :: boolean
-        def equal?(%:'Elixir.Money'{} = money_1, %:'Elixir.Money'{} = money_2) do
-          :'Elixir.Money'.equal?(money_1, money_2)
+        @spec equal?(money_1 :: :"Elixir.Money".t(), money_2 :: :"Elixir.Money".t()) :: boolean
+        def equal?(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+          :"Elixir.Money".equal?(money_1, money_2)
         end
 
         @doc """
@@ -713,25 +743,25 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 100)
+            iex> #{inspect(__MODULE__)}.cmp Money.new(:USD, 200), Money.new(:USD, 100)
             :gt
 
-            iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 200)
+            iex> #{inspect(__MODULE__)}.cmp Money.new(:USD, 200), Money.new(:USD, 200)
             :eq
 
-            iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 500)
+            iex> #{inspect(__MODULE__)}.cmp Money.new(:USD, 200), Money.new(:USD, 500)
             :lt
 
-            iex> Money.cmp Money.new(:USD, 200), Money.new(:CAD, 500)
+            iex> #{inspect(__MODULE__)}.cmp Money.new(:USD, 200), Money.new(:CAD, 500)
             {:error,
              {ArgumentError,
               "Cannot compare monies with different currencies. Received :USD and :CAD."}}
 
         """
-        @spec cmp(money_1 :: :'Elixir.Money'.t(), money_2 :: :'Elixir.Money'.t()) ::
+        @spec cmp(money_1 :: :"Elixir.Money".t(), money_2 :: :"Elixir.Money".t()) ::
                 :gt | :eq | :lt | {:error, {module(), String.t()}}
-        def cmp(%:'Elixir.Money'{} = money_1, %:'Elixir.Money'{} = money_2) do
-          :'Elixir.Money'.cmp(money_1, money_2)
+        def cmp(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+          :"Elixir.Money".cmp(money_1, money_2)
         end
 
         @doc """
@@ -750,12 +780,12 @@ defmodule Money.Backend do
 
         ## Examples
 
-            Money.cmp! Money.new(:USD, 200), Money.new(:CAD, 500)
+            #{inspect(__MODULE__)}.cmp! Money.new(:USD, 200), Money.new(:CAD, 500)
             ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :CAD.
 
         """
-        def cmp!(%:'Elixir.Money'{} = money_1, %:'Elixir.Money'{} = money_2) do
-          :'Elixir.Money'.cmp!(money_1, money_2)
+        def cmp!(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+          :"Elixir.Money".cmp!(money_1, money_2)
         end
 
         @doc """
@@ -776,25 +806,25 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 100)
+            iex> #{inspect(__MODULE__)}.compare Money.new(:USD, 200), Money.new(:USD, 100)
             1
 
-            iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 200)
+            iex> #{inspect(__MODULE__)}.compare Money.new(:USD, 200), Money.new(:USD, 200)
             0
 
-            iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 500)
+            iex> #{inspect(__MODULE__)}.compare Money.new(:USD, 200), Money.new(:USD, 500)
             -1
 
-            iex> Money.compare Money.new(:USD, 200), Money.new(:CAD, 500)
+            iex> #{inspect(__MODULE__)}.compare Money.new(:USD, 200), Money.new(:CAD, 500)
             {:error,
              {ArgumentError,
               "Cannot compare monies with different currencies. Received :USD and :CAD."}}
 
         """
-        @spec compare(money_1 :: :'Elixir.Money'.t(), money_2 :: :'Elixir.Money'.t()) ::
+        @spec compare(money_1 :: :"Elixir.Money".t(), money_2 :: :"Elixir.Money".t()) ::
                 -1 | 0 | 1 | {:error, {module(), String.t()}}
-        def compare(%:'Elixir.Money'{} = money_1, %:'Elixir.Money'{} = money_2) do
-          :'Elixir.Money'.compare(money_1, money_2)
+        def compare(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+          :"Elixir.Money".compare(money_1, money_2)
         end
 
         @doc """
@@ -813,12 +843,12 @@ defmodule Money.Backend do
 
         ## Examples
 
-            Money.compare! Money.new(:USD, 200), Money.new(:CAD, 500)
+            #{inspect(__MODULE__)}.compare! Money.new(:USD, 200), Money.new(:CAD, 500)
             ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :CAD.
 
         """
-        def compare!(%:'Elixir.Money'{} = money_1, %:'Elixir.Money'{} = money_2) do
-          :'Elixir.Money'.compare!(money_1, money_2)
+        def compare!(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+          :"Elixir.Money".compare!(money_1, money_2)
         end
 
         @doc """
@@ -848,19 +878,20 @@ defmodule Money.Backend do
 
         ## Examples
 
-            Money.split Money.new(123.5, :JPY), 3
+            #{inspect(__MODULE__)}.split Money.new(123.5, :JPY), 3
             {¥41, ¥1}
 
-            Money.split Money.new(123.4, :JPY), 3
+            #{inspect(__MODULE__)}.split Money.new(123.4, :JPY), 3
             {¥41, ¥0}
 
-            Money.split Money.new(123.7, :USD), 9
+            #{inspect(__MODULE__)}.split Money.new(123.7, :USD), 9
             {$13.74, $0.04}
 
         """
-        @spec split(:'Elixir.Money'.t(), non_neg_integer) :: {:'Elixir.Money'.t(), :'Elixir.Money'.t()}
-        def split(%:'Elixir.Money'{} = money, parts) when is_integer(parts) do
-          :'Elixir.Money'.split(money, parts)
+        @spec split(:"Elixir.Money".t(), non_neg_integer) ::
+                {:"Elixir.Money".t(), :"Elixir.Money".t()}
+        def split(%:"Elixir.Money"{} = money, parts) when is_integer(parts) do
+          :"Elixir.Money".split(money, parts)
         end
 
         @doc """
@@ -897,22 +928,22 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.round Money.new("123.73", :CHF), currency_digits: :cash
+            iex> #{inspect(__MODULE__)}.round Money.new("123.73", :CHF), currency_digits: :cash
             #Money<:CHF, 123.75>
 
-            iex> Money.round Money.new("123.73", :CHF), currency_digits: 0
+            iex> #{inspect(__MODULE__)}.round Money.new("123.73", :CHF), currency_digits: 0
             #Money<:CHF, 124>
 
-            iex> Money.round Money.new("123.7456", :CHF)
+            iex> #{inspect(__MODULE__)}.round Money.new("123.7456", :CHF)
             #Money<:CHF, 123.75>
 
-            iex> Money.round Money.new("123.7456", :JPY)
+            iex> #{inspect(__MODULE__)}.round Money.new("123.7456", :JPY)
             #Money<:JPY, 124>
 
         """
-        @spec round(:'Elixir.Money'.t(), Keyword.t()) :: :'Elixir.Money'.t()
-        def round(%:'Elixir.Money'{} = money, options \\ []) do
-          :'Elixir.Money'.round(money, options)
+        @spec round(:"Elixir.Money".t(), Keyword.t()) :: :"Elixir.Money".t()
+        def round(%:"Elixir.Money"{} = money, options \\ []) do
+          :"Elixir.Money".round(money, options)
         end
 
         @doc """
@@ -934,20 +965,20 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.put_fraction Money.new(:USD, "2.49"), 99
+            iex> #{inspect(__MODULE__)}.put_fraction Money.new(:USD, "2.49"), 99
             #Money<:USD, 2.99>
 
-            iex> Money.put_fraction Money.new(:USD, "2.49"), 0
+            iex> #{inspect(__MODULE__)}.put_fraction Money.new(:USD, "2.49"), 0
             #Money<:USD, 2.0>
 
-            iex> Money.put_fraction Money.new(:USD, "2.49"), 999
+            iex> #{inspect(__MODULE__)}.put_fraction Money.new(:USD, "2.49"), 999
             {:error,
              {Money.InvalidAmountError, "Rounding up to 999 is invalid for currency :USD"}}
 
         """
 
-        def put_fraction(%:'Elixir.Money'{} = money, upto) when is_integer(upto) do
-          :'Elixir.Money'.put_fraction(money, upto)
+        def put_fraction(%:"Elixir.Money"{} = money, upto) when is_integer(upto) do
+          :"Elixir.Money".put_fraction(money, upto)
         end
 
         @doc """
@@ -965,27 +996,29 @@ defmodule Money.Backend do
 
         ## Examples
 
-            Money.to_currency(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)})
+            #{inspect(__MODULE__)}.to_currency(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)})
             {:ok, #Money<:AUD, 73.4500>}
 
-            Money.to_currency(Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.from_float(0.7345)})
+            #{inspect(__MODULE__)}.to_currency(Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.from_float(0.7345)})
             {:ok, #Money<:AUD, 73.4500>}
 
-            iex> Money.to_currency Money.new(:USD, 100), :AUDD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
+            iex> #{inspect(__MODULE__)}.to_currency Money.new(:USD, 100), :AUDD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
             {:error, {Cldr.UnknownCurrencyError, "The currency :AUDD is invalid"}}
 
-            iex> Money.to_currency Money.new(:USD, 100), :CHF, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
+            iex> #{inspect(__MODULE__)}.to_currency Money.new(:USD, 100), :CHF, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
             {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :CHF"}}
 
         """
         @spec to_currency(
-                :'Elixir.Money'.t(),
-                :'Elixir.Money'.currency_code(),
-                ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
-              ) :: {:ok, :'Elixir.Money'.t()} | {:error, {module(), String.t()}}
+                :"Elixir.Money".t(),
+                :"Elixir.Money".currency_code(),
+                :"Elixir.Money.ExchangeRates".t()
+                | {:ok, :"Elixir.Money.ExchangeRates".t()}
+                | {:error, {module(), String.t()}}
+              ) :: {:ok, :"Elixir.Money".t()} | {:error, {module(), String.t()}}
 
-        def to_currency(money, to_currency, rates \\ :'Elixir.Money.ExchangeRates'.latest_rates()) do
-          :'Elixir.Money'.to_currency(money, to_currency, rates)
+        def to_currency(money, to_currency, rates \\ :"Elixir.Money.ExchangeRates".latest_rates()) do
+          :"Elixir.Money".to_currency(money, to_currency, rates)
         end
 
         @doc """
@@ -1003,26 +1036,31 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.to_currency! Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
+            iex> #{inspect(__MODULE__)}.to_currency! Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
             #Money<:AUD, 73.4500>
 
-            iex> Money.to_currency! Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.from_float(0.7345)}
+            iex> #{inspect(__MODULE__)}.to_currency! Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.from_float(0.7345)}
             #Money<:AUD, 73.4500>
 
-            Money.to_currency! Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
+            #{inspect(__MODULE__)}.to_currency! Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
             ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
 
         """
         @spec to_currency!(
-                :'Elixir.Money'.t(),
-                :'Elixir.Money'.currency_code(),
-                ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
-              ) :: :'Elixir.Money'.t() | no_return
+                :"Elixir.Money".t(),
+                :"Elixir.Money".currency_code(),
+                :"Elixir.Money.ExchangeRates".t()
+                | {:ok, :"Elixir.Money.ExchangeRates".t()}
+                | {:error, {module(), String.t()}}
+              ) :: :"Elixir.Money".t() | no_return
 
-        def to_currency!(%:'Elixir.Money'{} = money, currency, rates \\ :'Elixir.Money.ExchangeRates'.latest_rates()) do
-          :'Elixir.Money'.to_currency!(money, currency, rates)
+        def to_currency!(
+              %:"Elixir.Money"{} = money,
+              currency,
+              rates \\ :"Elixir.Money.ExchangeRates".latest_rates()
+            ) do
+          :"Elixir.Money".to_currency!(money, currency, rates)
         end
-
 
         @doc """
         Returns the effective cross-rate to convert from one currency
@@ -1041,23 +1079,22 @@ defmodule Money.Backend do
 
         ## Examples
 
-            Money.cross_rate(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
+            #{inspect(__MODULE__)}.cross_rate(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
             {:ok, #Decimal<0.7345>}
 
-            Money.cross_rate Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
+            #{inspect(__MODULE__)}.cross_rate Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
             ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
 
         """
         @spec cross_rate(
-                :'Elixir.Money'.t() | :'Elixir.Money'.currency_code,
-                :'Elixir.Money'.currency_code,
-                ExchangeRates.t() | {:ok, ExchangeRates.t()}
+                :"Elixir.Money".t() | :"Elixir.Money".currency_code(),
+                :"Elixir.Money".currency_code(),
+                :"Elixir.Money.ExchangeRates".t() | {:ok, :"Elixir.Money.ExchangeRates".t()}
               ) :: {:ok, Decimal.t()} | {:error, {module(), String.t()}}
 
-        def cross_rate(from, to, rates \\ :'Elixir.Money.ExchangeRates'.latest_rates()) do
-          :'Elixir.Money'.cross_rate(from, to, rates)
+        def cross_rate(from, to, rates \\ :"Elixir.Money.ExchangeRates".latest_rates()) do
+          :"Elixir.Money".cross_rate(from, to, rates)
         end
-
 
         @doc """
         Returns the effective cross-rate to convert from one currency
@@ -1076,24 +1113,24 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.cross_rate!(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
+            iex> #{inspect(__MODULE__)}.cross_rate!(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
             #Decimal<0.7345>
 
-            iex> Money.cross_rate!(:USD, :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
+            iex> #{inspect(__MODULE__)}.cross_rate!(:USD, :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
             #Decimal<0.7345>
 
-            Money.cross_rate Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")}
+            #{inspect(__MODULE__)}.cross_rate Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")}
             ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
 
         """
         @spec cross_rate!(
-                :'Elixir.Money'.t() | :'Elixir.Money'.currency_code,
-                :'Elixir.Money'.currency_code,
-                ExchangeRates.t() | {:ok, ExchangeRates.t()}
+                :"Elixir.Money".t() | :"Elixir.Money".currency_code(),
+                :"Elixir.Money".currency_code(),
+                :"Elixir.Money.ExchangeRates".t() | {:ok, :"Elixir.Money.ExchangeRates".t()}
               ) :: Decimal.t() | no_return
 
-        def cross_rate!(from, to_currency, rates \\ :'Elixir.Money.ExchangeRates'.latest_rates()) do
-          :'Elixir.Money'.cross_rate!(from, to_currency, rates)
+        def cross_rate!(from, to_currency, rates \\ :"Elixir.Money.ExchangeRates".latest_rates()) do
+          :"Elixir.Money".cross_rate!(from, to_currency, rates)
         end
 
         @doc """
@@ -1117,9 +1154,9 @@ defmodule Money.Backend do
             true
 
         """
-        @spec reduce(:'Elixir.Money'.t()) :: :'Elixir.Money'.t()
-        def reduce(%:'Elixir.Money'{} = money) do
-          :'Elixir.Money'.reduce(money)
+        @spec reduce(:"Elixir.Money".t()) :: :"Elixir.Money".t()
+        def reduce(%:"Elixir.Money"{} = money) do
+          :"Elixir.Money".reduce(money)
         end
 
         @doc """
@@ -1146,19 +1183,19 @@ defmodule Money.Backend do
 
         ## Example
 
-            iex> m = Money.new(:USD, "200.012356")
+            iex> m = #{inspect(__MODULE__)}.new(:USD, "200.012356")
             #Money<:USD, 200.012356>
-            iex> Money.to_integer_exp(m)
+            iex> #{inspect(__MODULE__)}.to_integer_exp(m)
             {:USD, 20001, -2, Money.new(:USD, "0.002356")}
 
-            iex> m = Money.new(:USD, "200.00")
+            iex> m = #{inspect(__MODULE__)}.new(:USD, "200.00")
             #Money<:USD, 200.00>
-            iex> Money.to_integer_exp(m)
+            iex> #{inspect(__MODULE__)}.to_integer_exp(m)
             {:USD, 20000, -2, Money.new(:USD, "0.00")}
 
         """
-        def to_integer_exp(%:'Elixir.Money'{} = money) do
-          :'Elixir.Money'.to_integer_exp(money)
+        def to_integer_exp(%:"Elixir.Money"{} = money) do
+          :"Elixir.Money".to_integer_exp(money)
         end
 
         @doc """
@@ -1185,22 +1222,23 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> Money.from_integer(20000, :USD)
+            iex> #{inspect(__MODULE__)}.from_integer(20000, :USD)
             #Money<:USD, 200.00>
 
-            iex> Money.from_integer(200, :JPY)
+            iex> #{inspect(__MODULE__)}.from_integer(200, :JPY)
             #Money<:JPY, 200>
 
-            iex> Money.from_integer(20012, :USD)
+            iex> #{inspect(__MODULE__)}.from_integer(20012, :USD)
             #Money<:USD, 200.12>
 
-            iex> Money.from_integer(20012, :COP)
+            iex> #{inspect(__MODULE__)}.from_integer(20012, :COP)
             #Money<:COP, 200.12>
 
         """
-        @spec from_integer(integer, :'Elixir.Money'.currency_code) :: :'Elixir.Money'.t() | {:error, module(), String.t()}
+        @spec from_integer(integer, :"Elixir.Money".currency_code()) ::
+                :"Elixir.Money".t() | {:error, module(), String.t()}
         def from_integer(amount, currency) when is_integer(amount) do
-          :'Elixir.Money'.from_integer(amount, currency)
+          :"Elixir.Money".from_integer(amount, currency)
         end
 
         @doc """
@@ -1208,29 +1246,33 @@ defmodule Money.Backend do
 
         ## Example
 
-            iex> Money.zero(:USD)
+            iex> #{inspect(__MODULE__)}.zero(:USD)
             #Money<:USD, 0>
 
             iex> money = Money.new(:USD, 200)
-            iex> Money.zero(money)
+            iex> #{inspect(__MODULE__)}.zero(money)
             #Money<:USD, 0>
 
-            iex> Money.zero :ZZZ
+            iex> #{inspect(__MODULE__)}.zero :ZZZ
             {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
 
         """
-        @spec zero(:'Elixir.Money'.currency_code | :'Elixir.Money'.t()) :: :'Elixir.Money'.t()
-        def zero(%:'Elixir.Money'{} = money) do
-          :'Elixir.Money'.zero(money)
+        @spec zero(:"Elixir.Money".currency_code() | :"Elixir.Money".t()) :: :"Elixir.Money".t()
+        def zero(%:"Elixir.Money"{} = money) do
+          :"Elixir.Money".zero(money)
+        end
+
+        def zero(currency) when is_atom(currency) do
+          :"Elixir.Money".zero(currency)
         end
 
         @doc false
         def from_integer({_currency, _integer, _exponent, _remainder} = value) do
-          :'Elixir.Money'.from_integer(value)
+          :"Elixir.Money".from_integer(value)
         end
 
         defp default_backend do
-          :'Elixir.Money'.default_backend()
+          :"Elixir.Money".default_backend()
         end
       end
     end
