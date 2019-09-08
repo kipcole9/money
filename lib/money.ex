@@ -47,6 +47,11 @@ defmodule Money do
   @enforce_keys [:currency, :amount]
   defstruct currency: nil, amount: nil
 
+  @doc false
+  def cldr_backend_provider(config) do
+    Money.Backend.define_money_module(config)
+  end
+
   @json_library Application.get_env(:ex_money, :json_library, Cldr.Config.json_library())
   unless Code.ensure_loaded?(@json_library) do
     IO.puts("""

@@ -4,5 +4,5 @@ defmodule Money.Cldr do
   use Cldr,
     locales: ["en", "de", "it", "es", "fr"],
     default_locale: "en",
-    providers: [Cldr.Number]
+    providers: [Cldr.Number, Money]
 end
