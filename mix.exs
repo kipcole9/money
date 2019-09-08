@@ -38,8 +38,7 @@ defmodule Money.Mixfile do
       links: %{
         "GitHub" => "https://github.com/kipcole9/money",
         "Readme" => "https://github.com/kipcole9/money/blob/v#{@version}/README.md",
-        "Changelog" => "https://github.com/kipcole9/money/blob/v#{@version}/CHANGELOG.md",
-        "Roadmap" => "https://github.com/kipcole9/money/blob/v#{@version}/ROADMAP.md"
+        "Changelog" => "https://github.com/kipcole9/money/blob/v#{@version}/CHANGELOG.md"
       },
       files: [
         "lib",
