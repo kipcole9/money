@@ -37,6 +37,13 @@ defmodule MoneyTest.Parse do
       assert Money.parse("99.99€") == Money.new(:EUR, "99.99")
     end
 
+    test "parses negative amounts" do
+      assert Money.parse("-100 USD") == Money.new(:USD, -100)
+      assert Money.parse("-USD 100") == Money.new(:USD, -100)
+      assert Money.parse("USD -100") == Money.new(:USD, -100)
+      assert Money.parse("USD -100.00") == Money.new(:USD, "-100.00")
+    end
+
     test "currency filtering" do
       assert Money.parse("100 Mexican silver pesos") == Money.new(:MXP, 100)
 

@@ -380,9 +380,15 @@ defmodule Money do
   # from the locale files directly.
   @grouping_chars ",،٫、︐︑﹐﹑，､"
   @decimal_chars ".․。︒﹒．｡"
-  @currency "[^0-9#{@grouping_chars}#{@decimal_chars}]+"
+  @negative_char "-"
+  @currency "[^0-9#{@grouping_chars}#{@decimal_chars}#{@negative_char}]+"
   @amount "[0-9][0-9#{@grouping_chars}#{@decimal_chars}]*"
-  @regex Regex.compile!("^(?<cb>#{@currency})?(?<amount>#{@amount})?(?<ca>#{@currency})?$", "u")
+  @regex Regex.compile!(
+           "^(?<nb>#{@negative_char})?(?<cb>#{@currency})?(?<na>#{@negative_char})?(?<amount>#{
+             @amount
+           })?(?<ca>#{@currency})?$",
+           "u"
+         )
 
   @doc false
   def parser_regex do
@@ -517,12 +523,52 @@ defmodule Money do
     {:error, {Money.Invalid, "An amount must be specified but was not found in #{inspect(string)}"}}
   end
 
-  defp do_parse(%{"cb" => "", "ca" => currency, "amount" => amount}, _, options) do
-    maybe_create_money(currency, amount, options)
+  defp do_parse(
+         %{"cb" => "", "ca" => currency, "amount" => amount, "nb" => "", "na" => ""},
+         _,
+         options
+       ) do
+    maybe_create_money(currency, amount, false, options)
   end
 
-  defp do_parse(%{"cb" => currency, "ca" => "", "amount" => amount}, _, options) do
-    maybe_create_money(currency, amount, options)
+  defp do_parse(
+         %{"cb" => "", "ca" => currency, "amount" => amount, "nb" => "-", "na" => ""},
+         _,
+         options
+       ) do
+    maybe_create_money(currency, amount, true, options)
+  end
+
+  defp do_parse(
+         %{"cb" => "", "ca" => currency, "amount" => amount, "nb" => "", "na" => "-"},
+         _,
+         options
+       ) do
+    maybe_create_money(currency, amount, true, options)
+  end
+
+  defp do_parse(
+         %{"cb" => currency, "ca" => "", "amount" => amount, "nb" => "", "na" => ""},
+         _,
+         options
+       ) do
+    maybe_create_money(currency, amount, false, options)
+  end
+
+  defp do_parse(
+         %{"cb" => currency, "ca" => "", "amount" => amount, "nb" => "-", "na" => ""},
+         _,
+         options
+       ) do
+    maybe_create_money(currency, amount, true, options)
+  end
+
+  defp do_parse(
+         %{"cb" => currency, "ca" => "", "amount" => amount, "nb" => "", "na" => "-"},
+         _,
+         options
+       ) do
+    maybe_create_money(currency, amount, true, options)
   end
 
   defp do_parse(%{"cb" => cb, "ca" => ca}, _, _options) do
@@ -535,12 +581,18 @@ defmodule Money do
     {:error, {Money.Invalid, "Could not parse #{inspect(string)}."}}
   end
 
-  defp maybe_create_money(currency, amount, options) do
+  defp maybe_create_money(currency, amount, negative, options) do
     backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
     locale = Keyword.get(options, :locale, backend.get_locale)
     {currency_filter, options} = Keyword.pop(options, :currency_filter, :all)
     {fuzzy, options} = Keyword.pop(options, :fuzzy, nil)
     amount = String.trim(amount)
+
+    amount =
+      case negative do
+        true -> "-" <> amount
+        false -> amount
+      end
 
     with {:ok, currency_strings} <-
            Cldr.Currency.currency_strings(locale, backend, currency_filter),
