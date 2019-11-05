@@ -86,7 +86,7 @@ defmodule Money.Mixfile do
       {:ex_cldr_numbers, "~> 2.6"},
       {:decimal, "~> 1.6"},
       {:phoenix_html, "~> 2.0", optional: true},
-      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc", only: [:dev], runtime: false},
       {:jason, "~> 1.0", optional: true},
       {:stream_data, "~> 0.4.1", only: [:dev, :test]},
       {:gringotts, "~>1.1", only: :test, optional: true},
