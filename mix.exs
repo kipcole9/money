@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "4.3.0"
+  @version "4.4.0"
 
   def project do
     [
@@ -84,8 +84,11 @@ defmodule Money.Mixfile do
     [
       {:ex_cldr, "~> 2.6"},
       {:ex_cldr_numbers, "~> 2.6"},
+      {:ex_cldr_currencies, path: "../cldr_currencies", override: true},
+      # {:ex_cldr_currencies, "~> 2.4"},
       {:decimal, "~> 1.6"},
       {:phoenix_html, "~> 2.0", optional: true},
+      {:nimble_parsec, "~> 0.5", optional: true},
       {:dialyxir, "~> 1.0.0-rc", only: [:dev], runtime: false},
       {:jason, "~> 1.0", optional: true},
       {:stream_data, "~> 0.4.1", only: [:dev, :test]},

@@ -27,6 +27,7 @@ defmodule MoneyTest.Parse do
     test "parsing with currency strings that are not codes" do
       assert Money.parse("australian dollar 12346.45") == Money.new(:AUD, "12346.45")
       assert Money.parse("12346.45 australian dollars") == Money.new(:AUD, "12346.45")
+      assert Money.parse("12346.45 Australian Dollars") == Money.new(:AUD, "12346.45")
     end
 
     test "parses with locale specific separators" do
@@ -40,36 +41,27 @@ defmodule MoneyTest.Parse do
     test "currency filtering" do
       assert Money.parse("100 Mexican silver pesos") == Money.new(:MXP, 100)
 
-      assert Money.parse("100 Mexican silver pesos", currency_filter: [:current, :tender]) ==
-               {:error,
-                {Money.Invalid, "Unable to create money from \"mexican silver pesos\" and \"100\""}}
+      assert Money.parse("100 Mexican silver pesos", currency_filter: [:current]) ==
+        {:error, {Money.UnknownCurrencyError, "The currency \"Mexican silver pesos\" is unknown or not supported"}}
     end
 
     test "fuzzy matching of currencies" do
       assert Money.parse("100 eurosports", fuzzy: 0.8) == Money.new(:EUR, 100)
 
       assert Money.parse("100 eurosports", fuzzy: 0.9) ==
-               {:error, {Money.Invalid, "Unable to create money from \"eurosports\" and \"100\""}}
+          {:error, {Money.UnknownCurrencyError, "The currency \"eurosports\" is unknown or not supported"}}
     end
 
-    test "parsing fails" do
+    test "parsing fails if no currency and no default currency" do
       assert Money.parse("100") ==
-               {:error,
-                {Money.Invalid, "A currency code must be specified but was not found in \"100\""}}
+        {:error,
+          {Money.Invalid, "A currency code, symbol or description must be specified but was not found in \"100\""}}
+    end
 
-      assert Money.parse("EUR") ==
-               {:error, {Money.Invalid, "An amount must be specified but was not found in \"EUR\""}}
-
-      assert Money.parse("EUR 100 USD") ==
-               {:error,
-                {Money.Invalid,
-                 "A currency code can only be specified once. Found both \"eur\" and \"usd\"."}}
-
-      assert Money.parse("EUR 100 And some bogus extra stuff") ==
-               {:error,
-                {Money.Invalid,
-                 "A currency code can only be specified once. " <>
-                   "Found both \"eur\" and \"and some bogus extra stuff\"."}}
+    test "parse with a default currency" do
+      assert Money.parse("100", default_currency: :USD) == Money.new(:USD, 100)
+      assert Money.parse("100", default_currency: "USD") == Money.new(:USD, 100)
+      assert Money.parse("100", default_currency: "australian dollars") == Money.new(:AUD, 100)
     end
   end
 end

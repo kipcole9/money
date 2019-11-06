@@ -287,20 +287,18 @@ defmodule Money.Backend do
 
             iex> #{inspect(__MODULE__)}.parse("100 eurosports", fuzzy: 0.9)
             {:error,
-             {Money.Invalid, "Unable to create money from \\"eurosports\\" and \\"100\\""}}
+              {Money.UnknownCurrencyError, "The currency \\"eurosports\\" is unknown or not supported"}}
 
             iex> #{inspect(__MODULE__)}.parse("100 afghan afghanis")
             #Money<:AFN, 100>
 
             iex> #{inspect(__MODULE__)}.parse("100")
             {:error,
-             {Money.Invalid,
-              "A currency code must be specified but was not found in \\"100\\""}}
+              {Money.Invalid, "A currency code, symbol or description must be specified but was not found in \\"100\\""}}
 
             iex> #{inspect(__MODULE__)}.parse("USD 100 with trailing text")
             {:error,
-              {Money.Invalid, "A currency code can only be specified once. " <>
-                "Found both \\"usd\\" and \\"with trailing text\\"."}}
+              {Money.Invalid, "Could not parse \\"USD 100 with trailing text\\"."}}
 
         """
         # @doc since: "3.2.0"

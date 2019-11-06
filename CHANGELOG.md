@@ -1,6 +1,41 @@
+# Changelog for Money v4.4.0
+
+This is the changelog for Money v4.4.0 released on November 6th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Breaking Change
+
+* `Money.parse/2` until this release supported the `:currency_filter` option. It allowed for currencies to be filtered based upon their attributes (`:all`, `:current`, `:historic`, `:tender`, `:annotated`). When multiple attributes were passed in a list, a currency had to meet all of these attributes. From this release onwards, multiple attributes items are `or`ed, not `and`ed. It is expected this option is used extremely rarely and therefore of limited impact.
+
+### Enhancements
+
+* `Money.parse/2` now includes the option `:default_currency` which allows for parsing a number only (without a currency code) and it will be tagged with the `:default_currency`.
+```elixir
+  iex> Money.parse("100")
+  {:error,
+   {Money.Invalid,
+    "A currency code, symbol or description must be specified but was not found in \"100\""}}
+  iex> Money.parse("100", default_currency: :USD)
+  #Money<:USD, 100>
+```
+
+* Add `:only` and `:except` options to `Money.parse/2` to specify which currency codes or currency attributes are permitted.  `:only` and `:except` replace the option `:currency_filter` which is now deprecated. If provided, `:currency_filter` is interpreted as `:only`. An example:
+```elixir
+  iex> Money.parse("100 usd", only: :current, except: :USD)
+  {:error,
+   {Money.UnknownCurrencyError,
+    "The currency \"usd\" is unknown or not supported"}}
+```
+
+* `Money.parse/2` now supports negative money amounts.
+```elixir
+  iex> Money.parse("chf -100")
+  #Money<:CHF, -100>
+```
+* The money parser has been rewritten using [nimble_parsec](https://hex,pm.packages/nimble_parsec)
+
 # Changelog for Money v4.3.0
 
-This is the changelog for Money v4.3.0 released on September 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v4.3.0 released on September 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 
@@ -12,7 +47,7 @@ This is the changelog for Money v4.3.0 released on September 8th, 2019.  For old
 
 # Changelog for Money v4.2.2
 
-This is the changelog for Money v4.2.2 released on September 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v4.2.2 released on September 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
@@ -20,7 +55,7 @@ This is the changelog for Money v4.2.2 released on September 7th, 2019.  For old
 
 # Changelog for Money v4.2.1
 
-This is the changelog for Money v4.2.1 released on September 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v4.2.1 released on September 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
@@ -28,7 +63,7 @@ This is the changelog for Money v4.2.1 released on September 2nd, 2019.  For old
 
 # Changelog for Money v4.2.0
 
-This is the changelog for Money v4.2.0 released on 21 August, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v4.2.0 released on 21 August, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
@@ -40,7 +75,7 @@ This is the changelog for Money v4.2.0 released on 21 August, 2019.  For older c
 
 # Changelog for Money v4.1.0
 
-This is the changelog for Money v4.1.0 released on July 13th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v4.1.0 released on July 13th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 
@@ -50,7 +85,7 @@ This is the changelog for Money v4.1.0 released on July 13th, 2019.  For older c
 
 # Changelog for Money v4.0.0
 
-This is the changelog for Money v4.0.0 released on July 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v4.0.0 released on July 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Breaking Changes
 
@@ -60,7 +95,7 @@ This is the changelog for Money v4.0.0 released on July 8th, 2019.  For older ch
 
 # Changelog for Money v3.4.4
 
-This is the changelog for Money v3.4.4 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.4.4 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 
@@ -102,7 +137,7 @@ If the use case may have both positive and negative amounts, generate two option
 
 # Changelog for Money v3.4.3
 
-This is the changelog for Money v3.4.3 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.4.3 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
@@ -114,7 +149,7 @@ Thanks to @rodrigues for the report and PR.
 
 # Changelog for Money v3.4.2
 
-This is the changelog for Money v3.4.2 released on April 16th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.4.2 released on April 16th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
@@ -128,7 +163,7 @@ This is the changelog for Money v3.4.2 released on April 16th, 2019.  For older 
 
 # Changelog for Money v3.4.1
 
-This is the changelog for Money v3.4.1 released on April 5th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.4.1 released on April 5th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
@@ -136,7 +171,7 @@ This is the changelog for Money v3.4.1 released on April 5th, 2019.  For older c
 
 # Changelog for Money v3.4.0
 
-This is the changelog for Money v3.4.0 released on March 28th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.4.0 released on March 28th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 
@@ -144,7 +179,7 @@ This is the changelog for Money v3.4.0 released on March 28th, 2019.  For older 
 
 # Changelog for Money v3.3.1
 
-This is the changelog for Money v3.3.1 released on March 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.3.1 released on March 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
@@ -152,7 +187,7 @@ This is the changelog for Money v3.3.1 released on March 8th, 2019.  For older c
 
 # Changelog for Money v3.3.0
 
-This is the changelog for Money v3.3.0 released on February 24th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr/tags)
+This is the changelog for Money v3.3.0 released on February 24th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 

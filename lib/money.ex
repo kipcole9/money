@@ -35,6 +35,8 @@ defmodule Money do
   """
 
   import Kernel, except: [round: 1, abs: 1]
+  import NimbleParsec
+  import Money.Parser
 
   @typedoc """
   Money is composed of an atom representation of an ISO4217 currency code and
@@ -374,20 +376,7 @@ defmodule Money do
     end
   end
 
-  # The set of grouping chars and decimal chars comes
-  # from CLDR's "misc" category for the "en" locale.
-  # Ideally we would be generating these characters
-  # from the locale files directly.
-  @grouping_chars ",،٫、︐︑﹐﹑，､"
-  @decimal_chars ".․。︒﹒．｡"
-  @currency "[^0-9#{@grouping_chars}#{@decimal_chars}]+"
-  @amount "[0-9][0-9#{@grouping_chars}#{@decimal_chars}]*"
-  @regex Regex.compile!("^(?<cb>#{@currency})?(?<amount>#{@amount})?(?<ca>#{@currency})?$", "u")
-
-  @doc false
-  def parser_regex do
-    @regex
-  end
+  defparsecp :money_parser, money_with_currency()
 
   @doc """
   Parse a string and return a `Money.t` or an error.
@@ -417,23 +406,15 @@ defmodule Money do
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
     The default is `<backend>.get_locale()`
 
-  * `currency_filter` is an `atom` or list of `atoms` representing the
-    currency types to be considered for a match. If a list of
-    atoms is given, the currency must meet all criteria for
-    it to be considered.
+  * `:only` is an `atom` or list of `atoms` representing the
+    currencies or currency types to be considered for a match.
+    The equates to a list of acceptable currencies for parsing.
+    See the notes below for currency types.
 
-    * `:all`, the default, considers all currencies
-
-    * `:current` considers those currencies that have a `:to`
-      date of nil and which also is a known ISO4217 currency
-
-    * `:historic` is the opposite of `:current`
-
-    * `:tender` considers currencies that are legal tender
-
-    * `:unannotated` considers currencies that don't have
-      "(some string)" in their names.  These are usually
-      financial instruments.
+  * `:except` is an `atom` or list of `atoms` representing the
+    currencies or currency types to be not considered for a match.
+    This equates to a list of unacceptable currencies for parsing.
+    See the notes below for currency types.
 
   * `fuzzy` is a float greater than `0.0` and less than or
     equal to `1.0` which is used as input to the
@@ -450,6 +431,30 @@ defmodule Money do
   * `{:error, {exception, reason}}` if an error is
     detected.
 
+  ## Notes
+
+  The `:only` and `:except` options accept a list of
+  currency codes and/or currency types.  The following
+  types are recognised.
+
+  If both `:only` and `:except` are specified,
+  the `:except` entries take priority - that means
+  any entries in `:except` are removed from the `:only`
+  entries.
+
+    * `:all`, the default, considers all currencies
+
+    * `:current` considers those currencies that have a `:to`
+      date of nil and which also is a known ISO4217 currency
+
+    * `:historic` is the opposite of `:current`
+
+    * `:tender` considers currencies that are legal tender
+
+    * `:unannotated` considers currencies that don't have
+      "(some string)" in their names.  These are usually
+      financial instruments.
+
   ## Examples
 
       iex> Money.parse("USD 100")
@@ -465,106 +470,79 @@ defmodule Money do
       #Money<:EUR, 100>
 
       iex> Money.parse("100 eurosports", fuzzy: 0.9)
-      {:error,
-       {Money.Invalid, "Unable to create money from \\"eurosports\\" and \\"100\\""}}
+      {:error, {Money.UnknownCurrencyError, "The currency \\"eurosports\\" is unknown or not supported"}}
 
       iex> Money.parse("100 afghan afghanis")
       #Money<:AFN, 100>
 
       iex> Money.parse("100")
-      {:error,
-       {Money.Invalid,
-        "A currency code must be specified but was not found in \\"100\\""}}
+      {:error, {Money.Invalid,
+        "A currency code, symbol or description must be specified but was not found in \\"100\\""}}
 
       iex> Money.parse("USD 100 with trailing text")
-      {:error,
-        {Money.Invalid, "A currency code can only be specified once. " <>
-          "Found both \\"usd\\" and \\"with trailing text\\"."}}
+      {:error, {Money.Invalid, "Could not parse \\"USD 100 with trailing text\\"."}}
 
   """
   # @doc since: "3.2.0"
   @spec parse(String.t(), Keyword.t()) :: Money.t() | {:error, {module(), String.t()}}
-  def parse(string, options \\ [])
 
-  def parse(string, options) do
-    @regex
-    |> Regex.named_captures(String.trim(string))
-    |> trim_and_lower("ca")
-    |> trim_and_lower("cb")
-    |> do_parse(string, options)
+  def parse(string, options \\ []) do
+    with {:ok, result, "", _, _, _} <- money_parser(String.trim(string)) do
+      result
+      |> Enum.map(fn {k, v} -> {k, String.trim_trailing(v)} end)
+      |> Keyword.put_new(:currency, Kernel.to_string(options[:default_currency]))
+      |> Map.new
+      |> maybe_create_money(string, options)
+    else
+      _ -> {:error, {Money.Invalid, "Could not parse #{inspect(string)}."}}
+    end
   end
 
-  defp trim_and_lower(nil, _key) do
-    nil
-  end
-
-  defp trim_and_lower(map, key) do
-    value =
-      map
-      |> Map.get(key)
-      |> String.trim()
-      |> String.downcase()
-
-    Map.put(map, key, value)
-  end
-
-  defp do_parse(%{"cb" => "", "ca" => ""}, string, _options) do
-    {:error,
-     {Money.Invalid, "A currency code must be specified but was not found in #{inspect(string)}"}}
-  end
-
-  defp do_parse(%{"amount" => ""}, string, _options) do
-    {:error, {Money.Invalid, "An amount must be specified but was not found in #{inspect(string)}"}}
-  end
-
-  defp do_parse(%{"cb" => "", "ca" => currency, "amount" => amount}, _, options) do
-    maybe_create_money(currency, amount, options)
-  end
-
-  defp do_parse(%{"cb" => currency, "ca" => "", "amount" => amount}, _, options) do
-    maybe_create_money(currency, amount, options)
-  end
-
-  defp do_parse(%{"cb" => cb, "ca" => ca}, _, _options) do
+  defp maybe_create_money(%{currency: ""}, string, _options) do
     {:error,
      {Money.Invalid,
-      "A currency code can only be specified once. Found both #{inspect(cb)} and #{inspect(ca)}."}}
+      "A currency code, symbol or description must be specified but was not found in #{inspect string}"}}
   end
 
-  defp do_parse(_captures, string, _options) do
-    {:error, {Money.Invalid, "Could not parse #{inspect(string)}."}}
-  end
-
-  defp maybe_create_money(currency, amount, options) do
+  defp maybe_create_money(%{currency: currency, amount: amount}, _string, options) do
     backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
     locale = Keyword.get(options, :locale, backend.get_locale)
-    {currency_filter, options} = Keyword.pop(options, :currency_filter, :all)
+    {only_filter, options} = Keyword.pop(options, :only, Keyword.get(options, :currency_filter, [:all]))
+    {except_filter, options} = Keyword.pop(options, :except, [])
     {fuzzy, options} = Keyword.pop(options, :fuzzy, nil)
-    amount = String.trim(amount)
 
     with {:ok, currency_strings} <-
-           Cldr.Currency.currency_strings(locale, backend, currency_filter),
-         {:ok, currency} <- find_currency(currency_strings, currency, fuzzy) do
+           Cldr.Currency.currency_strings(locale, backend, only_filter, except_filter),
+         {:ok, currency} <-
+           find_currency(currency_strings, currency, fuzzy) do
       Money.new(currency, amount, options)
     end
   end
 
   defp find_currency(currency_strings, currency, nil) do
-    {:ok, Map.get(currency_strings, currency, currency)}
+    canonical_currency = String.downcase(currency)
+    case Map.get(currency_strings, canonical_currency) do
+      nil ->
+        {:error, unknown_currency_error(currency)}
+      currency ->
+        {:ok, currency}
+    end
   end
 
   defp find_currency(currency_strings, currency, fuzzy)
        when is_float(fuzzy) and fuzzy > 0.0 and fuzzy <= 1.0 do
+    canonical_currency = String.downcase(currency)
+
     {distance, currency_code} =
       currency_strings
-      |> Enum.map(fn {k, v} -> {String.jaro_distance(k, currency), v} end)
+      |> Enum.map(fn {k, v} -> {String.jaro_distance(k, canonical_currency), v} end)
       |> Enum.sort(fn {k1, _v1}, {k2, _v2} -> k1 > k2 end)
       |> hd
 
     if distance >= fuzzy do
       {:ok, currency_code}
     else
-      {:ok, currency}
+      {:error, unknown_currency_error(currency)}
     end
   end
 
@@ -574,6 +552,11 @@ defmodule Money do
        ArgumentError,
        "option :fuzzy must be a number > 0.0 and <= 1.0. Found #{inspect(fuzzy)}"
      }}
+  end
+
+  defp unknown_currency_error(currency) do
+    {Money.UnknownCurrencyError,
+      "The currency #{inspect currency} is unknown or not supported"}
   end
 
   @doc """
