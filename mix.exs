@@ -84,8 +84,7 @@ defmodule Money.Mixfile do
     [
       {:ex_cldr, "~> 2.6"},
       {:ex_cldr_numbers, "~> 2.6"},
-      {:ex_cldr_currencies, path: "../cldr_currencies", override: true},
-      # {:ex_cldr_currencies, "~> 2.4"},
+      {:ex_cldr_currencies, "~> 2.4"},
       {:decimal, "~> 1.6"},
       {:phoenix_html, "~> 2.0", optional: true},
       {:nimble_parsec, "~> 0.5", optional: true},
