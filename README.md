@@ -282,6 +282,14 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
   iex> Money.parse "australian dollar 12346.45", locale: "en"
   #Money<:AUD, 12346.45>
 
+  # Parse using a default currency
+  iex> Money.parse("100", default_currency: :EUR)
+  #Money<:EUR, 100>
+
+  # Parse with a default currency for the current locale
+  iex> Money.parse("100", default_currency: Money.default_currency_for_locale())
+  #Money<:USD, 100>
+
   # Note that the decimal separator in the "de" locale
   # is a `.`
   iex> Money.parse "AU$ 12346,45", locale: "de"
@@ -302,15 +310,24 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
    {Money.Invalid, "Unable to create money from \"eurosports\" and \"100\""}}
 
   # Eligible currencies can be filtered
-  iex> Money.parse("100 eurosports", fuzzy: 0.8, currency_filter: [:current, :tender])
+  iex> Money.parse("100 eurosports", fuzzy: 0.8, only: [:current])
   #Money<:EUR, 100>
 
-  iex> Money.parse "100 afghan afghanis"
-  #Money<:AFA, 100>
+  iex> Money.parse("100 euro", only: [:EUR, :USD, :COP])
+  #Money<:EUR, 100>
 
-  iex> Money.parse "100 afghan afghanis", currency_filter: [:current, :tender]
+  iex> Money.parse("100 euro", except: [:EUR, :USD, :COP])
   {:error,
-   {Money.Invalid, "Unable to create money from \"afghan afghanis\" and \"100\""}}
+    {Money.UnknownCurrencyError,
+      "The currency \"euro\" is unknown or not supported"}}
+
+  iex> Money.parse "100 afghan afghanis"
+  #Money<:AFN, 100>
+
+  iex> Money.parse "100 afa", only: [:current]
+  {:error,
+   {Money.UnknownCurrencyError,
+    "The currency \"afa\" is unknown or not supported"}}
 ```
 
 ### Casting a money type (basic support for HTML forms)

@@ -400,10 +400,10 @@ defmodule Money do
 
   ## Options
 
-  * `backend` is any module() that includes `use Cldr` and therefore
+  * `:backend` is any module() that includes `use Cldr` and therefore
     is a `Cldr` backend module(). The default is `Money.default_backend()`
 
-  * `locale_name` is any valid locale name returned by `Cldr.known_locale_names/1`
+  * `:locale` is any valid locale returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
     The default is `<backend>.get_locale()`
 
@@ -417,13 +417,19 @@ defmodule Money do
     This equates to a list of unacceptable currencies for parsing.
     See the notes below for currency types.
 
-  * `fuzzy` is a float greater than `0.0` and less than or
+  * `:fuzzy` is a float greater than `0.0` and less than or
     equal to `1.0` which is used as input to the
     `String.jaro_distance/2` to determine is the provided
     currency string is *close enough* to a known currency
     string for it to identify definitively a currency code.
     It is recommended to use numbers greater than `0.8` in
     order to reduce false positives.
+
+  * `:default_currency` is any valid currency code that
+    will used if no currency code, symbol or description is
+    indentified in the parsed string. The default is `nil`
+    which means that if no currency code is found and error
+    will be returned.
 
   ## Returns
 
@@ -469,6 +475,12 @@ defmodule Money do
 
       iex> Money.parse("100 eurosports", fuzzy: 0.8)
       #Money<:EUR, 100>
+
+      iex> Money.parse("100", default_currency: :EUR)
+      #Money<:EUR, 100>
+
+      iex> Money.parse("100", default_currency: Money.default_currency_for_locale())
+      #Money<:USD, 100>
 
       iex> Money.parse("100 eurosports", fuzzy: 0.9)
       {:error, {Money.UnknownCurrencyError, "The currency \\"eurosports\\" is unknown or not supported"}}
@@ -518,7 +530,8 @@ defmodule Money do
     {except_filter, options} = Keyword.pop(options, :except, [])
     {fuzzy, options} = Keyword.pop(options, :fuzzy, nil)
 
-    with {:ok, currency_strings} <-
+    with {:ok, locale} <- backend.validate_locale(locale),
+         {:ok, currency_strings} <-
            Cldr.Currency.currency_strings(locale, backend, only_filter, except_filter),
          {:ok, currency} <-
            find_currency(currency_strings, currency, fuzzy) do
@@ -565,6 +578,50 @@ defmodule Money do
 
   defp unknown_currency_error(currency) do
     {Money.UnknownCurrencyError, "The currency #{inspect(currency)} is unknown or not supported"}
+  end
+
+  @doc """
+  Returns the default currency for a locale
+
+  This function can be used in conjunction with the
+  `:default_locale` option of `Money.parse/2`.
+
+  ## Arguments
+
+  * `:options` is a keyword list of options.
+
+  ## Options
+
+  * `:backend` is any module() that includes `use Cldr` and therefore
+    is a `Cldr` backend module(). The default is `Money.default_backend()`
+
+  * `:locale` is any valid locale returned by `Cldr.known_locale_names/1`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+    The default is `<backend>.get_locale()`
+
+  ## Returns
+
+  * The currency code that is the default for the given locale or
+
+  * `{:error, {exception, message}}`
+
+  ## Example
+
+      # Assumes `Cldr.get_locale/1` returns "en"
+      iex> Money.default_currency_for_locale
+      :USD
+
+      iex> Money.default_currency_for_locale(locale: "en-AU")
+      :AUD
+
+  """
+  def default_currency_for_locale(options \\ []) do
+    backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
+    locale = Keyword.get(options, :locale, backend.get_locale)
+
+    with {:ok, locale} <- backend.validate_locale(locale) do
+      Cldr.Currency.current_currency_for_locale(locale)
+    end
   end
 
   @doc """
