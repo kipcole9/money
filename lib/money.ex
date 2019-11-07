@@ -474,7 +474,7 @@ defmodule Money do
       {:error, {Money.UnknownCurrencyError, "The currency \\"eurosports\\" is unknown or not supported"}}
 
       iex> Money.parse("100 afghan afghanis")
-      #Money<:AFA, 100>
+      #Money<:AFN, 100>
 
       iex> Money.parse("100")
       {:error, {Money.Invalid,

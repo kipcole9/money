@@ -290,7 +290,7 @@ defmodule Money.Backend do
               {Money.UnknownCurrencyError, "The currency \\"eurosports\\" is unknown or not supported"}}
 
             iex> #{inspect(__MODULE__)}.parse("100 afghan afghanis")
-            #Money<:AFA, 100>
+            #Money<:AFN, 100>
 
             iex> #{inspect(__MODULE__)}.parse("100")
             {:error,
