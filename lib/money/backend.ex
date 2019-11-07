@@ -290,7 +290,7 @@ defmodule Money.Backend do
               {Money.UnknownCurrencyError, "The currency \\"eurosports\\" is unknown or not supported"}}
 
             iex> #{inspect(__MODULE__)}.parse("100 afghan afghanis")
-            #Money<:AFN, 100>
+            #Money<:AFA, 100>
 
             iex> #{inspect(__MODULE__)}.parse("100")
             {:error,
@@ -298,7 +298,7 @@ defmodule Money.Backend do
 
             iex> #{inspect(__MODULE__)}.parse("USD 100 with trailing text")
             {:error,
-              {Money.Invalid, "Could not parse \\"USD 100 with trailing text\\"."}}
+              {Money.ParseError, "Could not parse \\"USD 100 with trailing text\\"."}}
 
         """
         # @doc since: "3.2.0"

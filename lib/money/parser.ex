@@ -1,9 +1,11 @@
 defmodule Money.Parser do
+  @moduledoc false
+
   import NimbleParsec
 
   @whitespace [?\s, ?\t]
   def whitespace do
-    repeat(ascii_char(@whitespace))
+    repeat(utf8_char(@whitespace))
     |> label("whitespace")
   end
 
@@ -19,6 +21,18 @@ defmodule Money.Parser do
     |> label("decimal place character")
   end
 
+  @left_parens [?(]
+  def left_paren do
+    utf8_char(@left_parens)
+    |> label("left parenthesis")
+  end
+
+  @right_parens [?)]
+  def right_paren do
+    utf8_char(@right_parens)
+    |> label("right parenthesis")
+  end
+
   @digits [?0..?9]
   def digits do
     repeat(ascii_char([?0..?9]))
@@ -30,30 +44,94 @@ defmodule Money.Parser do
     ascii_char(@minus)
   end
 
-  def number do
-    optional(minus())
-    |> concat(digits())
+  def positive_number do
+    digits()
     |> repeat(separators() |> concat(digits()))
     |> optional(decimal_place() |> concat(digits()))
-    |> reduce({List, :to_string, []})
-    |> unwrap_and_tag(:amount)
-    |> label("a number")
+    |> label("positive number")
   end
 
-  @currency Enum.map(@separators ++ @decimal_places ++ @digits ++ @minus, fn s -> {:not, s} end)
+  def negative_number do
+    choice([
+      ignore(minus())
+      |> concat(positive_number()),
+      positive_number()
+      |> ignore(minus())
+    ])
+    |> reduce({List, :to_string, []})
+    |> map(:add_minus_sign)
+    |> label("negative number")
+  end
+
+  def add_minus_sign(arg) do
+    "-" <> arg
+  end
+
+  def number do
+    choice([negative_number(), positive_number()])
+    |> reduce({List, :to_string, []})
+    |> unwrap_and_tag(:amount)
+    |> label("number")
+  end
+
+  @invalid_chars @separators ++
+                   @decimal_places ++
+                   @digits ++
+                   @minus ++
+                   @left_parens ++
+                   @right_parens
+
+  @currency Enum.map(@invalid_chars, fn s -> {:not, s} end)
   def currency do
     utf8_char(@currency)
     |> times(min: 1)
     |> reduce({List, :to_string, []})
     |> unwrap_and_tag(:currency)
-    |> label("a currency code, symbol or name")
+    |> label("currency code, symbol or name")
   end
 
   def money_with_currency do
     choice([
-        optional(currency()) |> ignore(optional(whitespace())) |> concat(number() |> eos() |> label("currency followed by a number")),
-        number() |> ignore(optional(whitespace())) |> optional((currency()) |> eos() |> label("number followed by a currency"))
-      ])
+      number()
+      |> ignore(optional(whitespace()))
+      |> optional(currency())
+      |> eos(),
+      optional(currency())
+      |> ignore(optional(whitespace()))
+      |> concat(number())
+      |> eos()
+    ])
   end
 
+  def accounting_format do
+    choice([
+      ignore(left_paren())
+      |> ignore(optional(whitespace()))
+      |> concat(number())
+      |> ignore(optional(whitespace()))
+      |> optional(currency())
+      |> ignore(optional(whitespace()))
+      |> ignore(right_paren()),
+      ignore(left_paren())
+      |> ignore(optional(whitespace()))
+      |> optional(currency())
+      |> ignore(optional(whitespace()))
+      |> concat(number())
+      |> ignore(optional(whitespace()))
+      |> ignore(right_paren())
+    ])
+    |> map(:change_sign)
+  end
+
+  def change_sign({:amount, amount}) do
+    revised_number =
+      case amount do
+        <<"-", number::binary>> -> number
+        number -> "-" <> number
+      end
+
+    {:amount, revised_number}
+  end
+
+  def change_sign(other), do: other
 end

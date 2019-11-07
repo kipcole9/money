@@ -376,7 +376,8 @@ defmodule Money do
     end
   end
 
-  defparsecp :money_parser, money_with_currency()
+  defparsecp(:money_parser, choice([money_with_currency(), accounting_format()]))
+  # defparsecp :money_parser, money_with_currency()
 
   @doc """
   Parse a string and return a `Money.t` or an error.
@@ -473,14 +474,14 @@ defmodule Money do
       {:error, {Money.UnknownCurrencyError, "The currency \\"eurosports\\" is unknown or not supported"}}
 
       iex> Money.parse("100 afghan afghanis")
-      #Money<:AFN, 100>
+      #Money<:AFA, 100>
 
       iex> Money.parse("100")
       {:error, {Money.Invalid,
         "A currency code, symbol or description must be specified but was not found in \\"100\\""}}
 
       iex> Money.parse("USD 100 with trailing text")
-      {:error, {Money.Invalid, "Could not parse \\"USD 100 with trailing text\\"."}}
+      {:error, {Money.ParseError, "Could not parse \\"USD 100 with trailing text\\"."}}
 
   """
   # @doc since: "3.2.0"
@@ -491,23 +492,29 @@ defmodule Money do
       result
       |> Enum.map(fn {k, v} -> {k, String.trim_trailing(v)} end)
       |> Keyword.put_new(:currency, Kernel.to_string(options[:default_currency]))
-      |> Map.new
+      |> Map.new()
       |> maybe_create_money(string, options)
     else
-      _ -> {:error, {Money.Invalid, "Could not parse #{inspect(string)}."}}
+      _ ->
+        {:error, {Money.ParseError, "Could not parse #{inspect(string)}."}}
     end
   end
 
   defp maybe_create_money(%{currency: ""}, string, _options) do
     {:error,
      {Money.Invalid,
-      "A currency code, symbol or description must be specified but was not found in #{inspect string}"}}
+      "A currency code, symbol or description must be specified but was not found in #{
+        inspect(string)
+      }"}}
   end
 
   defp maybe_create_money(%{currency: currency, amount: amount}, _string, options) do
     backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
     locale = Keyword.get(options, :locale, backend.get_locale)
-    {only_filter, options} = Keyword.pop(options, :only, Keyword.get(options, :currency_filter, [:all]))
+
+    {only_filter, options} =
+      Keyword.pop(options, :only, Keyword.get(options, :currency_filter, [:all]))
+
     {except_filter, options} = Keyword.pop(options, :except, [])
     {fuzzy, options} = Keyword.pop(options, :fuzzy, nil)
 
@@ -521,9 +528,11 @@ defmodule Money do
 
   defp find_currency(currency_strings, currency, nil) do
     canonical_currency = String.downcase(currency)
+
     case Map.get(currency_strings, canonical_currency) do
       nil ->
         {:error, unknown_currency_error(currency)}
+
       currency ->
         {:ok, currency}
     end
@@ -555,8 +564,7 @@ defmodule Money do
   end
 
   defp unknown_currency_error(currency) do
-    {Money.UnknownCurrencyError,
-      "The currency #{inspect currency} is unknown or not supported"}
+    {Money.UnknownCurrencyError, "The currency #{inspect(currency)} is unknown or not supported"}
   end
 
   @doc """

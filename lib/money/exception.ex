@@ -30,6 +30,14 @@ defmodule Money.Invalid do
   end
 end
 
+defmodule Money.ParseError do
+  defexception [:message]
+
+  def exception(message) do
+    %__MODULE__{message: message}
+  end
+end
+
 defmodule Money.Subscription.NoCurrentPlan do
   defexception [:message]
 

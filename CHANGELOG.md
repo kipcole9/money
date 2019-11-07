@@ -30,6 +30,9 @@ This is the changelog for Money v4.4.0 released on November 6th, 2019.  For olde
 ```elixir
   iex> Money.parse("chf -100")
   #Money<:CHF, -100>
+
+  iex> Money.parse("(chf 100)")
+  #Money<:CHF, -100>
 ```
 * The money parser has been rewritten using [nimble_parsec](https://hex,pm.packages/nimble_parsec)
 
