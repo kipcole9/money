@@ -85,5 +85,9 @@ defmodule MoneyTest.Parse do
       assert Money.parse("kr-127,54", locale: "da") == Money.new(:DKK, "-127.54")
       assert Money.parse("kr -127,54", locale: "da") == Money.new(:DKK, "-127.54")
     end
+
+    test "de locale" do
+      assert Money.parse("1.127,54 €", locale: "de") == Money.new(:EUR, "1127.54")
+    end
   end
 end

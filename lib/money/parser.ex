@@ -9,7 +9,7 @@ defmodule Money.Parser do
     |> label("whitespace")
   end
 
-  @separators [?,, ?،, ?٫, ?、, ?︐, ?︑, ?﹐, ?﹑, ?，, ?､, ? ]
+  @separators [?., ?,, ?،, ?٫, ?、, ?︐, ?︑, ?﹐, ?﹑, ?，, ?､, ? ]
   def separators do
     utf8_char(@separators)
     |> label("separators")

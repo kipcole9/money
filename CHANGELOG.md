@@ -1,3 +1,11 @@
+# Changelog for Money v4.4.1
+
+This is the changelog for Money v4.4.1 released on November 10th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fixes money parsing error. Thanks to @Doerge. Closes #112.
+
 # Changelog for Money v4.4.0
 
 This is the changelog for Money v4.4.0 released on November 6th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
