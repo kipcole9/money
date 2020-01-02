@@ -1,3 +1,13 @@
+# Changelog for Money v4.4.2
+
+This is the changelog for Money v4.4.2 released on January 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Remove calls to `Code.ensure_compiled?/1` since it is deprecated in Elixir 1.10. Use instead `Cldr.Config.ensure_compiled?/1` which is added as a private API in `Cldr` version 2.12.0. This version of `Cldr` now becomes the minimum version required.
+
+* Remove spurious entries in `.dialyzer_ignore_warnings` - no entries are required and dialyzer is happy.
+
 # Changelog for Money v4.4.1
 
 This is the changelog for Money v4.4.1 released on November 10th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
