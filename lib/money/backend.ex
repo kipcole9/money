@@ -756,7 +756,7 @@ defmodule Money.Backend do
               "Cannot compare monies with different currencies. Received :USD and :CAD."}}
 
         """
-        @spec cmp(money_1 :: :"Elixir.Money".t(), money_2 :: :"Elixir.Money".t()) ::
+        @spec compare(money_1 :: :"Elixir.Money".t(), money_2 :: :"Elixir.Money".t()) ::
                 :gt | :eq | :lt | {:error, {module(), String.t()}}
         def compare(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
           :"Elixir.Money".compare(money_1, money_2)
