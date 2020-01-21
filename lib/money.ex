@@ -1132,31 +1132,32 @@ defmodule Money do
 
   ## Examples
 
-      iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 100)
+      iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 100)
       :gt
 
-      iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 200)
+      iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 200)
       :eq
 
-      iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 500)
+      iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 500)
       :lt
 
-      iex> Money.cmp Money.new(:USD, 200), Money.new(:CAD, 500)
+      iex> Money.compare Money.new(:USD, 200), Money.new(:CAD, 500)
       {:error,
        {ArgumentError,
         "Cannot compare monies with different currencies. Received :USD and :CAD."}}
 
   """
-  @spec cmp(money_1 :: Money.t(), money_2 :: Money.t()) ::
+  @spec compare(money_1 :: Money.t(), money_2 :: Money.t()) ::
           :gt | :eq | :lt | {:error, {module(), String.t()}}
-  def cmp(%Money{currency: same_currency, amount: amount_a}, %Money{
+
+  def compare(%Money{currency: same_currency, amount: amount_a}, %Money{
         currency: same_currency,
         amount: amount_b
       }) do
-    Decimal.cmp(amount_a, amount_b)
+    Cldr.Math.decimal_compare(amount_a, amount_b)
   end
 
-  def cmp(%Money{currency: code_a}, %Money{currency: code_b}) do
+  def compare(%Money{currency: code_a}, %Money{currency: code_b}) do
     {:error,
      {ArgumentError,
       "Cannot compare monies with different currencies. " <>
@@ -1179,12 +1180,12 @@ defmodule Money do
 
   ## Examples
 
-      Money.cmp! Money.new(:USD, 200), Money.new(:CAD, 500)
+      Money.compare! Money.new(:USD, 200), Money.new(:CAD, 500)
       ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :CAD.
 
   """
-  def cmp!(%Money{} = money_1, %Money{} = money_2) do
-    case cmp(money_1, money_2) do
+  def compare!(%Money{} = money_1, %Money{} = money_2) do
+    case compare(money_1, money_2) do
       {:error, {exception, reason}} -> raise exception, reason
       result -> result
     end
@@ -1208,33 +1209,32 @@ defmodule Money do
 
   ## Examples
 
-      iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 100)
+      iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 100)
       1
 
-      iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 200)
+      iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 200)
       0
 
-      iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 500)
+      iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 500)
       -1
 
-      iex> Money.compare Money.new(:USD, 200), Money.new(:CAD, 500)
+      iex> Money.cmp Money.new(:USD, 200), Money.new(:CAD, 500)
       {:error,
        {ArgumentError,
         "Cannot compare monies with different currencies. Received :USD and :CAD."}}
 
   """
-  @spec compare(money_1 :: Money.t(), money_2 :: Money.t()) ::
+  @spec cmp(money_1 :: Money.t(), money_2 :: Money.t()) ::
           -1 | 0 | 1 | {:error, {module(), String.t()}}
-  def compare(%Money{currency: same_currency, amount: amount_a}, %Money{
-        currency: same_currency,
-        amount: amount_b
-      }) do
-    amount_a
-    |> Decimal.compare(amount_b)
-    |> Decimal.to_integer()
+  def cmp(%Money{currency: same_currency} = money_1, %Money{currency: same_currency} = money_2) do
+    case compare(money_1, money_2) do
+      :lt -> -1
+      :eq -> 0
+      :gt -> 1
+    end
   end
 
-  def compare(%Money{currency: code_a}, %Money{currency: code_b}) do
+  def cmp(%Money{currency: code_a}, %Money{currency: code_b}) do
     {:error,
      {ArgumentError,
       "Cannot compare monies with different currencies. " <>
@@ -1257,12 +1257,12 @@ defmodule Money do
 
   ## Examples
 
-      Money.compare! Money.new(:USD, 200), Money.new(:CAD, 500)
+      Money.cmp! Money.new(:USD, 200), Money.new(:CAD, 500)
       ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :CAD.
 
   """
-  def compare!(%Money{} = money_1, %Money{} = money_2) do
-    case compare(money_1, money_2) do
+  def cmp!(%Money{} = money_1, %Money{} = money_2) do
+    case cmp(money_1, money_2) do
       {:error, {exception, reason}} -> raise exception, reason
       result -> result
     end
@@ -1483,7 +1483,8 @@ defmodule Money do
       digits = currency.digits
       diff = Decimal.from_float((100 - upto) * :math.pow(10, -digits))
 
-      if Decimal.cmp(diff, @one) in [:lt, :eq] && Decimal.cmp(@zero, diff) in [:lt, :eq] do
+      if Cldr.Math.decimal_compare(diff, @one) in [:lt, :eq] &&
+          Cldr.Math.decimal_compare(@zero, diff) in [:lt, :eq] do
         new_amount =
           Decimal.round(amount, 0)
           |> Decimal.add(@one)
@@ -1707,9 +1708,9 @@ defmodule Money do
   end
 
   @doc """
-  Calls `Decimal.reduce/1` on the given `Money.t()`
+  Calls `Decimal.normalize/1` on the given `Money.t()`
 
-  This will reduce the coefficient and exponent of the
+  This will normalize the coefficient and exponent of the
   decimal amount in a standard way that may aid in
   native comparison of `%Money.t()` items.
 
@@ -1721,15 +1722,27 @@ defmodule Money do
       #Money<:USD, 42.00000000>
       iex> x == y
       false
-      iex> y = Money.reduce(x)
+      iex> y = Money.normalize(x)
       #Money<:USD, 42>
       iex> x == y
       true
 
   """
-  @spec reduce(Money.t()) :: Money.t()
-  def reduce(%Money{currency: currency, amount: amount}) do
-    %Money{currency: currency, amount: Decimal.reduce(amount)}
+  @spec normalize(Money.t()) :: Money.t()
+  @doc since: "5.0.0"
+  if Code.ensure_loaded?(Decimal) and function_exported?(Decimal, :normalize, 1) do
+    def normalize(%Money{currency: currency, amount: amount}) do
+      %Money{currency: currency, amount: Decimal.normalize(amount)}
+    end
+  else
+    def normalize(%Money{currency: currency, amount: amount}) do
+      %Money{currency: currency, amount: Decimal.reduce(amount)}
+    end
+  end
+
+  @deprecated "Use Money.normalize/1 instead."
+  def reduce(money) do
+    normalize(money)
   end
 
   @doc """
@@ -1771,7 +1784,7 @@ defmodule Money do
     new_money =
       money
       |> Money.round(opts)
-      |> Money.reduce()
+      |> Money.normalize()
 
     {:ok, remainder} = Money.sub(money, new_money)
     {:ok, currency} = Currency.currency_for_code(money.currency)

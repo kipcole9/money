@@ -349,6 +349,33 @@ Therefore an error is returned if an attempt is made to use `Money.new/2` with a
 
 If the use of `float`s is require then the function `Money.from_float/2` is provided with the same arguments as those for `Money.new/2`.  `Money.from_float/2` provides an addition check and will return an error if the precision (number of digits) of the provided float is more than 15 (the number of digits guaranteed to round-trip between a 64-bit float and a string).
 
+### Comparison functions
+
+`Money` values can be compared as long as they have the same currency. The recommended function is `Money.compare/2` which, given two compatible money amounts, will return `:lt`, `:eq` or `:gt` depending on the relationship. For example:
+```
+iex> Money.compare Money.new(:USD, 100), Money.new(:USD, 200)
+:lt
+
+iex> Money.compare Money.new(:USD, 100), Money.new(:AUD, 200)
+{:error,
+ {ArgumentError,
+  "Cannot compare monies with different currencies. Received :USD and :AUD."}}
+```
+
+From Elixir verison `1.10.0` onwards, several functions in the `Enum` module can use the `Money.compare/2` function to simplify sorting. For example:
+```
+iex> list = [Money.new(:USD, 100), Money.new(:USD, 200)]
+[#Money<:USD, 100>, #Money<:USD, 200>]
+iex> Enum.sort list, Money
+[#Money<:USD, 100>, #Money<:USD, 200>]
+iex> Enum.sort list, {:asc, Money}
+[#Money<:USD, 100>, #Money<:USD, 200>]
+iex> Enum.sort list, {:desc, Money}
+[#Money<:USD, 200>, #Money<:USD, 100>]
+```
+
+**Note that `Enum.sort/2` will sort money amounts even when the currencies are incompatible. In this case the order of the result is not predictable. It is the developers responsibility to filter the list to compatible currencies prior to sorting. This is a limitation of the `Enum.sort/2` implementation.**
+
 ### Optional ~M sigil
 
 An optional sigil module is available to aid in creating %Money{} structs.  It needs to be imported before use:

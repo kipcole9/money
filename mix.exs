@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "4.4.2"
+  @version "5.0.0"
 
   def project do
     [
@@ -85,7 +85,8 @@ defmodule Money.Mixfile do
       {:ex_cldr, "~> 2.12"},
       {:ex_cldr_numbers, "~> 2.6"},
       {:ex_cldr_currencies, "~> 2.4"},
-      {:decimal, "~> 1.6"},
+      {:cldr_utils, "~> 2.6"},
+      {:decimal, "~> 1.6 or ~> 2.0", override: true},
       {:phoenix_html, "~> 2.0", optional: true},
       {:nimble_parsec, "~> 0.5", optional: true},
       {:dialyxir, "~> 1.0.0-rc", only: [:dev], runtime: false},

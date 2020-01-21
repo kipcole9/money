@@ -741,16 +741,16 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> #{inspect(__MODULE__)}.cmp Money.new(:USD, 200), Money.new(:USD, 100)
+            iex> #{inspect(__MODULE__)}.compare Money.new(:USD, 200), Money.new(:USD, 100)
             :gt
 
-            iex> #{inspect(__MODULE__)}.cmp Money.new(:USD, 200), Money.new(:USD, 200)
+            iex> #{inspect(__MODULE__)}.compare Money.new(:USD, 200), Money.new(:USD, 200)
             :eq
 
-            iex> #{inspect(__MODULE__)}.cmp Money.new(:USD, 200), Money.new(:USD, 500)
+            iex> #{inspect(__MODULE__)}.compare Money.new(:USD, 200), Money.new(:USD, 500)
             :lt
 
-            iex> #{inspect(__MODULE__)}.cmp Money.new(:USD, 200), Money.new(:CAD, 500)
+            iex> #{inspect(__MODULE__)}.compare Money.new(:USD, 200), Money.new(:CAD, 500)
             {:error,
              {ArgumentError,
               "Cannot compare monies with different currencies. Received :USD and :CAD."}}
@@ -758,8 +758,8 @@ defmodule Money.Backend do
         """
         @spec cmp(money_1 :: :"Elixir.Money".t(), money_2 :: :"Elixir.Money".t()) ::
                 :gt | :eq | :lt | {:error, {module(), String.t()}}
-        def cmp(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
-          :"Elixir.Money".cmp(money_1, money_2)
+        def compare(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+          :"Elixir.Money".compare(money_1, money_2)
         end
 
         @doc """
@@ -778,11 +778,11 @@ defmodule Money.Backend do
 
         ## Examples
 
-            #{inspect(__MODULE__)}.cmp! Money.new(:USD, 200), Money.new(:CAD, 500)
+            #{inspect(__MODULE__)}.compare! Money.new(:USD, 200), Money.new(:CAD, 500)
             ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :CAD.
 
         """
-        def cmp!(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+        def compare!(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
           :"Elixir.Money".cmp!(money_1, money_2)
         end
 
@@ -804,25 +804,25 @@ defmodule Money.Backend do
 
         ## Examples
 
-            iex> #{inspect(__MODULE__)}.compare Money.new(:USD, 200), Money.new(:USD, 100)
+            iex> #{inspect(__MODULE__)}.cmp Money.new(:USD, 200), Money.new(:USD, 100)
             1
 
-            iex> #{inspect(__MODULE__)}.compare Money.new(:USD, 200), Money.new(:USD, 200)
+            iex> #{inspect(__MODULE__)}.cmp Money.new(:USD, 200), Money.new(:USD, 200)
             0
 
-            iex> #{inspect(__MODULE__)}.compare Money.new(:USD, 200), Money.new(:USD, 500)
+            iex> #{inspect(__MODULE__)}.cmp Money.new(:USD, 200), Money.new(:USD, 500)
             -1
 
-            iex> #{inspect(__MODULE__)}.compare Money.new(:USD, 200), Money.new(:CAD, 500)
+            iex> #{inspect(__MODULE__)}.cmp Money.new(:USD, 200), Money.new(:CAD, 500)
             {:error,
              {ArgumentError,
               "Cannot compare monies with different currencies. Received :USD and :CAD."}}
 
         """
-        @spec compare(money_1 :: :"Elixir.Money".t(), money_2 :: :"Elixir.Money".t()) ::
+        @spec cmp(money_1 :: :"Elixir.Money".t(), money_2 :: :"Elixir.Money".t()) ::
                 -1 | 0 | 1 | {:error, {module(), String.t()}}
-        def compare(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
-          :"Elixir.Money".compare(money_1, money_2)
+        def cmp(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+          :"Elixir.Money".cmp(money_1, money_2)
         end
 
         @doc """
@@ -841,12 +841,12 @@ defmodule Money.Backend do
 
         ## Examples
 
-            #{inspect(__MODULE__)}.compare! Money.new(:USD, 200), Money.new(:CAD, 500)
+            #{inspect(__MODULE__)}.cmp! Money.new(:USD, 200), Money.new(:CAD, 500)
             ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :CAD.
 
         """
-        def compare!(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
-          :"Elixir.Money".compare!(money_1, money_2)
+        def cmp!(%:"Elixir.Money"{} = money_1, %:"Elixir.Money"{} = money_2) do
+          :"Elixir.Money".cmp!(money_1, money_2)
         end
 
         @doc """
@@ -1134,7 +1134,7 @@ defmodule Money.Backend do
         @doc """
         Calls `Decimal.reduce/1` on the given `:'Elixir.Money'.t()`
 
-        This will reduce the coefficient and exponent of the
+        This will normalize the coefficient and exponent of the
         decimal amount in a standard way that may aid in
         native comparison of `%:'Elixir.Money'.t()` items.
 
@@ -1146,15 +1146,21 @@ defmodule Money.Backend do
             #Money<:USD, 42.00000000>
             iex> x == y
             false
-            iex> y = Money.reduce(x)
+            iex> y = Money.normalize(x)
             #Money<:USD, 42>
             iex> x == y
             true
 
         """
-        @spec reduce(:"Elixir.Money".t()) :: :"Elixir.Money".t()
-        def reduce(%:"Elixir.Money"{} = money) do
-          :"Elixir.Money".reduce(money)
+        @spec normalize(:"Elixir.Money".t()) :: :"Elixir.Money".t()
+        @doc since: "5.0.0"
+        def normalize(%:"Elixir.Money"{} = money) do
+          :"Elixir.Money".normalize(money)
+        end
+
+        @deprecated "Use #{inspect __MODULE__}.normalize/1 instead."
+        def reduce(money) do
+          normalize(money)
         end
 
         @doc """

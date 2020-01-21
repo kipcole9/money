@@ -715,7 +715,7 @@ defmodule Money.Subscription do
     zero = zero(plan)
 
     {first_billing_amount, carry_forward} =
-      if Money.cmp(prorate_price, zero) == :lt do
+      if Money.compare(prorate_price, zero) == :lt do
         {zero, prorate_price}
       else
         {prorate_price, zero}

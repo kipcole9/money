@@ -1,3 +1,35 @@
+# Changelog for Money v5.0.0
+
+This is the changelog for Money v5.0.0 released on January 21st, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Breaking changes
+
+* Elixir 1.10 introduces semantic sorting for stucts that depends on the availability of a `compare/2` function that returns `:lt`, `:eq` or `:gt`.  Therefore in this release of `ex_money` the functions `compare/2` and `compare!/2` are swapped with `cmp/2` and `cmp!/2` in order to conform with this expectation. Now `compare/2` will return `:eq`, `:lt` or `:gt`. And `cmp/2` return `-1`, `0` or `1`.
+
+* Deprecate `Money.reduce/1` in favour of `Money.normalize/1` to be consistent with `Decimal` versions `1.9` and later.
+
+It is believed and tested that `Money` version `5.0.0` is compatible with all versions of `Decimal` from `1.6` up to the as-yet-unreleased `2.0`.
+
+### Support of Elixir 1.10 Enum sorting
+
+From Elixir verison `1.10.0`, several functions in the `Enum` module can use the `Money.compare/2` function to simplify sorting. For example:
+
+```
+iex> list = [Money.new(:USD, 100), Money.new(:USD, 200)]
+[#Money<:USD, 100>, #Money<:USD, 200>]
+iex> Enum.sort list, Money
+[#Money<:USD, 100>, #Money<:USD, 200>]
+iex> Enum.sort list, {:asc, Money}
+[#Money<:USD, 100>, #Money<:USD, 200>]
+iex> Enum.sort list, {:desc, Money}
+[#Money<:USD, 200>, #Money<:USD, 100>]
+```
+**Note that `Enum.sort/2` will sort money amounts even when the currencies are incompatible. In this case the order of the result is not predictable. It is the developers responsibility to filter the list to compatible currencies prior to sorting. This is a limitation of the `Enum.sort/2` implementation.**
+
+### Notes on Decimal version support
+
+* `ex_money` version `5.0.0` is compatible with `Decimal` versions from `1.6` onwards. In `Decimal` version `2.0` the same changes to `compare/2` and `cmp/2` will occur and in `Decimal` version `1.9`, `Decimal.cmp/2` is deprecated.  `ex_money` version `5.0.0` detects these different versions of `Decimal` and therefore remains compatability with `Decimal` back to version `1.6`.
+
 # Changelog for Money v4.4.2
 
 This is the changelog for Money v4.4.2 released on January 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

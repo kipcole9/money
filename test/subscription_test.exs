@@ -53,7 +53,7 @@ defmodule MoneySubscriptionTest do
     assert changeset.next_interval_starts == ~D[2018-04-15]
     assert changeset.credit_amount_applied == Money.new(:USD, "50.00")
 
-    assert Money.cmp!(
+    assert Money.compare!(
              Money.add!(changeset.credit_amount_applied, changeset.first_billing_amount),
              p2.price
            ) == :eq
