@@ -36,6 +36,8 @@ defmodule Money.Backend do
         defdelegate known_historic_currencies, to: :"Elixir.Money"
         defdelegate known_tender_currencies, to: :"Elixir.Money"
 
+        require Cldr.Macros
+
         @doc """
         Returns a %:'Elixir.Money'{} struct from a currency code and a currency amount or
         an error tuple of the form `{:error, {exception, message}}`.
