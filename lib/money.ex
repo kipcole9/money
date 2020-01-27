@@ -1724,7 +1724,7 @@ defmodule Money do
 
   """
   @spec normalize(Money.t()) :: Money.t()
-  @doc since: "5.0.0"
+  # @doc since: "5.0.0"
   if Code.ensure_loaded?(Decimal) and function_exported?(Decimal, :normalize, 1) do
     def normalize(%Money{currency: currency, amount: amount}) do
       %Money{currency: currency, amount: Decimal.normalize(amount)}
