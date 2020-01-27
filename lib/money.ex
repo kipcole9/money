@@ -35,8 +35,6 @@ defmodule Money do
   """
 
   import Kernel, except: [round: 1, abs: 1]
-  import NimbleParsec
-  import Money.Parser
 
   @typedoc """
   Money is composed of an atom representation of an ISO4217 currency code and
@@ -376,9 +374,6 @@ defmodule Money do
     end
   end
 
-  defparsecp(:money_parser, choice([money_with_currency(), accounting_format()]))
-  # defparsecp :money_parser, money_with_currency()
-
   @doc """
   Parse a string and return a `Money.t` or an error.
 
@@ -500,7 +495,7 @@ defmodule Money do
   @spec parse(String.t(), Keyword.t()) :: Money.t() | {:error, {module(), String.t()}}
 
   def parse(string, options \\ []) do
-    with {:ok, result, "", _, _, _} <- money_parser(String.trim(string)) do
+    with {:ok, result, "", _, _, _} <- Money.Parser.money_parser(String.trim(string)) do
       result
       |> Enum.map(fn {k, v} -> {k, String.trim_trailing(v)} end)
       |> Keyword.put_new(:currency, Kernel.to_string(options[:default_currency]))

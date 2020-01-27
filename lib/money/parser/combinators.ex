@@ -1,4 +1,4 @@
-defmodule Money.Parser do
+defmodule Money.Combinators do
   @moduledoc false
 
   import NimbleParsec
@@ -63,10 +63,6 @@ defmodule Money.Parser do
     |> label("negative number")
   end
 
-  def add_minus_sign(arg) do
-    "-" <> arg
-  end
-
   def number do
     choice([negative_number(), positive_number()])
     |> reduce({List, :to_string, []})
@@ -123,15 +119,4 @@ defmodule Money.Parser do
     |> map(:change_sign)
   end
 
-  def change_sign({:amount, amount}) do
-    revised_number =
-      case amount do
-        <<"-", number::binary>> -> number
-        number -> "-" <> number
-      end
-
-    {:amount, revised_number}
-  end
-
-  def change_sign(other), do: other
 end

@@ -1,3 +1,11 @@
+# Changelog for Money v5.0.1
+
+This is the changelog for Money v5.0.1 released on January 28th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Make `nimble_parsec` a required dependency since it is required for parsing money amounts. Thanks to @jonnystoten for the report.
+
 # Changelog for Money v5.0.0
 
 This is the changelog for Money v5.0.0 released on January 21st, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
