@@ -165,7 +165,7 @@ defmodule Money.Backend do
                 "Reduce the precision or call Money.new/2 with a Decimal or String amount"}}
 
         """
-        # @doc since: "2.0.0"
+        Cldr.Macros.doc_since "2.0.0"
         @spec from_float(
                 float | :"Elixir.Money".currency_code(),
                 float | :"Elixir.Money".currency_code()
@@ -301,7 +301,7 @@ defmodule Money.Backend do
               {Money.ParseError, "Could not parse \\"USD 100 with trailing text\\"."}}
 
         """
-        # @doc since: "3.2.0"
+        Cldr.Macros.doc_since "3.2.0"
         @spec parse(String.t(), Keyword.t()) ::
                 :"Elixir.Money".t() | {:error, {module(), String.t()}}
         def parse(string, options \\ []) do
@@ -1153,7 +1153,7 @@ defmodule Money.Backend do
 
         """
         @spec normalize(:"Elixir.Money".t()) :: :"Elixir.Money".t()
-        @doc since: "5.0.0"
+        Cldr.Macros.doc_since "5.0.0"
         def normalize(%:"Elixir.Money"{} = money) do
           :"Elixir.Money".normalize(money)
         end
