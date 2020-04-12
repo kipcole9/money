@@ -1,6 +1,14 @@
+# Changelog for Money v5.0.2
+
+This is the changelog for Money v5.0.2 released on ______.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Update the application supervisor spec
+
 # Changelog for Money v5.0.1
 
-This is the changelog for Money v5.0.1 released on January 28th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.0.1 released on January 28th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
@@ -8,7 +16,7 @@ This is the changelog for Money v5.0.1 released on January 28th, 2019.  For olde
 
 # Changelog for Money v5.0.0
 
-This is the changelog for Money v5.0.0 released on January 21st, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.0.0 released on January 21st, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Breaking changes
 
@@ -40,7 +48,7 @@ iex> Enum.sort list, {:desc, Money}
 
 # Changelog for Money v4.4.2
 
-This is the changelog for Money v4.4.2 released on January 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v4.4.2 released on January 2nd, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
