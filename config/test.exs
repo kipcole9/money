@@ -16,3 +16,4 @@ config :ex_money,
   log_failure: nil,
   log_info: nil,
   default_cldr_backend: Test.Cldr
+

@@ -82,15 +82,15 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      # {:ex_cldr, path: "../../cldr/cldr", override: true},
-      # {:ex_cldr_numbers, github: "elixir-cldr/cldr_numbers", override: true},
-      # {:ex_cldr_currencies, github: "elixir-cldr/cldr_currencies", override: true},
-      # {:cldr_utils, github: "elixir-cldr/cldr_utils", override: true},
+      {:ex_cldr, path: "../cldr", override: true},
+      {:ex_cldr_numbers, github: "elixir-cldr/cldr_numbers", override: true},
+      {:ex_cldr_currencies, github: "elixir-cldr/cldr_currencies", override: true},
+      {:cldr_utils, github: "elixir-cldr/cldr_utils", override: true},
 
-      {:ex_cldr, "~> 2.12"},
-      {:ex_cldr_numbers, "~> 2.6"},
-      {:ex_cldr_currencies, "~> 2.4"},
-      {:cldr_utils,"~> 2.6"},
+      # {:ex_cldr, "~> 2.12"},
+      # {:ex_cldr_numbers, "~> 2.6"},
+      # {:ex_cldr_currencies, "~> 2.4"},
+      # {:cldr_utils,"~> 2.6"},
 
       {:decimal, "~> 1.6 or ~> 2.0"},
       {:phoenix_html, "~> 2.0", optional: true},

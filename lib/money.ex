@@ -36,6 +36,7 @@ defmodule Money do
 
   import Kernel, except: [round: 1, abs: 1]
   require Cldr.Macros
+  alias Cldr.Config
 
   @typedoc """
   Money is composed of an atom representation of an ISO4217 currency code and
@@ -53,7 +54,7 @@ defmodule Money do
     Money.Backend.define_money_module(config)
   end
 
-  @json_library Application.get_env(:ex_money, :json_library, Cldr.Config.json_library())
+  @json_library Application.get_env(:ex_money, :json_library, Config.json_library())
   unless Code.ensure_loaded?(@json_library) do
     IO.puts("""
 
@@ -475,9 +476,6 @@ defmodule Money do
       iex> Money.parse("100", default_currency: :EUR)
       #Money<:EUR, 100>
 
-      iex> Money.parse("100", default_currency: Money.default_currency_for_locale())
-      #Money<:USD, 100>
-
       iex> Money.parse("100 eurosports", fuzzy: 0.9)
       {:error, {Money.UnknownCurrencyError, "The currency \\"eurosports\\" is unknown or not supported"}}
 
@@ -574,50 +572,6 @@ defmodule Money do
 
   defp unknown_currency_error(currency) do
     {Money.UnknownCurrencyError, "The currency #{inspect(currency)} is unknown or not supported"}
-  end
-
-  @doc """
-  Returns the default currency for a locale
-
-  This function can be used in conjunction with the
-  `:default_locale` option of `Money.parse/2`.
-
-  ## Arguments
-
-  * `:options` is a keyword list of options.
-
-  ## Options
-
-  * `:backend` is any module() that includes `use Cldr` and therefore
-    is a `Cldr` backend module(). The default is `Money.default_backend()`
-
-  * `:locale` is any valid locale returned by `Cldr.known_locale_names/1`
-    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
-    The default is `<backend>.get_locale()`
-
-  ## Returns
-
-  * The currency code that is the default for the given locale or
-
-  * `{:error, {exception, message}}`
-
-  ## Example
-
-      # Assumes `Cldr.get_locale/1` returns "en"
-      iex> Money.default_currency_for_locale
-      :USD
-
-      iex> Money.default_currency_for_locale(locale: "en-AU")
-      :AUD
-
-  """
-  def default_currency_for_locale(options \\ []) do
-    backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
-    locale = Keyword.get(options, :locale, backend.get_locale)
-
-    with {:ok, locale} <- backend.validate_locale(locale) do
-      Cldr.Currency.current_currency_for_locale(locale)
-    end
   end
 
   @doc """
@@ -1508,6 +1462,13 @@ defmodule Money do
     atom or string and the value is a Decimal conversion factor.  The default is the
     latest available exchange rates returned from `Money.ExchangeRates.latest_rates()`
 
+  ## Converting to a currency defined in a locale
+
+  To convert a `Money` to a currency defined by a locale,
+  `Cldr.Currency.currency_from_locale/1` can be called with
+  a `t:Cldr.LanguageTag.t()` parameter. It will return
+  the currency configured for that locale.
+
   ## Examples
 
       Money.to_currency(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)})
@@ -1574,13 +1535,16 @@ defmodule Money do
 
   ## Examples
 
-      iex> Money.to_currency! Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
+      iex> Money.to_currency! Money.new(:USD, 100), :AUD,
+      ...>   %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
       #Money<:AUD, 73.4500>
 
-      iex> Money.to_currency! Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.from_float(0.7345)}
+      iex> Money.to_currency! Money.new("USD", 100), "AUD",
+      ...>   %{"USD" => Decimal.new(1), "AUD" => Decimal.from_float(0.7345)}
       #Money<:AUD, 73.4500>
 
-      Money.to_currency! Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
+      => Money.to_currency! Money.new(:USD, 100), :ZZZ,
+           %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
       ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
 
   """
@@ -1593,17 +1557,10 @@ defmodule Money do
   def to_currency!(money, to_currency, rates \\ Money.ExchangeRates.latest_rates())
 
   def to_currency!(%Money{} = money, currency, rates) do
-    money
-    |> to_currency(currency, rates)
-    |> do_to_currency!
-  end
-
-  defp do_to_currency!({:ok, converted}) do
-    converted
-  end
-
-  defp do_to_currency!({:error, {exception, reason}}) do
-    raise exception, reason
+    case to_currency(money, currency, rates) do
+      {:ok, money} -> money
+      {:error, {exception, reason}} -> raise exception, reason
+    end
   end
 
   @doc """
