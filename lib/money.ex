@@ -1471,17 +1471,22 @@ defmodule Money do
 
   ## Examples
 
-      Money.to_currency(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)})
-      {:ok, #Money<:AUD, 73.4500>}
+      iex> Money.to_currency(Money.new(:USD, 100), :AUD,
+      ...>   %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)})
+      {:ok, Money.new(:AUD, "73.4500")}
 
-      Money.to_currency(Money.new("USD", 100), "AUD", %{"USD" => Decimal.new(1), "AUD" => Decimal.from_float(0.7345)})
-      {:ok, #Money<:AUD, 73.4500>}
+      iex> Money.to_currency(Money.new("USD", 100), "AUD",
+      ...>   %{"USD" => Decimal.new(1), "AUD" => Decimal.from_float(0.7345)})
+      {:ok, Money.new(:AUD, "73.4500")}
 
-      iex> Money.to_currency Money.new(:USD, 100), :AUDD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
+      iex> Money.to_currency(Money.new(:USD, 100), :AUDD,
+      ...>   %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)})
       {:error, {Cldr.UnknownCurrencyError, "The currency :AUDD is invalid"}}
 
-      iex> Money.to_currency Money.new(:USD, 100), :CHF, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
-      {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :CHF"}}
+      iex> Money.to_currency(Money.new(:USD, 100), :CHF,
+      ...>   %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)})
+      {:error, {Money.ExchangeRateError,
+        "No exchange rate is available for currency :CHF"}}
 
   """
   @spec to_currency(
@@ -1525,7 +1530,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any `Money.t` struct returned by `Cldr.Currency.new/2`
+  * `money` is any `t:Money.t()` struct returned by `Cldr.Currency.new/2`
 
   * `to_currency` is a valid currency code into which the `money` is converted
 
