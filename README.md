@@ -658,7 +658,7 @@ The primary functions supporting subscriptions are:
 
 ## Serializing to a database with Ecto
 
-The companion package [ex_money_sql](https://hex.pm/packages/ex_money_sql) provides functions for the serialization of `Money` data.  See the [README]() for further information.
+The companion package [ex_money_sql](https://hex.pm/packages/ex_money_sql) provides functions for the serialization of `Money` data.  See the [README](https://hexdocs.pm/ex_money_sql/readme.html) for further information.
 
 ## Installation
 
@@ -667,7 +667,7 @@ The companion package [ex_money_sql](https://hex.pm/packages/ex_money_sql) provi
 ```elixir
 def deps do
   [
-    {:ex_money, "~> 4.0"},
+    {:ex_money, "~> 5.0"},
     ...
   ]
 end
