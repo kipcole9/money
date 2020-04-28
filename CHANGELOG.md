@@ -1,6 +1,6 @@
 # Changelog for Money v5.0.2
 
-This is the changelog for Money v5.0.2 released on ______.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.0.2 released on April 29th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
