@@ -6,8 +6,7 @@
 Money implements a set of functions to store, retrieve, convert and perform arithmetic
 on a `%Money{}` type that is composed of an ISO 4217 currency code and a currency amount.
 
-Money is opinionated in the interests of serving as a dependable library
-that can underpin accounting and financial applications.
+Money is opinionated in the interests of serving as a dependable library that can underpin accounting and financial applications.
 
 How is this opinion expressed?
 
