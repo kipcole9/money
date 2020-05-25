@@ -1,3 +1,20 @@
+# Changelog for Money v5.1.0
+
+This is the changelog for Money v5.1.0 released on May 26th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Extract default currency from locale when parsing a money string. The updated docs now say:
+
+  * `:default_currency` is any valid currency code or `false`
+    that will used if no currency code, symbol or description is
+    indentified in the parsed string. The default is `nil`
+    which means that the default currency associated with
+    the `:locale` option will be used. If `false` then the
+    currency assocated with the `:locale` option will not be
+    used and an error will be returned if there is no currency
+    in the string to be parsed.
+
 # Changelog for Money v5.0.2
 
 This is the changelog for Money v5.0.2 released on April 29th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

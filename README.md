@@ -285,6 +285,13 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
   iex> Money.parse("100", default_currency: :EUR)
   #Money<:EUR, 100>
 
+  # Parse using the default currency of the locale
+	# If no `:locale` option is provided then
+	# the locale associated with `Money.default_backend/0`
+	# is used.
+  iex> Money.parse("100", locale: "en")
+  #Money<:EUR, 100>
+
   # Parse with a default currency for the current locale
   iex> Money.parse("100", default_currency: Money.default_currency_for_locale())
   #Money<:USD, 100>

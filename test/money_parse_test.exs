@@ -58,10 +58,15 @@ defmodule MoneyTest.Parse do
     end
 
     test "parsing fails if no currency and no default currency" do
-      assert Money.parse("100") ==
+      assert Money.parse("100", default_currency: false) ==
                {:error,
                 {Money.Invalid,
                  "A currency code, symbol or description must be specified but was not found in \"100\""}}
+    end
+
+    test "parse with locale determining currency" do
+      assert Money.parse("100", locale: "en") == Money.new(:USD, 100)
+      assert Money.parse("100", locale: "de") == Money.new(:EUR, 100)
     end
 
     test "parse with a default currency" do

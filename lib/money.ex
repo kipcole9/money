@@ -422,11 +422,14 @@ defmodule Money do
     It is recommended to use numbers greater than `0.8` in
     order to reduce false positives.
 
-  * `:default_currency` is any valid currency code that
-    will used if no currency code, symbol or description is
+  * `:default_currency` is any valid currency code or `false`
+    that will used if no currency code, symbol or description is
     indentified in the parsed string. The default is `nil`
-    which means that if no currency code is found and error
-    will be returned.
+    which means that the default currency associated with
+    the `:locale` option will be used. If `false` then the
+    currency assocated with the `:locale` option will not be
+    used and an error will be returned if there is no currency
+    in the string to be parsed.
 
   ## Returns
 
@@ -482,7 +485,7 @@ defmodule Money do
       iex> Money.parse("100 afghan afghanis")
       #Money<:AFN, 100>
 
-      iex> Money.parse("100")
+      iex> Money.parse("100", default_currency: false)
       {:error, {Money.Invalid,
         "A currency code, symbol or description must be specified but was not found in \\"100\\""}}
 
@@ -497,7 +500,7 @@ defmodule Money do
     with {:ok, result, "", _, _, _} <- Money.Parser.money_parser(String.trim(string)) do
       result
       |> Enum.map(fn {k, v} -> {k, String.trim_trailing(v)} end)
-      |> Keyword.put_new(:currency, Kernel.to_string(options[:default_currency]))
+      |> Keyword.put_new(:currency, Keyword.get(options, :default_currency))
       |> Map.new()
       |> maybe_create_money(string, options)
     else
@@ -506,7 +509,9 @@ defmodule Money do
     end
   end
 
-  defp maybe_create_money(%{currency: ""}, string, _options) do
+  # No currency was in the string and options[:default_currency] == false
+  # meaning don't derive it from the locale
+  defp maybe_create_money(%{currency: false}, string, _options) do
     {:error,
      {Money.Invalid,
       "A currency code, symbol or description must be specified but was not found in #{
@@ -514,9 +519,27 @@ defmodule Money do
       }"}}
   end
 
+  # No currency was in the string so we'll derive it from
+  # the locale
+  defp maybe_create_money(%{currency: nil} = money_map, string, options) do
+    backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
+    locale = Keyword.get(options, :locale, backend.get_locale)
+
+    with {:ok, backend} <- Cldr.validate_backend(backend),
+         {:ok, locale} <- Cldr.validate_locale(locale, backend) do
+      currency = Cldr.Currency.current_currency_from_locale(locale)
+
+      money_map
+      |> Map.put(:currency, currency)
+      |> maybe_create_money(string, options)
+    end
+  end
+
   defp maybe_create_money(%{currency: currency, amount: amount}, _string, options) do
     backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
     locale = Keyword.get(options, :locale, backend.get_locale)
+
+    currency = Kernel.to_string(currency)
 
     {only_filter, options} =
       Keyword.pop(options, :only, Keyword.get(options, :currency_filter, [:all]))

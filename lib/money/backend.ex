@@ -266,6 +266,15 @@ defmodule Money.Backend do
           It is recommended to use numbers greater than `0.8` in
           order to reduce false positives.
 
+        * `:default_currency` is any valid currency code or `false`
+          that will used if no currency code, symbol or description is
+          indentified in the parsed string. The default is `nil`
+          which means that the default currency associated with
+          the `:locale` option will be used. If `false` then the
+          currency assocated with the `:locale` option will not be
+          used and an error will be returned if there is no currency
+          in the string to be parsed.
+
         ## Returns
 
         * a `Money.t` if parsing is successful or
@@ -294,7 +303,7 @@ defmodule Money.Backend do
             iex> #{inspect(__MODULE__)}.parse("100 afghan afghanis")
             #Money<:AFN, 100>
 
-            iex> #{inspect(__MODULE__)}.parse("100")
+            iex> #{inspect(__MODULE__)}.parse("100", default_currency: false)
             {:error,
               {Money.Invalid, "A currency code, symbol or description must be specified but was not found in \\"100\\""}}
 
