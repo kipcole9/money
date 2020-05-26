@@ -4,7 +4,7 @@ This is the changelog for Money v5.1.0 released on May 26th, 2020.  For older ch
 
 ### Enhancements
 
-* Extract default currency from locale when parsing a money string. The updated docs now say:
+* Extract default currency from locale when calling `Money.parse/2` on a money string. The updated docs now say:
 
   * `:default_currency` is any valid currency code or `false`
     that will used if no currency code, symbol or description is
@@ -13,7 +13,7 @@ This is the changelog for Money v5.1.0 released on May 26th, 2020.  For older ch
     the `:locale` option will be used. If `false` then the
     currency assocated with the `:locale` option will not be
     used and an error will be returned if there is no currency
-    in the string to be parsed.
+    in the string being parsed.
 
 * Add certificate verification for exchange rate retrieval
 

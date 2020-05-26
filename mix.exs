@@ -65,7 +65,7 @@ defmodule Money.Mixfile do
       main: "readme",
       groups_for_modules: groups_for_modules(),
       logo: "logo.png",
-      skip_undefined_reference_warnings_on: ["changelog"]
+      skip_undefined_reference_warnings_on: ["changelog", "CHANGELOG.md"]
     ]
   end
 

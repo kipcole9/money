@@ -424,7 +424,7 @@ The main API for formatting `Money` is `Money.to_string/2`. Additionally formatt
     iex> Money.to_string Money.new("EUR", "234.467"), locale: "fr"
     {:ok, "234,47 €"}
 
-**Note that the output is influenced by the locale in effect.**  By default the locale used is that returned by `Cldr.get_current_local/0`.  Its default value is "en-001".  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
+**Note that the output is influenced by the locale in effect.**  By default the locale used is that returned by `Cldr.get_locale/0`.  Its default value is `:en-001`.  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
 
 ### Arithmetic Functions
 

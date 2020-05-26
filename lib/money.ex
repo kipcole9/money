@@ -429,7 +429,7 @@ defmodule Money do
     the `:locale` option will be used. If `false` then the
     currency assocated with the `:locale` option will not be
     used and an error will be returned if there is no currency
-    in the string to be parsed.
+    in the string being parsed.
 
   ## Returns
 
@@ -1688,7 +1688,8 @@ defmodule Money do
   end
 
   @doc """
-  Calls `Decimal.normalize/1` on the given `Money.t()`
+  Normalizes the underlying decimal amount in a
+  given `Money.t()`
 
   This will normalize the coefficient and exponent of the
   decimal amount in a standard way that may aid in

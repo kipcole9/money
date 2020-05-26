@@ -273,7 +273,7 @@ defmodule Money.Backend do
           the `:locale` option will be used. If `false` then the
           currency assocated with the `:locale` option will not be
           used and an error will be returned if there is no currency
-          in the string to be parsed.
+          in the string being parsed.
 
         ## Returns
 
