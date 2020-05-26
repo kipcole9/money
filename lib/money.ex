@@ -527,7 +527,7 @@ defmodule Money do
 
     with {:ok, backend} <- Cldr.validate_backend(backend),
          {:ok, locale} <- Cldr.validate_locale(locale, backend) do
-      currency = Cldr.Currency.current_currency_from_locale(locale)
+      currency = Cldr.Currency.currency_from_locale(locale)
 
       money_map
       |> Map.put(:currency, currency)

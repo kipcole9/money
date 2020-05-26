@@ -75,6 +75,17 @@ defmodule MoneyTest.Parse do
       assert Money.parse("100", default_currency: "australian dollars") == Money.new(:AUD, 100)
     end
 
+    test "with locale overrides" do
+      # A locale that has a regional override. The regional override
+      # takes precedence and hence the currency is USD
+      assert Money.parse("100", locale: "zh-Hans-u-rg-uszzzz") == Money.new(:USD, 100)
+
+      # A locale that has a regional override and a currency
+      # override uses the currency override as precedent over
+      # the regional override. In this case, EUR
+      assert Money.parse("100", locale: "zh-Hans-u-rg-uszzzz-cu-eur") == Money.new(:EUR, 100)
+    end
+
     test "parse with negative numbers" do
       assert Money.parse("-127,54 €", locale: "fr") == Money.new(:EUR, "-127.54")
       assert Money.parse("-127,54€", locale: "fr") == Money.new(:EUR, "-127.54")
