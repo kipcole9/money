@@ -92,7 +92,9 @@ defmodule Money.Mixfile do
       {:gringotts, "~>1.1", only: :test, optional: true},
       {:benchee, "~> 1.0", optional: true, only: :dev},
       {:exprof, "~> 0.2", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.22", only: [:dev, :release]}
+      {:ex_doc, "~> 0.22", only: [:dev, :release]},
+      {:castore, "~> 0.1", optional: true},
+      {:certifi, "~> 2.5", optional: true}
     ]
   end
 

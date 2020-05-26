@@ -133,8 +133,7 @@ Some examples of configuring the `:preload_exchange_rates` key follow:
 
 ### Open Exchange Rates configuration
 
-If you plan to use the provided Open Exchange Rates module to retrieve exchange rates then you should also provide the addition
-  configuration key for `app_id`:
+If you plan to use the provided Open Exchange Rates module to retrieve exchange rates then you should also provide the addition configuration key for `app_id`:
 
       config :ex_money,
         open_exchange_rates_app_id: "your_app_id"
@@ -144,8 +143,7 @@ If you plan to use the provided Open Exchange Rates module to retrieve exchange 
       config :ex_money,
         open_exchange_rates_app_id: {:system, "OPEN_EXCHANGE_RATES_APP_ID"}
 
-  The default exchange rate retrieval module is provided in `Money.ExchangeRates.OpenExchangeRates` which can be used
-  as a example to implement your own retrieval module for  other services.
+The default exchange rate retrieval module is provided in `Money.ExchangeRates.OpenExchangeRates` which can be used as a example to implement your own retrieval module for  other services.
 
 ### Managing the configuration at runtime
 

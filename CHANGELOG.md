@@ -15,6 +15,8 @@ This is the changelog for Money v5.1.0 released on May 26th, 2020.  For older ch
     used and an error will be returned if there is no currency
     in the string to be parsed.
 
+* Add certificate verification for exchange rate retrieval
+
 # Changelog for Money v5.0.2
 
 This is the changelog for Money v5.0.2 released on April 29th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

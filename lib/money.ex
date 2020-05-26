@@ -538,7 +538,6 @@ defmodule Money do
   defp maybe_create_money(%{currency: currency, amount: amount}, _string, options) do
     backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
     locale = Keyword.get(options, :locale, backend.get_locale)
-
     currency = Kernel.to_string(currency)
 
     {only_filter, options} =
