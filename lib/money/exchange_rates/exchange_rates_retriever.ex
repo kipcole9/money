@@ -195,7 +195,7 @@ defmodule Money.ExchangeRates.Retriever do
   def retrieve_rates(url, config) when is_list(url) do
     headers = if_none_match_header(url)
 
-    :httpc.request(:get, {url, headers}, https_opts(), [])
+    :httpc.request(:get, {url, headers}, https_opts(config), [])
     |> process_response(url, config)
   end
 
@@ -220,6 +220,10 @@ defmodule Money.ExchangeRates.Retriever do
          _config
        ) do
     {:error, sys_message}
+  end
+
+  defp process_response({:error, {:tls_alert, {:certificate_expired, _message}}}, url, _config) do
+    {:error, "Certificate for #{inspect url} has expired"}
   end
 
   defp if_none_match_header(url) do
@@ -562,16 +566,23 @@ defmodule Money.ExchangeRates.Retriever do
     file
   end
 
-  defp https_opts do
-    [ssl:
+  defp https_opts(%Money.ExchangeRates.Config{verify_peer: true}) do
+    [
+      ssl:
       [
         verify: :verify_peer,
         cacertfile: certificate_store(),
         depth: 99,
+        log_level: :alert,
+        log_alert: false,
         customize_hostname_check: [
           match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
         ]
       ]
     ]
+  end
+
+  defp https_opts(%Money.ExchangeRates.Config{verify_peer: false}) do
+    []
   end
 end

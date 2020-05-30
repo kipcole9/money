@@ -1,3 +1,15 @@
+# Changelog for Money v5.2.0
+
+This is the changelog for Money v5.2.0 released on May 30th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Adds a configuration option `:verify_peer` which is a boolean that determines whether to verify the client certificate for any exchange rate service API call. The default is `true`. This option should not be changed without a very clear understanding of the security implications. This option will remain undocumented but supported for now.
+
+### Bug fixes
+
+* Handle expired certificate errors on the exchange rates API service and log them. Thanks to @coladarci. Fixes #116
+
 # Changelog for Money v5.1.0
 
 This is the changelog for Money v5.1.0 released on May 26th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

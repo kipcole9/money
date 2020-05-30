@@ -187,7 +187,8 @@ defmodule Money.ExchangeRates do
             log_levels: map(),
             preload_historic_rates: Date.t() | Date.Range.t() | {Date.t(), Date.t()} | nil,
             retriever_options: map() | nil,
-            cache_module: module() | nil
+            cache_module: module() | nil,
+            verify_peer: boolean()
           }
 
     defstruct retrieve_every: nil,
@@ -196,7 +197,8 @@ defmodule Money.ExchangeRates do
               log_levels: %{},
               preload_historic_rates: nil,
               retriever_options: nil,
-              cache_module: nil
+              cache_module: nil,
+              verify_peer: true
   end
 
   @doc """
@@ -214,7 +216,8 @@ defmodule Money.ExchangeRates do
         success: Money.get_env(:log_success, nil),
         failure: Money.get_env(:log_failure, :warn),
         info: Money.get_env(:log_info, :info)
-      }
+        },
+      verify_peer: Money.get_env(:verify_peer, true, :boolean)
     }
   end
 

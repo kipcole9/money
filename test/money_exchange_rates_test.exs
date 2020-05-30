@@ -76,9 +76,13 @@ defmodule Money.ExchangeRates.Test do
       config = Money.ExchangeRates.OpenExchangeRates.init(Money.ExchangeRates.default_config())
       config = Map.put(config, :log_levels, %{failure: nil, info: nil, success: nil})
 
+      # Testing only, should not be used in production
+      # config = Map.put(config, :verify_peer, false)
+
       case Money.ExchangeRates.OpenExchangeRates.get_latest_rates(config) do
         {:ok, rates} -> assert is_map(rates)
         {:error, :nxdomain} -> :no_network
+        {:error, other} -> IO.warn(inspect(other))
       end
     end
   end
