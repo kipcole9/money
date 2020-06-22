@@ -1,3 +1,11 @@
+# Changelog for Money v5.2.1
+
+This is the changelog for Money v5.2.1 released on June 23rd, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Add back the name of the Application supervisor, `Money.Supervisor`. Thanks for the report of the regression to @jeroenvisser101. Fixes #117.
+
 # Changelog for Money v5.2.0
 
 This is the changelog for Money v5.2.0 released on May 30th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
