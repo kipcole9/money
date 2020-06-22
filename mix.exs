@@ -53,7 +53,7 @@ defmodule Money.Mixfile do
 
   def application do
     [
-      mod: {Money.Application, []},
+      mod: {Money.Application, [strategy: :one_for_one, name: Money.Supervisor]},
       extra_applications: [:inets, :logger]
     ]
   end
