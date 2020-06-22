@@ -10,7 +10,8 @@ defmodule Money.Application do
       Money.ExchangeRates.Supervisor
     ]
 
-   supervisor = Supervisor.start_link(children, strategy: :one_for_one)
+    opts = [strategy: :one_for_one, name: Money.Supervisor]
+    supervisor = Supervisor.start_link(children, opts)
 
     if start_exchange_rate_service?() do
       ExchangeRates.Supervisor.start_retriever()
