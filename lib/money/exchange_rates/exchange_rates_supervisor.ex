@@ -52,9 +52,12 @@ defmodule Money.ExchangeRates.Supervisor do
   @doc """
   Stop the Money.ExchangeRates.Supervisor.
 
-  The Money.ExchangeRates.Supervisor is always started
-  with `ex_money` starts even if the config key
-  `:auto_start_exchange_rates_service` is set to `false`.
+  Unless `ex_money` is configured in `mix.exs` as
+  `rumtime: false`, the Money.ExchangeRates.Supervisor
+  is always started when `ex_money` starts even if the
+  config key `:auto_start_exchange_rates_service` is
+  set to `false`.
+
 
   In some instances an application may require the
   `Money.ExchangeRates.Supervisor` to be started under
@@ -71,8 +74,21 @@ defmodule Money.ExchangeRates.Supervisor do
   from within the callback module" for an eanple of how
   to configure the supervisor in this case.
   """
-  def stop do
-    Supervisor.terminate_child(Money.Supervisor, __MODULE__)
+  def stop(supervisor \\ default_supervisor()) do
+    Supervisor.terminate_child(supervisor, __MODULE__)
+  end
+
+  @doc """
+  Returns the name of the default supervisor
+  which is `Money.Supervisor`
+
+  """
+  def default_supervisor do
+    {_, options} =
+      Application.spec(:ex_money)
+      |> Keyword.get(:mod)
+
+    Keyword.get(options, :name)
   end
 
   @doc false

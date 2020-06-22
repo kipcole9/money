@@ -6,6 +6,10 @@ This is the changelog for Money v5.2.1 released on June 23rd, 2020.  For older c
 
 * Configure the `Money.Application` supervisor via the arguments to `Money.Application.start/2` and configure defaults in `mix.exs`. This permits different restart strategies and names.
 
+* Add `Money.ExchangeRates.Supervisor.default_supervisor/0` to return the name of the default supervisor which is `Money.Supervisor`
+
+* Change `Money.ExchangeRates.Supervisor.stop/0` to become `Money.ExchangeRates.Supervisor.stop/{0, 1}` allowing the supervisor name to be passed in. The default is `Money.ExchangeRates.Supervisor.default_supervisor/0`
+
 ### Bug Fixes
 
 * Add back the name of the Application supervisor, `Money.Supervisor`. Thanks for the report of the regression to @jeroenvisser101. Fixes #117.
