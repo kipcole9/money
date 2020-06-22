@@ -2,6 +2,10 @@
 
 This is the changelog for Money v5.2.1 released on June 23rd, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
+### Enhancements
+
+* Configure the `Money.Application` supervisor via the arguments to `Money.Application.start/2` and configure defaults in `mix.exs`. This permits different restart strategies and names.
+
 ### Bug Fixes
 
 * Add back the name of the Application supervisor, `Money.Supervisor`. Thanks for the report of the regression to @jeroenvisser101. Fixes #117.
