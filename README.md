@@ -35,6 +35,12 @@ How is this opinion expressed?
 
 * `Money` is supported on Elixir 1.6 and later only
 
+## Supervisor configuration and operation
+
+`Money` starts a supervisor `Money.Supervisor` by default unless the dependency is configured as `runtime: false` in `mix.exs`. If configured as `runtime: false` then the application can be started later via `Money.Application.start(:normal, supervisor_options)` where `supervisor_options` is a keyword list of options that is given the `Supervisor.start_link/2`. The default options are `[strategy: :one_for_one, name: Money.Supervisor]`.
+
+The application supervisor is used by default to start the exchange rates service when required. The exchange rate service can be configured to run in a user defined supervision tree as explained in the next section.
+
 ## Exchange rates and currency conversion
 
 Money includes a process to retrieve exchange rates on a periodic basis.  These exchange rates can then be used to support currency conversion.  This service is not started by default.  If started it will attempt to retrieve exchange rates every 5 minutes by default.
