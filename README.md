@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/kipcole9/money/blob/master/LICENSE)
 
 Money implements a set of functions to store, retrieve, convert and perform arithmetic
-on a `%Money{}` type that is composed of an ISO 4217 currency code and a currency amount.
+on a `%Money{}` type that is composed of an [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) currency code and a currency amount.
 
 Money is opinionated in the interests of serving as a dependable library that can underpin accounting and financial applications.
 
@@ -40,6 +40,42 @@ How is this opinion expressed?
 `Money` starts a supervisor `Money.Supervisor` by default unless the dependency is configured as `runtime: false` in `mix.exs`. If configured as `runtime: false` then the application can be started later via `Money.Application.start(:normal, supervisor_options)` where `supervisor_options` is a keyword list of options that is given the `Supervisor.start_link/2`. The default options are `[strategy: :one_for_one, name: Money.Supervisor]`.
 
 The application supervisor is used by default to start the exchange rates service when required. The exchange rate service can be configured to run in a user defined supervision tree as explained in the next section.
+
+## Private Use Currencies
+
+As of [ex_cldr_currencies version 2.6.0](https://hex.pm/packages/ex_cldr_currencies/2.6.0) it is possible to define private use currencies. These are currencies that are [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) compliant but guaranteed never to be allocated by the ISO committee and therefore safe to be used by developers.
+
+### Defining private use currencies
+
+See [Cldr.Currency.new/2](https://hexdocs.pm/ex_cldr_currencies/Cldr.Currency.html#new/2)
+
+### Starting the private use currency store
+
+In order to define private use currencies, a special `:ets` table is required to hold their definitions. The is implemented by a supervisor and two workers that together aim to preserve the availability of the `:ets` table as resiliently as possible. The implementation is an embedded and updated version of [eternal](https://hex.pm/packages/eternal).
+
+The basic requirement is to add a the private use currency supervisor to your applications supervision tree. For example:
+```elixir
+defmodule MyApp do
+  use Application
+
+  def start(_type, _args) do
+
+    # Start the service which maintains the
+    # :ets table that holds the private use currencies
+    children = [
+      Cldr.Currency
+      ...
+    ]
+
+    opts = [strategy: :one_for_one, name: MoneyTest.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+end
+```
+It is also possible to define a callback that is called when the `Cldr.Currency` supervisor is started so that private use currencies can be defined. For further information see [Defining Private Use Currencies](https://hexdocs.pm/ex_cldr_currencies/readme.html#defining-private-use-currencies).
+
+### Updating to ex_cldr_currencies verison 2.6.0
+Executing `mix deps.update ex_cldr_currencies` is all that should be required.
 
 ## Exchange rates and currency conversion
 
