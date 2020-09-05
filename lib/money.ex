@@ -1117,9 +1117,9 @@ defmodule Money do
       {:error,
        {Money.ExchangeRateError, "No exchange rate is available for currency :AUD"}}
 
-     iex> rates = %{AUD: Decimal.new(2), USD: Decimal.new(1)}
-     iex> Money.sum [Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:AUD, 50)], rates
-     {:ok, Money.from_float(:USD, 325.0)}
+      iex> rates = %{AUD: Decimal.new(2), USD: Decimal.new(1)}
+      iex> Money.sum [Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:AUD, 50)], rates
+      {:ok, Money.from_float(:USD, 325.0)}
 
   """
   @doc since: "5.3.0"
