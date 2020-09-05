@@ -12,3 +12,6 @@ config :ex_money,
   json_library: Jason,
   exchange_rates_cache: Money.ExchangeRates.Cache.Dets,
   default_cldr_backend: Money.Cldr
+
+config :ex_cldr,
+  default_backend: Money.Cldr

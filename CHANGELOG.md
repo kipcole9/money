@@ -1,3 +1,11 @@
+# Changelog for Money v5.3.0
+
+This is the changelog for Money v5.3.0 released on September 5th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Add `Money.sum/2` to sum a list of `Money`, converting them if required.
+
 # Changelog for Money v5.2.1
 
 This is the changelog for Money v5.2.1 released on June 23rd, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

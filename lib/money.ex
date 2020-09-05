@@ -1087,6 +1087,54 @@ defmodule Money do
   end
 
   @doc """
+  Sum a list of monies that may be in different
+  currencies.
+
+  ## Arguments
+
+  * `money_list` is a list of any valid `Money.t` types returned
+    by `Money.new/2`
+
+  * `rates` is a map of exchange rates. The default is `%{}`.
+    `Money.ExchangeRates.latest_rates/0` can be used to return
+    the latest known exchange rates which can then applied as
+    the `rates` parameter.
+
+  ## Returns
+
+  * `{:ok, money}` representing the sum of the maybe
+    converted money amounts. The currency of the sum is
+    the currency of the first `Money` in the `money_list`.
+
+  * `{:error, {exception, reason}}` describing an error.
+
+  ## Examples
+
+      iex> Money.sum [Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:USD, 50)]
+      {:ok, Money.new(:USD, 350)}
+
+      iex> Money.sum [Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:AUD, 50)]
+      {:error,
+       {Money.ExchangeRateError, "No exchange rate is available for currency :AUD"}}
+
+     iex> rates = %{AUD: Decimal.new(2), USD: Decimal.new(1)}
+     iex> Money.sum [Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:AUD, 50)], rates
+     {:ok, Money.from_float(:USD, 325.0)}
+
+  """
+  @doc since: "5.3.0"
+  @spec sum([t(), ...], ExchangeRates.t()) :: {:ok, t} | {:error, {module(), String.t()}}
+  def sum([%Money{} = first | rest] = money_list, rates \\ %{}) when is_list(money_list) do
+    %Money{currency: target_currency} = first
+    Enum.reduce_while(rest, {:ok, first}, fn money, {:ok, acc} ->
+      case to_currency(money, target_currency, rates) do
+        {:ok, increment} -> {:cont, Money.add(acc, increment)}
+        error -> {:halt, error}
+      end
+    end)
+  end
+
+  @doc """
   Compares two `Money` values numerically. If the first number is greater
   than the second :gt is returned, if less than :lt is returned, if both
   numbers are equal :eq is returned.
