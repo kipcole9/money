@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "5.3.0"
+  @version "5.3.1"
 
   def project do
     [
@@ -85,7 +85,7 @@ defmodule Money.Mixfile do
       {:ex_cldr_numbers, "~> 2.15"},
       {:decimal, "~> 1.6 or ~> 2.0"},
       {:phoenix_html, "~> 2.0", optional: true},
-      {:nimble_parsec, "~> 0.5"},
+      {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:jason, "~> 1.0", optional: true},
       {:stream_data, "~> 0.4.1", only: [:dev, :test]},

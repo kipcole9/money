@@ -1,3 +1,11 @@
+# Changelog for Money v5.3.1
+
+This is the changelog for Money v5.3.1 released on September 26th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Support `nimble_parsec` versions that match `~> 0.5 or ~> 1.0`
+
 # Changelog for Money v5.3.0
 
 This is the changelog for Money v5.3.0 released on September 5th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
