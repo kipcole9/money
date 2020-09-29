@@ -1039,12 +1039,11 @@ defmodule Money do
 
   ## Examples
 
-      iex> Money.div Money.new(:USD, 200), 2
-      {:ok, Money.new(:USD, 100)}
+      iex> Money.div! Money.new(:USD, 200), 2
+      #Money<:USD, 100>
 
-      Money.div(Money.new(:USD, 200), "xx")
-      ** (ArgumentError) "Cannot divide money by \\"xx\\""]}}
-
+      iex> Money.div!(Money.new(:USD, 200), "xx")
+      ** (ArgumentError) Cannot divide money by "xx"
   """
   def div!(%Money{} = money, number) do
     case Money.div(money, number) do
