@@ -1,3 +1,13 @@
+# Changelog for Money v5.3.2
+
+This is the changelog for Money v5.3.2 released on September 30th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fix docs for `Money.div!/2`
+
+* Update `cldr_utils` which implements a shim for `Decimal` to support both version `1.9` and `2.0`.
+
 # Changelog for Money v5.3.1
 
 This is the changelog for Money v5.3.1 released on September 26th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
