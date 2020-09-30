@@ -1039,11 +1039,12 @@ defmodule Money do
 
   ## Examples
 
-      iex> Money.div! Money.new(:USD, 200), 2
+      iex> Money.div!(Money.new(:USD, 200), 2)
       #Money<:USD, 100>
 
       iex> Money.div!(Money.new(:USD, 200), "xx")
       ** (ArgumentError) Cannot divide money by "xx"
+
   """
   def div!(%Money{} = money, number) do
     case Money.div(money, number) do
@@ -1066,10 +1067,10 @@ defmodule Money do
 
   ## Example
 
-      iex> Money.equal? Money.new(:USD, 200), Money.new(:USD, 200)
+      iex> Money.equal?(Money.new(:USD, 200), Money.new(:USD, 200))
       true
 
-      iex> Money.equal? Money.new(:USD, 200), Money.new(:USD, 100)
+      iex> Money.equal?(Money.new(:USD, 200), Money.new(:USD, 100))
       false
 
   """
@@ -1173,7 +1174,7 @@ defmodule Money do
         currency: same_currency,
         amount: amount_b
       }) do
-    Cldr.Math.decimal_compare(amount_a, amount_b)
+    Cldr.Decimal.compare(amount_a, amount_b)
   end
 
   def compare(%Money{currency: code_a}, %Money{currency: code_b}) do
@@ -1502,8 +1503,8 @@ defmodule Money do
       digits = currency.digits
       diff = Decimal.from_float((100 - upto) * :math.pow(10, -digits))
 
-      if Cldr.Math.decimal_compare(diff, @one) in [:lt, :eq] &&
-          Cldr.Math.decimal_compare(@zero, diff) in [:lt, :eq] do
+      if Cldr.Decimal.compare(diff, @one) in [:lt, :eq] &&
+          Cldr.Decimal.compare(@zero, diff) in [:lt, :eq] do
         new_amount =
           Decimal.round(amount, 0)
           |> Decimal.add(@one)
