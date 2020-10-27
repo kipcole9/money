@@ -99,7 +99,7 @@ An optional callback module can also be defined.  This module defines a `rates_r
       log_failure: :warn,
       log_info: :info,
       log_success: nil,
-      json_library: Cldr.Config.json_library(),
+      json_library: Jason,
       default_cldr_backend: MyApp.Cldr
 
 ### Configuration key definitions
