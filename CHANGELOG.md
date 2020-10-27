@@ -1,3 +1,11 @@
+# Changelog for Money v5.4.0-rc.0
+
+This is the changelog for Money v5.4.0-rc.0 released on October 27th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Add support for [CLDR 38](http://cldr.unicode.org/index/downloads/cldr-38)
+
 # Changelog for Money v5.3.2
 
 This is the changelog for Money v5.3.2 released on September 30th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
