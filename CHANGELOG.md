@@ -1,6 +1,16 @@
-# Changelog for Money v5.4.0-rc.0
+# Changelog for Money v5.4.1
 
-This is the changelog for Money v5.4.0-rc.0 released on October 27th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.4.1 released on January 7th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Update `stream_data` to remove stacktrace warning
+
+* Use `Cldr.default_backend!/0` instead of deprecated `Cldr.default_backend/0` in tests. Closes #120. Thanks to @darwintantuco.
+
+# Changelog for Money v5.4.0
+
+This is the changelog for Money v5.4.0 released on November 1st, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 

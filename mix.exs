@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "5.4.0-rc.0"
+  @version "5.4.1"
 
   def project do
     [
@@ -83,13 +83,13 @@ defmodule Money.Mixfile do
   defp deps do
     [
       {:cldr_utils, "~> 2.13"},
-      {:ex_cldr_numbers, "~> 2.15 or ~> 2.16.0-rc"},
+      {:ex_cldr_numbers, "~> 2.16"},
       {:decimal, "~> 1.6 or ~> 2.0"},
       {:phoenix_html, "~> 2.0", optional: true},
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:jason, "~> 1.0", optional: true},
-      {:stream_data, "~> 0.4.1", only: [:dev, :test]},
+      {:stream_data, "~> 0.4", only: [:dev, :test]},
       {:gringotts, "~>1.1", only: :test, optional: true},
       {:benchee, "~> 1.0", optional: true, only: :dev},
       {:exprof, "~> 0.2", only: :dev, runtime: false},
