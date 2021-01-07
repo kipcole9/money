@@ -513,7 +513,7 @@ defmodule MoneyTest do
     Application.put_env(:ex_money, :default_cldr_backend, nil)
 
     assert_raise Cldr.NoDefaultBackendError, fn ->
-      Cldr.default_backend()
+      Cldr.default_backend!()
     end
 
     Application.put_env(:ex_money, :default_cldr_backend, backend)
