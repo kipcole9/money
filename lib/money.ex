@@ -42,12 +42,12 @@ defmodule Money do
   Money is composed of an atom representation of an ISO4217 currency code and
   a `Decimal` representation of an amount.
   """
-  @type t :: %Money{currency: atom(), amount: Decimal.t()}
+  @type t :: %Money{currency: atom(), amount: Decimal.t(), format_options: Keyword.t()}
   @type currency_code :: atom() | String.t()
   @type amount :: float() | integer() | Decimal.t() | String.t()
 
   @enforce_keys [:currency, :amount]
-  defstruct currency: nil, amount: nil
+  defstruct currency: nil, amount: nil, format_options: []
 
   @doc false
   def cldr_backend_provider(config) do
@@ -106,12 +106,21 @@ defmodule Money do
 
   * `amount` is an integer, string or Decimal
 
+  * `options` is a keyword list of options
+
   ## Options
 
-  `:locale` is any known locale.  The locale is used to normalize any
-  binary (String) amounts to a form that can be consumed by `Decimal.new/1`.
-  This consists of removing any localised grouping characters and replacing
-  the localised decimal separator with a ".".
+  * `:locale` is any known locale.  The locale is used to normalize any
+    binary (String) amounts to a form that can be consumed by `Decimal.new/1`.
+    This consists of removing any localised grouping characters and replacing
+    the localised decimal separator with a ".".
+    The default is `Cldr.get_locale/0`.
+
+  * `:backend` is any module() that includes `use Cldr` and therefore
+    is a `Cldr` backend module(). The default is `Money.default_backend/0`.
+
+  * Any other options are considered as formatting options to
+    be applied by default when calling `Money.to_string/2`.
 
   Note that the `currency_code` and `amount` arguments can be supplied in
   either order,
@@ -134,6 +143,9 @@ defmodule Money do
       #Money<:EUR, 100>
 
       iex> Money.new(:EUR, "100.30")
+      #Money<:EUR, 100.30>
+
+      iex> Money.new(:EUR, "100.30", fractional_digits: 4)
       #Money<:EUR, 100.30>
 
       iex> Money.new(:XYZZ, 100)
@@ -166,9 +178,10 @@ defmodule Money do
     new(currency_code, amount, options)
   end
 
-  def new(currency_code, amount, _options) when is_atom(currency_code) and is_integer(amount) do
+  def new(currency_code, amount, options) when is_atom(currency_code) and is_integer(amount) do
     with {:ok, code} <- validate_currency(currency_code) do
-      %Money{amount: Decimal.new(amount), currency: code}
+      format_options = extract_format_options(options)
+      %Money{amount: Decimal.new(amount), currency: code, format_options: format_options}
     else
       {:error, {Cldr.UnknownCurrencyError, message}} ->
         {:error, {Money.UnknownCurrencyError, message}}
@@ -179,11 +192,14 @@ defmodule Money do
     new(currency_code, amount, options)
   end
 
-  def new(currency_code, %Decimal{} = amount, _options)
+  def new(currency_code, %Decimal{} = amount, options)
       when is_atom(currency_code) or is_binary(currency_code) do
     case validate_currency(currency_code) do
-      {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
-      {:ok, code} -> %Money{amount: amount, currency: code}
+      {:error, {_exception, message}} ->
+        {:error, {Money.UnknownCurrencyError, message}}
+      {:ok, code} ->
+        format_options = extract_format_options(options)
+        %Money{amount: amount, currency: code, format_options: format_options}
     end
   end
 
@@ -236,6 +252,13 @@ defmodule Money do
               "Unable to create money from #{inspect(param_a)} " <> "and #{inspect(param_b)}"}}
         end
     end
+  end
+
+  defp extract_format_options(options) do
+    options
+    |> Keyword.delete(:locale)
+    |> Keyword.delete(:backend)
+    |> Keyword.delete(:default_currency)
   end
 
   @doc """

@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "5.4.1"
+  @version "5.5.0-dev"
 
   def project do
     [
@@ -82,7 +82,7 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:cldr_utils, "~> 2.13"},
+      {:cldr_utils, "~> 2.14"},
       {:ex_cldr_numbers, "~> 2.16"},
       {:decimal, "~> 1.6 or ~> 2.0"},
       {:phoenix_html, "~> 2.0", optional: true},
