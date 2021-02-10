@@ -19,7 +19,8 @@ defmodule Money.ExchangeRates.Test do
   end
 
   test "Convert from USD to USD" do
-    assert Money.compare(Money.to_currency!(Money.new(:USD, 100), :USD), Money.new(:USD, 100)) == :eq
+    assert Money.compare(Money.to_currency!(Money.new(:USD, 100), :USD), Money.new(:USD, 100)) ==
+             :eq
   end
 
   test "Convert from USD to ZZZ should return an error" do

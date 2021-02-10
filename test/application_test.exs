@@ -7,6 +7,6 @@ defmodule Money.Application.Test do
   end
 
   test "default supervisor name" do
-    assert Money.ExchangeRates.Supervisor.default_supervisor == Money.Supervisor
+    assert Money.ExchangeRates.Supervisor.default_supervisor() == Money.Supervisor
   end
 end

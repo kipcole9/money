@@ -31,7 +31,8 @@ defmodule Money.Financial do
   """
   @spec future_value(Money.t(), number, number) :: Money.t()
   @one Decimal.new(1)
-  def future_value(%Money{currency: currency, amount: amount}, interest_rate, periods)
+
+  def future_value(%Money{amount: amount} = money, interest_rate, periods)
       when is_number(interest_rate) and is_number(periods) do
     fv =
       interest_rate
@@ -40,7 +41,7 @@ defmodule Money.Financial do
       |> Math.power(periods)
       |> Decimal.mult(amount)
 
-    Money.new(currency, fv)
+    %{money | amount: fv}
   end
 
   @doc """
@@ -59,8 +60,10 @@ defmodule Money.Financial do
 
       iex> Money.Financial.future_value [{0, Money.new(:USD, 5000)},{1, Money.new(:USD, 2000)}], 0.12
       #Money<:USD, 7600.000000000000000000000000>
+
   """
   @spec future_value(list({number, Money.t()}), number) :: Money.t()
+
   def future_value(flows, interest_rate)
 
   def future_value([{period, %Money{}} | _other_flows] = flows, interest_rate)
@@ -89,9 +92,11 @@ defmodule Money.Financial do
 
       iex> Money.Financial.present_value Money.new(:USD, 1000), 0.10, 20
       #Money<:USD, 148.6436280241436864020760472>
+
   """
   @spec present_value(Money.t(), number, number) :: Money.t()
-  def present_value(%Money{currency: currency, amount: amount}, interest_rate, periods)
+
+  def present_value(%Money{amount: amount} = money, interest_rate, periods)
       when is_number(interest_rate) and is_number(periods) and periods >= 0 do
     pv_1 =
       interest_rate
@@ -99,8 +104,7 @@ defmodule Money.Financial do
       |> Decimal.add(@one)
       |> Math.power(periods)
 
-    pv = Decimal.div(amount, pv_1)
-    Money.new(currency, pv)
+    %{money | amount: Decimal.div(amount, pv_1)}
   end
 
   @doc """
@@ -167,6 +171,7 @@ defmodule Money.Financial do
 
   """
   @spec net_present_value(list({integer, Money.t()}), number) :: Money.t()
+
   def net_present_value([{period, %Money{currency: currency}} | _] = flows, interest_rate)
       when is_integer(period) and is_number(interest_rate) do
     net_present_value(flows, interest_rate, Money.zero(currency))
@@ -204,6 +209,7 @@ defmodule Money.Financial do
 
   """
   @spec net_present_value(Money.t(), number, number) :: Money.t()
+
   def net_present_value(%Money{currency: currency} = future_value, interest_rate, periods) do
     net_present_value(future_value, interest_rate, periods, Money.new(currency, 0))
   end
@@ -328,7 +334,7 @@ defmodule Money.Financial do
   """
   @spec payment(Money.t(), float, number) :: Money.t()
   def payment(
-        %Money{currency: pv_currency, amount: pv_amount} = _present_value,
+        %Money{amount: pv_amount} = present_value,
         interest_rate,
         periods
       )
@@ -336,7 +342,7 @@ defmodule Money.Financial do
     interest_rate = Decimal.from_float(interest_rate)
     p1 = Decimal.mult(pv_amount, interest_rate)
     p2 = Decimal.sub(@one, Decimal.add(@one, interest_rate) |> Math.power(-periods))
-    Money.new(pv_currency, Decimal.div(p1, p2))
+    %{present_value | amount: Decimal.div(p1, p2)}
   end
 
   defp validate_same_currency!(%Money{} = flow, flows) do

@@ -298,7 +298,7 @@ defmodule MoneyTest do
   end
 
   property "check that money split sums to the original value" do
-    check all {money, splits} <- GenerateSplits.generate_money(), max_runs: 1_000 do
+    check all({money, splits} <- GenerateSplits.generate_money(), max_runs: 1_000) do
       {split_amount, remainder} = Money.split(money, splits)
       reassemble = Money.mult!(split_amount, splits) |> Money.add!(remainder)
       assert Money.compare(reassemble, money) == :eq

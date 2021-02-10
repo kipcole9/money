@@ -6,6 +6,8 @@ This is the changelog for Money v5.5.0 released on ______, 2021.  For older chan
 
 * Adds format options to `t:Money` to allow per-money formatting options to be applied with the `String.Chars` protocol. Thanks to @morinap for the feature request.
 
+* Adds `Money.put_format_options/2`
+
 # Changelog for Money v5.4.1
 
 This is the changelog for Money v5.4.1 released on January 7th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

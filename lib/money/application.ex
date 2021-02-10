@@ -10,11 +10,12 @@ defmodule Money.Application do
       Money.ExchangeRates.Supervisor
     ]
 
-    opts = if args == [] do
-      [strategy: :one_for_one, name: Money.Supervisor]
-    else
-      args
-    end
+    opts =
+      if args == [] do
+        [strategy: :one_for_one, name: Money.Supervisor]
+      else
+        args
+      end
 
     supervisor = Supervisor.start_link(children, opts)
 

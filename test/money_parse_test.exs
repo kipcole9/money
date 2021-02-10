@@ -108,9 +108,9 @@ defmodule MoneyTest.Parse do
 
     test "Round trip parsing" do
       assert Money.parse("1 127,54 €", locale: "fr") ==
-        Money.new!(:EUR, "1127.54")
-        |> Money.to_string!(locale: "fr")
-        |> Money.parse(locale: "fr")
+               Money.new!(:EUR, "1127.54")
+               |> Money.to_string!(locale: "fr")
+               |> Money.parse(locale: "fr")
     end
   end
 end

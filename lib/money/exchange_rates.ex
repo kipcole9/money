@@ -216,7 +216,7 @@ defmodule Money.ExchangeRates do
         success: Money.get_env(:log_success, nil),
         failure: Money.get_env(:log_failure, :warn),
         info: Money.get_env(:log_info, :info)
-        },
+      },
       verify_peer: Money.get_env(:verify_peer, true, :boolean)
     }
   end

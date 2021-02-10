@@ -197,6 +197,7 @@ defmodule Money do
     case validate_currency(currency_code) do
       {:error, {_exception, message}} ->
         {:error, {Money.UnknownCurrencyError, message}}
+
       {:ok, code} ->
         format_options = extract_format_options(options)
         %Money{amount: amount, currency: code, format_options: format_options}
@@ -326,6 +327,9 @@ defmodule Money do
 
   * `amount` is a float
 
+  * `options` is a keyword list of options passed
+    to `Money.new/3`. The default is `[]`.
+
   ## Examples
 
       iex> Money.from_float 1.23456, :USD
@@ -339,15 +343,17 @@ defmodule Money do
           "Reduce the precision or call Money.new/2 with a Decimal or String amount"}}
 
   """
-  Cldr.Macros.doc_since "2.0.0"
+  Cldr.Macros.doc_since("2.0.0")
   @max_precision_allowed 15
-  @spec from_float(float | currency_code, float | currency_code) ::
+  @spec from_float(float | currency_code, float | currency_code, Keyword.t()) ::
           Money.t() | {:error, {module(), String.t()}}
 
-  def from_float(currency_code, amount)
+  def from_float(currency_code, amount, options \\ [])
+
+  def from_float(currency_code, amount, options)
       when (is_binary(currency_code) or is_atom(currency_code)) and is_float(amount) do
     if Cldr.Number.precision(amount) <= @max_precision_allowed do
-      new(currency_code, Decimal.from_float(amount))
+      new(currency_code, Decimal.from_float(amount), options)
     else
       {:error,
        {Money.InvalidAmountError,
@@ -358,9 +364,9 @@ defmodule Money do
     end
   end
 
-  def from_float(amount, currency_code)
+  def from_float(amount, currency_code, options)
       when (is_binary(currency_code) or is_atom(currency_code)) and is_float(amount) do
-    from_float(currency_code, amount)
+    from_float(currency_code, amount, options)
   end
 
   @doc """
@@ -379,6 +385,9 @@ defmodule Money do
 
   * `amount` is a float
 
+  * `options` is a keyword list of options passed
+    to `Money.new/3`. The default is `[]`.
+
   ## Examples
 
       iex> Money.from_float!(:USD, 1.234)
@@ -389,14 +398,34 @@ defmodule Money do
           (ex_money) lib/money.ex:293: Money.from_float!/2
 
   """
-  Cldr.Macros.doc_since "2.0.0"
-  @spec from_float!(currency_code, float) :: Money.t() | no_return()
+  Cldr.Macros.doc_since("2.0.0")
+  @spec from_float!(currency_code, float, Keyword.t()) :: Money.t() | no_return()
 
-  def from_float!(currency_code, amount) do
-    case from_float(currency_code, amount) do
+  def from_float!(currency_code, amount, options \\ []) do
+    case from_float(currency_code, amount, options) do
       {:error, {exception, reason}} -> raise exception, reason
       money -> money
     end
+  end
+
+  @doc """
+  Add format options to a `t:Money`.
+
+  ## Arguments
+
+  * `money` is any valid `t:Money` type returned
+    by `Money.new/2`
+
+  * `options` is a keyword list of options. These
+    options are used when calling `Money.to_string/2`.
+    The default is `[]`
+
+  """
+
+  Cldr.Macros.doc_since("5.5.0")
+  @spec put_format_options(Money.t(), Keyword.t()) :: Money.t()
+  def put_format_options(%Money{} = money, options) when is_list(options) do
+    %{money | format_options: options}
   end
 
   @doc """
@@ -516,7 +545,7 @@ defmodule Money do
       {:error, {Money.ParseError, "Could not parse \\"USD 100 with trailing text\\"."}}
 
   """
-  Cldr.Macros.doc_since "3.2.0"
+  Cldr.Macros.doc_since("3.2.0")
   @spec parse(String.t(), Keyword.t()) :: Money.t() | {:error, {module(), String.t()}}
 
   def parse(string, options \\ []) do
@@ -672,6 +701,7 @@ defmodule Money do
 
   def to_string(%Money{} = money, options) when is_list(options) do
     default_options = [backend: Money.default_backend(), currency: money.currency]
+
     options =
       default_options
       |> Keyword.merge(money.format_options)
@@ -814,11 +844,12 @@ defmodule Money do
   """
   @spec add(money_1 :: Money.t(), money_2 :: Money.t()) ::
           {:ok, Money.t()} | {:error, {module(), String.t()}}
-  def add(%Money{currency: same_currency, amount: amount_a}, %Money{
-        currency: same_currency,
-        amount: amount_b
-      }) do
-    {:ok, %Money{currency: same_currency, amount: Decimal.add(amount_a, amount_b)}}
+
+  def add(
+        %Money{currency: same_currency, amount: amount_a},
+        %Money{currency: same_currency, amount: amount_b} = money_b
+      ) do
+    {:ok, %{money_b | amount: Decimal.add(amount_a, amount_b)}}
   end
 
   def add(%Money{currency: code_a}, %Money{currency: code_b}) do
@@ -885,11 +916,10 @@ defmodule Money do
   @spec sub(money_1 :: Money.t(), money_2 :: Money.t()) ::
           {:ok, Money.t()} | {:error, {module(), String.t()}}
 
-  def sub(%Money{currency: same_currency, amount: amount_a}, %Money{
-        currency: same_currency,
-        amount: amount_b
-      }) do
-    {:ok, %Money{currency: same_currency, amount: Decimal.sub(amount_a, amount_b)}}
+  def sub(%Money{currency: same_currency, amount: amount_a},
+          %Money{currency: same_currency, amount: amount_b} = money_b
+      ) do
+    {:ok, %{money_b | amount: Decimal.sub(amount_a, amount_b)}}
   end
 
   def sub(%Money{currency: code_a}, %Money{currency: code_b}) do
@@ -962,16 +992,17 @@ defmodule Money do
   """
   @spec mult(Money.t(), Cldr.Math.number_or_decimal()) ::
           {:ok, Money.t()} | {:error, {module(), String.t()}}
-  def mult(%Money{currency: code, amount: amount}, number) when is_integer(number) do
-    {:ok, %Money{currency: code, amount: Decimal.mult(amount, Decimal.new(number))}}
+
+  def mult(%Money{amount: amount} = money, number) when is_integer(number) do
+    {:ok, %{money | amount: Decimal.mult(amount, Decimal.new(number))}}
   end
 
-  def mult(%Money{currency: code, amount: amount}, number) when is_float(number) do
-    {:ok, %Money{currency: code, amount: Decimal.mult(amount, Decimal.from_float(number))}}
+  def mult(%Money{amount: amount} = money, number) when is_float(number) do
+    {:ok, %{money | amount: Decimal.mult(amount, Decimal.from_float(number))}}
   end
 
-  def mult(%Money{currency: code, amount: amount}, %Decimal{} = number) do
-    {:ok, %Money{currency: code, amount: Decimal.mult(amount, number)}}
+  def mult(%Money{amount: amount} = money, %Decimal{} = number) do
+    {:ok, %{money | amount: Decimal.mult(amount, number)}}
   end
 
   def mult(%Money{}, other) do
@@ -1040,16 +1071,17 @@ defmodule Money do
   """
   @spec div(Money.t(), Cldr.Math.number_or_decimal()) ::
           {:ok, Money.t()} | {:error, {module(), String.t()}}
-  def div(%Money{currency: code, amount: amount}, number) when is_integer(number) do
-    {:ok, %Money{currency: code, amount: Decimal.div(amount, Decimal.new(number))}}
+
+  def div(%Money{amount: amount} = money, number) when is_integer(number) do
+    {:ok, %{money | amount: Decimal.div(amount, Decimal.new(number))}}
   end
 
-  def div(%Money{currency: code, amount: amount}, number) when is_float(number) do
-    {:ok, %Money{currency: code, amount: Decimal.div(amount, Decimal.from_float(number))}}
+  def div(%Money{amount: amount} = money, number) when is_float(number) do
+    {:ok, %{money | amount: Decimal.div(amount, Decimal.from_float(number))}}
   end
 
-  def div(%Money{currency: code, amount: amount}, %Decimal{} = number) do
-    {:ok, %Money{currency: code, amount: Decimal.div(amount, number)}}
+  def div(%Money{amount: amount} = money, %Decimal{} = number) do
+    {:ok, %{money | amount: Decimal.div(amount, number)}}
   end
 
   def div(%Money{}, other) do
@@ -1161,6 +1193,7 @@ defmodule Money do
   @spec sum([t(), ...], ExchangeRates.t()) :: {:ok, t} | {:error, {module(), String.t()}}
   def sum([%Money{} = first | rest] = money_list, rates \\ %{}) when is_list(money_list) do
     %Money{currency: target_currency} = first
+
     Enum.reduce_while(rest, {:ok, first}, fn money, {:ok, acc} ->
       case to_currency(money, target_currency, rates) do
         {:ok, increment} -> {:cont, Money.add(acc, increment)}
@@ -1533,23 +1566,23 @@ defmodule Money do
   @one Decimal.new(1)
   @zero Decimal.new(0)
 
-  def put_fraction(%Money{currency: code, amount: amount}, upto) when is_integer(upto) do
-    with {:ok, currency} <- Currency.currency_for_code(code) do
+  def put_fraction(%Money{amount: amount} = money, upto) when is_integer(upto) do
+    with {:ok, currency} <- Currency.currency_for_code(money.currency) do
       digits = currency.digits
       diff = Decimal.from_float((100 - upto) * :math.pow(10, -digits))
 
       if Cldr.Decimal.compare(diff, @one) in [:lt, :eq] &&
-          Cldr.Decimal.compare(@zero, diff) in [:lt, :eq] do
+           Cldr.Decimal.compare(@zero, diff) in [:lt, :eq] do
         new_amount =
           Decimal.round(amount, 0)
           |> Decimal.add(@one)
           |> Decimal.sub(diff)
 
-        Money.new(code, new_amount)
+        %{money | amount: new_amount}
       else
         {:error,
          {Money.InvalidAmountError,
-          "Rounding up to #{inspect(upto)} is invalid for currency #{inspect(code)}"}}
+          "Rounding up to #{inspect(upto)} is invalid for currency #{inspect(money.currency)}"}}
       end
     end
   end
@@ -1621,12 +1654,12 @@ defmodule Money do
     end
   end
 
-  def to_currency(%Money{currency: from_currency, amount: amount}, to_currency, %{} = rates)
-      when is_atom(to_currency) do
+  def to_currency(%Money{currency: from_currency, amount: amount} =  money, to_currency, rates)
+      when is_atom(to_currency) and is_map(rates) do
     with {:ok, to_currency_code} <- validate_currency(to_currency),
          {:ok, cross_rate} <- cross_rate(from_currency, to_currency_code, rates) do
       converted_amount = Decimal.mult(amount, cross_rate)
-      {:ok, Money.new(to_currency, converted_amount)}
+      {:ok, %{money | currency: to_currency, amount: converted_amount}}
     end
   end
 
@@ -1793,14 +1826,15 @@ defmodule Money do
 
   """
   @spec normalize(Money.t()) :: Money.t()
-  Cldr.Macros.doc_since "5.0.0"
+  Cldr.Macros.doc_since("5.0.0")
+
   if Code.ensure_loaded?(Decimal) and function_exported?(Decimal, :normalize, 1) do
-    def normalize(%Money{currency: currency, amount: amount}) do
-      %Money{currency: currency, amount: Decimal.normalize(amount)}
+    def normalize(%Money{amount: amount} = money) do
+      %{money | amount: Decimal.normalize(amount)}
     end
   else
-    def normalize(%Money{currency: currency, amount: amount}) do
-      %Money{currency: currency, amount: Decimal.reduce(amount)}
+    def normalize(%Money{amount: amount} = money) do
+      %{money | amount: Decimal.reduce(amount)}
     end
   end
 
@@ -1876,9 +1910,11 @@ defmodule Money do
   * `currency` is the currency code for the `integer`.  The assumed
     decimal places is derived from the currency code.
 
+  * `options` is a keyword list of options passed to `Money.new/3`
+
   ## Returns
 
-  * A `Money` struct or
+  * A `t:Money` struct or
 
   * `{:error, {Cldr.UnknownCurrencyError, message}}`
 
@@ -1897,8 +1933,10 @@ defmodule Money do
       #Money<:COP, 200.12>
 
   """
-  @spec from_integer(integer, currency_code) :: Money.t() | {:error, module(), String.t()}
-  def from_integer(amount, currency) when is_integer(amount) do
+  @spec from_integer(integer, currency_code, Keyword.t()) ::
+    Money.t() | {:error, module(), String.t()}
+
+  def from_integer(amount, currency, options \\ []) when is_integer(amount) do
     with {:ok, currency} <- validate_currency(currency),
          {:ok, %{iso_digits: digits}} <- Currency.currency_for_code(currency) do
       sign = if amount < 0, do: -1, else: 1
@@ -1906,12 +1944,20 @@ defmodule Money do
 
       sign
       |> Decimal.new(Kernel.abs(amount), digits)
-      |> Money.new(currency)
+      |> Money.new(currency, options)
     end
   end
 
   @doc """
-  Return a zero amount `Money.t` in the given currency
+  Return a zero amount `t:Money` in the given currency.
+
+  ## Arguments
+
+  * `money_or_currency` is either a `t:Money` or
+    a currency code
+
+  * `options` is a keyword list of options passed
+    to `Money.new/3`. The default is `[]`.
 
   ## Example
 
@@ -1927,13 +1973,16 @@ defmodule Money do
 
   """
   @spec zero(currency_code | Money.t()) :: Money.t()
-  def zero(%{currency: currency, amount: _amount}) do
-    zero(currency)
+
+  def zero(money_or_currency, options \\ [])
+
+  def zero(%Money{currency: currency}, options) do
+    zero(currency, options)
   end
 
-  def zero(currency) do
+  def zero(currency, options) do
     with {:ok, currency} <- validate_currency(currency) do
-      Money.new(currency, 0)
+      Money.new(currency, 0, options)
     end
   end
 
