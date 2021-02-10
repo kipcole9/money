@@ -530,4 +530,16 @@ defmodule MoneyTest do
     Application.put_env(:ex_money, :default_cldr_backend, money_backend)
     Application.put_env(:ex_cldr, :default_backend, cldr_backend)
   end
+
+  test "that format options propogate through operations" do
+    format_options = [fractional_digits: 4]
+    money = Money.new!(:USD, 100)
+    money_with_options = Money.new!(:USD, 100, format_options)
+
+    assert Money.add!(money, money_with_options).format_options == format_options
+    assert Money.sub!(money, money_with_options).format_options == format_options
+    assert Money.mult!(money_with_options, 3).format_options == format_options
+    assert Money.div!(money_with_options, 3).format_options == format_options
+
+  end
 end
