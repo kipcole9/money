@@ -701,10 +701,11 @@ defmodule Money do
 
   def to_string(%Money{} = money, options) when is_list(options) do
     default_options = [backend: Money.default_backend(), currency: money.currency]
+    format_options = Map.get(money, :format_options, [])
 
     options =
       default_options
-      |> Keyword.merge(money.format_options)
+      |> Keyword.merge(format_options)
       |> Keyword.merge(options)
 
     backend = options[:backend]
@@ -712,8 +713,10 @@ defmodule Money do
   end
 
   def to_string(%Money{} = money, %Cldr.Number.Format.Options{} = options) do
+    format_options = Map.get(money, :format_options, [])
+
     options =
-      money.format_options
+      format_options
       |> Map.new()
       |> Map.merge(options)
       |> Map.put(:currency, money.currency)

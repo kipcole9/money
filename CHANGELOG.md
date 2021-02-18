@@ -1,6 +1,14 @@
+# Changelog for Money v5.5.1
+
+This is the changelog for Money v5.5.1 released on February 18th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fix formatting a `t:Money` that has no `:format_options` key. That can happen if re-hydrating a `t:Money` using `:erlang.binary_to_term/1` from an older version of `ex_money` that doesn't have the `:format_options` key in the struct.  Thanks to @coladarci. Fixes #123.
+
 # Changelog for Money v5.5.0
 
-This is the changelog for Money v5.5.0 released on ______, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.5.0 released on February 10th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements
 
