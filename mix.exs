@@ -82,7 +82,6 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:cldr_utils, "~> 2.14"},
       {:ex_cldr_numbers, "~> 2.16"},
       {:decimal, "~> 1.6 or ~> 2.0"},
       {:phoenix_html, "~> 2.0", optional: true},
