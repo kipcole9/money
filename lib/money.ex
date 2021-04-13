@@ -2114,9 +2114,9 @@ defmodule Money do
     Application.get_env(@app_name, :default_cldr_backend) || cldr_default_backend ||
       raise """
         A default backend must be configured in config.exs as either:
-          config ex_cldr, default_backend: MyApp.Cldr
+          config :ex_cldr, default_backend: MyApp.Cldr
         or
-          config ex_money, default_cldr_backend: MyApp.Cldr
+          config :ex_money, default_cldr_backend: MyApp.Cldr
       """
   end
 end
