@@ -1,3 +1,11 @@
+# Changelog for Money v5.5.2
+
+This is the changelog for Money v5.5.2 released on April 14th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fix exception message when describing the requirement for a default backend configuration. Thanks to @holandes22 for the report. Closes #124.
+
 # Changelog for Money v5.5.1
 
 This is the changelog for Money v5.5.1 released on February 18th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
