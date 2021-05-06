@@ -112,5 +112,9 @@ defmodule MoneyTest.Parse do
                |> Money.to_string!(locale: "fr")
                |> Money.parse(locale: "fr")
     end
+
+    test "parsing strings that have `.` in them" do
+      assert Money.parse("4.200,00 kr.", locale: "da") == Money.new(:DKK, "4200.00")
+    end
   end
 end

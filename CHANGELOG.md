@@ -1,3 +1,11 @@
+# Changelog for Money v5.5.3
+
+This is the changelog for Money v5.5.3 released on May 7th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fixes parsing money when a currency string has a "." in it such as "kr.". Thanks for the report to @Doerge. Closes #125.
+
 # Changelog for Money v5.5.2
 
 This is the changelog for Money v5.5.2 released on April 14th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

@@ -608,7 +608,10 @@ defmodule Money do
   end
 
   defp find_currency(currency_strings, currency, nil) do
-    canonical_currency = String.downcase(currency)
+    canonical_currency =
+      currency
+      |> String.downcase()
+      |> String.trim_trailing(".")
 
     case Map.get(currency_strings, canonical_currency) do
       nil ->

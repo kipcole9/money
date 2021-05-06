@@ -71,14 +71,9 @@ defmodule Money.Combinators do
     |> label("number")
   end
 
-  @invalid_chars @separators ++
-                   @decimal_places ++
-                   @digits ++
-                   @minus ++
-                   @left_parens ++
-                   @right_parens
-
+  @invalid_chars @digits ++ @left_parens ++ @minus
   @currency Enum.map(@invalid_chars, fn s -> {:not, s} end)
+
   def currency do
     utf8_char(@currency)
     |> times(min: 1)
@@ -98,6 +93,7 @@ defmodule Money.Combinators do
       |> concat(number())
       |> eos()
     ])
+    |> label("money with currency")
   end
 
   def accounting_format do
@@ -118,5 +114,6 @@ defmodule Money.Combinators do
       |> ignore(right_paren())
     ])
     |> map(:change_sign)
+    |> label("money with currency in accounting format")
   end
 end
