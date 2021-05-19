@@ -879,7 +879,7 @@ defmodule Money do
 
   ## Returns
 
-  * `{:ok, money}` or
+  * a `Money.t` struct or
 
   * raises an exception
 
