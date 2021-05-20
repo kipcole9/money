@@ -892,6 +892,8 @@ defmodule Money do
       ** (ArgumentError) Cannot add two %Money{} with different currencies. Received :USD and :CAD.
 
   """
+  @spec add!(money_1 :: Money.t(), money_2 :: Money.t()) :: t() | no_return()
+
   def add!(%Money{} = money_1, %Money{} = money_2) do
     case add(money_1, money_2) do
       {:ok, result} -> result
@@ -1041,6 +1043,7 @@ defmodule Money do
 
   """
   @spec mult!(Money.t(), Cldr.Math.number_or_decimal()) :: Money.t() | none()
+
   def mult!(%Money{} = money, number) do
     case mult(money, number) do
       {:ok, result} -> result
@@ -1119,6 +1122,8 @@ defmodule Money do
       ** (ArgumentError) Cannot divide money by "xx"
 
   """
+  @spec div!(Money.t(), Cldr.Math.number_or_decimal()) :: Money.t() | none()
+
   def div!(%Money{} = money, number) do
     case Money.div(money, number) do
       {:ok, result} -> result
@@ -1148,6 +1153,7 @@ defmodule Money do
 
   """
   @spec equal?(money_1 :: Money.t(), money_2 :: Money.t()) :: boolean
+
   def equal?(%Money{currency: same_currency, amount: amount_a}, %Money{
         currency: same_currency,
         amount: amount_b
@@ -1197,6 +1203,7 @@ defmodule Money do
   """
   @doc since: "5.3.0"
   @spec sum([t(), ...], ExchangeRates.t()) :: {:ok, t} | {:error, {module(), String.t()}}
+
   def sum([%Money{} = first | rest] = money_list, rates \\ %{}) when is_list(money_list) do
     %Money{currency: target_currency} = first
 

@@ -1,4 +1,6 @@
-# Changelog for Money v5.5.3
+# Changelog
+
+## Money v5.5.3
 
 This is the changelog for Money v5.5.3 released on May 7th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -6,7 +8,7 @@ This is the changelog for Money v5.5.3 released on May 7th, 2021.  For older cha
 
 * Fixes parsing money when a currency string has a "." in it such as "kr.". Thanks for the report to @Doerge. Closes #125.
 
-# Changelog for Money v5.5.2
+## Money v5.5.2
 
 This is the changelog for Money v5.5.2 released on April 14th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -14,7 +16,7 @@ This is the changelog for Money v5.5.2 released on April 14th, 2021.  For older 
 
 * Fix exception message when describing the requirement for a default backend configuration. Thanks to @holandes22 for the report. Closes #124.
 
-# Changelog for Money v5.5.1
+## Money v5.5.1
 
 This is the changelog for Money v5.5.1 released on February 18th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -22,7 +24,7 @@ This is the changelog for Money v5.5.1 released on February 18th, 2021.  For old
 
 * Fix formatting a `t:Money` that has no `:format_options` key. That can happen if re-hydrating a `t:Money` using `:erlang.binary_to_term/1` from an older version of `ex_money` that doesn't have the `:format_options` key in the struct.  Thanks to @coladarci. Fixes #123.
 
-# Changelog for Money v5.5.0
+## Money v5.5.0
 
 This is the changelog for Money v5.5.0 released on February 10th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -32,7 +34,7 @@ This is the changelog for Money v5.5.0 released on February 10th, 2021.  For old
 
 * Adds `Money.put_format_options/2`
 
-# Changelog for Money v5.4.1
+## Money v5.4.1
 
 This is the changelog for Money v5.4.1 released on January 7th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -42,7 +44,7 @@ This is the changelog for Money v5.4.1 released on January 7th, 2021.  For older
 
 * Use `Cldr.default_backend!/0` instead of deprecated `Cldr.default_backend/0` in tests. Closes #120. Thanks to @darwintantuco.
 
-# Changelog for Money v5.4.0
+## Money v5.4.0
 
 This is the changelog for Money v5.4.0 released on November 1st, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -50,7 +52,7 @@ This is the changelog for Money v5.4.0 released on November 1st, 2020.  For olde
 
 * Add support for [CLDR 38](http://cldr.unicode.org/index/downloads/cldr-38)
 
-# Changelog for Money v5.3.2
+## Money v5.3.2
 
 This is the changelog for Money v5.3.2 released on September 30th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -60,7 +62,7 @@ This is the changelog for Money v5.3.2 released on September 30th, 2020.  For ol
 
 * Update `cldr_utils` which implements a shim for `Decimal` to support both version `1.9` and `2.0`.
 
-# Changelog for Money v5.3.1
+## Money v5.3.1
 
 This is the changelog for Money v5.3.1 released on September 26th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -68,7 +70,7 @@ This is the changelog for Money v5.3.1 released on September 26th, 2020.  For ol
 
 * Support `nimble_parsec` versions that match `~> 0.5 or ~> 1.0`
 
-# Changelog for Money v5.3.0
+## Money v5.3.0
 
 This is the changelog for Money v5.3.0 released on September 5th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -80,7 +82,7 @@ This is the changelog for Money v5.3.0 released on September 5th, 2020.  For old
 
 * Add `Money.sum/2` to sum a list of `Money`, converting them if required.
 
-# Changelog for Money v5.2.1
+## Money v5.2.1
 
 This is the changelog for Money v5.2.1 released on June 23rd, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -96,7 +98,7 @@ This is the changelog for Money v5.2.1 released on June 23rd, 2020.  For older c
 
 * Add back the name of the Application supervisor, `Money.Supervisor`. Thanks for the report of the regression to @jeroenvisser101. Fixes #117.
 
-# Changelog for Money v5.2.0
+## Money v5.2.0
 
 This is the changelog for Money v5.2.0 released on May 30th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -108,7 +110,7 @@ This is the changelog for Money v5.2.0 released on May 30th, 2020.  For older ch
 
 * Handle expired certificate errors on the exchange rates API service and log them. Thanks to @coladarci. Fixes #116
 
-# Changelog for Money v5.1.0
+## Money v5.1.0
 
 This is the changelog for Money v5.1.0 released on May 26th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -127,7 +129,7 @@ This is the changelog for Money v5.1.0 released on May 26th, 2020.  For older ch
 
 * Add certificate verification for exchange rate retrieval
 
-# Changelog for Money v5.0.2
+## Money v5.0.2
 
 This is the changelog for Money v5.0.2 released on April 29th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -135,7 +137,7 @@ This is the changelog for Money v5.0.2 released on April 29th, 2020.  For older 
 
 * Update the application supervisor spec
 
-# Changelog for Money v5.0.1
+## Money v5.0.1
 
 This is the changelog for Money v5.0.1 released on January 28th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -143,7 +145,7 @@ This is the changelog for Money v5.0.1 released on January 28th, 2020.  For olde
 
 * Make `nimble_parsec` a required dependency since it is required for parsing money amounts. Thanks to @jonnystoten for the report.
 
-# Changelog for Money v5.0.0
+## Money v5.0.0
 
 This is the changelog for Money v5.0.0 released on January 21st, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -175,7 +177,7 @@ iex> Enum.sort list, {:desc, Money}
 
 * `ex_money` version `5.0.0` is compatible with `Decimal` versions from `1.6` onwards. In `Decimal` version `2.0` the same changes to `compare/2` and `cmp/2` will occur and in `Decimal` version `1.9`, `Decimal.cmp/2` is deprecated.  `ex_money` version `5.0.0` detects these different versions of `Decimal` and therefore remains compatability with `Decimal` back to version `1.6`.
 
-# Changelog for Money v4.4.2
+## Money v4.4.2
 
 This is the changelog for Money v4.4.2 released on January 2nd, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -185,7 +187,7 @@ This is the changelog for Money v4.4.2 released on January 2nd, 2020.  For older
 
 * Remove spurious entries in `.dialyzer_ignore_warnings` - no entries are required and dialyzer is happy.
 
-# Changelog for Money v4.4.1
+## Money v4.4.1
 
 This is the changelog for Money v4.4.1 released on November 10th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -193,7 +195,7 @@ This is the changelog for Money v4.4.1 released on November 10th, 2019.  For old
 
 * Fixes money parsing error. Thanks to @Doerge. Closes #112.
 
-# Changelog for Money v4.4.0
+## Money v4.4.0
 
 This is the changelog for Money v4.4.0 released on November 6th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -231,7 +233,7 @@ This is the changelog for Money v4.4.0 released on November 6th, 2019.  For olde
 ```
 * The money parser has been rewritten using [nimble_parsec](https://hex,pm.packages/nimble_parsec)
 
-# Changelog for Money v4.3.0
+## Money v4.3.0
 
 This is the changelog for Money v4.3.0 released on September 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -243,7 +245,7 @@ This is the changelog for Money v4.3.0 released on September 8th, 2019.  For old
 
 * `Money.new!/3` replaces `Money.new!/2` to accept options. Thanks to @Lostkobrakai. Closes #109.
 
-# Changelog for Money v4.2.2
+## Money v4.2.2
 
 This is the changelog for Money v4.2.2 released on September 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -251,7 +253,7 @@ This is the changelog for Money v4.2.2 released on September 7th, 2019.  For old
 
 * Use `Keyword.get_lazy` when the default is `Cldr.default_backend/0` to avoid exceptions when no default backend is configured. Thanks to @Lostkobrakai. Closes #108.
 
-# Changelog for Money v4.2.1
+## Money v4.2.1
 
 This is the changelog for Money v4.2.1 released on September 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -259,7 +261,7 @@ This is the changelog for Money v4.2.1 released on September 2nd, 2019.  For old
 
 * Fixes parsing of money amount that have a single digit amount. Closes #107.  Thanks to @njwest
 
-# Changelog for Money v4.2.0
+## Money v4.2.0
 
 This is the changelog for Money v4.2.0 released on 21 August, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -271,7 +273,7 @@ This is the changelog for Money v4.2.0 released on 21 August, 2019.  For older c
 
 * `Money.default_backend/0` will now either use the backend configured under the `:default_cldr_backend` key of `ex_money` or `Cldr.default_backend/0`. In either case an exeption will be raised if no default backend is configured.
 
-# Changelog for Money v4.1.0
+## Money v4.1.0
 
 This is the changelog for Money v4.1.0 released on July 13th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -281,7 +283,7 @@ This is the changelog for Money v4.1.0 released on July 13th, 2019.  For older c
 
 * Improve `@doc` consistency using `## Arguments` not `## Options`.
 
-# Changelog for Money v4.0.0
+## Money v4.0.0
 
 This is the changelog for Money v4.0.0 released on July 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -291,7 +293,7 @@ This is the changelog for Money v4.0.0 released on July 8th, 2019.  For older ch
 
 * Supports Elixir 1.6 and later only
 
-# Changelog for Money v3.4.4
+## Money v3.4.4
 
 This is the changelog for Money v3.4.4 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -333,7 +335,7 @@ If the use case may have both positive and negative amounts, generate two option
   ...> end
 ```
 
-# Changelog for Money v3.4.3
+## Money v3.4.3
 
 This is the changelog for Money v3.4.3 released on June 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -345,7 +347,7 @@ This is the changelog for Money v3.4.3 released on June 2nd, 2019.  For older ch
 
 Thanks to @rodrigues for the report and PR.
 
-# Changelog for Money v3.4.2
+## Money v3.4.2
 
 This is the changelog for Money v3.4.2 released on April 16th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -359,7 +361,7 @@ This is the changelog for Money v3.4.2 released on April 16th, 2019.  For older 
 
 * Improves the documentation for `Money.to_string/2`.
 
-# Changelog for Money v3.4.1
+## Money v3.4.1
 
 This is the changelog for Money v3.4.1 released on April 5th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -367,7 +369,7 @@ This is the changelog for Money v3.4.1 released on April 5th, 2019.  For older c
 
 * Fix `README.md` markdown formatting error.  Thanks to @fireproofsocks for the report and @lostkobrakai for the fix.  Closes #99.
 
-# Changelog for Money v3.4.0
+## Money v3.4.0
 
 This is the changelog for Money v3.4.0 released on March 28th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -375,7 +377,7 @@ This is the changelog for Money v3.4.0 released on March 28th, 2019.  For older 
 
 * Updates to [CLDR version 35.0.0](http://cldr.unicode.org/index/downloads/cldr-35) released on March 27th 2019 through `ex_cldr` version 2.6.0.
 
-# Changelog for Money v3.3.1
+## Money v3.3.1
 
 This is the changelog for Money v3.3.1 released on March 8th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -383,7 +385,7 @@ This is the changelog for Money v3.3.1 released on March 8th, 2019.  For older c
 
 * Fix or silence dialyzer warnings
 
-# Changelog for Money v3.3.0
+## Money v3.3.0
 
 This is the changelog for Money v3.3.0 released on February 24th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -403,7 +405,7 @@ This is the changelog for Money v3.3.0 released on February 24th, 2019.  For old
 
 * Parsing money strings now uses a more complete set of character definitions for decimal and grouping separators based upon the `characters.json` file of the "en" locale.
 
-# Changelog for Money v3.2.4
+## Money v3.2.4
 
 This is the changelog for Money v3.2.4 released on February 13th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -423,7 +425,7 @@ This is the changelog for Money v3.2.4 released on February 13th, 2019.  For old
    {Money.Invalid, "Unable to create money from \\"eurosports\\" and \\"100\\""}}
 ```
 
-# Changelog for Money v3.2.3
+## Money v3.2.3
 
 This is the changelog for Money v3.2.3 released on February 12th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -431,7 +433,7 @@ This is the changelog for Money v3.2.3 released on February 12th, 2019.  For old
 
 * Correctly parse money strings with unicode currency symbols like "€". Closes #95.  Thanks to @crbelaus.
 
-# Changelog for Money v3.2.2
+## Money v3.2.2
 
 This is the changelog for Money v3.2.2 released on February 10th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -461,7 +463,7 @@ This is the changelog for Money v3.2.2 released on February 10th, 2019.  For old
  iex> Money.parse string
  #Money<:AUD, 1234.00>
 ```
-# Changelog for Money v3.2.1
+## Money v3.2.1
 
 This is the changelog for Money v3.2.1 released on February 2nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -471,7 +473,7 @@ This is the changelog for Money v3.2.1 released on February 2nd, 2019.  For olde
 
 * `Money.new/3` now uses the current locale on the default backend if no locale or backend is specified. This means that `Money.Ecto.Composite.Type.cast/1` and `Money.Ecto.Map.Type.cast/1` will be parsed using the locale that has been set for the current process in the default backend. As a result, a simple `type=text` form field can be used to input a money type (currency code and amount in a single string) that can then be cast to a `Money.t`.
 
-# Changelog for Money v3.2.0
+## Money v3.2.0
 
 This is the changelog for Money v3.2.0 released on February 1st, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -483,7 +485,7 @@ This is the changelog for Money v3.2.0 released on February 1st, 2019.  For olde
 
 * Adds `Money.parse/2` which will parse a string comprising a currency code and an amount. It will return a `Money.t` or an error.  This function may be helpful in supporting money input in HTML forms.
 
-# Changelog for Money v3.1.0
+## Money v3.1.0
 
 This is the changelog for Money v3.1.0 released on December 30th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
@@ -499,7 +501,7 @@ This is the changelog for Money v3.1.0 released on December 30th, 2018.  For old
 
 * Fix unhandled terminate typo error in exchange rates server. Thanks to @xavier. Closes #90.
 
-# Changelog for Money v3.0.0
+## Money v3.0.0
 
 This is the changelog for Money v3.0.0 released on November 23rd, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
