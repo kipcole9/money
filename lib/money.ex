@@ -664,7 +664,7 @@ defmodule Money do
   * `money` is any valid `Money.t` type returned
     by `Money.new/2`
 
-  * `options` is a keyword list of options
+  * `options` is a keyword list of options or a `%Cldr.Number.Format.Options{}` struct
 
   ## Returns
 
@@ -742,7 +742,7 @@ defmodule Money do
   * `money` is any valid `Money.t` type returned
     by `Money.new/2`
 
-  * `options` is a keyword list of options
+  * `options` is a keyword list of options or a `%Cldr.Number.Format.Options{}` struct
 
   ## Options
 
@@ -766,7 +766,8 @@ defmodule Money do
       "1,234 US dollars"
 
   """
-  @spec to_string!(Money.t(), Keyword.t()) :: String.t() | no_return()
+  @spec to_string!(Money.t(), Keyword.t() | Cldr.Number.Format.Options.t()) :: 
+          String.t() | no_return()
 
   def to_string!(%Money{} = money, options \\ []) do
     case to_string(money, options) do
