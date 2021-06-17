@@ -1,5 +1,13 @@
 # Changelog
 
+## Money v5.5.4
+
+This is the changelog for Money v5.5.4 released on June 17th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Support `t:Cldr.Number.Format.Options` as an argument to `Money.to_string/2`.  Thanks to @@jeroenvisser101 for the PR. Closes #127.
+
 ## Money v5.5.3
 
 This is the changelog for Money v5.5.3 released on May 7th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
