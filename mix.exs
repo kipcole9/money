@@ -84,7 +84,7 @@ defmodule Money.Mixfile do
     [
       {:ex_cldr_numbers, "~> 2.16"},
       {:decimal, "~> 1.6 or ~> 2.0"},
-      {:phoenix_html, "~> 2.0", optional: true},
+      {:phoenix_html, "~> 2.0 or ~> 3.0", optional: true},
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:jason, "~> 1.0", optional: true},
