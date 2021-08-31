@@ -1,5 +1,21 @@
 # Changelog
 
+## Money v5.6.0
+
+This is the changelog for Money v5.6.0 released on August 31st, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Adds `Money.to_currency_code/1` to return the currency code part of a `t:Money`. Thanks to @Adzz for the proposal. Closes #130.
+
+## Money v5.5.5
+
+This is the changelog for Money v5.5.5 released on August 15th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Allow either `phoenix_html` version 2.x or 3.x. Thanks to @seantanly for the PR. Closes #129.
+
 ## Money v5.5.4
 
 This is the changelog for Money v5.5.4 released on June 17th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

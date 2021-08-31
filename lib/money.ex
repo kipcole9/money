@@ -766,7 +766,7 @@ defmodule Money do
       "1,234 US dollars"
 
   """
-  @spec to_string!(Money.t(), Keyword.t() | Cldr.Number.Format.Options.t()) :: 
+  @spec to_string!(Money.t(), Keyword.t() | Cldr.Number.Format.Options.t()) ::
           String.t() | no_return()
 
   def to_string!(%Money{} = money, options \\ []) do
@@ -798,6 +798,32 @@ defmodule Money do
   @spec to_decimal(money :: Money.t()) :: Decimal.t()
   def to_decimal(%Money{amount: amount}) do
     amount
+  end
+
+  @doc """
+  Returns the currecny code of a `Money` type
+  as an `atom`.
+
+  ## Arguments
+
+  * `money` is any valid `Money.t` type returned
+    by `Money.new/2`
+
+  ## Returns
+
+  * the currency code as an `t:atom`
+
+  ## Example
+
+      iex> m = Money.new("USD", 100)
+      iex> Money.to_currency_code(m)
+      :USD
+
+  """
+  @doc since: "5.6.0"
+  @spec to_currency_code(money :: Money.t()) :: Decimal.t()
+  def to_currency_code(%Money{currency: currency_code}) do
+    currency_code
   end
 
   @doc """
@@ -2118,7 +2144,12 @@ defmodule Money do
     @app_name
   end
 
-  @doc false
+  @doc """
+  Returns the default `ex_cldr` backend configured
+  for `Money`, if any. If no default backing is
+  configured, an exception is raised.
+
+  """
   def default_backend() do
     cldr_default_backend = Application.get_env(Cldr.Config.app_name(), :default_backend)
 

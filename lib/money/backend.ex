@@ -1152,11 +1152,12 @@ defmodule Money.Backend do
         end
 
         @doc """
-        Calls `Decimal.reduce/1` on the given `:'Elixir.Money'.t()`
+        Normalizes the underlying `Decimal` amount on the
+        given `t:Elixir.Money`.
 
         This will normalize the coefficient and exponent of the
         decimal amount in a standard way that may aid in
-        native comparison of `%:'Elixir.Money'.t()` items.
+        native comparison of `t:Elixir.Money` items.
 
         ## Example
 
