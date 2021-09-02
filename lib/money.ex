@@ -821,7 +821,7 @@ defmodule Money do
 
   """
   @doc since: "5.6.0"
-  @spec to_currency_code(money :: Money.t()) :: Decimal.t()
+  @spec to_currency_code(money :: Money.t()) :: atom()
   def to_currency_code(%Money{currency: currency_code}) do
     currency_code
   end
