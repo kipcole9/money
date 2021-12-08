@@ -1,13 +1,13 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "5.7.0"
+  @version "5.7.1"
 
   def project do
     [
       app: :ex_money,
       version: @version,
-      elixir: "~> 1.6",
+      elixir: "~> 1.10",
       name: "Money",
       source_url: "https://github.com/kipcole9/money",
       docs: docs(),

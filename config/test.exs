@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :ex_money, Money.Repo,
   adapter: Ecto.Adapters.Postgres,

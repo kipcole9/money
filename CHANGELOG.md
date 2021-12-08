@@ -1,5 +1,17 @@
 # Changelog
 
+## Money v5.7.1
+
+This is the changelog for Money v5.7.1 released on December 8th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+**Note** `ex_money 5.7.1` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.23` or later.
+
+### Bug Fixes
+
+* Fix dialyzer warnings on Elixir 1.12 and 1.13
+
+* Replace `use Mix.Config` with `import Config` in configuration files since the former is deprecated.
+
 ## Money v5.7.0
 
 This is the changelog for Money v5.7.0 released on October 28th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

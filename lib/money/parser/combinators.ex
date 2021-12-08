@@ -6,7 +6,7 @@ defmodule Money.Combinators do
   # Whitespace as defined by Unicode set :Zs plus tab
   @whitespace [?\s, ?\t, 0xA0, 0x1680, 0x2000, 0x202F, 0x205F, 0x3000]
   def whitespace do
-    repeat(utf8_char(@whitespace))
+    repeat(empty(), utf8_char(@whitespace))
     |> label("whitespace")
   end
 
@@ -36,7 +36,7 @@ defmodule Money.Combinators do
 
   @digits [?0..?9]
   def digits do
-    repeat(ascii_char([?0..?9]))
+    repeat(empty(), ascii_char([?0..?9]))
     |> label("digits")
   end
 
@@ -53,7 +53,7 @@ defmodule Money.Combinators do
   end
 
   def negative_number do
-    choice([
+    choice(empty(), [
       ignore(minus())
       |> concat(positive_number()),
       positive_number()
@@ -65,7 +65,7 @@ defmodule Money.Combinators do
   end
 
   def number do
-    choice([negative_number(), positive_number()])
+    choice(empty(), [negative_number(), positive_number()])
     |> reduce({List, :to_string, []})
     |> unwrap_and_tag(:amount)
     |> label("number")
@@ -83,7 +83,7 @@ defmodule Money.Combinators do
   end
 
   def money_with_currency do
-    choice([
+    choice(empty(), [
       number()
       |> ignore(optional(whitespace()))
       |> optional(currency())
@@ -97,7 +97,7 @@ defmodule Money.Combinators do
   end
 
   def accounting_format do
-    choice([
+    choice(empty(), [
       ignore(left_paren())
       |> ignore(optional(whitespace()))
       |> concat(number())
