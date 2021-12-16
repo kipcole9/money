@@ -1937,22 +1937,18 @@ defmodule Money do
   @doc """
   Convert an integer representation of money into a `Money` struct.
 
-  This is the inverse operation of `Money.to_integer_exp/1`. Note
-  that the ISO definition of currency digits (subunit) is *always*
-  used.  This is, in some cases like the Colombian Peso (COP)
-  different to the CLDR definition.
-
   ## Arguments
 
-  * `integer` is an integer representation of a money item including
-    any decimal digits.  ie. `20000` would interpreted to mean `$200.00`
+  * `integer` is an integer representation of a money amount including
+    any decimal digits.  ie. `20000` would be interpreted to mean `$200.00`
     if the `currency` is `:USD` and no `:fractional_digits` option
     was provided.
 
   * `currency` is the currency code for the `integer`.  The assumed
-    decimal precision is derived from the currency code.
+    decimal precision is derived from the currency code if no `fractional_digits`
+    option is specified.
 
-  * `options` is a keyword list of options.`
+  * `options` is a keyword list of options.
 
   ## Options
 
