@@ -1942,21 +1942,47 @@ defmodule Money do
   used.  This is, in some cases like the Colombian Peso (COP)
   different to the CLDR definition.
 
-  ## Options
+  ## Arguments
 
-  * `integer` is an integer representation of a mooney item including
-    any decimal digits.  ie. 20000 would interpreted to mean $200.00
+  * `integer` is an integer representation of a money item including
+    any decimal digits.  ie. `20000` would interpreted to mean `$200.00`
+    if the `currency` is `:USD` and no `:fractional_digits` option
+    was provided.
 
   * `currency` is the currency code for the `integer`.  The assumed
-    decimal places is derived from the currency code.
+    decimal precision is derived from the currency code.
 
-  * `options` is a keyword list of options passed to `Money.new/3`
+  * `options` is a keyword list of options.`
+
+  ## Options
+
+  * `:fractional_digits` which determines the currency precision implied
+    by the `integer`. The valid options are `:cash`, `:accounting`,
+    `:iso` or a non-negative integer. The default is `:iso` which uses the
+    [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) definition of
+    currency digits.
+
+  All other options are passed to `Money.new/3`.
 
   ## Returns
 
   * A `t:Money` struct or
 
-  * `{:error, {Cldr.UnknownCurrencyError, message}}`
+  * `{:error, {exception, message}}`
+
+  ## Notes
+
+  Some currencies, like the [Iraqi Dinar](https://en.wikipedia.org/wiki/Iraqi_dinar)
+  have a difference in the decimal digits defined by CLDR versus
+  those defined by [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217). CLDR
+  defines the decimal digits for `IQD` as `0` whereas ISO 4217 defines
+  `3` decimal digits.
+
+  Since converting an integer to a money amount is very
+  sensitive to the number of fractional digits specified it is
+  important to be very clear about the precision of the data used
+  with this function and care taken in specifying the `:fractional_digits`
+  parameter.
 
   ## Examples
 
@@ -1969,24 +1995,43 @@ defmodule Money do
       iex> Money.from_integer(20012, :USD)
       #Money<:USD, 200.12>
 
-      iex> Money.from_integer(20012, :COP)
-      #Money<:COP, 200.12>
+      iex> Money.from_integer(20012, :USD, fractional_digits: 3)
+      #Money<:USD, 20.012>
+
+      iex> Money.from_integer(20012, :IQD)
+      #Money<:IQD, 20.012>
 
   """
   @spec from_integer(integer, currency_code, Keyword.t()) ::
-    Money.t() | {:error, module(), String.t()}
+    Money.t() | {:error, {module(), String.t()}}
 
-  def from_integer(amount, currency, options \\ []) when is_integer(amount) do
+  def from_integer(amount, currency, options \\ []) when is_integer(amount) and is_list(options) do
     with {:ok, currency} <- validate_currency(currency),
-         {:ok, %{iso_digits: digits}} <- Currency.currency_for_code(currency) do
+         {:ok, currency_data} <- Currency.currency_for_code(currency),
+         {:ok, digits, options} <- digits_from_options(currency_data, options) do
       sign = if amount < 0, do: -1, else: 1
-      digits = if digits == 0, do: 0, else: -digits
 
       sign
       |> Decimal.new(Kernel.abs(amount), digits)
       |> Money.new(currency, options)
     end
   end
+
+  defp digits_from_options(currency_data, options) when is_list(options) do
+    {fractional_digits, options} = Keyword.pop(options, :fractional_digits)
+
+    with {:ok, digits} <- digits_from_options(currency_data, fractional_digits) do
+      {:ok, -digits, options}
+    end
+  end
+
+  defp digits_from_options(currency_data, :iso), do: Map.fetch(currency_data, :iso_digits)
+  defp digits_from_options(currency_data, nil), do: Map.fetch(currency_data, :iso_digits)
+  defp digits_from_options(currency_data, :cash), do: Map.fetch(currency_data, :cash_digits)
+  defp digits_from_options(currency_data, :accounting), do: Map.fetch(currency_data, :digits)
+  defp digits_from_options(_currency_data, integer) when is_integer(integer) and integer >= 0, do: {:ok, integer}
+  defp digits_from_options(_currency_data, other),
+    do: {:error, {Money.InvalidDigitsError, "Unknown or invalid :fractional_digits option found: #{inspect other}"}}
 
   @doc """
   Return a zero amount `t:Money` in the given currency.

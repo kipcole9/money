@@ -22,6 +22,14 @@ defmodule Money.InvalidAmountError do
   end
 end
 
+defmodule Money.InvalidDigitsError do
+  defexception [:message]
+
+  def exception(message) do
+    %__MODULE__{message: message}
+  end
+end
+
 defmodule Money.Invalid do
   defexception [:message]
 

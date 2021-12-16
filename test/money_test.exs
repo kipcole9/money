@@ -547,4 +547,14 @@ defmodule MoneyTest do
     money = %{__struct__: Money, amount: Decimal.new(3), currency: :USD}
     assert Money.to_string(money) == {:ok, "$3.00"}
   end
+
+  test "from_integer/3" do
+    assert Money.from_integer(100, :USD, fractional_digits: 1) == Money.new(:USD, "10.0")
+    assert Money.from_integer(100, :USD, fractional_digits: 0) == Money.new(:USD, "100")
+    assert Money.from_integer(100, :USD, fractional_digits: :iso) == Money.new(:USD, "1.00")
+    assert Money.from_integer(100, :USD, fractional_digits: :cash) == Money.new(:USD, "1.00")
+    assert Money.from_integer(100, :USD, fractional_digits: :accounting) == Money.new(:USD, "1.00")
+    assert Money.from_integer(100, :USD, fractional_digits: :rubbish) ==
+      {:error, {Money.InvalidDigitsError, "Unknown or invalid :fractional_digits option found: :rubbish"}}
+  end
 end

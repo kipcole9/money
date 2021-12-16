@@ -1,5 +1,19 @@
 # Changelog
 
+## Money v5.7.2
+
+This is the changelog for Money v5.7.2 released on December 17th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+**Note** `ex_money 5.7.2` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.23` or later.
+
+### Bug Fixes
+
+* Fix spec for `Money.from_integer/3`. Thanks to @jdewar for the report.
+
+### Enhancements
+
+* Support a `:fractional_digits` option for `Money.from_integer/3` and improve the documentation.
+
 ## Money v5.7.1
 
 This is the changelog for Money v5.7.1 released on December 8th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
