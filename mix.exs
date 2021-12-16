@@ -34,7 +34,7 @@ defmodule Money.Mixfile do
   defp package do
     [
       maintainers: ["Kip Cole"],
-      licenses: ["Apache 2.0"],
+      licenses: ["Apache-2.0"],
       links: %{
         "GitHub" => "https://github.com/kipcole9/money",
         "Readme" => "https://github.com/kipcole9/money/blob/v#{@version}/README.md",
