@@ -573,7 +573,7 @@ defmodule Money.ExchangeRates.Retriever do
 
   @otp_version :otp_release |> :erlang.system_info() |> List.to_integer
 
-  if @otp_version >= 21 do
+  if @otp_version > 21 do
     defp https_opts(%Money.ExchangeRates.Config{verify_peer: true}, _url) do
       [
         ssl: [
