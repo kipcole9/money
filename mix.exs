@@ -80,6 +80,8 @@ defmodule Money.Mixfile do
     []
   end
 
+  @otp_version :otp_release |> :erlang.system_info() |> List.to_integer
+
   defp deps do
     [
       {:ex_cldr_numbers, "~> 2.23"},
@@ -94,8 +96,10 @@ defmodule Money.Mixfile do
       {:exprof, "~> 0.2", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: [:dev, :release]},
       {:castore, "~> 0.1", optional: true},
-      {:certifi, "~> 2.5", optional: true}
+      {:certifi, "~> 2.5", optional: true},
+      if(@otp_version < 21, do: {:ssl_verify_fun, "~> 1.1"})
     ]
+    |> Enum.reject(&is_nil/1)
   end
 
   defp elixirc_paths(:test), do: ["lib", "test", "test/support"]

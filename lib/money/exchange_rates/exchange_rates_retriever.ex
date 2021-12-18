@@ -195,7 +195,7 @@ defmodule Money.ExchangeRates.Retriever do
   def retrieve_rates(url, config) when is_list(url) do
     headers = if_none_match_header(url)
 
-    :httpc.request(:get, {url, headers}, https_opts(config), [])
+    :httpc.request(:get, {url, headers}, https_opts(config, url), [])
     |> process_response(url, config)
   end
 
@@ -525,6 +525,11 @@ defmodule Money.ExchangeRates.Retriever do
   ]
   |> Enum.reject(&is_nil/1)
 
+  @doc """
+  Returns the certificate store to be used when
+  retrieving exchange rates.
+
+  """
   def certificate_store do
     @certificate_locations
     |> Enum.find(&File.exists?/1)
@@ -564,22 +569,42 @@ defmodule Money.ExchangeRates.Retriever do
     file
   end
 
-  defp https_opts(%Money.ExchangeRates.Config{verify_peer: true}) do
-    [
-      ssl: [
-        verify: :verify_peer,
-        cacertfile: certificate_store(),
-        depth: 99,
-        log_level: :alert,
-        log_alert: true,
-        customize_hostname_check: [
-          match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+  # See https://erlef.github.io/security-wg/secure_coding_and_deployment_hardening/ssl.html
+
+  @otp_version :otp_release |> :erlang.system_info() |> List.to_integer
+
+  if @otp_version >= 21 do
+    defp https_opts(%Money.ExchangeRates.Config{verify_peer: true}, _url) do
+      [
+        ssl: [
+          verify: :verify_peer,
+          cacertfile: certificate_store(),
+          depth: 99,
+          log_level: :alert,
+          log_alert: true,
+          customize_hostname_check: [
+            match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+          ]
         ]
       ]
-    ]
+    end
+  else
+    defp https_opts(%Money.ExchangeRates.Config{verify_peer: true}, _url) do
+      [
+        ssl: [
+          verify: :verify_peer,
+          verify_fun: {&:ssl_verify_hostname.verify_fun/3, check_hostname: host},
+          cacertfile: certificate_store(),
+          server_name_indication: host,
+          reuse_sessions: false,
+          depth: 99
+        ]
+      ]
+    end
   end
 
-  defp https_opts(%Money.ExchangeRates.Config{verify_peer: false}) do
+  defp https_opts(%Money.ExchangeRates.Config{verify_peer: false}, _url) do
     []
   end
+
 end

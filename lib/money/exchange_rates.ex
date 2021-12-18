@@ -167,6 +167,7 @@ defmodule Money.ExchangeRates do
   Returns the configuration for `ex_money` including the
   configuration merged from the configured exchange rates
   retriever module.
+
   """
   def config do
     api_module = default_config().api_module
@@ -203,6 +204,7 @@ defmodule Money.ExchangeRates do
 
   @doc """
   Returns the default configuration for the exchange rates retriever.
+
   """
   def default_config do
     %Config{
