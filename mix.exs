@@ -85,9 +85,11 @@ defmodule Money.Mixfile do
   defp deps do
     [
       {:ex_cldr_numbers, "~> 2.23"},
-      {:decimal, "~> 1.6 or ~> 2.0"},
-      {:phoenix_html, "~> 2.0 or ~> 3.0", optional: true},
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
+      {:decimal, "~> 1.6 or ~> 2.0"},
+      if(@otp_version < 22, do: {:ssl_verify_fun, "~> 1.1"}),
+
+      {:phoenix_html, "~> 2.0 or ~> 3.0", optional: true},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:jason, "~> 1.0", optional: true},
       {:stream_data, "~> 0.4", only: [:dev, :test]},
@@ -96,8 +98,7 @@ defmodule Money.Mixfile do
       {:exprof, "~> 0.2", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: [:dev, :release]},
       {:castore, "~> 0.1", optional: true},
-      {:certifi, "~> 2.5", optional: true},
-      if(@otp_version < 22, do: {:ssl_verify_fun, "~> 1.1"})
+      {:certifi, "~> 2.5", optional: true}
     ]
     |> Enum.reject(&is_nil/1)
   end
