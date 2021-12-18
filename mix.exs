@@ -97,7 +97,7 @@ defmodule Money.Mixfile do
       {:ex_doc, "~> 0.22", only: [:dev, :release]},
       {:castore, "~> 0.1", optional: true},
       {:certifi, "~> 2.5", optional: true},
-      if(@otp_version < 21, do: {:ssl_verify_fun, "~> 1.1"})
+      if(@otp_version < 22, do: {:ssl_verify_fun, "~> 1.1"})
     ]
     |> Enum.reject(&is_nil/1)
   end

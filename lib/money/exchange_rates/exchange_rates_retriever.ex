@@ -590,6 +590,8 @@ defmodule Money.ExchangeRates.Retriever do
     end
   else
     defp https_opts(%Money.ExchangeRates.Config{verify_peer: true}, _url) do
+      host = url |> :uri_string.parse() |> Map.fetch!(:host)
+
       [
         ssl: [
           verify: :verify_peer,
