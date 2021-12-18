@@ -219,7 +219,7 @@ defmodule Money.ExchangeRates.Retriever do
          _url,
          _config
        ) do
-    {:error, sys_message}
+    {:error, "Failed to connect: #{inspect sys_message}"}
   end
 
   defp process_response({:error, {:tls_alert, {:certificate_expired, _message}}}, url, _config) do
