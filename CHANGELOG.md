@@ -1,5 +1,15 @@
 # Changelog
 
+## Money v5.7.3
+
+This is the changelog for Money v5.7.3 released on December 19th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+**Note** `ex_money 5.7.3` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.23` or later.
+
+### Bug Fixes
+
+* Fixes retrieving exchange rates on OTP releases before OTP 22.  Thanks to @fbettag for the report, collaboration and patience.
+
 ## Money v5.7.2
 
 This is the changelog for Money v5.7.2 released on December 17th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
