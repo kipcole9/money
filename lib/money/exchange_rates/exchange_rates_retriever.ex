@@ -74,7 +74,7 @@ defmodule Money.ExchangeRates.Retriever do
 
   """
   def latest_rates() do
-    case Process.whereis(Money.ExchangeRates.Retriever) do
+    case Process.whereis(__MODULE__) do
       nil -> {:error, exchange_rate_service_error()}
       _pid -> GenServer.call(__MODULE__, :latest_rates)
     end
@@ -211,19 +211,15 @@ defmodule Money.ExchangeRates.Retriever do
   end
 
   defp process_response({_, {{_version, code, message}, _headers, _body}}, _url, _config) do
-    {:error, "#{code} #{message}"}
+    {:error, {Money.ExchangeRateError, "#{code} #{message}"}}
   end
 
-  defp process_response(
-         {:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}},
-         _url,
-         _config
-       ) do
-    {:error, "Failed to connect: #{inspect sys_message}"}
+  defp process_response({:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}}, url, _config) do
+    {:error, {Money.ExchangeRateError, "Failed to connect to #{url}: #{inspect sys_message}"}}
   end
 
   defp process_response({:error, {:tls_alert, {:certificate_expired, _message}}}, url, _config) do
-    {:error, "Certificate for #{inspect(url)} has expired"}
+    {:error, {Money.ExchangeRateError, "Certificate for #{inspect(url)} has expired"}}
   end
 
   defp if_none_match_header(url) do
@@ -495,39 +491,39 @@ defmodule Money.ExchangeRates.Retriever do
   #### Certificate verification
 
   @certificate_locations [
-                           # Configured cacertfile
-                           Application.get_env(Cldr.Config.app_name(), :cacertfile),
+    # Configured cacertfile
+    Application.get_env(Cldr.Config.app_name(), :cacertfile),
 
-                           # Populated if hex package CAStore is configured
-                           if(Code.ensure_loaded?(CAStore), do: CAStore.file_path()),
+    # Populated if hex package CAStore is configured
+    if(Code.ensure_loaded?(CAStore), do: CAStore.file_path()),
 
-                           # Populated if hex package certfi is configured
-                           if(Code.ensure_loaded?(:certifi),
-                             do: :certifi.cacertfile() |> List.to_string()
-                           ),
+    # Populated if hex package certfi is configured
+    if(Code.ensure_loaded?(:certifi),
+      do: :certifi.cacertfile() |> List.to_string()
+    ),
 
-                           # Debian/Ubuntu/Gentoo etc.
-                           "/etc/ssl/certs/ca-certificates.crt",
+    # Debian/Ubuntu/Gentoo etc.
+    "/etc/ssl/certs/ca-certificates.crt",
 
-                           # Fedora/RHEL 6
-                           "/etc/pki/tls/certs/ca-bundle.crt",
+    # Fedora/RHEL 6
+    "/etc/pki/tls/certs/ca-bundle.crt",
 
-                           # OpenSUSE
-                           "/etc/ssl/ca-bundle.pem",
+    # OpenSUSE
+    "/etc/ssl/ca-bundle.pem",
 
-                           # OpenELEC
-                           "/etc/pki/tls/cacert.pem",
+    # OpenELEC
+    "/etc/pki/tls/cacert.pem",
 
-                           # CentOS/RHEL 7
-                           "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
+    # CentOS/RHEL 7
+    "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
 
-                           # Open SSL on MacOS
-                           "/usr/local/etc/openssl/cert.pem",
+    # Open SSL on MacOS
+    "/usr/local/etc/openssl/cert.pem",
 
-                           # MacOS & Alpine Linux
-                           "/etc/ssl/cert.pem"
-                         ]
-                         |> Enum.reject(&is_nil/1)
+    # MacOS, OpenBSD & Alpine Linux
+    "/etc/ssl/cert.pem"
+  ]
+  |> Enum.reject(&is_nil/1)
 
   def certificate_store do
     @certificate_locations
@@ -575,7 +571,7 @@ defmodule Money.ExchangeRates.Retriever do
         cacertfile: certificate_store(),
         depth: 99,
         log_level: :alert,
-        log_alert: false,
+        log_alert: true,
         customize_hostname_check: [
           match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
         ]
