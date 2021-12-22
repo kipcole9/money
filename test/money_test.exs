@@ -495,6 +495,10 @@ defmodule MoneyTest do
     assert Money.to_integer_exp(Money.new(:COP, 1234), currency_digits: :accounting) ==
              {:COP, 123_400, -2, Money.new(:COP, 0)}
   end
+  
+  test "that to_integer_exp handles negative amounts" do
+    assert Money.to_integer_exp(Money.new(:USD, -1234)) == {:USD, -123_400, -2, Money.new(:USD, 0)}
+  end
 
   test "json encoding for Jason" do
     assert Jason.encode(
