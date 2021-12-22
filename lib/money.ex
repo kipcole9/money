@@ -1929,7 +1929,7 @@ defmodule Money do
     digits = digits_from_opts(currency, opts[:currency_digits])
     exponent = -digits
     exponent_adjustment = Kernel.abs(exponent - new_money.amount.exp)
-    integer = Cldr.Math.power_of_10(exponent_adjustment) * new_money.amount.coef
+    integer = Cldr.Math.power_of_10(exponent_adjustment) * new_money.amount.coef * new_money.amount.sign
 
     {money.currency, integer, exponent, remainder}
   end
