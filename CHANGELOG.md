@@ -1,5 +1,15 @@
 # Changelog
 
+## Money v5.8.0
+
+This is the changelog for Money v5.8.0 released on January 31st, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+**Note** `ex_money 5.8.0` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.23` or later.
+
+### Enhancements
+
+* Adds configuration option `:exclude_protocol_implementations` to omit generating implementations for one or more protocols from the list `Json.Encoder`, `Phoneix.HTML.Safe` and `Gringotts.Money`. Thanks to @jgough-playoxygen for the [suggestion](https://elixirforum.com/t/cldr-number-custom-formatter/45520).
+
 ## Money v5.7.4
 
 This is the changelog for Money v5.7.4 released on December 23rd, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

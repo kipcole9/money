@@ -10,7 +10,8 @@ defimpl Inspect, for: Money do
   end
 end
 
-if Cldr.Config.ensure_compiled?(Jason) do
+if Cldr.Config.ensure_compiled?(Jason) &&
+    !Money.exclude_protocol_implementation(Json.Encoder) do
   defimpl Jason.Encoder, for: Money do
     def encode(struct, opts) do
       struct
@@ -20,7 +21,8 @@ if Cldr.Config.ensure_compiled?(Jason) do
   end
 end
 
-if Cldr.Config.ensure_compiled?(Phoenix.HTML.Safe) do
+if Cldr.Config.ensure_compiled?(Phoenix.HTML.Safe) &&
+     !Money.exclude_protocol_implementation(Phoenix.HTML.Safe) do
   defimpl Phoenix.HTML.Safe, for: Money do
     def to_iodata(money) do
       Phoenix.HTML.Safe.to_iodata(Money.to_string!(money))
@@ -28,7 +30,8 @@ if Cldr.Config.ensure_compiled?(Phoenix.HTML.Safe) do
   end
 end
 
-if Cldr.Config.ensure_compiled?(Gringotts.Money) do
+if Cldr.Config.ensure_compiled?(Gringotts.Money) &&
+     !Money.exclude_protocol_implementation(Gringotts.Money) do
   defimpl Gringotts.Money, for: Money do
     def currency(%Money{currency: currency}) do
       Atom.to_string(currency)

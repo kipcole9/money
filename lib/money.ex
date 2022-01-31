@@ -566,9 +566,7 @@ defmodule Money do
   defp maybe_create_money(%{currency: false}, string, _options) do
     {:error,
      {Money.Invalid,
-      "A currency code, symbol or description must be specified but was not found in #{
-        inspect(string)
-      }"}}
+      "A currency code, symbol or description must be specified but was not found in #{inspect(string)}"}}
   end
 
   # No currency was in the string so we'll derive it from
@@ -951,8 +949,9 @@ defmodule Money do
   @spec sub(money_1 :: Money.t(), money_2 :: Money.t()) ::
           {:ok, Money.t()} | {:error, {module(), String.t()}}
 
-  def sub(%Money{currency: same_currency, amount: amount_a},
-          %Money{currency: same_currency, amount: amount_b} = money_b
+  def sub(
+        %Money{currency: same_currency, amount: amount_a},
+        %Money{currency: same_currency, amount: amount_b} = money_b
       ) do
     {:ok, %{money_b | amount: Decimal.sub(amount_a, amount_b)}}
   end
@@ -1694,7 +1693,7 @@ defmodule Money do
     end
   end
 
-  def to_currency(%Money{currency: from_currency, amount: amount} =  money, to_currency, rates)
+  def to_currency(%Money{currency: from_currency, amount: amount} = money, to_currency, rates)
       when is_atom(to_currency) and is_map(rates) do
     with {:ok, to_currency_code} <- validate_currency(to_currency),
          {:ok, cross_rate} <- cross_rate(from_currency, to_currency_code, rates) do
@@ -1929,7 +1928,9 @@ defmodule Money do
     digits = digits_from_opts(currency, opts[:currency_digits])
     exponent = -digits
     exponent_adjustment = Kernel.abs(exponent - new_money.amount.exp)
-    integer = Cldr.Math.power_of_10(exponent_adjustment) * new_money.amount.coef * new_money.amount.sign
+
+    integer =
+      Cldr.Math.power_of_10(exponent_adjustment) * new_money.amount.coef * new_money.amount.sign
 
     {money.currency, integer, exponent, remainder}
   end
@@ -1999,7 +2000,7 @@ defmodule Money do
 
   """
   @spec from_integer(integer, currency_code, Keyword.t()) ::
-    Money.t() | {:error, {module(), String.t()}}
+          Money.t() | {:error, {module(), String.t()}}
 
   def from_integer(amount, currency, options \\ []) when is_integer(amount) and is_list(options) do
     with {:ok, currency} <- validate_currency(currency),
@@ -2025,9 +2026,15 @@ defmodule Money do
   defp digits_from_options(currency_data, nil), do: Map.fetch(currency_data, :iso_digits)
   defp digits_from_options(currency_data, :cash), do: Map.fetch(currency_data, :cash_digits)
   defp digits_from_options(currency_data, :accounting), do: Map.fetch(currency_data, :digits)
-  defp digits_from_options(_currency_data, integer) when is_integer(integer) and integer >= 0, do: {:ok, integer}
+
+  defp digits_from_options(_currency_data, integer) when is_integer(integer) and integer >= 0,
+    do: {:ok, integer}
+
   defp digits_from_options(_currency_data, other),
-    do: {:error, {Money.InvalidDigitsError, "Unknown or invalid :fractional_digits option found: #{inspect other}"}}
+    do:
+      {:error,
+       {Money.InvalidDigitsError,
+        "Unknown or invalid :fractional_digits option found: #{inspect(other)}"}}
 
   @doc """
   Return a zero amount `t:Money` in the given currency.
@@ -2201,5 +2208,13 @@ defmodule Money do
         or
           config :ex_money, default_cldr_backend: MyApp.Cldr
       """
+  end
+
+  @doc false
+  def exclude_protocol_implementation(module) do
+    exclusions =
+      Application.get_env(:ex_money, :exclude_protocol_implementations, []) |> List.wrap()
+
+    if module in exclusions, do: true, else: false
   end
 end

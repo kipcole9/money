@@ -100,9 +100,12 @@ An optional callback module can also be defined.  This module defines a `rates_r
       log_info: :info,
       log_success: nil,
       json_library: Jason,
-      default_cldr_backend: MyApp.Cldr
+      default_cldr_backend: MyApp.Cldr,
+      exclude_protocol_implementations: []
 
 ### Configuration key definitions
+
+* `:default_cldr_backend` defines the `Cldr` backend module that is default for `Money`.  See the [ex_cldr documentation](https://hexdocs.pm/ex_cldr/2.0.0/readme.html) for further information on how to define this module.  **This is a required option**.
 
 * `:exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is `:never`. An `atom` value is interpreted to mean that there should be no periodic retrieval.
 
@@ -127,7 +130,8 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
 * `:json_library` determines which json library to be used for decoding.  Two common options are `Poison` and `Jason`. The default is `Cldr.Config.json_library/0` which is currently configured by default as `Jason`.
 
-* `:default_cldr_backend` defines the `Cldr` backend module that is default for `Money`.  See the [ex_cldr documentation](https://hexdocs.pm/ex_cldr/2.0.0/readme.html) for further information on how to define this module.  **This is a required option**.
+* `:exclude_protocol_implementations` is a protocol module, or list of protocol modules, that will not be defined by `ex_money`. The default is `[]`. The protocol implementations influenced by this option at `Json.Encoder`, `Phoenix.HTML.Safe` and `Gringotts.Money`.
+
 
 ### JSON library configuration
 

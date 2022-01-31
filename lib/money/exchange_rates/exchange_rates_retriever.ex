@@ -214,8 +214,12 @@ defmodule Money.ExchangeRates.Retriever do
     {:error, {Money.ExchangeRateError, "#{code} #{message}"}}
   end
 
-  defp process_response({:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}}, url, _config) do
-    {:error, {Money.ExchangeRateError, "Failed to connect to #{url}: #{inspect sys_message}"}}
+  defp process_response(
+         {:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}},
+         url,
+         _config
+       ) do
+    {:error, {Money.ExchangeRateError, "Failed to connect to #{url}: #{inspect(sys_message)}"}}
   end
 
   defp process_response({:error, {:tls_alert, {:certificate_expired, _message}}}, url, _config) do
@@ -491,39 +495,39 @@ defmodule Money.ExchangeRates.Retriever do
   #### Certificate verification
 
   @certificate_locations [
-    # Configured cacertfile
-    Application.get_env(Cldr.Config.app_name(), :cacertfile),
+                           # Configured cacertfile
+                           Application.get_env(Cldr.Config.app_name(), :cacertfile),
 
-    # Populated if hex package CAStore is configured
-    if(Code.ensure_loaded?(CAStore), do: CAStore.file_path()),
+                           # Populated if hex package CAStore is configured
+                           if(Code.ensure_loaded?(CAStore), do: CAStore.file_path()),
 
-    # Populated if hex package certfi is configured
-    if(Code.ensure_loaded?(:certifi),
-      do: :certifi.cacertfile() |> List.to_string()
-    ),
+                           # Populated if hex package certfi is configured
+                           if(Code.ensure_loaded?(:certifi),
+                             do: :certifi.cacertfile() |> List.to_string()
+                           ),
 
-    # Debian/Ubuntu/Gentoo etc.
-    "/etc/ssl/certs/ca-certificates.crt",
+                           # Debian/Ubuntu/Gentoo etc.
+                           "/etc/ssl/certs/ca-certificates.crt",
 
-    # Fedora/RHEL 6
-    "/etc/pki/tls/certs/ca-bundle.crt",
+                           # Fedora/RHEL 6
+                           "/etc/pki/tls/certs/ca-bundle.crt",
 
-    # OpenSUSE
-    "/etc/ssl/ca-bundle.pem",
+                           # OpenSUSE
+                           "/etc/ssl/ca-bundle.pem",
 
-    # OpenELEC
-    "/etc/pki/tls/cacert.pem",
+                           # OpenELEC
+                           "/etc/pki/tls/cacert.pem",
 
-    # CentOS/RHEL 7
-    "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
+                           # CentOS/RHEL 7
+                           "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
 
-    # Open SSL on MacOS
-    "/usr/local/etc/openssl/cert.pem",
+                           # Open SSL on MacOS
+                           "/usr/local/etc/openssl/cert.pem",
 
-    # MacOS, OpenBSD & Alpine Linux
-    "/etc/ssl/cert.pem"
-  ]
-  |> Enum.reject(&is_nil/1)
+                           # MacOS, OpenBSD & Alpine Linux
+                           "/etc/ssl/cert.pem"
+                         ]
+                         |> Enum.reject(&is_nil/1)
 
   @doc """
   Returns the certificate store to be used when
@@ -571,7 +575,7 @@ defmodule Money.ExchangeRates.Retriever do
 
   # See https://erlef.github.io/security-wg/secure_coding_and_deployment_hardening/ssl.html
 
-  @otp_version :otp_release |> :erlang.system_info() |> List.to_integer
+  @otp_version :otp_release |> :erlang.system_info() |> List.to_integer()
 
   if @otp_version > 21 do
     defp https_opts(%Money.ExchangeRates.Config{verify_peer: true}, _url) do
@@ -608,5 +612,4 @@ defmodule Money.ExchangeRates.Retriever do
   defp https_opts(%Money.ExchangeRates.Config{verify_peer: false}, _url) do
     []
   end
-
 end

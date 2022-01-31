@@ -495,7 +495,7 @@ defmodule MoneyTest do
     assert Money.to_integer_exp(Money.new(:COP, 1234), currency_digits: :accounting) ==
              {:COP, 123_400, -2, Money.new(:COP, 0)}
   end
-  
+
   test "that to_integer_exp handles negative amounts" do
     assert Money.to_integer_exp(Money.new(:USD, -1234)) == {:USD, -123_400, -2, Money.new(:USD, 0)}
   end
@@ -544,7 +544,6 @@ defmodule MoneyTest do
     assert Money.sub!(money, money_with_options).format_options == format_options
     assert Money.mult!(money_with_options, 3).format_options == format_options
     assert Money.div!(money_with_options, 3).format_options == format_options
-
   end
 
   test "to_string/2 on a Money that doesn't have a :format_options key" do
@@ -558,7 +557,10 @@ defmodule MoneyTest do
     assert Money.from_integer(100, :USD, fractional_digits: :iso) == Money.new(:USD, "1.00")
     assert Money.from_integer(100, :USD, fractional_digits: :cash) == Money.new(:USD, "1.00")
     assert Money.from_integer(100, :USD, fractional_digits: :accounting) == Money.new(:USD, "1.00")
+
     assert Money.from_integer(100, :USD, fractional_digits: :rubbish) ==
-      {:error, {Money.InvalidDigitsError, "Unknown or invalid :fractional_digits option found: :rubbish"}}
+             {:error,
+              {Money.InvalidDigitsError,
+               "Unknown or invalid :fractional_digits option found: :rubbish"}}
   end
 end

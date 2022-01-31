@@ -1293,7 +1293,7 @@ defmodule Money.Backend do
 
         """
         @spec zero(Elixir.Money.currency_code() | Elixir.Money.t(), Keyword.t()) ::
-          Elixir.Money.t()
+                Elixir.Money.t()
 
         def zero(money, options \\ [])
 
