@@ -2211,10 +2211,10 @@ defmodule Money do
   end
 
   @doc false
-  def exclude_protocol_implementation(module) do
+  def exclude_protocol_implementation(module) when is_atom(module) do
     exclusions =
       Application.get_env(:ex_money, :exclude_protocol_implementations, []) |> List.wrap()
 
-    if module in exclusions, do: true, else: false
+    module in exclusions
   end
 end
