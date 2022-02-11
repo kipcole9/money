@@ -675,6 +675,20 @@ defmodule Money do
   * `:backend` is any CLDR backend module.  The default is
     `Money.default_backend()`.
 
+  * `currency_symbol`: Allows overriding a currency symbol. The alternatives
+    are:
+    * `:iso` the ISO currency code will be used instead of the default
+      currency symbol.
+    * `:narrow` uses the narrow symbol defined for the locale. The same
+      narrow symbol can be defined for more than one currency and therefore this
+      should be used with care. If no narrow symbol is defined, the standard
+      symbol is used.
+    * `:symbol` uses the standard symbol defined in CLDR. A symbol is unique
+      for each currency and can be safely used.
+    * "string" uses `string` as the currency symbol
+    * `:standard` (the default and recommended) uses the CLDR-defined symbol
+      based upon the currency format for the locale.
+
   * Any other options are passed to `Cldr.Number.to_string/3`
 
   ## Examples
