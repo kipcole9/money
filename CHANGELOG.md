@@ -1,5 +1,15 @@
 # Changelog
 
+## Money v5.9.0
+
+This is the changelog for Money v5.9.0 released on February 12th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+**Note** `ex_money 5.9.0` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.23` or later.
+
+### Enhancements
+
+* Adjusts the output of `Money.inspect/2` to be executable code. Instead of `#Money<:USD, 100>` the output will be `Money.new(:USD, "100")`. This improved developer experience by allowing for copy/paste of `inspect/2` results into `iex`. It is also in line with similar changes being made in `Elixir`, `Decimal` and others.
+
 ## Money v5.8.0
 
 This is the changelog for Money v5.8.0 released on January 31st, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

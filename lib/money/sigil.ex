@@ -9,9 +9,9 @@ defmodule Money.Sigil do
 
       iex> import Money.Sigil
       iex> ~M[1000]usd
-      #Money<:USD, 1000>
+      Money.new(:USD, "1000")
       iex> ~M[1000.34]usd
-      #Money<:USD, 1000.34>
+      Money.new(:USD, "1000.34")
 
   """
   @spec sigil_M(binary, list) :: Money.t() | {:error, {Exception.t(), String.t()}}

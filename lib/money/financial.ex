@@ -20,13 +20,13 @@ defmodule Money.Financial do
   ## Examples
 
       iex> Money.Financial.future_value Money.new(:USD, 10000), 0.08, 1
-      #Money<:USD, 10800.00>
+      Money.new(:USD, "10800.00")
 
       iex> Money.Financial.future_value Money.new(:USD, 10000), 0.04, 2
-      #Money<:USD, 10816.0000>
+      Money.new(:USD, "10816.0000")
 
       iex> Money.Financial.future_value Money.new(:USD, 10000), 0.02, 4
-      #Money<:USD, 10824.32160000>
+      Money.new(:USD, "10824.32160000")
 
   """
   @spec future_value(Money.t(), number, number) :: Money.t()
@@ -56,10 +56,10 @@ defmodule Money.Financial do
   ## Example
 
       iex> Money.Financial.future_value([{4, Money.new(:USD, 10000)}, {5, Money.new(:USD, 10000)}, {6, Money.new(:USD, 10000)}], 0.13)
-      #Money<:USD, 34068.99999999999999999999999>
+      Money.new(:USD, "34068.99999999999999999999999")
 
       iex> Money.Financial.future_value [{0, Money.new(:USD, 5000)},{1, Money.new(:USD, 2000)}], 0.12
-      #Money<:USD, 7600.000000000000000000000000>
+      Money.new(:USD, "7600.000000000000000000000000")
 
   """
   @spec future_value(list({number, Money.t()}), number) :: Money.t()
@@ -88,10 +88,10 @@ defmodule Money.Financial do
   ## Examples
 
       iex> Money.Financial.present_value Money.new(:USD, 100), 0.08, 2
-      #Money<:USD, 85.73388203017832647462277092>
+      Money.new(:USD, "85.73388203017832647462277092")
 
       iex> Money.Financial.present_value Money.new(:USD, 1000), 0.10, 20
-      #Money<:USD, 148.6436280241436864020760472>
+      Money.new(:USD, "148.6436280241436864020760472")
 
   """
   @spec present_value(Money.t(), number, number) :: Money.t()
@@ -119,10 +119,11 @@ defmodule Money.Financial do
   ## Example
 
       iex> Money.Financial.present_value([{4, Money.new(:USD, 10000)}, {5, Money.new(:USD, 10000)}, {6, Money.new(:USD, 10000)}], 0.13)
-      #Money<:USD, 16363.97191111964880256655144>
+      Money.new(:USD, "16363.97191111964880256655144")
 
       iex> Money.Financial.present_value [{0, Money.new(:USD, -1000)},{1, Money.new(:USD, -4000)}], 0.1
-      #Money<:USD, -4636.363636363636363636363636>
+      Money.new(:USD, "-4636.363636363636363636363636")
+  
   """
   @spec present_value(list({integer, Money.t()}), number) :: Money.t()
   def present_value(flows, interest_rate)
@@ -165,9 +166,9 @@ defmodule Money.Financial do
 
       iex> flows = [{0, Money.new(:USD, 5000)},{1, Money.new(:USD, 2000)},{2, Money.new(:USD, 500)},{3, Money.new(:USD,10_000)}]
       iex> Money.Financial.net_present_value flows, 0.08, Money.new(:USD, 100)
-      #Money<:USD, 15118.84367220444038002337042>
+      Money.new(:USD, "15118.84367220444038002337042")
       iex> Money.Financial.net_present_value flows, 0.08
-      #Money<:USD, 15218.84367220444038002337042>
+      Money.new(:USD, "15218.84367220444038002337042")
 
   """
   @spec net_present_value(list({integer, Money.t()}), number) :: Money.t()
@@ -202,10 +203,10 @@ defmodule Money.Financial do
   ## Example
 
       iex> Money.Financial.net_present_value Money.new(:USD, 10000), 0.13, 2
-      #Money<:USD, 7831.466833737959119743127888>
+      Money.new(:USD, "7831.466833737959119743127888")
 
       iex> Money.Financial.net_present_value Money.new(:USD, 10000), 0.13, 2, Money.new(:USD, 100)
-      #Money<:USD, 7731.466833737959119743127888>
+      Money.new(:USD, "7731.466833737959119743127888")
 
   """
   @spec net_present_value(Money.t(), number, number) :: Money.t()
@@ -302,6 +303,7 @@ defmodule Money.Financial do
 
       iex> Money.Financial.periods Money.new(:USD, 1500), Money.new(:USD, 2000), 0.005
       #Decimal<57.68013595323872502502238648>
+  
   """
   @spec periods(Money.t(), Money.t(), float) :: Decimal.t()
   def periods(
@@ -330,7 +332,8 @@ defmodule Money.Financial do
   ## Example
 
       iex> Money.Financial.payment Money.new(:USD, 100), 0.12, 20
-      #Money<:USD, 13.38787800396606622792492299>
+      Money.new(:USD, "13.38787800396606622792492299")
+  
   """
   @spec payment(Money.t(), float, number) :: Money.t()
   def payment(

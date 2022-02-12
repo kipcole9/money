@@ -128,31 +128,31 @@ defmodule Money do
   ## Examples
 
       iex> Money.new(:USD, 100)
-      #Money<:USD, 100>
+      Money.new(:USD, "100")
 
       iex> Money.new(100, :USD)
-      #Money<:USD, 100>
+      Money.new(:USD, "100")
 
       iex> Money.new("USD", 100)
-      #Money<:USD, 100>
+      Money.new(:USD, "100")
 
       iex> Money.new("thb", 500)
-      #Money<:THB, 500>
+      Money.new(:THB, "500")
 
       iex> Money.new("EUR", Decimal.new(100))
-      #Money<:EUR, 100>
+      Money.new(:EUR, "100")
 
       iex> Money.new(:EUR, "100.30")
-      #Money<:EUR, 100.30>
+      Money.new(:EUR, "100.30")
 
       iex> Money.new(:EUR, "100.30", fractional_digits: 4)
-      #Money<:EUR, 100.30>
+      Money.new(:EUR, "100.30", fractional_digits: 4)
 
       iex> Money.new(:XYZZ, 100)
       {:error, {Money.UnknownCurrencyError, "The currency :XYZZ is invalid"}}
 
       iex> Money.new("1.000,99", :EUR, locale: "de")
-      #Money<:EUR, 1000.99>
+      Money.new(:EUR, "1000.99")
 
       iex> Money.new 123.445, :USD
       {:error,
@@ -333,7 +333,7 @@ defmodule Money do
   ## Examples
 
       iex> Money.from_float 1.23456, :USD
-      #Money<:USD, 1.23456>
+      Money.new(:USD, "1.23456")
 
       iex> Money.from_float 1.234567890987656, :USD
       {:error,
@@ -391,7 +391,7 @@ defmodule Money do
   ## Examples
 
       iex> Money.from_float!(:USD, 1.234)
-      #Money<:USD, 1.234>
+      Money.new(:USD, "1.234")
 
       Money.from_float!(:USD, 1.234567890987654)
       #=> ** (Money.InvalidAmountError) The precision of the float 1.234567890987654 is greater than 15 which could lead to unexpected results. Reduce the precision or call Money.new/2 with a Decimal or String amount
@@ -517,25 +517,25 @@ defmodule Money do
   ## Examples
 
       iex> Money.parse("USD 100")
-      #Money<:USD, 100>
+      Money.new(:USD, "100")
 
       iex> Money.parse "USD 100,00", locale: "de"
-      #Money<:USD, 100.00>
+      Money.new(:USD, "100.00")
 
       iex> Money.parse("100 USD")
-      #Money<:USD, 100>
+      Money.new(:USD, "100")
 
       iex> Money.parse("100 eurosports", fuzzy: 0.8)
-      #Money<:EUR, 100>
+      Money.new(:EUR, "100")
 
       iex> Money.parse("100", default_currency: :EUR)
-      #Money<:EUR, 100>
+      Money.new(:EUR, "100")
 
       iex> Money.parse("100 eurosports", fuzzy: 0.9)
       {:error, {Money.UnknownCurrencyError, "The currency \\"eurosports\\" is unknown or not supported"}}
 
       iex> Money.parse("100 afghan afghanis")
-      #Money<:AFN, 100>
+      Money.new(:AFN, "100")
 
       iex> Money.parse("100", default_currency: false)
       {:error, {Money.Invalid,
@@ -855,7 +855,7 @@ defmodule Money do
 
       iex> m = Money.new("USD", -100)
       iex> Money.abs(m)
-      #Money<:USD, 100>
+      Money.new(:USD, "100")
 
   """
   @spec abs(money :: Money.t()) :: Money.t()
@@ -925,7 +925,7 @@ defmodule Money do
   ## Examples
 
       iex> Money.add! Money.new(:USD, 200), Money.new(:USD, 100)
-      #Money<:USD, 300>
+      Money.new(:USD, "300")
 
       Money.add! Money.new(:USD, 200), Money.new(:CAD, 500)
       ** (ArgumentError) Cannot add two %Money{} with different currencies. Received :USD and :CAD.
@@ -996,7 +996,7 @@ defmodule Money do
   ## Examples
 
       iex> Money.sub! Money.new(:USD, 200), Money.new(:USD, 100)
-      #Money<:USD, 100>
+      Money.new(:USD, "100")
 
       Money.sub! Money.new(:USD, 200), Money.new(:CAD, 500)
       ** (ArgumentError) Cannot subtract monies with different currencies. Received :USD and :CAD.
@@ -1076,7 +1076,7 @@ defmodule Money do
   ## Examples
 
       iex> Money.mult!(Money.new(:USD, 200), 2)
-      #Money<:USD, 400>
+      Money.new(:USD, "400")
 
       Money.mult!(Money.new(:USD, 200), :invalid)
       ** (ArgumentError) Cannot multiply money by :invalid
@@ -1156,7 +1156,7 @@ defmodule Money do
   ## Examples
 
       iex> Money.div!(Money.new(:USD, 200), 2)
-      #Money<:USD, 100>
+      Money.new(:USD, "100")
 
       iex> Money.div!(Money.new(:USD, 200), "xx")
       ** (ArgumentError) Cannot divide money by "xx"
@@ -1494,16 +1494,16 @@ defmodule Money do
   ## Examples
 
       iex> Money.round Money.new("123.73", :CHF), currency_digits: :cash
-      #Money<:CHF, 123.75>
+      Money.new(:CHF, "123.75")
 
       iex> Money.round Money.new("123.73", :CHF), currency_digits: 0
-      #Money<:CHF, 124>
+      Money.new(:CHF, "124")
 
       iex> Money.round Money.new("123.7456", :CHF)
-      #Money<:CHF, 123.75>
+      Money.new(:CHF, "123.75")
 
       iex> Money.round Money.new("123.7456", :JPY)
-      #Money<:JPY, 124>
+      Money.new(:JPY, "124")
 
   """
   @spec round(Money.t(), Keyword.t()) :: Money.t()
@@ -1604,10 +1604,10 @@ defmodule Money do
   ## Examples
 
       iex> Money.put_fraction Money.new(:USD, "2.49"), 99
-      #Money<:USD, 2.99>
+      Money.new(:USD, "2.99")
 
       iex> Money.put_fraction Money.new(:USD, "2.49"), 0
-      #Money<:USD, 2.0>
+      Money.new(:USD, "2.0")
 
       iex> Money.put_fraction Money.new(:USD, "2.49"), 999
       {:error,
@@ -1733,11 +1733,11 @@ defmodule Money do
 
       iex> Money.to_currency! Money.new(:USD, 100), :AUD,
       ...>   %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
-      #Money<:AUD, 73.4500>
+      Money.new(:AUD, "73.4500")
 
       iex> Money.to_currency! Money.new("USD", 100), "AUD",
       ...>   %{"USD" => Decimal.new(1), "AUD" => Decimal.from_float(0.7345)}
-      #Money<:AUD, 73.4500>
+      Money.new(:AUD, "73.4500")
 
       => Money.to_currency! Money.new(:USD, 100), :ZZZ,
            %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
@@ -1867,13 +1867,13 @@ defmodule Money do
   ## Example
 
       iex> x = %Money{currency: :USD, amount: %Decimal{sign: 1, coef: 42, exp: 0}}
-      #Money<:USD, 42>
+      Money.new(:USD, "42")
       iex> y = %Money{currency: :USD, amount: %Decimal{sign: 1, coef: 4200000000, exp: -8}}
-      #Money<:USD, 42.00000000>
+      Money.new(:USD, "42.00000000")
       iex> x == y
       false
       iex> y = Money.normalize(x)
-      #Money<:USD, 42>
+      Money.new(:USD, "42")
       iex> x == y
       true
 
@@ -1921,12 +1921,12 @@ defmodule Money do
   ## Example
 
       iex> m = Money.new(:USD, "200.012356")
-      #Money<:USD, 200.012356>
+      Money.new(:USD, "200.012356")
       iex> Money.to_integer_exp(m)
       {:USD, 20001, -2, Money.new(:USD, "0.002356")}
 
       iex> m = Money.new(:USD, "200.00")
-      #Money<:USD, 200.00>
+      Money.new(:USD, "200.00")
       iex> Money.to_integer_exp(m)
       {:USD, 20000, -2, Money.new(:USD, "0.00")}
 
@@ -1998,19 +1998,19 @@ defmodule Money do
   ## Examples
 
       iex> Money.from_integer(20000, :USD)
-      #Money<:USD, 200.00>
+      Money.new(:USD, "200.00")
 
       iex> Money.from_integer(200, :JPY)
-      #Money<:JPY, 200>
+      Money.new(:JPY, "200")
 
       iex> Money.from_integer(20012, :USD)
-      #Money<:USD, 200.12>
+      Money.new(:USD, "200.12")
 
       iex> Money.from_integer(20012, :USD, fractional_digits: 3)
-      #Money<:USD, 20.012>
+      Money.new(:USD, "20.012")
 
       iex> Money.from_integer(20012, :IQD)
-      #Money<:IQD, 20.012>
+      Money.new(:IQD, "20.012")
 
   """
   @spec from_integer(integer, currency_code, Keyword.t()) ::
@@ -2064,11 +2064,11 @@ defmodule Money do
   ## Example
 
       iex> Money.zero(:USD)
-      #Money<:USD, 0>
+      Money.new(:USD, "0")
 
       iex> money = Money.new(:USD, 200)
       iex> Money.zero(money)
-      #Money<:USD, 0>
+      Money.new(:USD, "0")
 
       iex> Money.zero :ZZZ
       {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
