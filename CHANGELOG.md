@@ -10,6 +10,8 @@ This is the changelog for Money v5.9.0 released on February 12th, 2022.  For old
 
 * Adjusts the output of `Money.inspect/2` to be executable code. Instead of `#Money<:USD, 100>` the output will be `Money.new(:USD, "100")`. This improved developer experience by allowing for copy/paste of `inspect/2` results into `iex`. It is also in line with similar changes being made in `Elixir`, `Decimal` and others.
 
+* Add documentation for `:currency_symbol` option for `Money.to_string/2`. Although its an option that is passed through to `Cldr.Number.to_string/3`, its very relevant to `t:Money` formatting.
+
 ## Money v5.8.0
 
 This is the changelog for Money v5.8.0 released on January 31st, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
