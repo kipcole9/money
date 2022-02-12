@@ -804,7 +804,7 @@ defmodule Money do
 
       iex> m = Money.new("USD", 100)
       iex> Money.to_decimal(m)
-      #Decimal<100>
+      Decimal.new(100)
 
   """
   @spec to_decimal(money :: Money.t()) :: Decimal.t()
@@ -1777,7 +1777,7 @@ defmodule Money do
   ## Examples
 
       Money.cross_rate(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
-      {:ok, #Decimal<0.7345>}
+      {:ok, Decimal.new("0.7345")}
 
       Money.cross_rate Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
       ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
@@ -1826,10 +1826,10 @@ defmodule Money do
   ## Examples
 
       iex> Money.cross_rate!(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
-      #Decimal<0.7345>
+      Decimal.new("0.7345")
 
       iex> Money.cross_rate!(:USD, :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
-      #Decimal<0.7345>
+      Decimal.new("0.7345")
 
       Money.cross_rate Money.new(:USD, 100), :ZZZ, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")}
       ** (Cldr.UnknownCurrencyError) Currency :ZZZ is not known
