@@ -6,7 +6,7 @@ defmodule Money.Currency do
   @data_dir [:code.priv_dir(:ex_cldr), "/cldr/locales"] |> :erlang.iolist_to_binary()
   @config %{data_dir: @data_dir, locales: ["en"], default_locale: "en"}
 
-  @currencies Cldr.Locale.Loader.get_locale("en", @config)
+  @currencies Cldr.Locale.Loader.get_locale(:en, @config)
               |> Map.get(:currencies)
 
   @current_currencies @currencies

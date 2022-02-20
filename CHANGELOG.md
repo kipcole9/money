@@ -2,11 +2,13 @@
 
 ## Money v5.9.0
 
-This is the changelog for Money v5.9.0 released on February 12th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.9.0 released on February 21st, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
-**Note** `ex_money 5.9.0` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.23` or later.
+**Note** `ex_money 5.9.0` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.25` or later.
 
 ### Enhancements
+
+* Updates to [ex_cldr version 2.26.0](https://hex.pm/packages/ex_cldr/2.26.0) and [ex_cldr_numbers version 2.25.0](https://hex.pm/packages/ex_cldr_numbers/2.25.0) which use atoms for locale names and rbnf locale names. This is consistent with other elements of `t:Cldr.LanguageTag` where atoms are used when the cardinality of the data is fixed and relatively small and strings where the data is free format.
 
 * Adjusts the output of `Money.inspect/2` to be executable code. Instead of `#Money<:USD, 100>` the output will be `Money.new(:USD, "100")`. This improved developer experience by allowing for copy/paste of `inspect/2` results into `iex`. It is also in line with similar changes being made in `Elixir`, `Decimal` and others.
 
