@@ -553,6 +553,13 @@ defmodule MoneyTest do
     refute Money.positive?(Money.new(:USD, -1))
   end
 
+  test "check if Money is negative" do
+    assert Money.negative?(Money.new(:USD, -1))
+
+    refute Money.negative?(Money.new(:USD, 0))
+    refute Money.negative?(Money.new(:USD, 1))
+  end
+
   test "check if Money is zero" do
     assert Money.zero?(Money.new(:USD, 0))
 

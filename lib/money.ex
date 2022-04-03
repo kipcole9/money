@@ -2136,6 +2136,30 @@ defmodule Money do
     end
   end
 
+  @doc """
+  Checks if `t:Money.t/0` is negative.
+
+  ## Example
+
+      iex> Money.negative?(Money.new(:USD, -1))
+      true
+
+      iex> Money.negative?(Money.new(:USD, 0))
+      false
+
+      iex> Money.negative?(Money.new(:USD, 1))
+      false
+
+  """
+  @spec negative?(Money.t()) :: boolean
+
+  def negative?(%{currency: currency} = value) do
+    case compare(zero(currency), value) do
+      :gt -> true
+      _ -> false
+    end
+  end
+
   @doc false
   def from_integer({currency, integer, _exponent, _remainder}) do
     from_integer(integer, currency)
