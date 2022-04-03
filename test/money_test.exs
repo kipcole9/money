@@ -546,6 +546,13 @@ defmodule MoneyTest do
     assert Money.div!(money_with_options, 3).format_options == format_options
   end
 
+  test "check if Money is positive" do
+    assert Money.positive?(Money.new(:USD, 1))
+
+    refute Money.positive?(Money.new(:USD, 0))
+    refute Money.positive?(Money.new(:USD, -1))
+  end
+
   test "check if Money is zero" do
     assert Money.zero?(Money.new(:USD, 0))
 

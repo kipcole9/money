@@ -2112,6 +2112,30 @@ defmodule Money do
     end
   end
 
+  @doc """
+  Checks if `t:Money.t/0` is positive.
+
+  ## Example
+
+      iex> Money.positive?(Money.new(:USD, 1))
+      true
+
+      iex> Money.positive?(Money.new(:USD, 0))
+      false
+
+      iex> Money.positive?(Money.new(:USD, -1))
+      false
+
+  """
+  @spec positive?(Money.t()) :: boolean
+
+  def positive?(%{currency: currency} = value) do
+    case compare(zero(currency), value) do
+      :lt -> true
+      _ -> false
+    end
+  end
+
   @doc false
   def from_integer({currency, integer, _exponent, _remainder}) do
     from_integer(integer, currency)
