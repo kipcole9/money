@@ -1,7 +1,7 @@
 defmodule Money do
   @moduledoc """
   Money implements a set of functions to store, retrieve, convert and perform
-  arithmetic on a `Money.t` type that is composed of a currency code and
+  arithmetic on a `t:Money.t()` type that is composed of a currency code and
   a decimal currency amount.
 
   Money is very opinionated in the interests of serving as a dependable library
@@ -409,11 +409,11 @@ defmodule Money do
   end
 
   @doc """
-  Add format options to a `t:Money`.
+  Add format options to a `t:Money.t()`.
 
   ## Arguments
 
-  * `money` is any valid `t:Money` type returned
+  * `money` is any valid `t:Money.t()` type returned
     by `Money.new/2`
 
   * `options` is a keyword list of options. These
@@ -429,7 +429,7 @@ defmodule Money do
   end
 
   @doc """
-  Parse a string and return a `Money.t` or an error.
+  Parse a string and return a `t:Money.t()` or an error.
 
   The string to be parsed is required to have a currency
   code and an amount.  The currency code may be placed
@@ -485,7 +485,7 @@ defmodule Money do
 
   ## Returns
 
-  * a `Money.t` if parsing is successful or
+  * a `t:Money.t()` if parsing is successful or
 
   * `{:error, {exception, reason}}` if an error is
     detected.
@@ -659,7 +659,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `Money.t` type returned
+  * `money` is any valid `t:Money.t()` type returned
     by `Money.new/2`
 
   * `options` is a keyword list of options or a `%Cldr.Number.Format.Options{}` struct
@@ -741,7 +741,7 @@ defmodule Money do
   end
 
   @doc """
-  Returns a formatted string representation of a `Money.t` or raises if
+  Returns a formatted string representation of a `t:Money.t()` or raises if
   there is an error.
 
   Formatting is performed according to the rules defined by CLDR. See
@@ -751,7 +751,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `Money.t` type returned
+  * `money` is any valid `t:Money.t()` type returned
     by `Money.new/2`
 
   * `options` is a keyword list of options or a `%Cldr.Number.Format.Options{}` struct
@@ -793,7 +793,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `Money.t` type returned
+  * `money` is any valid `t:Money.t()` type returned
     by `Money.new/2`
 
   ## Returns
@@ -818,7 +818,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `Money.t` type returned
+  * `money` is any valid `t:Money.t()` type returned
     by `Money.new/2`
 
   ## Returns
@@ -844,12 +844,12 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `Money.t` type returned
+  * `money` is any valid `t:Money.t()` type returned
     by `Money.new/2`
 
   ## Returns
 
-  * a `Money.t`
+  * a `t:Money.t()`
 
   ## Example
 
@@ -868,7 +868,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `Money.t` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   ## Returns
@@ -913,12 +913,12 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `Money.t` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   ## Returns
 
-  * a `Money.t` struct or
+  * a `t:Money.t()` struct or
 
   * raises an exception
 
@@ -945,7 +945,7 @@ defmodule Money do
 
   ## Options
 
-  * `money_1` and `money_2` are any valid `Money.t` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   ## Returns
@@ -984,12 +984,12 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `Money.t` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   ## Returns
 
-  * a `Money.t` struct or
+  * a `t:Money.t()` struct or
 
   * raises an exception
 
@@ -1016,7 +1016,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `Money.t` type returned
+  * `money` is any valid `t:Money.t()` type returned
     by `Money.new/2`
 
   * `number` is an integer, float or `Decimal.t`
@@ -1062,14 +1062,14 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `Money.t` types returned
+  * `money` is any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   * `number` is an integer, float or `Decimal.t`
 
   ## Returns
 
-  * a `Money.t` or
+  * a `t:Money.t()` or
 
   * raises an exception
 
@@ -1096,7 +1096,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `Money.t` types returned
+  * `money` is any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   * `number` is an integer, float or `Decimal.t`
@@ -1142,14 +1142,14 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `Money.t` types returned
+  * `money` is any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   * `number` is an integer, float or `Decimal.t`
 
   ## Returns
 
-  * a `Money.t` struct or
+  * a `t:Money.t()` struct or
 
   * raises an exception
 
@@ -1176,7 +1176,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `Money.t` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   ## Returns
@@ -1211,7 +1211,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_list` is a list of any valid `Money.t` types returned
+  * `money_list` is a list of any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   * `rates` is a map of exchange rates. The default is `%{}`.
@@ -1262,7 +1262,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `Money.t` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   ## Returns
@@ -1310,7 +1310,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `Money.t` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   ## Returns
@@ -1339,7 +1339,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `Money.t` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   ## Returns
@@ -1387,7 +1387,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `Money.t` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
     by `Money.new/2`
 
   ## Returns
@@ -1645,7 +1645,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any `Money.t` struct returned by `Cldr.Currency.new/2`
+  * `money` is any `t:Money.t()` struct returned by `Cldr.Currency.new/2`
 
   * `to_currency` is a valid currency code into which the `money` is converted
 
@@ -1765,7 +1765,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `from` is any `Money.t` struct returned by `Cldr.Currency.new/2` or a valid
+  * `from` is any `t:Money.t()` struct returned by `Cldr.Currency.new/2` or a valid
      currency code
 
   * `to_currency` is a valid currency code into which the `money` is converted
@@ -1814,7 +1814,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `from` is any `Money.t` struct returned by `Cldr.Currency.new/2` or a valid
+  * `from` is any `t:Money.t()` struct returned by `Cldr.Currency.new/2` or a valid
      currency code
 
   * `to_currency` is a valid currency code into which the `money` is converted
@@ -1911,7 +1911,7 @@ defmodule Money do
 
   ## Options
 
-  * `money` is any `Money.t` struct returned by `Cldr.Currency.new/2`
+  * `money` is any `t:Money.t()` struct returned by `Cldr.Currency.new/2`
 
   ## Notes
 
@@ -1977,7 +1977,7 @@ defmodule Money do
 
   ## Returns
 
-  * A `t:Money` struct or
+  * A `t:Money.t()` struct or
 
   * `{:error, {exception, message}}`
 
@@ -2051,11 +2051,11 @@ defmodule Money do
         "Unknown or invalid :fractional_digits option found: #{inspect(other)}"}}
 
   @doc """
-  Return a zero amount `t:Money` in the given currency.
+  Return a zero amount `t:Money.t()` in the given currency.
 
   ## Arguments
 
-  * `money_or_currency` is either a `t:Money` or
+  * `money_or_currency` is either a `t:Money.t()` or
     a currency code
 
   * `options` is a keyword list of options passed
@@ -2089,7 +2089,13 @@ defmodule Money do
   end
 
   @doc """
-  Checks if `t:Money.t/0` is zero.
+  Returns a boolean indicating if `t:Money.t/0`
+  has a zero value.
+
+  ## Arguments
+
+  * `money` is any valid `t:Money.t()` type returned
+    by `Money.new/2`
 
   ## Example
 
@@ -2103,6 +2109,7 @@ defmodule Money do
       false
 
   """
+  Cldr.Macros.doc_since("5.10.0")
   @spec zero?(Money.t()) :: boolean
 
   def zero?(%{currency: currency} = value) do
@@ -2113,7 +2120,13 @@ defmodule Money do
   end
 
   @doc """
-  Checks if `t:Money.t/0` is positive.
+  Returns a boolean indicating if `t:Money.t/0`
+  has a positive value.
+
+  ## Arguments
+
+  * `money` is any valid `t:Money.t()` type returned
+    by `Money.new/2`
 
   ## Example
 
@@ -2127,6 +2140,7 @@ defmodule Money do
       false
 
   """
+  Cldr.Macros.doc_since("5.10.0")
   @spec positive?(Money.t()) :: boolean
 
   def positive?(%{currency: currency} = value) do
@@ -2137,7 +2151,13 @@ defmodule Money do
   end
 
   @doc """
-  Checks if `t:Money.t/0` is negative.
+  Returns a boolean indicating if `t:Money.t/0`
+  has a negative value.
+
+  ## Arguments
+
+  * `money` is any valid `t:Money.t()` type returned
+    by `Money.new/2`
 
   ## Example
 
@@ -2151,6 +2171,7 @@ defmodule Money do
       false
 
   """
+  Cldr.Macros.doc_since("5.10.0")
   @spec negative?(Money.t()) :: boolean
 
   def negative?(%{currency: currency} = value) do
