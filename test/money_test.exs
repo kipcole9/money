@@ -546,6 +546,13 @@ defmodule MoneyTest do
     assert Money.div!(money_with_options, 3).format_options == format_options
   end
 
+  test "check if Money is zero" do
+    assert Money.zero?(Money.new(:USD, 0))
+
+    refute Money.zero?(Money.new(:USD, 1))
+    refute Money.zero?(Money.new(:USD, -1))
+  end
+
   test "to_string/2 on a Money that doesn't have a :format_options key" do
     money = %{__struct__: Money, amount: Decimal.new(3), currency: :USD}
     assert Money.to_string(money) == {:ok, "$3.00"}
