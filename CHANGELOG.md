@@ -10,6 +10,8 @@ This is the changelog for Money v5.10.0 released on April 6th, 2022.  For older 
 
 * Add `Money.zero?/1`, `Money.positive?/1` and `Money.negative?/1`. Thanks to @emaiax for the PR.
 
+* Update [CLDR](https://cldr.unicode.org) to [release 41](https://cldr.unicode.org/index/downloads/cldr-41) in [ex_cldr version 2.28.0](https://hex.pm/packages/ex_cldr/2.28.0) and [ex_cldr_numbers 2.26.0](https://hex.pm/packages/ex_cldr_numbers/2.26.0).
+
 ## Money v5.9.0
 
 This is the changelog for Money v5.9.0 released on February 21st, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
