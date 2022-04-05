@@ -84,7 +84,7 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:ex_cldr_numbers, "~> 2.23"},
+      {:ex_cldr_numbers, "~> 2.26"},
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:decimal, "~> 1.6 or ~> 2.0"},
       if(@otp_version < 22, do: {:ssl_verify_fun, "~> 1.1"}),
