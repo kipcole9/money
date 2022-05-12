@@ -1,7 +1,7 @@
 defmodule Money do
   @moduledoc """
   Money implements a set of functions to store, retrieve, convert and perform
-  arithmetic on a `t:Money.t()` type that is composed of a currency code and
+  arithmetic on a `t:Money.t/0` type that is composed of a currency code and
   a decimal currency amount.
 
   Money is very opinionated in the interests of serving as a dependable library
@@ -42,8 +42,21 @@ defmodule Money do
   Money is composed of an atom representation of an ISO4217 currency code and
   a `Decimal` representation of an amount.
   """
-  @type t :: %Money{currency: atom(), amount: Decimal.t(), format_options: Keyword.t()}
+  @type t :: %Money{currency: currency_code(), amount: Decimal.t(), format_options: Keyword.t()}
+
+  @typedoc """
+  A currency code is an ISO 4217 code expressed
+  as an atom or binary or an ISO 24165 Digital
+  Token ID or Digital Token short name.
+
+  """
   @type currency_code :: atom() | String.t()
+
+  @typedoc """
+  An amount can be expressed as a float, an integer,
+  a Decimal or a string (which is converted to a Decimal)
+
+  """
   @type amount :: float() | integer() | Decimal.t() | String.t()
 
   @enforce_keys [:currency, :amount]
@@ -90,11 +103,18 @@ defmodule Money do
   alias Money.Currency
   alias Money.ExchangeRates
 
-  defdelegate validate_currency(currency_code), to: Cldr
   defdelegate known_currencies, to: Cldr
   defdelegate known_current_currencies, to: Money.Currency
   defdelegate known_historic_currencies, to: Money.Currency
   defdelegate known_tender_currencies, to: Money.Currency
+
+  @doc false
+  defguard is_currency_code(currency_code)
+    when is_atom(currency_code) or (is_binary(currency_code) and byte_size(currency_code) in [3, 9])
+
+  @doc false
+  defguard is_digital_token(token_id)
+    when is_binary(token_id) and byte_size(token_id) == 9
 
   @doc """
   Returns a %Money{} struct from a currency code and a currency amount or
@@ -102,7 +122,8 @@ defmodule Money do
 
   ## Arguments
 
-  * `currency_code` is an ISO4217 three-character upcased binary or atom
+  * `currency_code` is an ISO4217 three-character upcased binary or atom or
+    a 9 character digital token identifier or shortname.
 
   * `amount` is an integer, string or Decimal
 
@@ -167,18 +188,7 @@ defmodule Money do
 
   def new(currency_code, amount, options \\ [])
 
-  def new(currency_code, amount, options) when is_binary(currency_code) and is_integer(amount) do
-    case validate_currency(currency_code) do
-      {:error, {_exception, message}} -> {:error, {Money.UnknownCurrencyError, message}}
-      {:ok, code} -> new(code, amount, options)
-    end
-  end
-
-  def new(amount, currency_code, options) when is_binary(currency_code) and is_integer(amount) do
-    new(currency_code, amount, options)
-  end
-
-  def new(currency_code, amount, options) when is_atom(currency_code) and is_integer(amount) do
+  def new(currency_code, amount, options) when is_currency_code(currency_code) and is_integer(amount) do
     with {:ok, code} <- validate_currency(currency_code) do
       format_options = extract_format_options(options)
       %Money{amount: Decimal.new(amount), currency: code, format_options: format_options}
@@ -188,40 +198,35 @@ defmodule Money do
     end
   end
 
-  def new(amount, currency_code, options) when is_integer(amount) and is_atom(currency_code) do
-    new(currency_code, amount, options)
-  end
-
-  def new(currency_code, %Decimal{} = amount, options)
-      when is_atom(currency_code) or is_binary(currency_code) do
+  def new(currency_code, %Decimal{} = amount, options) when is_currency_code(currency_code) do
     case validate_currency(currency_code) do
-      {:error, {_exception, message}} ->
-        {:error, {Money.UnknownCurrencyError, message}}
-
       {:ok, code} ->
         format_options = extract_format_options(options)
         %Money{amount: amount, currency: code, format_options: format_options}
+
+      {:error, {_exception, message}} ->
+        {:error, {Money.UnknownCurrencyError, message}}
     end
   end
 
-  def new(%Decimal{} = amount, currency_code, options)
-      when is_atom(currency_code) or is_binary(currency_code) do
+  def new(amount, currency_code, options) when is_currency_code(currency_code) and is_integer(amount) do
     new(currency_code, amount, options)
   end
 
-  def new(currency_code, amount, options) when is_atom(currency_code) and is_binary(amount) do
+  def new(%Decimal{} = amount, currency_code, options) when is_currency_code(currency_code) do
+    new(currency_code, amount, options)
+  end
+
+  def new(currency_code, amount, options) when is_currency_code(currency_code) and is_binary(amount) do
     with {:ok, decimal} <- parse_decimal(amount, options[:locale], options[:backend]) do
       new(currency_code, decimal, options)
     end
   rescue
     Decimal.Error ->
-      {
-        :error,
-        {Money.InvalidAmountError, "Amount cannot be converted to a number: #{inspect(amount)}"}
-      }
+      {:error, invalid_amount_error(amount)}
   end
 
-  def new(amount, currency_code, options) when is_atom(currency_code) and is_binary(amount) do
+  def new(amount, currency_code, options) when is_currency_code(currency_code) and is_binary(amount) do
     new(currency_code, amount, options)
   end
 
@@ -239,20 +244,28 @@ defmodule Money do
         "and precision issues.  If absolutely required, use Money.from_float/2"}}
   end
 
-  def new(param_a, param_b, options) when is_binary(param_a) and is_binary(param_b) do
-    with {:ok, currency_code} <- validate_currency(param_a) do
-      new(currency_code, param_b, options)
-    else
-      {:error, _} ->
-        with {:ok, currency_code} <- validate_currency(param_b) do
-          new(currency_code, param_a, options)
-        else
-          {:error, _} ->
-            {:error,
-             {Money.Invalid,
-              "Unable to create money from #{inspect(param_a)} " <> "and #{inspect(param_b)}"}}
-        end
-    end
+  # These clauses deal with invalid currency codes or amounts
+
+  def new(currency_code, amount, _options) when is_number(amount) do
+    {:error, unknown_currency_error(currency_code)}
+  end
+
+  def new(amount, currency_code, _options) when is_number(amount) do
+    {:error, unknown_currency_error(currency_code)}
+  end
+
+  def new(currency_code, %Decimal{} = _amount, _options) do
+    {:error, unknown_currency_error(currency_code)}
+  end
+
+  def new(%Decimal{} = _amount, currency_code, _options) do
+    {:error, unknown_currency_error(currency_code)}
+  end
+
+  def new(param_a, param_b, _options) do
+    {:error,
+     {Money.Invalid,
+      "Unable to create money from #{inspect(param_a)} " <> "and #{inspect(param_b)}"}}
   end
 
   defp extract_format_options(options) do
@@ -409,11 +422,11 @@ defmodule Money do
   end
 
   @doc """
-  Add format options to a `t:Money.t()`.
+  Add format options to a `t:Money.t/0`.
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` type returned
+  * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
   * `options` is a keyword list of options. These
@@ -429,7 +442,7 @@ defmodule Money do
   end
 
   @doc """
-  Parse a string and return a `t:Money.t()` or an error.
+  Parse a string and return a `t:Money.t/0` or an error.
 
   The string to be parsed is required to have a currency
   code and an amount.  The currency code may be placed
@@ -485,7 +498,7 @@ defmodule Money do
 
   ## Returns
 
-  * a `t:Money.t()` if parsing is successful or
+  * a `t:Money.t/0` if parsing is successful or
 
   * `{:error, {exception, reason}}` if an error is
     detected.
@@ -645,10 +658,6 @@ defmodule Money do
      }}
   end
 
-  defp unknown_currency_error(currency) do
-    {Money.UnknownCurrencyError, "The currency #{inspect(currency)} is unknown or not supported"}
-  end
-
   @doc """
   Returns a formatted string representation of a `Money{}`.
 
@@ -659,7 +668,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` type returned
+  * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
   * `options` is a keyword list of options or a `%Cldr.Number.Format.Options{}` struct
@@ -714,6 +723,10 @@ defmodule Money do
 
   def to_string(money, options \\ [])
 
+  def to_string(%Money{currency: {:token, _token_id}} = money, options) when is_list(options) do
+    IO.inspect money, label: "TODO for token monies"
+  end
+
   def to_string(%Money{} = money, options) when is_list(options) do
     default_options = [backend: Money.default_backend(), currency: money.currency]
     format_options = Map.get(money, :format_options, [])
@@ -741,7 +754,7 @@ defmodule Money do
   end
 
   @doc """
-  Returns a formatted string representation of a `t:Money.t()` or raises if
+  Returns a formatted string representation of a `t:Money.t/0` or raises if
   there is an error.
 
   Formatting is performed according to the rules defined by CLDR. See
@@ -751,7 +764,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` type returned
+  * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
   * `options` is a keyword list of options or a `%Cldr.Number.Format.Options{}` struct
@@ -793,7 +806,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` type returned
+  * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
   ## Returns
@@ -818,7 +831,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` type returned
+  * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
   ## Returns
@@ -844,12 +857,12 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` type returned
+  * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
   ## Returns
 
-  * a `t:Money.t()`
+  * a `t:Money.t/0`
 
   ## Example
 
@@ -868,7 +881,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   ## Returns
@@ -913,12 +926,12 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   ## Returns
 
-  * a `t:Money.t()` struct or
+  * a `t:Money.t/0` struct or
 
   * raises an exception
 
@@ -945,7 +958,7 @@ defmodule Money do
 
   ## Options
 
-  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   ## Returns
@@ -984,12 +997,12 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   ## Returns
 
-  * a `t:Money.t()` struct or
+  * a `t:Money.t/0` struct or
 
   * raises an exception
 
@@ -1016,7 +1029,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` type returned
+  * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
   * `number` is an integer, float or `Decimal.t`
@@ -1062,14 +1075,14 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` types returned
+  * `money` is any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   * `number` is an integer, float or `Decimal.t`
 
   ## Returns
 
-  * a `t:Money.t()` or
+  * a `t:Money.t/0` or
 
   * raises an exception
 
@@ -1096,7 +1109,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` types returned
+  * `money` is any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   * `number` is an integer, float or `Decimal.t`
@@ -1142,14 +1155,14 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` types returned
+  * `money` is any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   * `number` is an integer, float or `Decimal.t`
 
   ## Returns
 
-  * a `t:Money.t()` struct or
+  * a `t:Money.t/0` struct or
 
   * raises an exception
 
@@ -1176,7 +1189,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   ## Returns
@@ -1211,7 +1224,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_list` is a list of any valid `t:Money.t()` types returned
+  * `money_list` is a list of any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   * `rates` is a map of exchange rates. The default is `%{}`.
@@ -1262,7 +1275,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   ## Returns
@@ -1310,7 +1323,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   ## Returns
@@ -1339,7 +1352,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   ## Returns
@@ -1387,7 +1400,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money_1` and `money_2` are any valid `t:Money.t()` types returned
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   ## Returns
@@ -1416,7 +1429,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is a `%Money{}` struct
+  * `money` is any `t:Money.t/0`
 
   * `parts` is an integer number of parts into which the `money` is split
 
@@ -1464,7 +1477,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is a `%Money{}` struct
+  * `money` is any `t:Money.t/0`
 
   * `opts` is a keyword list of options
 
@@ -1491,6 +1504,10 @@ defmodule Money do
      amount. The rounding increment is applied when the option
      `:currency_digits` is set to `:cash`
 
+  3. Digital Tokens (crypto currencies) do not have formal definitions
+     of decimal digits or rounding strategies. Therefore the `money` is
+     returned unmodified.
+
   ## Examples
 
       iex> Money.round Money.new("123.73", :CHF), currency_digits: :cash
@@ -1507,7 +1524,14 @@ defmodule Money do
 
   """
   @spec round(Money.t(), Keyword.t()) :: Money.t()
-  def round(%Money{} = money, opts \\ []) do
+  def round(money, opts \\ [])
+
+  # Digital tokens don't have rounding
+  def round(%Money{currency: token_id} = money, _opts) when is_digital_token(token_id) do
+    money
+  end
+
+  def round(%Money{} = money, opts) do
     money
     |> round_to_decimal_digits(opts)
     |> round_to_nearest(opts)
@@ -1589,7 +1613,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is a `%Money{}` struct
+  * `money` is any `t:Money.t/0`
 
   * `fraction` is an integer amount that will be set
     as the fraction of the `money`
@@ -1645,7 +1669,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any `t:Money.t()` struct returned by `Cldr.Currency.new/2`
+  * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`
 
   * `to_currency` is a valid currency code into which the `money` is converted
 
@@ -1721,7 +1745,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any `t:Money.t()` struct returned by `Cldr.Currency.new/2`
+  * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`
 
   * `to_currency` is a valid currency code into which the `money` is converted
 
@@ -1765,7 +1789,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `from` is any `t:Money.t()` struct returned by `Cldr.Currency.new/2` or a valid
+  * `from` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2` or a valid
      currency code
 
   * `to_currency` is a valid currency code into which the `money` is converted
@@ -1814,7 +1838,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `from` is any `t:Money.t()` struct returned by `Cldr.Currency.new/2` or a valid
+  * `from` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2` or a valid
      currency code
 
   * `to_currency` is a valid currency code into which the `money` is converted
@@ -1911,7 +1935,7 @@ defmodule Money do
 
   ## Options
 
-  * `money` is any `t:Money.t()` struct returned by `Cldr.Currency.new/2`
+  * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`
 
   ## Notes
 
@@ -1977,7 +2001,7 @@ defmodule Money do
 
   ## Returns
 
-  * A `t:Money.t()` struct or
+  * A `t:Money.t/0` struct or
 
   * `{:error, {exception, message}}`
 
@@ -2051,11 +2075,11 @@ defmodule Money do
         "Unknown or invalid :fractional_digits option found: #{inspect(other)}"}}
 
   @doc """
-  Return a zero amount `t:Money.t()` in the given currency.
+  Return a zero amount `t:Money.t/0` in the given currency.
 
   ## Arguments
 
-  * `money_or_currency` is either a `t:Money.t()` or
+  * `money_or_currency` is either a `t:Money.t/0` or
     a currency code
 
   * `options` is a keyword list of options passed
@@ -2094,7 +2118,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` type returned
+  * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
   ## Example
@@ -2125,7 +2149,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` type returned
+  * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
   ## Example
@@ -2156,7 +2180,7 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t()` type returned
+  * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
   ## Example
@@ -2184,6 +2208,34 @@ defmodule Money do
   @doc false
   def from_integer({currency, integer, _exponent, _remainder}) do
     from_integer(integer, currency)
+  end
+
+  @doc false
+  def validate_currency(currency_code) do
+    currency_code
+    |> Cldr.validate_currency()
+    |> do_validate_currency(currency_code)
+  end
+
+  defp do_validate_currency({:ok, currency_code}, _currency_code) do
+    {:ok, currency_code}
+  end
+
+  defp do_validate_currency({:error, _}, currency_code) do
+    case DigitalToken.validate_token(currency_code) do
+      {:ok, token_id} -> {:ok, token_id}
+      {:error, _} -> {:error, Cldr.unknown_currency_error(currency_code)}
+    end
+  end
+
+  @doc false
+  def unknown_currency_error(currency) do
+    {Money.UnknownCurrencyError, "The currency #{inspect(currency)} is unknown or not supported"}
+  end
+
+  @doc false
+  def invalid_amount_error(amount) do
+    {Money.InvalidAmountError, "Amount cannot be converted to a number: #{inspect(amount)}"}
   end
 
   ## Helpers
