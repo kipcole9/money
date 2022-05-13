@@ -10,14 +10,15 @@ Money is opinionated in the interests of serving as a dependable library that ca
 
 How is this opinion expressed?
 
-1. Money must always have both a amount and a currency code.
+1. Money must always have both a amount and a currency code or digital token identifier.
 
-2. The currency code must always be a valid [ISO4217](https://www.iso.org/iso-4217-currency-codes.html) code. [Current](https://www.currency-iso.org/en/home/tables/table-a1.html) and [historical](https://www.currency-iso.org/en/home/tables/table-a3.html) currency codes can be used.  See the [ISO Currency](https://www.currency-iso.org/en/home/tables.html) for more information. You can also identify the relevant codes by:
+2. The currency code must always be a valid [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) code or a valid [ISO 24165](https://www.iso.org/standard/80601.html) digital token idenfier. [Current](https://www.currency-iso.org/en/home/tables/table-a1.html) and [historical](https://www.currency-iso.org/en/home/tables/table-a3.html) currency codes can be used.  See the [ISO Currency](https://www.currency-iso.org/en/home/tables.html) for more information. You can also identify the relevant codes by:
 
-   * `Money.known_currencies/0` returns all the currency codes known to `Money`
-   * `Money.known_current_currencies/0` returns the currency codes currently in use
-   * `Money.known_historic_currencies/0` returns the list of historic currency codes
-   * `Money.known_tender_currencies/0` returns the list of currencies known to be legal tender
+   * `Money.known_currencies/0` returns all the ISO 4217 currency codes known to `Money`
+   * `Money.known_current_currencies/0` returns the ISO 4217 currency codes currently in use
+   * `Money.known_historic_currencies/0` returns the list of historic ISO 4217 currency codes
+   * `Money.known_tender_currencies/0` returns the list of ISO 4217 currencies known to be legal tender
+   * `DigitalToken.tokens/0` to return a map of the known ISO 24165 digital tokens.
 
 3. Money arithmetic can only be performed when both operands are of the same currency.
 
@@ -33,7 +34,7 @@ How is this opinion expressed?
 
 ## Prerequisities
 
-* `Money` is supported on Elixir 1.6 and later only
+* `Money` is supported on Elixir 1.10 and later only.
 
 ## Supervisor configuration and operation
 
@@ -73,9 +74,6 @@ defmodule MyApp do
 end
 ```
 It is also possible to define a callback that is called when the `Cldr.Currency` supervisor is started so that private use currencies can be defined. For further information see [Defining Private Use Currencies](https://hexdocs.pm/ex_cldr_currencies/readme.html#defining-private-use-currencies).
-
-### Updating to ex_cldr_currencies verison 2.6.0
-Executing `mix deps.update ex_cldr_currencies` is all that should be required.
 
 ## Exchange rates and currency conversion
 
@@ -299,7 +297,7 @@ end
     #Money<:USD, 100.00>
 
 The canonical representation of a currency code is an `atom` that is a valid
-[ISO4217](http://www.currency-iso.org/en/home/tables/table-a1.html) currency code. The amount of a `%Money{}` is represented by a `Decimal`.
+[ISO4217](http://www.currency-iso.org/en/home/tables/table-a1.html) currency code or a `t:String.t/0` representation of an [ISO 24165](https://www.iso.org/standard/80601.html) digital token identifier. The amount of a `%Money{}` is represented by a `Decimal`.
 
 Note that the amount and currency code arguments to `Money.new/3` can be supplied in either order.
 
