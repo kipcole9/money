@@ -2,17 +2,11 @@ defimpl Inspect, for: Money do
   import Money, only: [is_digital_token: 1]
 
   def inspect(%Money{currency: token_id} = money, opts) when is_digital_token(token_id) do
-    token = DigitalToken.get_token!(token_id)
+    {:ok, short_name} = DigitalToken.short_name(token_id)
 
-    case Map.get(token.informative, :short_names) do
-      [first | _rest] ->
-        money
-        |> Map.put(:currency, first)
-        |> do_inspect(opts)
-
-     _other ->
-       do_inspect(money, opts)
-    end
+    money
+    |> Map.put(:currency, short_name)
+    |> do_inspect(opts)
   end
 
   def inspect(money, opts) do

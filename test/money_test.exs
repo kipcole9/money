@@ -129,20 +129,19 @@ defmodule MoneyTest do
 
   test "that creating a money with a string amount that is invalid returns and error" do
     assert Money.new(:USD, "2134ff") ==
-             {:error,
-              {Money.InvalidAmountError, "Amount cannot be converted to a number: \"2134ff\""}}
+             {:error, {Money.Invalid, "Unable to create money from :USD and \"2134ff\""}}
   end
 
   test "raise when creating a new money struct from invalid input" do
-    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is unknown or not supported", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
       Money.new!("ABCDE", 100)
     end
 
-    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is unknown or not supported", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
       Money.new!(Decimal.new(100), "ABCDE")
     end
 
-    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is unknown or not supported", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
       Money.new!("ABCDE", Decimal.new(100))
     end
   end
@@ -172,7 +171,7 @@ defmodule MoneyTest do
 
   test "creating a money struct with an invalid binary currency code returns error tuple" do
     assert Money.new("ABCD", 100) ==
-             {:error, {Money.UnknownCurrencyError, "The currency \"ABCD\" is unknown or not supported"}}
+             {:error, {Money.UnknownCurrencyError, "The currency \"ABCD\" is invalid"}}
   end
 
   test "string output of money is correctly formatted" do

@@ -24,6 +24,13 @@ defmodule MoneyTest.Parse do
       assert Money.parse("100.00USD") == Money.new(:USD, "100.00")
     end
 
+    test "parses digital tokens" do
+      assert Money.new("BTC", "100") == Money.parse("100 BTC")
+      assert Money.new("BTC", "100") == Money.parse("100 Bitcoin")
+      assert Money.new("BTC", "100") == Money.parse("BTC 100")
+      assert Money.new("BTC", "100") == Money.parse("Bitcoin 100")
+    end
+
     test "parsing with currency strings that are not codes" do
       assert Money.parse("australian dollar 12346.45") == Money.new(:AUD, "12346.45")
       assert Money.parse("12346.45 australian dollars") == Money.new(:AUD, "12346.45")

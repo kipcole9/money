@@ -110,7 +110,7 @@ defmodule Money do
 
   @doc false
   defguard is_currency_code(currency_code)
-    when is_atom(currency_code) or (is_binary(currency_code) and byte_size(currency_code) in [3, 9])
+    when is_atom(currency_code) or is_binary(currency_code)
 
   @doc false
   defguard is_digital_token(token_id)
@@ -188,6 +188,8 @@ defmodule Money do
 
   def new(currency_code, amount, options \\ [])
 
+  # For integer amounts
+
   def new(currency_code, amount, options) when is_currency_code(currency_code) and is_integer(amount) do
     with {:ok, code} <- validate_currency(currency_code) do
       format_options = extract_format_options(options)
@@ -198,37 +200,27 @@ defmodule Money do
     end
   end
 
-  def new(currency_code, %Decimal{} = amount, options) when is_currency_code(currency_code) do
-    case validate_currency(currency_code) do
-      {:ok, code} ->
-        format_options = extract_format_options(options)
-        %Money{amount: amount, currency: code, format_options: format_options}
-
-      {:error, {_exception, message}} ->
-        {:error, {Money.UnknownCurrencyError, message}}
-    end
-  end
-
   def new(amount, currency_code, options) when is_currency_code(currency_code) and is_integer(amount) do
     new(currency_code, amount, options)
+  end
+
+  # For Decimal amouonts
+
+  def new(currency_code, %Decimal{} = amount, options) when is_currency_code(currency_code) do
+    with {:ok, code} <- validate_currency(currency_code) do
+      format_options = extract_format_options(options)
+      %Money{amount: amount, currency: code, format_options: format_options}
+    else
+      {:error, {Cldr.UnknownCurrencyError, message}} ->
+        {:error, {Money.UnknownCurrencyError, message}}
+    end
   end
 
   def new(%Decimal{} = amount, currency_code, options) when is_currency_code(currency_code) do
     new(currency_code, amount, options)
   end
 
-  def new(currency_code, amount, options) when is_currency_code(currency_code) and is_binary(amount) do
-    with {:ok, decimal} <- parse_decimal(amount, options[:locale], options[:backend]) do
-      new(currency_code, decimal, options)
-    end
-  rescue
-    Decimal.Error ->
-      {:error, invalid_amount_error(amount)}
-  end
-
-  def new(amount, currency_code, options) when is_currency_code(currency_code) and is_binary(amount) do
-    new(currency_code, amount, options)
-  end
+  # For Float amounts
 
   def new(_currency_code, amount, _options) when is_float(amount) do
     {:error,
@@ -246,11 +238,11 @@ defmodule Money do
 
   # These clauses deal with invalid currency codes or amounts
 
-  def new(currency_code, amount, _options) when is_number(amount) do
+  def new(currency_code, amount, _options) when is_integer(amount) do
     {:error, unknown_currency_error(currency_code)}
   end
 
-  def new(amount, currency_code, _options) when is_number(amount) do
+  def new(amount, currency_code, _options) when is_integer(amount) do
     {:error, unknown_currency_error(currency_code)}
   end
 
@@ -262,10 +254,20 @@ defmodule Money do
     {:error, unknown_currency_error(currency_code)}
   end
 
-  def new(param_a, param_b, _options) do
-    {:error,
-     {Money.Invalid,
-      "Unable to create money from #{inspect(param_a)} " <> "and #{inspect(param_b)}"}}
+  # Last chance saloon, see if we can parse either parameter
+  # as a Decimal
+
+  def new(param_a, param_b, options) do
+    cond do
+      decimal = maybe_decimal(param_a, options) ->
+        new(param_b, decimal, options)
+
+      decimal = maybe_decimal(param_b, options) ->
+        new(param_a, decimal, options)
+
+      true ->
+       {:error, invalid_money_error(param_a, param_b)}
+    end
   end
 
   defp extract_format_options(options) do
@@ -624,12 +626,15 @@ defmodule Money do
       |> String.downcase()
       |> String.trim_trailing(".")
 
-    case Map.get(currency_strings, canonical_currency) do
-      nil ->
-        {:error, unknown_currency_error(currency)}
-
-      currency ->
+    cond do
+      currency = Map.get(currency_strings, canonical_currency) ->
         {:ok, currency}
+
+      digital_token = maybe_token(currency) ->
+        {:ok, digital_token}
+
+      true ->
+        {:error, unknown_currency_error(currency)}
     end
   end
 
@@ -656,6 +661,13 @@ defmodule Money do
        ArgumentError,
        "option :fuzzy must be a number > 0.0 and <= 1.0. Found #{inspect(fuzzy)}"
      }}
+  end
+
+  defp maybe_token(token_id) do
+    case DigitalToken.validate_token(token_id) do
+      {:ok, token_id} -> token_id
+      _other -> nil
+    end
   end
 
   @doc """
@@ -2238,6 +2250,10 @@ defmodule Money do
     {Money.InvalidAmountError, "Amount cannot be converted to a number: #{inspect(amount)}"}
   end
 
+  defp invalid_money_error(param_a, param_b) do
+    {Money.Invalid, "Unable to create money from #{inspect(param_a)} and #{inspect(param_b)}"}
+  end
+
   ## Helpers
 
   @doc false
@@ -2343,6 +2359,21 @@ defmodule Money do
 
       {:ok, decimal}
     end
+  rescue Decimal.Error ->
+    {:error, invalid_amount_error(string)}
+  end
+
+  # Return either a Decimal or nil
+
+  defp maybe_decimal(amount, options) when is_binary(amount) do
+    case parse_decimal(amount, options[:locale], options[:backend]) do
+      {:ok, decimal} -> decimal
+      _other -> nil
+    end
+  end
+
+  defp maybe_decimal(_amount, _options) do
+    nil
   end
 
   @doc false
