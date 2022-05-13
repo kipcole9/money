@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/kipcole9/money/blob/master/LICENSE)
 
 Money implements a set of functions to store, retrieve, convert and perform arithmetic
-on a `%Money{}` type that is composed of an [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) currency code and a currency amount.
+on a t:Money.t/0` type that is composed of an [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) currency code or an [ISO 24165](https://www.iso.org/standard/80601.html) Digital Token Identifier (crypto currency) with a currency amount.
 
 Money is opinionated in the interests of serving as a dependable library that can underpin accounting and financial applications.
 
