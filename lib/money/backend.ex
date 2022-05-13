@@ -41,12 +41,14 @@ defmodule Money.Backend do
         alias Elixir.Money.ExchangeRates
 
         @doc """
-        Returns a %:'Elixir.Money'{} struct from a currency code and a currency amount or
+        Returns a `t:Money.t/0` struct from a currency code and a currency amount or
         an error tuple of the form `{:error, {exception, message}}`.
 
         ## Arguments
 
-        * `currency_code` is an ISO4217 three-character upcased binary or atom
+        * `currency_code` is an [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
+          binary or atom currency code or an
+          [ISO 24165](https://www.iso.org/standard/80601.html) token identifier or shortname.
 
         * `amount` is an integer, string or Decimal
 
@@ -107,7 +109,7 @@ defmodule Money.Backend do
         end
 
         @doc """
-        Returns a %:'Elixir.Money'{} struct from a currency code and a currency amount. Raises an
+        Returns a `t:Money.t/0` struct from a currency code and a currency amount. Raises an
         exception if the current code is invalid.
 
         ## Arguments
@@ -136,7 +138,7 @@ defmodule Money.Backend do
         end
 
         @doc """
-        Returns a %:'Elixir.Money'{} struct from a currency code and a float amount, or
+        Returns a `t:Money.t/0` struct from a currency code and a float amount, or
         an error tuple of the form `{:error, {exception, message}}`.
 
         Floats are fraught with danger in computer arithmetic due to the
@@ -152,7 +154,9 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `currency_code` is an ISO4217 three-character upcased binary or atom
+        * `currency_code` is an [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
+          binary or atom currency code or an
+          [ISO 24165](https://www.iso.org/standard/80601.html) token identifier or shortname.
 
         * `amount` is a float
 
@@ -183,7 +187,7 @@ defmodule Money.Backend do
         end
 
         @doc """
-        Returns a %:'Elixir.Money'{} struct from a currency code and a float amount, or
+        Returns a `t:Money.t/0` struct from a currency code and a float amount, or
         raises an exception if the currency code is invalid.
 
         See `Money.from_float/2` for further information.
@@ -522,7 +526,7 @@ defmodule Money.Backend do
             Money.new(:USD, "300")
 
             #{inspect(__MODULE__)}.add! Money.new(:USD, 200), Money.new(:CAD, 500)
-            ** (ArgumentError) Cannot add two %:'Elixir.Money'{} with different currencies. Received :USD and :CAD.
+            ** (ArgumentError) Cannot add two `t:Money.t/0` with different currencies. Received :USD and :CAD.
 
         """
         def add!(%Elixir.Money{} = money_1, %Elixir.Money{} = money_2) do
@@ -598,7 +602,7 @@ defmodule Money.Backend do
 
         * `number` is an integer, float or `Decimal.t`
 
-        > Note that multipling one %:'Elixir.Money'{} by another is not supported.
+        > Note that multipling one `t:Money.t/0` by another is not supported.
 
         ## Returns
 
@@ -663,7 +667,7 @@ defmodule Money.Backend do
 
         * `number` is an integer, float or `Decimal.t`
 
-        > Note that dividing one %:'Elixir.Money'{} by another is not supported.
+        > Note that dividing one `t:Money.t/0` by another is not supported.
 
         ## Returns
 
@@ -875,7 +879,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is a `%:'Elixir.Money'{}` struct
+        * `money` is a ``t:Money.t/0`` struct
 
         * `parts` is an integer number of parts into which the `money` is split
 
@@ -917,7 +921,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is a `%:'Elixir.Money'{}` struct
+        * `money` is a ``t:Money.t/0`` struct
 
         * `opts` is a keyword list of options
 
@@ -969,7 +973,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is a `%:'Elixir.Money'{}` struct
+        * `money` is a ``t:Money.t/0`` struct
 
         * `fraction` is an integer amount that will be set
           as the fraction of the `money`

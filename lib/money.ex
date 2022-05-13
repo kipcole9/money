@@ -284,7 +284,9 @@ defmodule Money do
 
   ## Arguments
 
-  * `currency_code` is an ISO4217 three-character upcased binary or atom
+  * `currency_code` is an [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
+    binary or atom currency code or an
+    [ISO 24165](https://www.iso.org/standard/80601.html) token identifier or shortname.
 
   * `amount` is an integer, float or Decimal
 
@@ -339,7 +341,9 @@ defmodule Money do
 
   ## Arguments
 
-  * `currency_code` is an ISO4217 three-character upcased binary or atom
+  * `currency_code` is an [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
+    binary or atom currency code or an
+    [ISO 24165](https://www.iso.org/standard/80601.html) token identifier or shortname.
 
   * `amount` is a float
 
@@ -397,7 +401,9 @@ defmodule Money do
 
   ## Arguments
 
-  * `currency_code` is an ISO4217 three-character upcased binary or atom
+  * `currency_code` is an [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
+    binary or atom currency code or an
+    [ISO 24165](https://www.iso.org/standard/80601.html) token identifier or shortname.
 
   * `amount` is a float
 
