@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "5.10.0"
+  @version "5.11.0"
 
   def project do
     [
@@ -28,7 +28,10 @@ defmodule Money.Mixfile do
   end
 
   defp description do
-    "Money functions for operations on and localization of a money data type."
+    """
+    Money functions for operations on and localization of a money data type with support
+    for ISO 4217 currencies and ISO 24165 digial tokens (crypto currencies).
+    """
   end
 
   defp package do

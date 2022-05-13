@@ -2,13 +2,17 @@
 
 ## Money v5.11.0
 
-This is the changelog for Money v5.11.0 released on May 9th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.11.0 released on May 14th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
-**Note** `ex_money 5.10.0` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.25` or later.
+**Note** `ex_money 5.11.0` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.25` or later.
 
 ### Enhancements
 
-* Adds support for Digital Tokens (crypto currencies). It uses [ISO 24165](https://www.iso.org/standard/80601.html) token identifiers.
+* Adds support for [ISO 24165 Digital Tokens (crypto currency)](https://www.iso.org/standard/80601.html). Digital Token-based money behaves the same as currency-based money with the following exceptions due to limited data availability:
+
+  * Digital token names are not localized (there is no localised data available in CLDR)
+  * Digital token names are not pluralized (also because there is no localised data available)
+  * Digital token amounts are never rounded (there is no data available to standardise on rounding rules or the number of fractional digits to round to)
 
 ## Money v5.10.0
 

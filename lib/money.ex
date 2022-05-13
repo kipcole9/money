@@ -122,12 +122,13 @@ defmodule Money do
 
   ## Arguments
 
-  * `currency_code` is an ISO4217 three-character upcased binary or atom or
-    a 9 character digital token identifier or shortname.
+  * `currency_code` is an [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
+    binary or atom currency code or an
+    [ISO 24165](https://www.iso.org/standard/80601.html) token identifier or shortname.
 
-  * `amount` is an integer, string or Decimal
+  * `amount` is an integer, string or Decimal money amount.
 
-  * `options` is a keyword list of options
+  * `options` is a keyword list of options.
 
   ## Options
 
