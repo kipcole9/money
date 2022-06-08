@@ -1684,6 +1684,42 @@ defmodule Money do
   end
 
   @doc """
+  Localizes a `Money` by converting it to the currency
+  of the specified locale.
+
+  ## Arguments
+
+  * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`.
+
+  * `options` is a keyword list of options.
+
+  ## Options
+
+  * `:locale` is any valid locale returned by `Cldr.known_locale_names/1`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+    The default is `<backend>.get_locale()`
+
+  * `:backend` is any module() that includes `use Cldr` and therefore
+    is a `Cldr` backend module(). The default is `Money.default_backend()`
+
+  ## Returns
+
+  * `{:ok, localized_money}` or
+
+  * `{:error, {exception, reason}}`
+
+  """
+  @doc since: "5.12.0"
+
+  @spec localize(t(), Keyword.t()) :: {:ok, t()} | {:error, {module(), String.t()}}
+  def localize(%Money{} = money, options \\ []) do
+    with {locale, backend} <- Cldr.locale_and_backend_from(options),
+         currency when is_atom(currency) <- Cldr.Currency.currency_from_locale(locale, backend) do
+      to_currency(money, currency)
+    end
+  end
+
+  @doc """
   Convert `money` from one currency to another.
 
   ## Arguments

@@ -14,6 +14,10 @@ defmodule Money.ExchangeRates.Test do
     assert Money.ExchangeRates.latest_rates() == test_result
   end
 
+  test "Localize money" do
+    assert {:ok, _} = Money.localize(Money.new(:AUD, 100), locale: "en", backend: Test.Cldr)
+  end
+
   test "Convert from USD to AUD" do
     assert Money.compare(Money.to_currency!(Money.new(:USD, 100), :AUD), Money.new(:AUD, 70)) == :eq
   end

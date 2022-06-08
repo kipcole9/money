@@ -1,5 +1,15 @@
 # Changelog
 
+## Money v5.12.0
+
+This is the changelog for Money v5.12.0 released on June 8th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+**Note** `ex_money 5.12.0` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.25` or later.
+
+### Enhancements
+
+* Add `Money.localize/2` to convert a money amount into the currency in affect for the given locale.
+
 ## Money v5.11.0
 
 This is the changelog for Money v5.11.0 released on May 14th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
