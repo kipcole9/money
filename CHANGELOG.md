@@ -1,5 +1,15 @@
 # Changelog
 
+## Money v5.12.1
+
+This is the changelog for Money v5.12.1 released on August 27th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+**Note** `ex_money 5.12.1` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.25` or later.
+
+### Bug Fixes
+
+* Removes compile-time warnings for Elixir 1.14 (use `Application.compile_env/2`, not `Application.get_env/2`)
+
 ## Money v5.12.0
 
 This is the changelog for Money v5.12.0 released on June 8th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

@@ -67,7 +67,7 @@ defmodule Money do
     Money.Backend.define_money_module(config)
   end
 
-  @json_library Application.get_env(:ex_money, :json_library, Config.json_library())
+  @json_library Application.compile_env(:ex_money, :json_library, Config.json_library())
   unless Code.ensure_loaded?(@json_library) do
     IO.puts("""
 

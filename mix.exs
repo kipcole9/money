@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "5.12.0"
+  @version "5.12.1"
 
   def project do
     [
@@ -57,7 +57,7 @@ defmodule Money.Mixfile do
   def application do
     [
       mod: {Money.Application, [strategy: :one_for_one, name: Money.Supervisor]},
-      extra_applications: [:inets, :logger]
+      extra_applications: [:inets, :logger, :decimal]
     ]
   end
 
