@@ -686,7 +686,7 @@ defmodule Money do
   end
 
   @doc """
-  Returns a formatted string representation of a `Money{}`.
+  Returns a formatted string representation of a `t:Money.t/0`.
 
   Formatting is performed according to the rules defined by CLDR. See
   `Cldr.Number.to_string/2` for formatting options.  The default is to format
@@ -880,7 +880,7 @@ defmodule Money do
 
   @doc """
   The absolute value of a `Money` amount.
-  Returns a `Money` type with a positive sign for the amount.
+  Returns a `t:Money.t/0` type with a positive sign for the amount.
 
   ## Arguments
 

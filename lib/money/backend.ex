@@ -224,7 +224,7 @@ defmodule Money.Backend do
         end
 
         @doc """
-        Parse a string and return a `Money.t` or an error.
+        Parse a string and return a `t:Money.t/0` or an error.
 
         The string to be parsed is required to have a currency
         code and an amount.  The currency code may be placed
@@ -288,7 +288,7 @@ defmodule Money.Backend do
 
         ## Returns
 
-        * a `Money.t` if parsing is successful or
+        * a `t:Money.t/0` if parsing is successful or
 
         * `{:error, {exception, reason}}` if an error is
           detected.
@@ -341,7 +341,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is any valid `Money.t` type returned
+        * `money` is any valid `t:Money.t/0` type returned
           by `Money.new/2`
 
         * `options` is a keyword list of options
@@ -383,7 +383,7 @@ defmodule Money.Backend do
         end
 
         @doc """
-        Returns a formatted string representation of a `Money.t` or raises if
+        Returns a formatted string representation of a `t:Money.t/0` or raises if
         there is an error.
 
         Formatting is performed according to the rules defined by CLDR. See
@@ -393,7 +393,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is any valid `Money.t` type returned
+        * `money` is any valid `t:Money.t/0` type returned
           by `Money.new/2`
 
         * `options` is a keyword list of options
@@ -432,7 +432,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is any valid `Money.t` type returned
+        * `money` is any valid `t:Money.t/0` type returned
           by `Money.new/2`
 
         ## Returns
@@ -457,12 +457,12 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is any valid `Money.t` type returned
+        * `money` is any valid `t:Money.t/0` type returned
           by `Money.new/2`
 
         ## Returns
 
-        * a `Money.t`
+        * a `t:Money.t/0`
 
         ## Example
 
@@ -481,7 +481,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money_1` and `money_2` are any valid `Money.t` types returned
+        * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
         ## Returns
@@ -511,7 +511,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money_1` and `money_2` are any valid `Money.t` types returned
+        * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
         ## Returns
@@ -538,7 +538,7 @@ defmodule Money.Backend do
 
         ## Options
 
-        * `money_1` and `money_2` are any valid `Money.t` types returned
+        * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
         ## Returns
@@ -567,12 +567,12 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money_1` and `money_2` are any valid `Money.t` types returned
+        * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
         ## Returns
 
-        * a `Money.t` struct or
+        * a `t:Money.t/0` struct or
 
         * raises an exception
 
@@ -597,10 +597,10 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is any valid `Money.t` type returned
+        * `money` is any valid `t:Money.t/0` type returned
           by `Money.new/2`
 
-        * `number` is an integer, float or `Decimal.t`
+        * `number` is an integer, float or `t:Decimal.t/0`
 
         > Note that multipling one `t:Money.t/0` by another is not supported.
 
@@ -631,14 +631,14 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is any valid `Money.t` types returned
+        * `money` is any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
         * `number` is an integer, float or `Decimal.t`
 
         ## Returns
 
-        * a `Money.t` or
+        * a `t:Money.t/0` or
 
         * raises an exception
 
@@ -662,10 +662,10 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is any valid `Money.t` types returned
+        * `money` is any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
-        * `number` is an integer, float or `Decimal.t`
+        * `number` is an integer, float or `t:Decimal.t/0`
 
         > Note that dividing one `t:Money.t/0` by another is not supported.
 
@@ -696,14 +696,14 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is any valid `Money.t` types returned
+        * `money` is any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
         * `number` is an integer, float or `Decimal.t`
 
         ## Returns
 
-        * a `Money.t` struct or
+        * a `t:Money.t/0` struct or
 
         * raises an exception
 
@@ -725,7 +725,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money_1` and `money_2` are any valid `Money.t` types returned
+        * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
         ## Returns
@@ -753,7 +753,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money_1` and `money_2` are any valid `Money.t` types returned
+        * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
         ## Returns
@@ -790,7 +790,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money_1` and `money_2` are any valid `Money.t` types returned
+        * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
         ## Returns
@@ -816,7 +816,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money_1` and `money_2` are any valid `Money.t` types returned
+        * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
         ## Returns
@@ -853,7 +853,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money_1` and `money_2` are any valid `Money.t` types returned
+        * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
         ## Returns
@@ -879,7 +879,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is a ``t:Money.t/0`` struct
+        * `money` is any `t:Money.t/0` struct
 
         * `parts` is an integer number of parts into which the `money` is split
 
@@ -1008,7 +1008,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is any `Money.t` struct returned by `Cldr.Currency.new/2`
+        * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`
 
         * `to_currency` is a valid currency code into which the `money` is converted
 
@@ -1048,7 +1048,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is any `Money.t` struct returned by `Cldr.Currency.new/2`
+        * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`
 
         * `to_currency` is a valid currency code into which the `money` is converted
 
@@ -1090,7 +1090,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `from` is any `Money.t` struct returned by `Cldr.Currency.new/2` or a valid
+        * `from` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2` or a valid
            currency code
 
         * `to_currency` is a valid currency code into which the `money` is converted
@@ -1124,7 +1124,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `from` is any `Money.t` struct returned by `Cldr.Currency.new/2` or a valid
+        * `from` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2` or a valid
            currency code
 
         * `to_currency` is a valid currency code into which the `money` is converted
@@ -1157,11 +1157,11 @@ defmodule Money.Backend do
 
         @doc """
         Normalizes the underlying `Decimal` amount on the
-        given `t:Elixir.Money`.
+        given `t:Money.t/0`.
 
         This will normalize the coefficient and exponent of the
         decimal amount in a standard way that may aid in
-        native comparison of `t:Elixir.Money` items.
+        native comparison of `t:Money.t/0` items.
 
         ## Example
 
@@ -1204,7 +1204,7 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is any `Money.t` struct returned by `Cldr.Currency.new/2`
+        * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`
 
         ## Notes
 
