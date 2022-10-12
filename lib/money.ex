@@ -207,6 +207,14 @@ defmodule Money do
 
   # For Decimal amouonts
 
+  def new(_currency_code, %Decimal{coef: :inf} = amount, _options) do
+    {:error, {Money.UnknownCurrencyError, "Invalid money amount. Found #{inspect amount}."}}
+  end
+
+  def new(_currency_code, %Decimal{coef: :qNaN} = amount, _options) do
+    {:error, {Money.UnknownCurrencyError, "Invalid money amount. Found #{inspect amount}."}}
+  end
+
   def new(currency_code, %Decimal{} = amount, options) when is_currency_code(currency_code) do
     with {:ok, code} <- validate_currency(currency_code) do
       format_options = extract_format_options(options)
