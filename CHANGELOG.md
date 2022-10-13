@@ -1,5 +1,15 @@
 # Changelog
 
+## Money v5.12.3
+
+This is the changelog for Money v5.12.3 released on October 13th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+**Note** `ex_money 5.12.3` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.25` or later.
+
+### Bug Fixes
+
+* Fix `NaN` and `Inf` amount detection to be compatible with Decimal 1.x and 2.x. Thanks to @Lostkobrakai for the PR. Closes #144.
+
 ## Money v5.12.2
 
 This is the changelog for Money v5.12.2 released on October 13th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
