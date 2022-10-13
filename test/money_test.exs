@@ -129,22 +129,19 @@ defmodule MoneyTest do
 
   test "that creating a money with a NaN is invalid" do
     assert Money.new(:USD, "NaN") ==
-      {:error,
-       {Money.UnknownCurrencyError, "Invalid money amount. Found #Decimal<NaN>."}}
+             {:error, {Money.InvalidAmountError, "Invalid money amount. Found #Decimal<NaN>."}}
 
     assert Money.new(:USD, "-NaN") ==
-      {:error,
-       {Money.UnknownCurrencyError, "Invalid money amount. Found #Decimal<-NaN>."}}
+             {:error, {Money.InvalidAmountError, "Invalid money amount. Found #Decimal<-NaN>."}}
   end
 
   test "that creating a money with a Inf is invalid" do
     assert Money.new(:USD, "Inf") ==
-      {:error,
-       {Money.UnknownCurrencyError, "Invalid money amount. Found #Decimal<Infinity>."}}
+             {:error, {Money.InvalidAmountError, "Invalid money amount. Found #Decimal<Infinity>."}}
 
     assert Money.new(:USD, "-Inf") ==
-      {:error,
-       {Money.UnknownCurrencyError, "Invalid money amount. Found #Decimal<-Infinity>."}}
+             {:error,
+              {Money.InvalidAmountError, "Invalid money amount. Found #Decimal<-Infinity>."}}
   end
 
   test "that creating a money with a string amount that is invalid returns and error" do
