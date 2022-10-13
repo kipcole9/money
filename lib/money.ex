@@ -110,11 +110,11 @@ defmodule Money do
 
   @doc false
   defguard is_currency_code(currency_code)
-    when is_atom(currency_code) or is_binary(currency_code)
+           when is_atom(currency_code) or is_binary(currency_code)
 
   @doc false
   defguard is_digital_token(token_id)
-    when is_binary(token_id) and byte_size(token_id) == 9
+           when is_binary(token_id) and byte_size(token_id) == 9
 
   @doc """
   Returns a %Money{} struct from a currency code and a currency amount or
@@ -191,7 +191,8 @@ defmodule Money do
 
   # For integer amounts
 
-  def new(currency_code, amount, options) when is_currency_code(currency_code) and is_integer(amount) do
+  def new(currency_code, amount, options)
+      when is_currency_code(currency_code) and is_integer(amount) do
     with {:ok, code} <- validate_currency(currency_code) do
       format_options = extract_format_options(options)
       %Money{amount: Decimal.new(amount), currency: code, format_options: format_options}
@@ -201,27 +202,24 @@ defmodule Money do
     end
   end
 
-  def new(amount, currency_code, options) when is_currency_code(currency_code) and is_integer(amount) do
+  def new(amount, currency_code, options)
+      when is_currency_code(currency_code) and is_integer(amount) do
     new(currency_code, amount, options)
   end
 
   # For Decimal amouonts
 
-  def new(_currency_code, %Decimal{coef: :inf} = amount, _options) do
-    {:error, {Money.UnknownCurrencyError, "Invalid money amount. Found #{inspect amount}."}}
-  end
-
-  def new(_currency_code, %Decimal{coef: :qNaN} = amount, _options) do
-    {:error, {Money.UnknownCurrencyError, "Invalid money amount. Found #{inspect amount}."}}
-  end
-
   def new(currency_code, %Decimal{} = amount, options) when is_currency_code(currency_code) do
-    with {:ok, code} <- validate_currency(currency_code) do
+    with {:ok, amount} <- validate_not_nan_or_inf(amount),
+         {:ok, code} <- validate_currency(currency_code) do
       format_options = extract_format_options(options)
       %Money{amount: amount, currency: code, format_options: format_options}
     else
       {:error, {Cldr.UnknownCurrencyError, message}} ->
         {:error, {Money.UnknownCurrencyError, message}}
+
+      {:error, {Money.InvalidAmountError, message}} ->
+        {:error, {Money.InvalidAmountError, message}}
     end
   end
 
@@ -275,7 +273,15 @@ defmodule Money do
         new(param_a, decimal, options)
 
       true ->
-       {:error, invalid_money_error(param_a, param_b)}
+        {:error, invalid_money_error(param_a, param_b)}
+    end
+  end
+
+  defp validate_not_nan_or_inf(%Decimal{} = amount) do
+    if Decimal.nan?(amount) or Decimal.inf?(amount) do
+      {:error, {Money.InvalidAmountError, "Invalid money amount. Found #{inspect(amount)}."}}
+    else
+      {:ok, amount}
     end
   end
 
@@ -305,7 +311,8 @@ defmodule Money do
         (ex_money) lib/money.ex:177: Money.new!/2
 
   """
-  @spec new!(amount | currency_code, amount | currency_code, Keyword.t()) :: Money.t() | no_return()
+  @spec new!(amount | currency_code, amount | currency_code, Keyword.t()) ::
+          Money.t() | no_return()
 
   def new!(currency_code, amount, options \\ [])
 
@@ -751,7 +758,7 @@ defmodule Money do
   def to_string(money, options \\ [])
 
   def to_string(%Money{currency: {:token, _token_id}} = money, options) when is_list(options) do
-    IO.inspect money, label: "TODO for token monies"
+    IO.inspect(money, label: "TODO for token monies")
   end
 
   def to_string(%Money{} = money, options) when is_list(options) do
@@ -2103,7 +2110,8 @@ defmodule Money do
   @spec from_integer(integer, currency_code, Keyword.t()) ::
           Money.t() | {:error, {module(), String.t()}}
 
-  def from_integer(amount, currency, options \\ []) when is_integer(amount) and is_list(options) do
+  def from_integer(amount, currency, options \\ [])
+      when is_integer(amount) and is_list(options) do
     with {:ok, currency} <- validate_currency(currency),
          {:ok, currency_data} <- Currency.currency_for_code(currency),
          {:ok, digits, options} <- digits_from_options(currency_data, options) do
@@ -2410,8 +2418,9 @@ defmodule Money do
 
       {:ok, decimal}
     end
-  rescue Decimal.Error ->
-    {:error, invalid_amount_error(string)}
+  rescue
+    Decimal.Error ->
+      {:error, invalid_amount_error(string)}
   end
 
   # Return either a Decimal or nil
