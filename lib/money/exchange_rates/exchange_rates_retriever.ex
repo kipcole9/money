@@ -193,37 +193,27 @@ defmodule Money.ExchangeRates.Retriever do
   end
 
   def retrieve_rates(url, config) when is_list(url) do
+    url = List.to_string(url)
     headers = if_none_match_header(url)
 
-    :httpc.request(:get, {url, headers}, https_opts(config, url), [])
+    {url, headers}
+    |> Cldr.Http.get_with_headers(verify_peer: Map.get(config, :verify_peer, true))
     |> process_response(url, config)
   end
 
-  defp process_response({:ok, {{_version, 200, 'OK'}, headers, body}}, url, config) do
+  defp process_response({:ok, headers, body}, url, config) do
     rates = config.api_module.decode_rates(body)
     cache_etag(headers, url)
     {:ok, rates}
   end
 
-  defp process_response({:ok, {{_version, 304, 'Not Modified'}, headers, _body}}, url, _config) do
+  defp process_response({:not_modified, headers}, url, _config) do
     cache_etag(headers, url)
     {:ok, :not_modified}
   end
 
-  defp process_response({_, {{_version, code, message}, _headers, _body}}, _url, _config) do
-    {:error, {Money.ExchangeRateError, "#{code} #{message}"}}
-  end
-
-  defp process_response(
-         {:error, {:failed_connect, [{_, {_host, _port}}, {_, _, sys_message}]}},
-         url,
-         _config
-       ) do
-    {:error, {Money.ExchangeRateError, "Failed to connect to #{url}: #{inspect(sys_message)}"}}
-  end
-
-  defp process_response({:error, {:tls_alert, {:certificate_expired, _message}}}, url, _config) do
-    {:error, {Money.ExchangeRateError, "Certificate for #{inspect(url)} has expired"}}
+  defp process_response({:error, reason}, _url, _config) do
+    {:error, {Money.ExchangeRateError, "#{inspect reason}"}}
   end
 
   defp if_none_match_header(url) do
@@ -573,43 +563,4 @@ defmodule Money.ExchangeRates.Retriever do
     file
   end
 
-  # See https://erlef.github.io/security-wg/secure_coding_and_deployment_hardening/ssl.html
-
-  @otp_version :otp_release |> :erlang.system_info() |> List.to_integer()
-
-  if @otp_version > 21 do
-    defp https_opts(%Money.ExchangeRates.Config{verify_peer: true}, _url) do
-      [
-        ssl: [
-          verify: :verify_peer,
-          cacertfile: certificate_store(),
-          depth: 99,
-          log_level: :alert,
-          log_alert: true,
-          customize_hostname_check: [
-            match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
-          ]
-        ]
-      ]
-    end
-  else
-    defp https_opts(%Money.ExchangeRates.Config{verify_peer: true}, url) do
-      host = url |> :uri_string.parse() |> Map.fetch!(:host)
-
-      [
-        ssl: [
-          verify: :verify_peer,
-          verify_fun: {&:ssl_verify_hostname.verify_fun/3, check_hostname: host},
-          cacertfile: certificate_store(),
-          server_name_indication: host,
-          reuse_sessions: false,
-          depth: 99
-        ]
-      ]
-    end
-  end
-
-  defp https_opts(%Money.ExchangeRates.Config{verify_peer: false}, _url) do
-    []
-  end
 end

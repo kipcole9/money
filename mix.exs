@@ -88,20 +88,22 @@ defmodule Money.Mixfile do
   defp deps do
     [
       {:ex_cldr_numbers, "~> 2.27"},
+      {:cldr_utils, "~> 2.21"},
 
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:decimal, "~> 1.6 or ~> 2.0"},
+      {:poison, "~> 3.0 or ~> 4.0 or ~> 5.0", optional: true},
       if(@otp_version < 22, do: {:ssl_verify_fun, "~> 1.1"}),
       {:phoenix_html, "~> 2.0 or ~> 3.0", optional: true},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:jason, "~> 1.0", optional: true},
       {:stream_data, "~> 0.4", only: [:dev, :test]},
-      {:gringotts, "~>1.1", only: :test, optional: true},
       {:benchee, "~> 1.0", optional: true, only: :dev},
       {:exprof, "~> 0.2", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: [:dev, :release]},
-      {:castore, "~> 0.1", optional: true},
-      {:certifi, "~> 2.5", optional: true}
+
+      {:gringotts, github: "kipcole9/gringotts"}
+      # {:gringotts, "~> 1.1", optional: true}
     ]
     |> Enum.reject(&is_nil/1)
   end
