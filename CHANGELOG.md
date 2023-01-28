@@ -1,5 +1,15 @@
 # Changelog
 
+## Money v5.12.4
+
+This is the changelog for Money v5.12.4 released on January 28th, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+**Note** `ex_money 5.12.4` is supported on Elixir 1.10 and later versions only. It also requires `ex_cldr_numbers 2.25` or later.
+
+### Bug Fixes
+
+* Delegates http requests (used in exchange rates retrieval) to `Cldr.Http.get_with_headers/2`. This centralizes all HTTP get requests for all `ex_cldr_*` libraries to this one function which can then be reviewed and managed for security concerns.
+
 ## Money v5.12.3
 
 This is the changelog for Money v5.12.3 released on October 13th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

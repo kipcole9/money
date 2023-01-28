@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "5.12.3"
+  @version "5.12.4"
 
   def project do
     [
@@ -21,7 +21,7 @@ defmodule Money.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env()),
       dialyzer: [
         ignore_warnings: ".dialyzer_ignore_warnings",
-        plt_add_apps: ~w(inets jason mix phoenix_html)a
+        plt_add_apps: ~w(inets jason mix phoenix_html gringotts)a
       ],
       compilers: Mix.compilers()
     ]
@@ -102,8 +102,8 @@ defmodule Money.Mixfile do
       {:exprof, "~> 0.2", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: [:dev, :release]},
 
-      {:gringotts, github: "kipcole9/gringotts"}
-      # {:gringotts, "~> 1.1", optional: true}
+      # {:gringotts, github: "kipcole9/gringotts"}
+      {:gringotts, "~> 1.1", optional: true}
     ]
     |> Enum.reject(&is_nil/1)
   end
