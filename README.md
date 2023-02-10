@@ -114,7 +114,7 @@ An optional callback module can also be defined.  This module defines a `rates_r
   * `Money.ExchangeRates.Cache.Ets` which is also the default.
   * `Money.ExchangeRates.Cache.Dets`
 
-* `:preload_historic_rates` defines a date or a date range that will be requested when the exchange rate service starts up. The date or date range should be specified as either a `Date.t` or a `Date.Range.t` or a tuple of `{Date.t, Date.t}` representing the `from` and `to` dates for the rates to be retrieved. The default is `nil` meaning no historic rates are preloaded.  Some examples:
+* `:preload_historic_rates` defines a date or a date range that will be requested when the exchange rate service starts up. The date or date range should be specified as either a `Date.t` or a `Date.Range.t` or a tuple of `{Date.t, Date.t}` representing the `from` and `to` dates for the rates to be retrieved. The default is `nil` meaning no historic rates are preloaded. See [Preloading historic rates](#preloading-historic-rates) for more information.
 
 * `callback_module` defines a module that follows the `Money.ExchangeRates.Callback` behaviour whereby the function `rates_retrieved/2` is invoked after every successful retrieval of exchange rates.  The default is `Money.ExchangeRates.Callback`.
 
@@ -165,15 +165,15 @@ defmodule MyApp.Cldr do
 end
 ```
 
-### Preloading historic exchange rates
+### Preloading historic rates
 
-The current implementation will call the api_module to retrieve the historic rates once for each date in the `:preload_exchange_rates` range.  Some exchange rate services, like Open Exchange Rates, provides a bulk retrieval api that can retrieve multiple dates in a single call.  However this endpoint is only available for premium subscribers and it is still charged on a "per date retrieved" basis. So while there is a network/performance/efficiency benefit there is no economic benefit.  Please file an issue on [github](https://github.com/kipcole9/money) if implementing a bulk api is important to you.
+The current implementation will call the api_module to retrieve the historic rates once for each date in the `:preload_historic_rates` range.  Some exchange rate services, like Open Exchange Rates, provides a bulk retrieval api that can retrieve multiple dates in a single call.  However this endpoint is only available for premium subscribers and it is still charged on a "per date retrieved" basis. So while there is a network/performance/efficiency benefit there is no economic benefit.  Please file an issue on [github](https://github.com/kipcole9/money) if implementing a bulk api is important to you.
 
-Some examples of configuring the `:preload_exchange_rates` key follow:
+Some examples of configuring the `:preload_historic_rates` key follow:
 
-  * `preload_exchange_rates: ~D[2017-01-01]`
-  * `preload_exchange_rates: Date.range(~D[2017-01-01], ~D[2017-10-01])`
-  * `preload_exchange_rates: {~D[2017-01-01], ~D[2017-10-01]}`
+  * `preload_historic_rates: ~D[2017-01-01]`
+  * `preload_historic_rates: Date.range(~D[2017-01-01], ~D[2017-10-01])`
+  * `preload_historic_rates: {~D[2017-01-01], ~D[2017-10-01]}`
 
 ### Open Exchange Rates configuration
 
