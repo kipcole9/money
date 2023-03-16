@@ -6,5 +6,5 @@ defmodule Test.Cldr do
     default_locale: "en",
     locales: ["en", "de", "da", "nl", "de-CH", "fr", "zh-Hant-HK", "zh-Hans", "ja"],
     providers: [Cldr.Number, Money],
-    supress_warnings: true
+    suppress_warnings: true
 end
