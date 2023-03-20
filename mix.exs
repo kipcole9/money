@@ -90,8 +90,7 @@ defmodule Money.Mixfile do
       {:ex_cldr, path: "../cldr43", override: true},
       {:ex_cldr_numbers, path: "../cldr_numbers", override: true},
 
-      # {:ex_cldr_numbers, "~> 2.27"},
-      {:cldr_utils, "~> 2.21"},
+      # {:ex_cldr_numbers, "~> 2.31"},
 
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:decimal, "~> 1.6 or ~> 2.0"},
