@@ -201,13 +201,14 @@ defmodule MoneyTest do
     assert to_string(money) == "$1,234.00"
   end
 
-  test "to_string! raises if there is an error" do
-    money = Money.new(1234, :USD)
-
-    assert_raise Cldr.FormatCompileError, fn ->
-      Money.to_string!(money, format: "0#")
-    end
-  end
+  # Comment out until the next version that depends on ex_cldr_numbers 2.31.0
+  # test "to_string! raises if there is an error" do
+  #   money = Money.new(1234, :USD)
+  #
+  #   assert_raise Cldr.FormatCompileError, fn ->
+  #     Money.to_string!(money, format: "0#")
+  #   end
+  # end
 
   test "abs value of a negative value returns positive value" do
     assert Money.abs(Money.new(:USD, -100)) == Money.new(:USD, 100)

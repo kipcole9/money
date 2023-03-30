@@ -83,8 +83,6 @@ defmodule Money.Mixfile do
     []
   end
 
-  @otp_version :otp_release |> :erlang.system_info() |> List.to_integer()
-
   defp deps do
     [
       {:ex_cldr_numbers, "~> 2.27"},
@@ -93,7 +91,6 @@ defmodule Money.Mixfile do
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:decimal, "~> 1.6 or ~> 2.0"},
       {:poison, "~> 3.0 or ~> 4.0 or ~> 5.0", optional: true},
-      if(@otp_version < 22, do: {:ssl_verify_fun, "~> 1.1"}),
       {:phoenix_html, "~> 2.0 or ~> 3.0", optional: true},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:jason, "~> 1.0", optional: true},
@@ -102,7 +99,6 @@ defmodule Money.Mixfile do
       {:exprof, "~> 0.2", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: [:dev, :release]},
 
-      # {:gringotts, github: "kipcole9/gringotts"}
       {:gringotts, "~> 1.1", optional: true}
     ]
     |> Enum.reject(&is_nil/1)
