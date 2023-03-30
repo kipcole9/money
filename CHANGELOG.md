@@ -86,7 +86,7 @@ This is the changelog for Money v5.9.0 released on February 21st, 2022.  For old
 
 * Updates to [ex_cldr version 2.26.0](https://hex.pm/packages/ex_cldr/2.26.0) and [ex_cldr_numbers version 2.25.0](https://hex.pm/packages/ex_cldr_numbers/2.25.0) which use atoms for locale names and rbnf locale names. This is consistent with other elements of `t:Cldr.LanguageTag` where atoms are used when the cardinality of the data is fixed and relatively small and strings where the data is free format.
 
-* Adjusts the output of `Money.inspect/2` to be executable code. Instead of `#Money<:USD, 100>` the output will be `Money.new(:USD, "100")`. This improved developer experience by allowing for copy/paste of `inspect/2` results into `iex`. It is also in line with similar changes being made in `Elixir`, `Decimal` and others.
+* Adjusts the output of `Money.inspect/2` to be executable code. Instead of `#Money<:USD, 100>` the output will be `Money.new(:USD, "100")`. This improved developer experience by allowing for copy/paste of `inspect/2` results into `iex`. It is also in line with similar changes being made in `elixir`, `Decimal` and others.
 
 * Add documentation for `:currency_symbol` option for `Money.to_string/2`. Although its an option that is passed through to `Cldr.Number.to_string/3`, its very relevant to `t:Money` formatting.
 
