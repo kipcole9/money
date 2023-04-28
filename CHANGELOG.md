@@ -10,7 +10,7 @@ This is the changelog for Money v5.13.0 released on April 28th, 2023.  For older
 
 * Updates to [ex_cldr version 2.37.0](https://hex.pm/packages/ex_cldr/2.37.0) which includes data from [CLDR release 43](https://cldr.unicode.org/index/downloads/cldr-43)
 
-* Tests now assume Decimal > 2.0 since the `Inspect` protocol implementation now emits executable code examples.
+* Tests now assume Decimal ~> 2.0 since the `Inspect` protocol implementation now emits executable code examples.
 
 ## Money v5.12.4
 
