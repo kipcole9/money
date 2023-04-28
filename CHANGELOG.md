@@ -1,5 +1,15 @@
 # Changelog
 
+## Money v5.14.0
+
+This is the changelog for Money v5.14.0 released on April 29th, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+**Note** `ex_money 5.13.0` is supported on Elixir 1.11 and later versions only. It also requires `ex_cldr_numbers 2.31` or later.
+
+### Enhancements
+
+* Adds `Money.integer?/1` to return a boolean indicatng if a money amount is an integer value (ie has no significant fractional digits).
+
 ## Money v5.13.0
 
 This is the changelog for Money v5.13.0 released on April 28th, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

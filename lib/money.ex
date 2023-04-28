@@ -2216,6 +2216,44 @@ defmodule Money do
 
   @doc """
   Returns a boolean indicating if `t:Money.t/0`
+  is an integer value (has no significant fractional
+  digits).
+
+  ## Arguments
+
+  * `money` is any valid `t:Money.t/0` type returned
+    by `Money.new/2`
+
+  ## Example
+
+      iex> Money.integer?(Money.new(:USD, 0))
+      true
+
+      iex> Money.integer?(Money.new(:USD, "1.10"))
+      false
+
+  """
+  Cldr.Macros.doc_since("5.10.0")
+  @spec integer?(Money.t()) :: boolean
+
+  if function_exported?(Decimal, :integer?, 1) do
+    def integer?(%{amount: amount}) do
+      Decimal.integer?(amount)
+    end
+  else
+    def integer?(%{amount: %Decimal{coef: :NaN}}), do: false
+    def integer?(%{amount: %Decimal{coef: :inf}}), do: false
+    def integer?(%{amount: %Decimal{coef: coef, exp: exp}}), do: exp >= 0 or zero_after_dot?(coef, exp)
+
+    defp zero_after_dot?(coef, exp) when coef >= 10 and exp < 0,
+      do: Kernel.rem(coef, 10) == 0 and zero_after_dot?(Kernel.div(coef, 10), exp + 1)
+
+    defp zero_after_dot?(coef, exp),
+      do: coef == 0 or exp == 0
+  end
+
+  @doc """
+  Returns a boolean indicating if `t:Money.t/0`
   has a positive value.
 
   ## Arguments
