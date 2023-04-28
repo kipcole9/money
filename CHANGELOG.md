@@ -1,5 +1,17 @@
 # Changelog
 
+## Money v5.13.0
+
+This is the changelog for Money v5.13.0 released on April 28th, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+**Note** `ex_money 5.13.0` is supported on Elixir 1.11 and later versions only. It also requires `ex_cldr_numbers 2.31` or later.
+
+### Enhancements
+
+* Updates to [ex_cldr version 2.37.0](https://hex.pm/packages/ex_cldr/2.37.0) which includes data from [CLDR release 43](https://cldr.unicode.org/index/downloads/cldr-43)
+
+* Tests now assume Decimal > 2.0 since the `Inspect` protocol implementation now emits executable code examples.
+
 ## Money v5.12.4
 
 This is the changelog for Money v5.12.4 released on January 28th, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

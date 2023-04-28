@@ -123,7 +123,7 @@ defmodule Money.Financial do
 
       iex> Money.Financial.present_value [{0, Money.new(:USD, -1000)},{1, Money.new(:USD, -4000)}], 0.1
       Money.new(:USD, "-4636.363636363636363636363636")
-  
+
   """
   @spec present_value(list({integer, Money.t()}), number) :: Money.t()
   def present_value(flows, interest_rate)
@@ -269,10 +269,10 @@ defmodule Money.Financial do
   ## Examples
 
       iex> Money.Financial.interest_rate Money.new(:USD, 10000), Money.new(:USD, 10816), 2
-      #Decimal<0.04>
+      Decimal.new("0.04")
 
       iex> Money.Financial.interest_rate Money.new(:USD, 10000), Money.new(:USD, "10824.3216"), 4
-      #Decimal<0.02>
+      Decimal.new("0.02")
 
   """
   @spec interest_rate(Money.t(), Money.t(), number) :: Decimal.t()
@@ -302,8 +302,8 @@ defmodule Money.Financial do
   ## Example
 
       iex> Money.Financial.periods Money.new(:USD, 1500), Money.new(:USD, 2000), 0.005
-      #Decimal<57.68013595323872502502238648>
-  
+      Decimal.new("57.68013595323872502502238648")
+
   """
   @spec periods(Money.t(), Money.t(), float) :: Decimal.t()
   def periods(
@@ -333,7 +333,7 @@ defmodule Money.Financial do
 
       iex> Money.Financial.payment Money.new(:USD, 100), 0.12, 20
       Money.new(:USD, "13.38787800396606622792492299")
-  
+
   """
   @spec payment(Money.t(), float, number) :: Money.t()
   def payment(
