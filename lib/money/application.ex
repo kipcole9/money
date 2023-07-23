@@ -40,7 +40,7 @@ defmodule Money.Application do
           "Does it exist?"
       )
 
-      Logger.warn("ExchangeRates service will not be started.")
+      Logger.warning("ExchangeRates service will not be started.")
     end
 
     start? && api_module_present?
@@ -56,7 +56,7 @@ defmodule Money.Application do
   def maybe_log_deprecation do
     case Application.fetch_env(:ex_money, :delay_before_first_retrieval) do
       {:ok, _} ->
-        Logger.warn(
+        Logger.warning(
           "[ex_money] Configuration option :delay_before_first_retrieval is deprecated. " <>
             "Please remove it from your configuration."
         )
@@ -69,7 +69,7 @@ defmodule Money.Application do
 
     case Application.fetch_env(:ex_money, :exchange_rate_service) do
       {:ok, start?} ->
-        Logger.warn(
+        Logger.warning(
           "[ex_money] Configuration option :exchange_rate_service is deprecated " <>
             "in favour of :auto_start_exchange_rate_service.  Please " <>
             "update your configuration."

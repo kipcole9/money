@@ -440,7 +440,7 @@ defmodule MoneyTest do
 
   test "raise when a sigil function has an invalid currency" do
     assert_raise Money.UnknownCurrencyError, ~r/The currency .* is invalid/, fn ->
-      Money.Sigil.sigil_M("42", [?A, ?B, ?C])
+      Money.Sigil.sigil_M("42", [?A, ?A, ?A])
     end
   end
 

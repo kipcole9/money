@@ -1,5 +1,17 @@
 # Changelog
 
+## Money v5.14.1
+
+This is the changelog for Money v5.14.1 released on July 23rd, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+**Note** `ex_money 5.13.0` is supported on Elixir 1.11 and later versions only. It also requires `ex_cldr_numbers 2.31` or later.
+
+### Bug Fixes
+
+* Fix `Looger.warn/1` warnings by moving to `Logger.warning/1`.
+
+* Fix failing test case.
+
 ## Money v5.14.0
 
 This is the changelog for Money v5.14.0 released on April 29th, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
