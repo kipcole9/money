@@ -732,12 +732,18 @@ defmodule Money do
     * `:standard` (the default and recommended) uses the CLDR-defined symbol
       based upon the currency format for the locale.
 
+  * `:no_fraction_if_integer` is a boolean which, if `true`, will set `:fractional_digits`
+    to `0` if the money value is an integer value.
+
   * Any other options are passed to `Cldr.Number.to_string/3`
 
   ## Examples
 
       iex> Money.to_string Money.new(:USD, 1234)
       {:ok, "$1,234.00"}
+
+      iex> Money.to_string Money.new(:USD, 1234), no_fraction_if_integer: true
+      {:ok, "$1,234"}
 
       iex> Money.to_string Money.new(:JPY, 1234)
       {:ok, "¥1,234"}
@@ -769,6 +775,7 @@ defmodule Money do
       default_options
       |> Keyword.merge(format_options)
       |> Keyword.merge(options)
+      |> maybe_no_fractional_digits(money)
 
     backend = options[:backend]
     Cldr.Number.to_string(money.amount, backend, options)
@@ -782,10 +789,22 @@ defmodule Money do
       |> Map.new()
       |> Map.merge(options)
       |> Map.put(:currency, money.currency)
+      |> maybe_no_fractional_digits(money)
 
     backend = Map.get(options, :backend, Money.default_backend())
     Cldr.Number.to_string(money.amount, backend, options)
   end
+
+  defp maybe_no_fractional_digits(options, money) do
+    if integer?(money) && options[:no_fraction_if_integer] do
+      put_option(options, :fractional_digits, 0)
+    else
+      options
+    end
+  end
+
+  defp put_option(%{} = options, option, value), do: Map.put(options, option, value)
+  defp put_option(options, option, value), do: Keyword.put(options, option, value)
 
   @doc """
   Returns a formatted string representation of a `t:Money.t/0` or raises if
