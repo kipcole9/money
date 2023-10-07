@@ -6,7 +6,7 @@ defmodule Money.Cldr do
 
   use Cldr,
     locales: [
-      "en", "de", "it", "es", "fr", "da", "zh-Hant-HK", "zh-Hans", "ja", "en-001", "th", "es-CO"
+      "en", "de", "it", "es", "fr", "da", "zh-Hant-HK", "zh-Hans", "ja", "en-001", "th", "es-CO", "pt-CV"
     ],
     default_locale: "en",
     providers: [Cldr.Number, Money]

@@ -263,7 +263,6 @@ defmodule Money.ExchangeRates.Retriever do
     if is_integer(config.retrieve_every) do
       log(config, :info, log_init_message(config.retrieve_every))
       schedule_work(0)
-      schedule_work(config.retrieve_every)
     end
 
     if config.preload_historic_rates do
