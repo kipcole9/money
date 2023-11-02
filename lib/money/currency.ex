@@ -29,7 +29,7 @@ defmodule Money.Currency do
 
   ## Example:
 
-      iex> Money.Currency.known_current_currencies
+      iex> Money.Currency.known_current_currencies()
       [:AED, :AFN, :ALL, :AMD, :ANG, :AOA, :ARS, :AUD, :AWG, :AZN, :BAM, :BBD, :BDT,
        :BGN, :BHD, :BIF, :BMD, :BND, :BOB, :BOV, :BRL, :BSD, :BTN, :BWP, :BYN, :BZD,
        :CAD, :CDF, :CHE, :CHF, :CHW, :CLF, :CLP, :CNY, :COP, :COU, :CRC, :CUC, :CUP,
@@ -55,7 +55,7 @@ defmodule Money.Currency do
 
   ## Example:
 
-      iex> Money.Currency.known_historic_currencies
+      iex> Money.Currency.known_historic_currencies()
       [:ADP, :AFA, :ALK, :AOK, :AON, :AOR, :ARA, :ARL, :ARM, :ARP, :ATS, :AZM, :BAD,
        :BAN, :BEC, :BEF, :BEL, :BGL, :BGM, :BGO, :BOL, :BOP, :BRB, :BRC, :BRE, :BRN,
        :BRR, :BRZ, :BUK, :BYB, :BYR, :CLE, :CNH, :CNX, :CSD, :CSK, :CYP, :DDM, :DEM,
@@ -77,7 +77,7 @@ defmodule Money.Currency do
 
   ## Example:
 
-      iex> Money.Currency.known_tender_currencies
+      iex> Money.Currency.known_tender_currencies()
       [:ADP, :AED, :AFA, :AFN, :ALK, :ALL, :AMD, :ANG, :AOA, :AOK, :AON, :AOR, :ARA,
        :ARL, :ARM, :ARP, :ARS, :ATS, :AUD, :AWG, :AZM, :AZN, :BAD, :BAM, :BAN, :BBD,
        :BDT, :BEC, :BEF, :BEL, :BGL, :BGM, :BGN, :BGO, :BHD, :BIF, :BMD, :BND, :BOB,
