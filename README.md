@@ -37,7 +37,7 @@ How is this opinion expressed?
 
 ## Prerequisities
 
-* `Money` is supported on Elixir 1.10 and later only.
+* `Money` is supported on Elixir 1.11 and later only.
 
 ## Supervisor configuration and operation
 
