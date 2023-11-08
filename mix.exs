@@ -91,7 +91,7 @@ defmodule Money.Mixfile do
       {:decimal, "~> 1.6 or ~> 2.0"},
       {:poison, "~> 3.0 or ~> 4.0 or ~> 5.0", optional: true},
       {:phoenix_html, "~> 2.0 or ~> 3.0", optional: true},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:jason, "~> 1.0", optional: true},
       {:stream_data, "~> 0.4", only: [:dev, :test]},
       {:benchee, "~> 1.0", optional: true, only: :dev},
