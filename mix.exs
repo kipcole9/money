@@ -96,7 +96,7 @@ defmodule Money.Mixfile do
       {:stream_data, "~> 0.4", only: [:dev, :test]},
       {:benchee, "~> 1.0", optional: true, only: :dev},
       {:exprof, "~> 0.2", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.22", only: [:dev, :release]},
+      {:ex_doc, "0.30.5", only: [:dev, :release]},
 
       {:gringotts, "~> 1.1", optional: true}
     ]

@@ -1,7 +1,10 @@
 # Introduction to Money
-![Build Status](http://sweatbox.noexpectations.com.au:8080/buildStatus/icon?job=money)
-[![Hex pm](http://img.shields.io/hexpm/v/ex_money.svg?style=flat)](https://hex.pm/packages/ex_money)
-[![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/kipcole9/money/blob/master/LICENSE)
+
+![Build status](https://github.com/kipcole9/money/actions/workflows/ci.yml/badge.svg)
+[![Hex.pm](https://img.shields.io/hexpm/v/ex_money.svg)](https://hex.pm/packages/ex_money)
+[![Hex.pm](https://img.shields.io/hexpm/dw/ex_money.svg?)](https://hex.pm/packages/ex_money)
+[![Hex.pm](https://img.shields.io/hexpm/dt/ex_money.svg?)](https://hex.pm/packages/ex_money)
+[![Hex.pm](https://img.shields.io/hexpm/l/ex_money.svg)](https://hex.pm/packages/ex_money)
 
 Money implements a set of functions to store, retrieve, convert and perform arithmetic
 on a `t:Money.t/0` type that is composed of an [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) currency code or an [ISO 24165](https://www.iso.org/standard/80601.html) Digital Token Identifier (crypto currency) with a currency amount.
