@@ -86,7 +86,7 @@ defmodule Money.Mixfile do
   defp deps do
     [
       {:ex_cldr_numbers, "~> 2.31"},
-
+      {:nimble_options, "~> 1.0"},
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:decimal, "~> 1.6 or ~> 2.0"},
       {:poison, "~> 3.0 or ~> 4.0 or ~> 5.0", optional: true},
@@ -97,7 +97,6 @@ defmodule Money.Mixfile do
       {:benchee, "~> 1.0", optional: true, only: :dev},
       {:exprof, "~> 0.2", only: :dev, runtime: false},
       {:ex_doc, "0.30.5", only: [:dev, :release]},
-
       {:gringotts, "~> 1.1", optional: true}
     ]
     |> Enum.reject(&is_nil/1)
