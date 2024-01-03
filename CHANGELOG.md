@@ -2,6 +2,14 @@
 
 **Note** `ex_money` 5.13.0 and later is supported on Elixir 1.11 and later versions only. It also requires `ex_cldr_numbers 2.31` or later.
 
+## Money v5.15.3
+
+This is the changelog for Money v5.15.3 released on January 4th, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Add `or ~> 4.0` for `:phoenix_html` dependency. Thanks to @wkirschbaum for the PR. Closes #161.
+
 ## Money v5.15.2
 
 This is the changelog for Money v5.15.2 released on November 3rd, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
