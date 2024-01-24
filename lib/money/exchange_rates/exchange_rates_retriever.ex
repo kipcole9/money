@@ -467,14 +467,15 @@ defmodule Money.ExchangeRates.Retriever do
 
   defp log_init_message(every) do
     {every, plural_every} = seconds(every)
-
     "Exchange Rates will be retrieved now and then every #{every} #{plural_every}."
   end
 
   defp seconds(milliseconds) do
     seconds = div(milliseconds, 1000)
     plural = if seconds == 1, do: "second", else: "seconds"
-    {seconds, plural}
+    {:ok, formatted_seconds} = Cldr.Number.to_string(seconds, backend: Money.get_env(:default_cldr_backend))
+
+    {formatted_seconds, plural}
   end
 
   defp exchange_rate_service_error do
