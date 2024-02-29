@@ -10,7 +10,7 @@ This is the changelog for Money v5.15.4 released on March 1st, 2024.  For older 
 
 * Fix exchange rate conversions for digital tokens. Thanks much to @ddanschultzer for the PR. Closes 164.
 
-### Ehancements
+### Enhancements
 
 * Format the exchange rate retrieval interval used in the init message using the default `cldr` backend configured for `:ex_money`.
 
