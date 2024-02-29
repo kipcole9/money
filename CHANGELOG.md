@@ -4,7 +4,11 @@
 
 ## Money v5.15.4
 
-This is the changelog for Money v5.15.4 released on ______, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.15.4 released on March 1st, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fix exchange rate conversions for digital tokens. Thanks much to @ddanschultzer for the PR. Closes 164.
 
 ### Ehancements
 
