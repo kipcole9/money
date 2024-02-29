@@ -1813,19 +1813,19 @@ defmodule Money do
     {:ok, money}
   end
 
+  def to_currency(%Money{currency: from_currency, amount: amount} = money, to_currency, rates)
+      when is_atom(to_currency) or is_digital_token(to_currency) and is_map(rates) do
+    with {:ok, to_currency_code} <- validate_currency(to_currency),
+        {:ok, cross_rate} <- cross_rate(from_currency, to_currency_code, rates) do
+      converted_amount = Decimal.mult(amount, cross_rate)
+      {:ok, %{money | currency: to_currency, amount: converted_amount}}
+    end
+  end
+
   def to_currency(%Money{} = money, to_currency, %{} = rates)
       when is_binary(to_currency) do
     with {:ok, currency_code} <- validate_currency(to_currency) do
       to_currency(money, currency_code, rates)
-    end
-  end
-
-  def to_currency(%Money{currency: from_currency, amount: amount} = money, to_currency, rates)
-      when is_atom(to_currency) and is_map(rates) do
-    with {:ok, to_currency_code} <- validate_currency(to_currency),
-         {:ok, cross_rate} <- cross_rate(from_currency, to_currency_code, rates) do
-      converted_amount = Decimal.mult(amount, cross_rate)
-      {:ok, %{money | currency: to_currency, amount: converted_amount}}
     end
   end
 
@@ -2433,8 +2433,10 @@ defmodule Money do
   end
 
   defp get_rate(currency, rates) do
+    keys = is_atom(currency) && [currency, Atom.to_string(currency)] || [currency]
+
     rates
-    |> Map.take([currency, Atom.to_string(currency)])
+    |> Map.take(keys)
     |> Map.values()
     |> case do
       [rate] ->
