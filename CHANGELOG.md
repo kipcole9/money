@@ -2,11 +2,19 @@
 
 **Note** `ex_money` 5.13.0 and later is supported on Elixir 1.11 and later versions only. It also requires `ex_cldr_numbers 2.31` or later.
 
+## Money v5.16.0
+
+This is the changelog for Money v5.16.0 released on ______, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Update to [CLDR 45.0](https://cldr.unicode.org/index/downloads/cldr-45) data.
+
 ## Money v5.15.4
 
-This is the changelog for Money v5.15.4 released on ______, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.15.4 released on February 29th, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
-### Ehancements
+### Enhancements
 
 * Format the exchange rate retrieval interval used in the init message using the default `cldr` backend configured for `:ex_money`.
 
