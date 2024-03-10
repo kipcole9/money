@@ -64,8 +64,8 @@ defmodule Money.Currency do
        :LUF, :LUL, :LVL, :LVR, :MAF, :MCF, :MDC, :MGF, :MKN, :MLF, :MRO, :MTL, :MTP,
        :MVP, :MXP, :MZE, :MZM, :NIC, :NLG, :PEI, :PES, :PLZ, :PTE, :RHD, :ROL, :RUR,
        :SDD, :SDP, :SIT, :SKK, :SLE, :SRG, :STD, :SUR, :TJR, :TMM, :TPE, :TRL, :UAK,
-       :UGS, :USS, :UYP, :VEB, :VED, :VEF, :VNN, :XEU, :XFO, :XFU, :XRE, :YDD, :YUD,
-       :YUM, :YUN, :YUR, :ZAL, :ZMK, :ZRN, :ZRZ, :ZWD, :ZWR]
+       :UGS, :USS, :UYP, :VEB, :VED, :VEF, :VNN, :XCG, :XEU, :XFO, :XFU, :XRE, :YDD,
+       :YUD, :YUM, :YUN, :YUR, :ZAL, :ZMK, :ZRN, :ZRZ, :ZWD, :ZWR]
 
   """
   def known_historic_currencies do
@@ -99,9 +99,9 @@ defmodule Money.Currency do
        :SYP, :SZL, :THB, :TJR, :TJS, :TMM, :TMT, :TND, :TOP, :TPE, :TRL, :TRY, :TTD,
        :TWD, :TZS, :UAH, :UAK, :UGS, :UGX, :USD, :USN, :USS, :UYI, :UYP, :UYU, :UYW,
        :UZS, :VEB, :VED, :VEF, :VES, :VND, :VNN, :VUV, :WST, :XAF, :XAG, :XAU, :XBA,
-       :XBB, :XBC, :XBD, :XCD, :XDR, :XEU, :XFO, :XFU, :XOF, :XPD, :XPF, :XPT, :XRE,
-       :XSU, :XTS, :XUA, :XXX, :YDD, :YER, :YUD, :YUM, :YUN, :YUR, :ZAL, :ZAR, :ZMK,
-       :ZMW, :ZRN, :ZRZ, :ZWD, :ZWL, :ZWR]
+       :XBB, :XBC, :XBD, :XCD, :XCG, :XDR, :XEU, :XFO, :XFU, :XOF, :XPD, :XPF, :XPT,
+       :XRE, :XSU, :XTS, :XUA, :XXX, :YDD, :YER, :YUD, :YUM, :YUN, :YUR, :ZAL, :ZAR,
+       :ZMK, :ZMW, :ZRN, :ZRZ, :ZWD, :ZWL, :ZWR]
 
   """
   def known_tender_currencies do
