@@ -885,11 +885,11 @@ defmodule Money do
   ## Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
   ## Returns
 
-  * the currency code as an `t:atom`
+  * the currency code as an `t:atom`.
 
   ## Example
 
@@ -911,11 +911,11 @@ defmodule Money do
   ## Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
   ## Returns
 
-  * a `t:Money.t/0`
+  * a `t:Money.t/0`.
 
   ## Example
 
@@ -1278,7 +1278,7 @@ defmodule Money do
   ## Arguments
 
   * `money_list` is a list of any valid `t:Money.t/0` types returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
   * `rates` is a map of exchange rates. The default is `%{}`.
     `Money.ExchangeRates.latest_rates/0` can be used to return
@@ -1377,7 +1377,7 @@ defmodule Money do
   ## Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
   ## Returns
 
@@ -1406,7 +1406,7 @@ defmodule Money do
   ## Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
   ## Returns
 
@@ -1758,19 +1758,19 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`
+  * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`.
 
-  * `to_currency` is a valid currency code into which the `money` is converted
+  * `to_currency` is a valid currency code into which the `money` is converted.
 
   * `rates` is a `Map` of currency rates where the map key is an upcased
     atom or string and the value is a Decimal conversion factor.  The default is the
-    latest available exchange rates returned from `Money.ExchangeRates.latest_rates()`
+    latest available exchange rates returned from `Money.ExchangeRates.latest_rates/0`.
 
   ## Converting to a currency defined in a locale
 
   To convert a `Money` to a currency defined by a locale,
   `Cldr.Currency.currency_from_locale/1` can be called with
-  a `t:Cldr.LanguageTag.t()` parameter. It will return
+  a `t:Cldr.LanguageTag.t/0` parameter. It will return
   the currency configured for that locale.
 
   ## Examples
@@ -1830,17 +1830,17 @@ defmodule Money do
   end
 
   @doc """
-  Convert `money` from one currency to another and raises on error
+  Convert `money` from one currency to another or raises on error.
 
   ## Arguments
 
-  * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`
+  * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`.
 
-  * `to_currency` is a valid currency code into which the `money` is converted
+  * `to_currency` is a valid currency code into which the `money` is converted.
 
   * `rates` is a `Map` of currency rates where the map key is an upcased
     atom or string and the value is a Decimal conversion factor.  The default is the
-    latest available exchange rates returned from `Money.ExchangeRates.latest_rates()`
+    latest available exchange rates returned from `Money.ExchangeRates.latest_rates/0`.
 
   ## Examples
 
@@ -1879,13 +1879,13 @@ defmodule Money do
   ## Arguments
 
   * `from` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2` or a valid
-     currency code
+     currency code.
 
-  * `to_currency` is a valid currency code into which the `money` is converted
+  * `to_currency` is a valid currency code into which the `money` is converted.
 
   * `rates` is a `Map` of currency rates where the map key is an upcased
     atom or string and the value is a Decimal conversion factor.  The default is the
-    latest available exchange rates returned from `Money.ExchangeRates.latest_rates()`
+    latest available exchange rates returned from `Money.ExchangeRates.latest_rates/0`.
 
   ## Examples
 
@@ -1928,13 +1928,13 @@ defmodule Money do
   ## Arguments
 
   * `from` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2` or a valid
-     currency code
+     currency code.
 
-  * `to_currency` is a valid currency code into which the `money` is converted
+  * `to_currency` is a valid currency code into which the `money` is converted.
 
   * `rates` is a `Map` of currency rates where the map key is an upcased
     atom or string and the value is a Decimal conversion factor.  The default is the
-    latest available exchange rates returned from `Money.ExchangeRates.latest_rates()`
+    latest available exchange rates returned from `Money.ExchangeRates.latest_rates/0`.
 
   ## Examples
 
@@ -1971,11 +1971,11 @@ defmodule Money do
 
   @doc """
   Normalizes the underlying decimal amount in a
-  given `Money.t()`
+  given `t:Money.t/0`.
 
   This will normalize the coefficient and exponent of the
   decimal amount in a standard way that may aid in
-  native comparison of `%Money.t()` items.
+  native comparison of `t:Money.t/0` items.
 
   ## Example
 
@@ -2011,7 +2011,7 @@ defmodule Money do
 
   @doc """
   Returns a tuple comprising the currency code, integer amount,
-  exponent and remainder
+  exponent and remainder.
 
   Some services require submission of money items as an integer
   with an implied exponent that is appropriate to the currency.
@@ -2024,7 +2024,7 @@ defmodule Money do
 
   ## Options
 
-  * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`
+  * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`.
 
   ## Notes
 
