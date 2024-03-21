@@ -240,9 +240,14 @@ defmodule Money.ExchangeRates do
   """
   @spec latest_rates() :: {:ok, map()} | {:error, {Exception.t(), binary}}
   def latest_rates do
-    case cache().latest_rates() do
-      {:ok, rates} -> {:ok, rates}
-      {:error, _} -> Retriever.latest_rates()
+    try do
+      case cache().latest_rates() do
+        {:ok, rates} -> {:ok, rates}
+        {:error, _} -> Retriever.latest_rates()
+      end
+    catch
+      :exit, {:noproc, {GenServer, :call, [Money.ExchangeRates.Retriever, :config, _timeout]}} ->
+        {:error, no_retriever_running_error()}
     end
   end
 
@@ -268,9 +273,14 @@ defmodule Money.ExchangeRates do
   """
   @spec historic_rates(Date.t()) :: {:ok, map()} | {:error, {Exception.t(), binary}}
   def historic_rates(date) do
-    case cache().historic_rates(date) do
-      {:ok, rates} -> {:ok, rates}
-      {:error, _} -> Retriever.historic_rates(date)
+    try do
+      case cache().historic_rates(date) do
+        {:ok, rates} -> {:ok, rates}
+        {:error, _} -> Retriever.historic_rates(date)
+      end
+    catch
+      :exit, {:noproc, {GenServer, :call, [Money.ExchangeRates.Retriever, :config, _timeout]}} ->
+        {:error, no_retriever_running_error()}
     end
   end
 
@@ -280,9 +290,14 @@ defmodule Money.ExchangeRates do
   """
   @spec latest_rates_available?() :: boolean
   def latest_rates_available? do
-    case cache().latest_rates() do
-      {:ok, _rates} -> true
-      _ -> false
+    try do
+      case cache().latest_rates() do
+        {:ok, _rates} -> true
+        _ -> false
+      end
+    catch
+      :exit, {:noproc, {GenServer, :call, [Money.ExchangeRates.Retriever, :config, _timeout]}} ->
+        false
     end
   end
 
@@ -301,6 +316,15 @@ defmodule Money.ExchangeRates do
   """
   @spec last_updated() :: {:ok, DateTime.t()} | {:error, {Exception.t(), binary}}
   def last_updated do
-    cache().last_updated()
+    try do
+      cache().last_updated()
+    catch
+      :exit, {:noproc, {GenServer, :call, [Money.ExchangeRates.Retriever, :config, _timeout]}} ->
+        {:error, no_retriever_running_error()}
+    end
+  end
+
+  defp no_retriever_running_error do
+    {Money.ExchangeRateError, "Exchange Rates retrieval process is not running"}
   end
 end

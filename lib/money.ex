@@ -1295,10 +1295,10 @@ defmodule Money do
 
   ## Examples
 
-      iex> Money.sum [Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:USD, 50)]
+      iex> Money.sum([Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:USD, 50)])
       {:ok, Money.new(:USD, 350)}
 
-      iex> Money.sum [Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:AUD, 50)]
+      iex> Money.sum([Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:AUD, 50)], %{})
       {:error,
        {Money.ExchangeRateError, "No exchange rate is available for currency :AUD"}}
 
@@ -1308,9 +1308,20 @@ defmodule Money do
 
   """
   @doc since: "5.3.0"
-  @spec sum([t(), ...], ExchangeRates.t()) :: {:ok, t} | {:error, {module(), String.t()}}
+  @spec sum([t(), ...], ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}) ::
+    {:ok, t} | {:error, {module(), String.t()}}
 
-  def sum([%Money{} = first | rest] = money_list, rates \\ %{}) when is_list(money_list) do
+  def sum(money_list, rates \\ Money.ExchangeRates.latest_rates())
+
+  def sum(money_list, {:ok, %{} = rates}) when is_list(money_list) do
+    sum(money_list, rates)
+  end
+
+  def sum(money_list, {:error, reason}) when is_list(money_list) do
+    {:error, reason}
+  end
+
+  def sum([%Money{} = first | rest] = money_list, %{} = rates) when is_list(money_list) do
     %Money{currency: target_currency} = first
 
     Enum.reduce_while(rest, {:ok, first}, fn money, {:ok, acc} ->
