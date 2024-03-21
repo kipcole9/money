@@ -10,6 +10,8 @@ This is the changelog for Money v5.16.0 released on ______, 2024.  For older cha
 
 * Update to [CLDR 45.0](https://cldr.unicode.org/index/downloads/cldr-45) data.
 
+* Return structured errors for `Money.ExchangeRates.latest_rates/0`, `Money.ExchangeRates.historic_rates/1`, `Money.ExchangeRates.last_updated/0` and `Money.ExchangeRates.latest_rates_available?/0` when the exchange rates retrieval process is not running.
+
 ## Money v5.15.4
 
 This is the changelog for Money v5.15.4 released on March 1st, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
