@@ -1814,9 +1814,9 @@ defmodule Money do
   end
 
   def to_currency(%Money{currency: from_currency, amount: amount} = money, to_currency, rates)
-      when is_atom(to_currency) or is_digital_token(to_currency) and is_map(rates) do
+      when is_atom(to_currency) or (is_digital_token(to_currency) and is_map(rates)) do
     with {:ok, to_currency_code} <- validate_currency(to_currency),
-        {:ok, cross_rate} <- cross_rate(from_currency, to_currency_code, rates) do
+         {:ok, cross_rate} <- cross_rate(from_currency, to_currency_code, rates) do
       converted_amount = Decimal.mult(amount, cross_rate)
       {:ok, %{money | currency: to_currency, amount: converted_amount}}
     end
@@ -2262,7 +2262,9 @@ defmodule Money do
   else
     def integer?(%{amount: %Decimal{coef: :NaN}}), do: false
     def integer?(%{amount: %Decimal{coef: :inf}}), do: false
-    def integer?(%{amount: %Decimal{coef: coef, exp: exp}}), do: exp >= 0 or zero_after_dot?(coef, exp)
+
+    def integer?(%{amount: %Decimal{coef: coef, exp: exp}}),
+      do: exp >= 0 or zero_after_dot?(coef, exp)
 
     defp zero_after_dot?(coef, exp) when coef >= 10 and exp < 0,
       do: Kernel.rem(coef, 10) == 0 and zero_after_dot?(Kernel.div(coef, 10), exp + 1)
@@ -2433,7 +2435,7 @@ defmodule Money do
   end
 
   defp get_rate(currency, rates) do
-    keys = is_atom(currency) && [currency, Atom.to_string(currency)] || [currency]
+    keys = (is_atom(currency) && [currency, Atom.to_string(currency)]) || [currency]
 
     rates
     |> Map.take(keys)
@@ -2471,8 +2473,8 @@ defmodule Money do
          {:ok, symbols} <- Cldr.Number.Symbol.number_symbols_for(locale, backend) do
       decimal =
         string
-        |> String.replace(symbols.latn.group, "")
-        |> String.replace(symbols.latn.decimal, ".")
+        |> String.replace(symbol_script(symbols, locale).group, "")
+        |> String.replace(symbol_script(symbols, locale).decimal, ".")
         |> Decimal.new()
 
       {:ok, decimal}
@@ -2493,6 +2495,17 @@ defmodule Money do
 
   defp maybe_decimal(_amount, _options) do
     nil
+  end
+
+  defp symbol_script(symbols, locale) do
+    script =
+      locale
+      |> Cldr.Locale.script_from_locale()
+      |> Atom.to_string()
+      |> String.downcase()
+      |> String.to_atom()
+
+    symbols[script] || symbols.latn
   end
 
   @doc false
