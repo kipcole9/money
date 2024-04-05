@@ -568,8 +568,8 @@ defmodule MoneyTest do
   test "that non latn cldr are properly represented" do
     Money.default_backend().put_locale("ar-EG")
 
-    assert Money.new(:EGP, "100")
-           |> Money.to_string() == {:ok, "‏١٠٠٫٠٠ ج.م.‏"}
+    assert Money.new(:EGP, "10000.00")
+           |> Money.to_string() == {:ok, "‏١٠٬٠٠٠٫٠٠ ج.م.‏"}
 
     Money.default_backend().put_locale("en")
   end
