@@ -2468,11 +2468,12 @@ defmodule Money do
 
   defp parse_decimal(string, locale, backend) do
     with {:ok, locale} <- Cldr.validate_locale(locale, backend),
-         {:ok, symbols} <- Cldr.Number.Symbol.number_symbols_for(locale, backend) do
+         {:ok, symbols} <- Cldr.Number.Symbol.number_symbols_for(locale, backend),
+         {:ok, script_symbols} <- number_symbols_for_number_system(symbols, locale, backend) do
       decimal =
         string
-        |> String.replace(symbols.latn.group, "")
-        |> String.replace(symbols.latn.decimal, ".")
+        |> String.replace(script_symbols.group, "")
+        |> String.replace(script_symbols.decimal, ".")
         |> Decimal.new()
 
       {:ok, decimal}
@@ -2493,6 +2494,12 @@ defmodule Money do
 
   defp maybe_decimal(_amount, _options) do
     nil
+  end
+
+  defp number_symbols_for_number_system(symbols, locale, backend) do
+    number_system = Cldr.Number.System.number_system_from_locale(locale, backend)
+    symbols = Map.get(symbols, number_system) || Map.get(symbols, :latn)
+    {:ok, symbols}
   end
 
   @doc false
