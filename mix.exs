@@ -85,7 +85,7 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:ex_cldr_numbers, "~> 2.31"},
+      {:ex_cldr_numbers, "~> 2.33"},
       # {:ex_cldr_numbers, path: "../cldr_numbers"},
 
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
