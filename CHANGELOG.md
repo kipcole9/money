@@ -4,7 +4,11 @@
 
 ## Money v5.16.0
 
-This is the changelog for Money v5.16.0 released on ______, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.16.0 released on April 21st, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* WHen parsing numbers, use the localized number system separators where they exist. Thanks to @pshoukry for the report. Closes #167.
 
 ### Enhancements
 
