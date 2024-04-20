@@ -10,6 +10,8 @@ This is the changelog for Money v5.16.0 released on April 21st, 2024.  For older
 
 * WHen parsing numbers, use the localized number system separators where they exist. Thanks to @pshoukry for the report. Closes #167.
 
+* Surface errors when starting the exchange rates retrieveer. Thanks to @danschultzer for the PR. Closes #165.
+
 ### Enhancements
 
 * Update to [CLDR 45.0](https://cldr.unicode.org/index/downloads/cldr-45) data.
