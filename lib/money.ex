@@ -1280,10 +1280,10 @@ defmodule Money do
   * `money_list` is a list of any valid `t:Money.t/0` types returned
     by `Money.new/2`.
 
-  * `rates` is a map of exchange rates. The default is `%{}`.
-    `Money.ExchangeRates.latest_rates/0` can be used to return
-    the latest known exchange rates which can then applied as
-    the `rates` parameter.
+  * `rates` is a map of exchange rates. The default is the rates
+    returned by `Money.ExchangeRates.latest_rates/0`. If the
+    exchange rates retriever is not running, then the default is
+    `%{}`.
 
   ## Returns
 
@@ -1311,13 +1311,13 @@ defmodule Money do
   @spec sum([t(), ...], ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}) ::
     {:ok, t} | {:error, {module(), String.t()}}
 
-  def sum(money_list, rates \\ Money.ExchangeRates.latest_rates())
+  def sum(money_list, rates \\ latest_rates_or_empty_map())
 
-  def sum(money_list, {:ok, %{} = rates}) when is_list(money_list) do
+  def sum(money_list, {:ok, rates}) when is_map(rates) do
     sum(money_list, rates)
   end
 
-  def sum(money_list, {:error, reason}) when is_list(money_list) do
+  def sum(_money_list, {:error, reason}) do
     {:error, reason}
   end
 
@@ -1330,6 +1330,13 @@ defmodule Money do
         error -> {:halt, error}
       end
     end)
+  end
+
+  defp latest_rates_or_empty_map do
+    case Money.ExchangeRates.latest_rates() do
+      {:error, _} -> %{}
+      {:ok, map} when is_map(map) -> map
+    end
   end
 
   @doc """

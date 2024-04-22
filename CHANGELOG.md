@@ -2,6 +2,14 @@
 
 **Note** `ex_money` 5.13.0 and later is supported on Elixir 1.11 and later versions only. It also requires `ex_cldr_numbers 2.31` or later.
 
+## Money v5.16.1
+
+This is the changelog for Money v5.16.1 released on April 23rd, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* `Money.sum/2` default exchange rates is always `%{}` even if the exchange rate server is not running. Thanks to @haste for the report. Closes #168.
+
 ## Money v5.16.0
 
 This is the changelog for Money v5.16.0 released on April 21st, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
