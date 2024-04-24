@@ -97,7 +97,7 @@ An optional callback module can also be defined.  This module defines a `rates_r
       exchange_rates_cache_module: Money.ExchangeRates.Cache.Ets,
       preload_historic_rates: nil,
       retriever_options: nil,
-      log_failure: :warn,
+      log_failure: :warning,
       log_info: :info,
       log_success: nil,
       json_library: Jason,
@@ -121,7 +121,7 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
 * `callback_module` defines a module that follows the `Money.ExchangeRates.Callback` behaviour whereby the function `rates_retrieved/2` is invoked after every successful retrieval of exchange rates.  The default is `Money.ExchangeRates.Callback`.
 
-* `log_failure` defines the log level at which api retrieval errors are logged.  The default is `:warn`.
+* `log_failure` defines the log level at which api retrieval errors are logged.  The default is `:warning`.
 
 * `log_success` defines the log level at which successful api retrieval notifications are logged.  The default is `nil` which means no logging.
 

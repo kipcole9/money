@@ -216,7 +216,7 @@ defmodule Money.ExchangeRates do
         Money.get_env(:exchange_rates_retrieve_every, @default_retrieval_interval, :maybe_integer),
       log_levels: %{
         success: Money.get_env(:log_success, nil),
-        failure: Money.get_env(:log_failure, :warn),
+        failure: Money.get_env(:log_failure, :warning),
         info: Money.get_env(:log_info, :info)
       },
       verify_peer: Money.get_env(:verify_peer, true, :boolean)

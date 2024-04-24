@@ -24,7 +24,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
         open_exchange_rates_url: "https://openexchangerates.org/alternative_api"
 
   """
-  require Logger
+
   alias Money.ExchangeRates.Retriever
 
   @behaviour Money.ExchangeRates
