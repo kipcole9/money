@@ -220,8 +220,8 @@ defmodule Money.ExchangeRates.Retriever do
     case get_etag(url) do
       {etag, date} ->
         [
-          {'If-None-Match', etag},
-          {'If-Modified-Since', date}
+          {String.to_charlist("If-None-Match"), etag},
+          {String.to_charlist("If-Modified-Since"), date}
         ]
 
       _ ->
@@ -230,8 +230,8 @@ defmodule Money.ExchangeRates.Retriever do
   end
 
   defp cache_etag(headers, url) do
-    etag = :proplists.get_value('etag', headers)
-    date = :proplists.get_value('date', headers)
+    etag = :proplists.get_value(String.to_charlist("etag"), headers)
+    date = :proplists.get_value(String.to_charlist("date"), headers)
 
     if etag?(etag, date) do
       :ets.insert(@etag_cache, {url, {etag, date}})

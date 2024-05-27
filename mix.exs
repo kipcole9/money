@@ -7,7 +7,7 @@ defmodule Money.Mixfile do
     [
       app: :ex_money,
       version: @version,
-      elixir: "~> 1.11",
+      elixir: "~> 1.12",
       name: "Money",
       source_url: "https://github.com/kipcole9/money",
       docs: docs(),
@@ -86,8 +86,6 @@ defmodule Money.Mixfile do
   defp deps do
     [
       {:ex_cldr_numbers, "~> 2.33"},
-      # {:ex_cldr_numbers, path: "../cldr_numbers"},
-
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:decimal, "~> 1.6 or ~> 2.0"},
       {:poison, "~> 3.0 or ~> 4.0 or ~> 5.0", optional: true},

@@ -603,14 +603,15 @@ defmodule Money do
   defp maybe_create_money(%{currency: false}, string, _options) do
     {:error,
      {Money.Invalid,
-      "A currency code, symbol or description must be specified but was not found in #{inspect(string)}"}}
+      "A currency code, symbol or description must be specified but " <>
+      "was not found in #{inspect(string)}"}}
   end
 
   # No currency was in the string so we'll derive it from
   # the locale
   defp maybe_create_money(%{currency: nil} = money_map, string, options) do
     backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
-    locale = Keyword.get(options, :locale, backend.get_locale)
+    locale = Keyword.get(options, :locale, backend.get_locale())
 
     with {:ok, backend} <- Cldr.validate_backend(backend),
          {:ok, locale} <- Cldr.validate_locale(locale, backend) do
@@ -624,7 +625,7 @@ defmodule Money do
 
   defp maybe_create_money(%{currency: currency, amount: amount}, _string, options) do
     backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
-    locale = Keyword.get(options, :locale, backend.get_locale)
+    locale = Keyword.get(options, :locale, backend.get_locale())
     currency = Kernel.to_string(currency)
 
     {only_filter, options} =
@@ -2473,7 +2474,7 @@ defmodule Money do
   end
 
   defp parse_decimal(string, nil, nil) do
-    parse_decimal(string, default_backend().get_locale, default_backend())
+    parse_decimal(string, default_backend().get_locale(), default_backend())
   end
 
   defp parse_decimal(string, nil, backend) do
