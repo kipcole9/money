@@ -24,9 +24,9 @@ This is the changelog for Money v5.16.0 released on April 21st, 2024.  For older
 
 ### Bug Fixes
 
-* WHen parsing numbers, use the localized number system separators where they exist. Thanks to @pshoukry for the report. Closes #167.
+* When parsing numbers, use the localized number system separators where they exist. Thanks to @pshoukry for the report. Closes #167.
 
-* Surface errors when starting the exchange rates retrieveer. Thanks to @danschultzer for the PR. Closes #165.
+* Surface errors when starting the exchange rates retriever. Thanks to @danschultzer for the PR. Closes #165.
 
 ### Enhancements
 
@@ -84,7 +84,7 @@ This is the changelog for Money v5.14.1 released on July 23rd, 2023.  For older 
 
 ### Bug Fixes
 
-* Fix `Looger.warn/1` warnings by moving to `Logger.warning/1`.
+* Fix `Logger.warn/1` warnings by moving to `Logger.warning/1`.
 
 * Fix failing test case.
 
