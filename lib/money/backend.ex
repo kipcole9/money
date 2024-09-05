@@ -539,13 +539,13 @@ defmodule Money.Backend do
         ## Options
 
         * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
-          by `Money.new/2`
+          by `Money.new/2`.
 
         ## Returns
 
         * `{:ok, money}` or
 
-        * `{:error, reason}`
+        * `{:error, reason}`.
 
         ## Example
 
@@ -568,7 +568,7 @@ defmodule Money.Backend do
         ## Arguments
 
         * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
-          by `Money.new/2`
+          by `Money.new/2`.
 
         ## Returns
 
@@ -598,9 +598,9 @@ defmodule Money.Backend do
         ## Arguments
 
         * `money` is any valid `t:Money.t/0` type returned
-          by `Money.new/2`
+          by `Money.new/2`.
 
-        * `number` is an integer, float or `t:Decimal.t/0`
+        * `number` is an integer, float or `t:Decimal.t/0`.
 
         > Note that multipling one `t:Money.t/0` by another is not supported.
 
@@ -632,7 +632,7 @@ defmodule Money.Backend do
         ## Arguments
 
         * `money` is any valid `t:Money.t/0` types returned
-          by `Money.new/2`
+          by `Money.new/2`.
 
         * `number` is an integer, float or `Decimal.t`
 
@@ -662,10 +662,10 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is any valid `t:Money.t/0` types returned
+        * `money` is any valid `t:Money.t/0` types returned.
           by `Money.new/2`
 
-        * `number` is an integer, float or `t:Decimal.t/0`
+        * `number` is an integer, float or `t:Decimal.t/0`.
 
         > Note that dividing one `t:Money.t/0` by another is not supported.
 
@@ -699,7 +699,7 @@ defmodule Money.Backend do
         * `money` is any valid `t:Money.t/0` types returned
           by `Money.new/2`
 
-        * `number` is an integer, float or `Decimal.t`
+        * `number` is an integer, float or `t:Decimal.t/0`
 
         ## Returns
 
@@ -754,13 +754,13 @@ defmodule Money.Backend do
         ## Arguments
 
         * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
-          by `Money.new/2`
+          by `Money.new/2`.
 
         ## Returns
 
         *  `:gt` | `:eq` | `:lt` or
 
-        * `{:error, {module(), String.t}}`
+        * `{:error, {module(), String.t}}`.
 
         ## Examples
 
@@ -791,13 +791,13 @@ defmodule Money.Backend do
         ## Arguments
 
         * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
-          by `Money.new/2`
+          by `Money.new/2`.
 
         ## Returns
 
         *  `:gt` | `:eq` | `:lt` or
 
-        * raises an exception
+        * raises an exception.
 
         ## Examples
 
@@ -817,7 +817,7 @@ defmodule Money.Backend do
         ## Arguments
 
         * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
-          by `Money.new/2`
+          by `Money.new/2`.
 
         ## Returns
 
@@ -854,13 +854,13 @@ defmodule Money.Backend do
         ## Arguments
 
         * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
-          by `Money.new/2`
+          by `Money.new/2`.
 
         ## Returns
 
         *  `-1` | `0` | `1` or
 
-        * raises an exception
+        * raises an exception.
 
         ## Examples
 
@@ -887,12 +887,12 @@ defmodule Money.Backend do
         derived as follows:
 
         1. Round the money amount to the required currency precision using
-        `Money.round/1`
+        `Money.round/1`.
 
-        2. Divide the result of step 1 by the integer divisor
+        2. Divide the result of step 1 by the integer divisor.
 
         3. Round the result of the division to the precision of the currency
-        using `Money.round/1`
+        using `Money.round/1`.
 
         4. Return two numbers: the result of the division and any remainder
         that could not be applied given the precision of the currency.
@@ -921,15 +921,15 @@ defmodule Money.Backend do
 
         ## Arguments
 
-        * `money` is a ``t:Money.t/0`` struct
+        * `money` is a `t:Money.t/0` struct.
 
-        * `opts` is a keyword list of options
+        * `options` is a keyword list of options.
 
         ## Options
 
           * `:rounding_mode` that defines how the number will be rounded.  See
             `Decimal.Context`.  The default is `:half_even` which is also known
-            as "banker's rounding"
+            as "banker's rounding".
 
           * `:currency_digits` which determines the rounding increment.
             The valid options are `:cash`, `:accounting` and `:iso` or
@@ -940,13 +940,13 @@ defmodule Money.Backend do
 
         There are two kinds of rounding applied:
 
-        1. Round to the appropriate number of fractional digits
+        1. Round to the appropriate number of fractional digits.
 
         3. Apply an appropriate rounding increment.  Most currencies
            round to the same precision as the number of decimal digits, but some
            such as `:CHF` round to a minimum such as `0.05` when its a cash
            amount. The rounding increment is applied when the option
-           `:currency_digits` is set to `:cash`
+           `:currency_digits` is set to `:cash`.
 
         ## Examples
 
@@ -963,7 +963,9 @@ defmodule Money.Backend do
             Money.new(:JPY, "124")
 
         """
-        @spec round(Elixir.Money.t(), Keyword.t()) :: Elixir.Money.t()
+        @spec round(Elixir.Money.t(), Keyword.t()) ::
+            Elixir.Money.t() | {:error, {module(), binary()}}
+
         def round(%Elixir.Money{} = money, options \\ []) do
           Elixir.Money.round(money, options)
         end
@@ -1266,7 +1268,7 @@ defmodule Money.Backend do
 
         """
         @spec from_integer(integer, Elixir.Money.currency_code(), Keyword.t()) ::
-                Elixir.Money.t() | {:error, module(), String.t()}
+                Elixir.Money.t() | {:error, {module(), String.t()}}
 
         def from_integer(amount, currency, options \\ []) when is_integer(amount) do
           Elixir.Money.from_integer(amount, currency, options)
@@ -1297,7 +1299,7 @@ defmodule Money.Backend do
 
         """
         @spec zero(Elixir.Money.currency_code() | Elixir.Money.t(), Keyword.t()) ::
-                Elixir.Money.t()
+                Elixir.Money.t() | {:error, {module(), binary()}}
 
         def zero(money, options \\ [])
 

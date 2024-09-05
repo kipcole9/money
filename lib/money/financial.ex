@@ -209,13 +209,12 @@ defmodule Money.Financial do
       Money.new(:USD, "7731.466833737959119743127888")
 
   """
-  @spec net_present_value(Money.t(), number, number) :: Money.t()
-
+  @spec net_present_value(Money.t(), float, number) :: Money.t()
   def net_present_value(%Money{currency: currency} = future_value, interest_rate, periods) do
     net_present_value(future_value, interest_rate, periods, Money.new(currency, 0))
   end
 
-  @spec net_present_value(Money.t(), number, number, Money.t()) :: Money.t()
+  @spec net_present_value(Money.t(), float, number, Money.t()) :: Money.t()
   def net_present_value(%Money{} = future_value, interest_rate, periods, %Money{} = investment) do
     present_value(future_value, interest_rate, periods)
     |> Money.sub!(investment)
@@ -228,7 +227,7 @@ defmodule Money.Financial do
     represented as a tuple of the form `{period, %Money{}}`
 
   """
-  @spec internal_rate_of_return(list({integer, Money.t()})) :: number()
+  @spec internal_rate_of_return(list({integer, Money.t()})) :: float()
   def internal_rate_of_return([{_period, %Money{}} | _other_flows] = flows) do
     # estimate_m = sum_of_inflows(flows)
     # |> Kernel./(abs(Math.to_float(amount)))

@@ -760,7 +760,7 @@ defmodule Money do
 
   """
   @spec to_string(Money.t(), Keyword.t() | Cldr.Number.Format.Options.t()) ::
-          {:ok, String.t()} | {:error, {atom, String.t()}}
+          {:ok, String.t()} | {:error, {module, String.t()}}
 
   def to_string(money, options \\ [])
 
@@ -1595,7 +1595,7 @@ defmodule Money do
       Money.new(:JPY, "124")
 
   """
-  @spec round(Money.t(), Keyword.t()) :: Money.t()
+  @spec round(Money.t(), Keyword.t()) :: Money.t() | {:error, {module(), binary()}}
   def round(money, opts \\ [])
 
   # Digital tokens don't have rounding
@@ -2164,24 +2164,28 @@ defmodule Money do
   defp digits_from_options(currency_data, options) when is_list(options) do
     {fractional_digits, options} = Keyword.pop(options, :fractional_digits)
 
-    with {:ok, digits} <- digits_from_options(currency_data, fractional_digits) do
+    with {:ok, digits} <- do_digits_from_options(currency_data, fractional_digits) do
       {:ok, -digits, options}
+    else
+      :error -> {:error, invalid_digits_error(fractional_digits)}
+      other -> other
     end
   end
 
-  defp digits_from_options(currency_data, :iso), do: Map.fetch(currency_data, :iso_digits)
-  defp digits_from_options(currency_data, nil), do: Map.fetch(currency_data, :iso_digits)
-  defp digits_from_options(currency_data, :cash), do: Map.fetch(currency_data, :cash_digits)
-  defp digits_from_options(currency_data, :accounting), do: Map.fetch(currency_data, :digits)
+  defp do_digits_from_options(currency_data, :iso), do: Map.fetch(currency_data, :iso_digits)
+  defp do_digits_from_options(currency_data, nil), do: Map.fetch(currency_data, :iso_digits)
+  defp do_digits_from_options(currency_data, :cash), do: Map.fetch(currency_data, :cash_digits)
+  defp do_digits_from_options(currency_data, :accounting), do: Map.fetch(currency_data, :digits)
 
-  defp digits_from_options(_currency_data, integer) when is_integer(integer) and integer >= 0,
+  defp do_digits_from_options(_currency_data, integer) when is_integer(integer) and integer >= 0,
     do: {:ok, integer}
 
-  defp digits_from_options(_currency_data, other),
-    do:
-      {:error,
-       {Money.InvalidDigitsError,
-        "Unknown or invalid :fractional_digits option found: #{inspect(other)}"}}
+  defp do_digits_from_options(_currency_data, other),
+    do: {:error, invalid_digits_error(other)}
+
+  defp invalid_digits_error(other), do:
+     {Money.InvalidDigitsError,
+      "Unknown or invalid :fractional_digits option found: #{inspect(other)}"}
 
   @doc """
   Return a zero amount `t:Money.t/0` in the given currency.
@@ -2189,7 +2193,7 @@ defmodule Money do
   ## Arguments
 
   * `money_or_currency` is either a `t:Money.t/0` or
-    a currency code
+    a currency code.
 
   * `options` is a keyword list of options passed
     to `Money.new/3`. The default is `[]`.
@@ -2207,7 +2211,7 @@ defmodule Money do
       {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
 
   """
-  @spec zero(currency_code | Money.t()) :: Money.t()
+  @spec zero(currency_code | Money.t()) :: Money.t() | {:error, {module(), binary()}}
 
   def zero(money_or_currency, options \\ [])
 

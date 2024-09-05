@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "5.17.0"
+  @version "5.17.1"
 
   def project do
     [
@@ -21,7 +21,14 @@ defmodule Money.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env()),
       dialyzer: [
         ignore_warnings: ".dialyzer_ignore_warnings",
-        plt_add_apps: ~w(inets jason mix phoenix_html gringotts)a
+        plt_add_apps: ~w(inets jason mix phoenix_html gringotts)a,
+        flags: [
+          :error_handling,
+          :unknown,
+          :underspecs,
+          :extra_return,
+          :missing_return
+        ]
       ],
       compilers: Mix.compilers()
     ]
@@ -88,14 +95,14 @@ defmodule Money.Mixfile do
       {:ex_cldr_numbers, "~> 2.33"},
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:decimal, "~> 1.6 or ~> 2.0"},
-      {:poison, "~> 3.0 or ~> 4.0 or ~> 5.0", optional: true},
+      {:poison, "~> 3.0 or ~> 4.0 or ~> 5.0 or ~> 6.0", optional: true},
       {:phoenix_html, "~> 2.0 or ~> 3.0 or ~> 4.0", optional: true},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:jason, "~> 1.0", optional: true},
-      {:stream_data, "~> 0.4", only: [:dev, :test]},
+      {:stream_data, "~> 1.0", only: [:dev, :test]},
       {:benchee, "~> 1.0", optional: true, only: :dev},
       {:exprof, "~> 0.2", only: :dev, runtime: false},
-      {:ex_doc, "0.30.9", only: [:dev, :release]},
+      {:ex_doc, "~> 0.31", only: [:dev, :release]},
 
       {:gringotts, "~> 1.1", optional: true}
     ]

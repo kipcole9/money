@@ -263,7 +263,8 @@ defmodule Money.Subscription do
 
   """
   # @doc since: "2.3.0"
-  @spec current_plan(Subscription.t() | map, Keyword.t()) :: Plan.t() | nil
+  @spec current_plan(Subscription.t() | map, Keyword.t()) ::
+      Plan.t() | {Change.t(), Plan.t()} | nil
 
   def current_plan(subscription, options \\ [])
 
@@ -988,6 +989,7 @@ defmodule Money.Subscription do
     end
   end
 
+  @dialyzer {:nowarn_function, raise_change_plan_options_error: 1}
   defp raise_change_plan_options_error(opt) do
     raise ArgumentError, "change_plan requires the the option #{inspect(opt)}"
   end

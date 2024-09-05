@@ -2,6 +2,16 @@
 
 **Note** `ex_money` 5.17.0 and later is supported on Elixir 1.12 and later versions only.
 
+## Money v5.17.1
+
+This is the changelog for Money v5.17.1 released on September 6th, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Update `poison` optional dependency to allow `~> 6.0`
+
+* Update `stream_data` test dependency to `~> 1.0`
+
 ## Money v5.17.0
 
 This is the changelog for Money v5.17.0 released on May 28th, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
