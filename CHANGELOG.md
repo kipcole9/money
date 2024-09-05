@@ -8,9 +8,13 @@ This is the changelog for Money v5.17.1 released on September 6th, 2024.  For ol
 
 ### Bug Fixes
 
-* Update `poison` optional dependency to allow `~> 6.0`
+* Update `poison` optional dependency to allow `~> 6.0`.
 
-* Update `stream_data` test dependency to `~> 1.0`
+* Update `stream_data` test dependency to `~> 1.0`.
+
+### Enhancements
+
+* Improve specs and broaden dialyzer configuration.
 
 ## Money v5.17.0
 
