@@ -1,5 +1,5 @@
 if Cldr.Config.ensure_compiled?(Jason) &&
-    !Money.exclude_protocol_implementation(Json.Encoder) do
+     !Money.exclude_protocol_implementation(Jason.Encoder) do
   defimpl Jason.Encoder, for: Money do
     def encode(struct, opts) do
       struct
