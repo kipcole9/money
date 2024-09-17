@@ -2,6 +2,18 @@
 
 **Note** `ex_money` 5.17.0 and later is supported on Elixir 1.12 and later versions only.
 
+## Money v5.17.2
+
+This is the changelog for Money v5.17.2 released on September 18th, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fix implementation of `Money.exclude_protocol_implementation/1` for `Jason.Encoder`. Thanks to @wkirschbaum for the PR. Closes #171.
+
+### Enhancements
+
+* Add  `Money.exclude_protocol_implementation/1` for `String.Chars`. Thanks to @wkirschbaum for the PR. Closes #172.
+
 ## Money v5.17.1
 
 This is the changelog for Money v5.17.1 released on September 6th, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
