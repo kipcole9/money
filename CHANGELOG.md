@@ -2,6 +2,14 @@
 
 **Note** `ex_money` 5.17.0 and later is supported on Elixir 1.12 and later versions only.
 
+## Money v5.18.0
+
+This is the changelog for Money v5.18.0 released on September 18th, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Adds `min/2`, `max/2`, `min!/2`, `max!/2`, `clamp/3`, `clamp!/3`, `negate/1`, `negate!/1` and `within?/3`.
+
 ## Money v5.17.2
 
 This is the changelog for Money v5.17.2 released on September 18th, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

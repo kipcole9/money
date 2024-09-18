@@ -906,7 +906,7 @@ defmodule Money do
   end
 
   @doc """
-  The absolute value of a `Money` amount.
+  The absolute value of a `t:Money.t/0` amount.
   Returns a `t:Money.t/0` type with a positive sign for the amount.
 
   ## Arguments
@@ -936,7 +936,7 @@ defmodule Money do
   ## Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
   ## Returns
 
@@ -976,12 +976,12 @@ defmodule Money do
   end
 
   @doc """
-  Add two `Money` values and raise on error.
+  Add two `t:Money.t/0` values or raise on error.
 
   ## Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
   ## Returns
 
@@ -1008,18 +1008,18 @@ defmodule Money do
   end
 
   @doc """
-  Subtract one `Money` value struct from another.
+  Subtract one `t:Money.t/0` value struct from another.
 
   ## Options
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
   ## Returns
 
   * `{:ok, money}` or
 
-  * `{:error, reason}`
+  * `{:error, reason}`.
 
   ## Example
 
@@ -1052,13 +1052,13 @@ defmodule Money do
   ## Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
   ## Returns
 
   * a `t:Money.t/0` struct or
 
-  * raises an exception
+  * raises an exception.
 
   ## Examples
 
@@ -1084,11 +1084,11 @@ defmodule Money do
   ## Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
-  * `number` is an integer, float or `Decimal.t`
+  * `number` is an integer, float or `t:Decimal.t/0`.
 
-  > Note that multipling one %Money{} by another is not supported.
+  > Note that multipling one `t:Money.t/0` by another is not supported.
 
   ## Returns
 
@@ -1129,10 +1129,10 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any valid `t:Money.t/0` types returned
-    by `Money.new/2`
+  * `money` is any valid `t:Money.t/0` type returned
+    by `Money.new/2`.
 
-  * `number` is an integer, float or `Decimal.t`
+  * `number` is an integer, float or `t:Decimal.t/0`.
 
   ## Returns
 
@@ -1236,6 +1236,396 @@ defmodule Money do
       {:ok, result} -> result
       {:error, {exception, message}} -> raise exception, message
     end
+  end
+
+  @doc """
+  Return the minimum of two `t:Money.t/0` amounts.
+
+  ## Arguments
+
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
+    by `Money.new/2`. `money_1` and `money_2` should be of the same
+    currency.
+
+  ## Returns
+
+  * `{:ok, minimum_money}` or
+
+  * `{:error, reason}`
+
+  ## Example
+
+      iex> Money.min(Money.new(:USD, 200), Money.new(:USD, 300))
+      {:ok, Money.new(:USD, 200)}
+
+      iex> Money.min(Money.new(:USD, 200), Money.new(:AUD, 200))
+      {:error,
+        {ArgumentError, "Cannot compare monies with different currencies. Received :USD and :AUD."}}
+
+  """
+  @doc since: "5.18.0"
+
+  @spec min(money_1 :: Money.t(), money_2 :: Money.t()) ::
+   {:ok, Money.t()} | {:error, {module(), String.t()}}
+
+  def min(%Money{currency: same_currency} = money_1, %Money{currency: same_currency} = money_2) do
+    case compare(money_1, money_2) do
+      :gt -> {:ok, money_2}
+      :eq -> {:ok, money_2}
+      :lt -> {:ok, money_1}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  def min(%Money{currency: code_a}, %Money{currency: code_b}) do
+    {:error, compare_error(code_a, code_b)}
+  end
+
+  @doc """
+  Return the maximum of two `t:Money.t/0` amounts.
+
+  ## Arguments
+
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
+    by `Money.new/2`. `money_1` and `money_2` should be of the same
+    currency.
+
+  ## Returns
+
+  * `{:ok, maximum_money}` or
+
+  * `{:error, reason}`
+
+  ## Example
+
+      iex> Money.max(Money.new(:USD, 200), Money.new(:USD, 300))
+      {:ok, Money.new(:USD, 300)}
+
+      iex> Money.max(Money.new(:USD, 200), Money.new(:AUD, 200))
+      {:error,
+        {ArgumentError, "Cannot compare monies with different currencies. Received :USD and :AUD."}}
+
+  """
+  @doc since: "5.18.0"
+
+  @spec max(money_1 :: Money.t(), money_2 :: Money.t()) ::
+    {:ok, Money.t()} | {:error, {module(), String.t()}}
+
+  def max(%Money{currency: same_currency} = money_1, %Money{currency: same_currency} = money_2) do
+    case compare(money_1, money_2) do
+      :lt -> {:ok, money_2}
+      :eq -> {:ok, money_2}
+      :gt -> {:ok, money_1}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  def max(%Money{currency: code_a}, %Money{currency: code_b}) do
+    {:error, compare_error(code_a, code_b)}
+  end
+
+  @doc """
+  Return the minimum of two `t:Money.t/0` amounts or
+  raises an exception.
+
+  ## Arguments
+
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
+    by `Money.new/2`. `money_1` and `money_2` should be of the same
+    currency.
+
+  ## Returns
+
+  * `minimum_money` or
+
+  * raises an exception.
+
+  ## Example
+
+      iex> Money.min!(Money.new(:USD, 200), Money.new(:USD, 300))
+      Money.new(:USD, 200)
+
+      iex> Money.min!(Money.new(:USD, 200), Money.new(:AUD, 200))
+      ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :AUD.
+
+  """
+  @doc since: "5.18.0"
+
+  @spec min!(money_1 :: Money.t(), money_2 :: Money.t()) ::
+   Money.t() | no_return()
+
+  def min!(%Money{currency: same_currency} = money_1, %Money{currency: same_currency} = money_2) do
+    case compare(money_1, money_2) do
+      :gt -> money_2
+      :eq -> money_2
+      :lt -> money_1
+      {:error, {exception, reason}} -> raise exception, reason
+    end
+  end
+
+  def min!(%Money{currency: code_a}, %Money{currency: code_b}) do
+    {exception, reason} = compare_error(code_a, code_b)
+    raise exception, reason
+  end
+
+  @doc """
+  Return the maximum of two `t:Money.t/0` amounts or
+  raises an exception.
+
+  ## Arguments
+
+  * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
+    by `Money.new/2`. `money_1` and `money_2` should be of the same
+    currency.
+
+  ## Returns
+
+  * `maximum_money` or
+
+  * raises an exception.
+
+  ## Example
+
+      iex> Money.max!(Money.new(:USD, 200), Money.new(:USD, 300))
+      Money.new(:USD, 300)
+
+      iex> Money.max!(Money.new(:USD, 200), Money.new(:AUD, 200))
+      ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :AUD.
+
+  """
+  @doc since: "5.18.0"
+
+  @spec max!(money_1 :: Money.t(), money_2 :: Money.t()) ::
+    Money.t() | no_return()
+
+  def max!(%Money{currency: same_currency} = money_1, %Money{currency: same_currency} = money_2) do
+    case compare(money_1, money_2) do
+      :lt -> money_2
+      :eq -> money_2
+      :gt -> money_1
+      {:error, {exception, reason}} -> raise exception, reason
+    end
+  end
+
+  def max!(%Money{currency: code_a}, %Money{currency: code_b}) do
+    {exception, reason} = compare_error(code_a, code_b)
+    raise exception, reason
+  end
+
+  @doc """
+  Clamps a `t:Money.t/0` to be in the range of `minimum`
+  and `maximum`.
+
+  ### Arguments
+
+  * `money`, `minimum` and `maximum` are any valid `t:Money.t/0` types returned
+    by `Money.new/2`. `They should be of the same
+    currency.
+
+  ### Returns
+
+  * `{:ok, money]` where `money` is clamped to the minimum or maximum if required.
+      * If `money` is within the range `minimum..maximum` then `money` is returned unchanged.
+      * If it is less than `minimum` then `minimum` is returned.
+      * If it is greater than `maximum` then `maximum` is returned.
+
+  * or `{:error, {module, reason}}`.
+
+  ### Examples
+
+      iex> Money.clamp(Money.new(:USD, 100), Money.new(:USD, 50), Money.new(:USD, 200))
+      {:ok, Money.new(:USD, 100)}
+
+      iex> Money.clamp(Money.new(:USD, 300), Money.new(:USD, 50), Money.new(:USD, 200))
+      {:ok, Money.new(:USD, 200)}
+
+      iex> Money.clamp(Money.new(:USD, 10), Money.new(:USD, 50), Money.new(:USD, 200))
+      {:ok, Money.new(:USD, 50)}
+
+      iex> Money.clamp(Money.new(:USD, 10), Money.new(:USD, 300), Money.new(:USD, 200))
+      {:error,
+        {ArgumentError,
+          "Minimum must be less than maximum. Found Money.new(:USD, \\"300\\") and Money.new(:USD, \\"200\\")"}}
+
+      iex> Money.clamp(Money.new(:USD, 10), Money.new(:AUD, 300), Money.new(:EUR, 200))
+      {:error, {ArgumentError, "Cannot compare monies with different currencies. Received :USD, :AUD and :EUR"}}
+
+  """
+  @doc since: "5.18.0"
+
+  @spec clamp(money :: Money.t(), minimum :: Money.t(), maximum :: Money.t()) ::
+    {:ok, Money.t()} | {:error, {module(), String.t()}}
+
+  def clamp(%__MODULE__{currency: same_currency} = money, %__MODULE__{currency: same_currency} = minimum, %__MODULE__{currency: same_currency} = maximum) do
+    if compare(minimum, maximum) == :lt do
+      Money.max(minimum, Money.min!(maximum, money))
+    else
+      {:error, {ArgumentError, "Minimum must be less than maximum. Found #{inspect minimum} and #{inspect(maximum)}"}}
+    end
+  end
+
+  def clamp(%Money{currency: code_a}, %Money{currency: code_b}, %Money{currency: code_c}) do
+    {:error, compare_error(code_a, code_b, code_c)}
+  end
+
+  @doc """
+  Clamps a `t:Money.t/0` to be in the range of `minimum`
+  and `maximum` or raises an exception.
+
+  ### Arguments
+
+  * `money`, `minimum` and `maximum` are any valid `t:Money.t/0` types returned
+    by `Money.new/2`. `They should be of the same
+    currency.
+
+  ### Returns
+
+  * `{:ok, money]` where `money` is clamped to the minimum or maximum if required.
+      * If `money` is within the range `minimum..maximum` then `money` is returned unchanged.
+      * If it is less than `minimum` then `minimum` is returned.
+      * If it is greater than `maximum` then `maximum` is returned.
+
+  * or `{:error, {module, reason}}`.
+
+  ### Examples
+
+      iex> Money.clamp!(Money.new(:USD, 100), Money.new(:USD, 50), Money.new(:USD, 200))
+      Money.new(:USD, 100)
+
+      iex> Money.clamp!(Money.new(:USD, 300), Money.new(:USD, 50), Money.new(:USD, 200))
+      Money.new(:USD, 200)
+
+      iex> Money.clamp!(Money.new(:USD, 10), Money.new(:USD, 50), Money.new(:USD, 200))
+      Money.new(:USD, 50)
+
+      iex> Money.clamp!(Money.new(:USD, 10), Money.new(:USD, 300), Money.new(:USD, 200))
+      ** (ArgumentError) Minimum must be less than maximum. Found Money.new(:USD, "300") and Money.new(:USD, "200")
+
+      iex> Money.clamp!(Money.new(:USD, 10), Money.new(:AUD, 300), Money.new(:EUR, 200))
+      ** (ArgumentError) Cannot compare monies with different currencies. Received :USD, :AUD and :EUR
+
+  """
+  @doc since: "5.18.0"
+
+  @spec clamp!(money :: Money.t(), minimum :: Money.t(), maximum :: Money.t()) ::
+    Money.t() | no_return()
+
+  def clamp!(%__MODULE__{currency: same_currency} = money, %__MODULE__{currency: same_currency} = minimum, %__MODULE__{currency: same_currency} = maximum) do
+    if compare(minimum, maximum) == :lt do
+      Money.max!(minimum, Money.min!(maximum, money))
+    else
+      raise ArgumentError, "Minimum must be less than maximum. Found #{inspect minimum} and #{inspect(maximum)}"
+    end
+  end
+
+  def clamp!(%Money{currency: code_a}, %Money{currency: code_b}, %Money{currency: code_c}) do
+    {exception, reason} = compare_error(code_a, code_b, code_c)
+    raise exception, reason
+  end
+
+  @doc """
+  Returns a boolean indicating if the `t:Money.t/0` is in the
+  range `minimum..maximum`.
+
+  ### Arguments
+
+  * `money`, `minimum` and `maximum` are any valid `t:Money.t/0` types returned
+    by `Money.new/2`. `They should be of the same
+    currency.
+
+  ### Returns
+
+  * `true` or `false`
+
+  ### Examples
+
+      iex> Money.within?(Money.new(:USD, 100), Money.new(:USD, 50), Money.new(:USD, 200))
+      true
+
+      iex> Money.within?(Money.new(:USD, 10), Money.new(:USD, 50), Money.new(:USD, 200))
+      false
+
+      iex> Money.within?(Money.new(:USD, 100), Money.new(:USD, 300), Money.new(:USD, 200))
+      ** (ArgumentError) Minimum must be less than maximum. Found Money.new(:USD, "300") and Money.new(:USD, "200")
+
+      iex> Money.within?(Money.new(:USD, 10), Money.new(:AUD, 300), Money.new(:EUR, 200))
+      ** (ArgumentError) Cannot compare monies with different currencies. Received :USD, :AUD and :EUR
+
+  """
+  @doc since: "5.18.0"
+
+  @spec within?(money :: Money.t(), minimum :: Money.t(), maximum :: Money.t()) :: boolean()
+
+  def within?(%__MODULE__{currency: same_currency} = money, %__MODULE__{currency: same_currency} = minimum, %__MODULE__{currency: same_currency} = maximum) do
+    if compare(minimum, maximum) == :lt do
+      compare(money, minimum) in [:gt, :eq] && compare(money, maximum) in [:lt, :eq]
+    else
+      raise ArgumentError, "Minimum must be less than maximum. Found #{inspect minimum} and #{inspect(maximum)}"
+    end
+  end
+
+  def within?(%Money{currency: code_a}, %Money{currency: code_b}, %Money{currency: code_c}) do
+    {exception, reason} = compare_error(code_a, code_b, code_c)
+    raise exception, reason
+  end
+
+  @doc """
+  Negate a `t:Money.t/0` value.
+
+  ### Argument
+
+  * `money_1` is any valid `t:Money.t/0` type.
+
+  ### Returns
+
+  * `{:ok, negated_money}` with the amount negated.
+
+  ### Example
+
+      iex> Money.negate(Money.new(:USD, 200))
+      {:ok, Money.new(:USD, -200)}
+
+      iex> Money.negate(Money.new(:USD, -200))
+      {:ok, Money.new(:USD, 200)}
+
+  """
+  @doc since: "5.18.0"
+
+  @spec negate(money :: Money.t()) :: {:ok, Money.t()}
+
+  def negate(%__MODULE__{amount: amount} = money) do
+    {:ok, Map.put(money, :amount, Decimal.negate(amount))}
+  end
+
+  @doc """
+  Negate a `t:Money.t/0` value or raises an
+  exception.
+
+  ### Argument
+
+  * `money_1` is any valid `t:Money.t/0` type.
+
+  ### Returns
+
+  * `negated_money` with the amount negated or
+
+  * raises an exception.
+
+  ### Example
+
+      iex> Money.negate!(Money.new(:USD, 200))
+      Money.new(:USD, -200)
+
+      iex> Money.negate!(Money.new(:USD, -200))
+      Money.new(:USD, 200)
+
+  """
+  @doc since: "5.18.0"
+
+  @spec negate!(money :: Money.t()) :: Money.t() | no_return()
+
+  def negate!(%__MODULE__{amount: amount} = money) do
+    Map.put(money, :amount, Decimal.negate(amount))
   end
 
   @doc """
@@ -1384,10 +1774,19 @@ defmodule Money do
   end
 
   def compare(%Money{currency: code_a}, %Money{currency: code_b}) do
-    {:error,
-     {ArgumentError,
-      "Cannot compare monies with different currencies. " <>
-        "Received #{inspect(code_a)} and #{inspect(code_b)}."}}
+    {:error, compare_error(code_a, code_b)}
+  end
+
+  defp compare_error(code_a, code_b) do
+    {ArgumentError,
+     "Cannot compare monies with different currencies. " <>
+       "Received #{inspect(code_a)} and #{inspect(code_b)}."}
+  end
+
+  defp compare_error(code_a, code_b, code_c) do
+    {ArgumentError,
+     "Cannot compare monies with different currencies. " <>
+       "Received #{inspect(code_a)}, #{inspect(code_b)} and #{inspect(code_c)}"}
   end
 
   @doc """
