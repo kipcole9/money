@@ -264,7 +264,7 @@ defmodule Money.Subscription do
   """
   # @doc since: "2.3.0"
   @spec current_plan(Subscription.t() | map, Keyword.t()) ::
-      Plan.t() | {Change.t(), Plan.t()} | nil
+          Plan.t() | {Change.t(), Plan.t()} | nil
 
   def current_plan(subscription, options \\ [])
 

@@ -10,6 +10,5 @@ defmodule Money.DigitalToken.Test do
 
   test "Formatting digital token" do
     assert {:ok, "₿ 100.234235"} = Money.to_string(Money.new("BTC", "100.234235"))
-
   end
 end

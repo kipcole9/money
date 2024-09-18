@@ -213,7 +213,7 @@ defmodule Money.ExchangeRates.Retriever do
   end
 
   defp process_response({:error, reason}, _url, _config) do
-    {:error, {Money.ExchangeRateError, "#{inspect reason}"}}
+    {:error, {Money.ExchangeRateError, "#{inspect(reason)}"}}
   end
 
   defp if_none_match_header(url) do
@@ -473,7 +473,9 @@ defmodule Money.ExchangeRates.Retriever do
   defp seconds(milliseconds) do
     seconds = div(milliseconds, 1000)
     plural = if seconds == 1, do: "second", else: "seconds"
-    {:ok, formatted_seconds} = Cldr.Number.to_string(seconds, backend: Money.get_env(:default_cldr_backend))
+
+    {:ok, formatted_seconds} =
+      Cldr.Number.to_string(seconds, backend: Money.get_env(:default_cldr_backend))
 
     {formatted_seconds, plural}
   end
@@ -481,5 +483,4 @@ defmodule Money.ExchangeRates.Retriever do
   defp exchange_rate_service_error do
     {Money.ExchangeRateError, "Exchange rate service does not appear to be running"}
   end
-
 end

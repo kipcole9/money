@@ -14,7 +14,7 @@ defimpl Inspect, for: Money do
   end
 
   def do_inspect(%Money{format_options: []} = money, _opts) do
-    "Money.new(#{inspect(money.currency)}, #{inspect Decimal.to_string(money.amount)})"
+    "Money.new(#{inspect(money.currency)}, #{inspect(Decimal.to_string(money.amount))})"
   end
 
   def do_inspect(money, _opts) do
@@ -24,6 +24,6 @@ defimpl Inspect, for: Money do
       |> String.trim_leading("[")
       |> String.trim_trailing("]")
 
-    "Money.new(#{inspect money.currency}, #{inspect Decimal.to_string(money.amount)}, #{format_options})"
+    "Money.new(#{inspect(money.currency)}, #{inspect(Decimal.to_string(money.amount))}, #{format_options})"
   end
 end

@@ -604,7 +604,7 @@ defmodule Money do
     {:error,
      {Money.Invalid,
       "A currency code, symbol or description must be specified but " <>
-      "was not found in #{inspect(string)}"}}
+        "was not found in #{inspect(string)}"}}
   end
 
   # No currency was in the string so we'll derive it from
@@ -1266,7 +1266,7 @@ defmodule Money do
   @doc since: "5.18.0"
 
   @spec min(money_1 :: Money.t(), money_2 :: Money.t()) ::
-   {:ok, Money.t()} | {:error, {module(), String.t()}}
+          {:ok, Money.t()} | {:error, {module(), String.t()}}
 
   def min(%Money{currency: same_currency} = money_1, %Money{currency: same_currency} = money_2) do
     case compare(money_1, money_2) do
@@ -1309,7 +1309,7 @@ defmodule Money do
   @doc since: "5.18.0"
 
   @spec max(money_1 :: Money.t(), money_2 :: Money.t()) ::
-    {:ok, Money.t()} | {:error, {module(), String.t()}}
+          {:ok, Money.t()} | {:error, {module(), String.t()}}
 
   def max(%Money{currency: same_currency} = money_1, %Money{currency: same_currency} = money_2) do
     case compare(money_1, money_2) do
@@ -1352,7 +1352,7 @@ defmodule Money do
   @doc since: "5.18.0"
 
   @spec min!(money_1 :: Money.t(), money_2 :: Money.t()) ::
-   Money.t() | no_return()
+          Money.t() | no_return()
 
   def min!(%Money{currency: same_currency} = money_1, %Money{currency: same_currency} = money_2) do
     case compare(money_1, money_2) do
@@ -1396,7 +1396,7 @@ defmodule Money do
   @doc since: "5.18.0"
 
   @spec max!(money_1 :: Money.t(), money_2 :: Money.t()) ::
-    Money.t() | no_return()
+          Money.t() | no_return()
 
   def max!(%Money{currency: same_currency} = money_1, %Money{currency: same_currency} = money_2) do
     case compare(money_1, money_2) do
@@ -1454,13 +1454,19 @@ defmodule Money do
   @doc since: "5.18.0"
 
   @spec clamp(money :: Money.t(), minimum :: Money.t(), maximum :: Money.t()) ::
-    {:ok, Money.t()} | {:error, {module(), String.t()}}
+          {:ok, Money.t()} | {:error, {module(), String.t()}}
 
-  def clamp(%__MODULE__{currency: same_currency} = money, %__MODULE__{currency: same_currency} = minimum, %__MODULE__{currency: same_currency} = maximum) do
+  def clamp(
+        %__MODULE__{currency: same_currency} = money,
+        %__MODULE__{currency: same_currency} = minimum,
+        %__MODULE__{currency: same_currency} = maximum
+      ) do
     if compare(minimum, maximum) == :lt do
       Money.max(minimum, Money.min!(maximum, money))
     else
-      {:error, {ArgumentError, "Minimum must be less than maximum. Found #{inspect minimum} and #{inspect(maximum)}"}}
+      {:error,
+       {ArgumentError,
+        "Minimum must be less than maximum. Found #{inspect(minimum)} and #{inspect(maximum)}"}}
     end
   end
 
@@ -1508,13 +1514,18 @@ defmodule Money do
   @doc since: "5.18.0"
 
   @spec clamp!(money :: Money.t(), minimum :: Money.t(), maximum :: Money.t()) ::
-    Money.t() | no_return()
+          Money.t() | no_return()
 
-  def clamp!(%__MODULE__{currency: same_currency} = money, %__MODULE__{currency: same_currency} = minimum, %__MODULE__{currency: same_currency} = maximum) do
+  def clamp!(
+        %__MODULE__{currency: same_currency} = money,
+        %__MODULE__{currency: same_currency} = minimum,
+        %__MODULE__{currency: same_currency} = maximum
+      ) do
     if compare(minimum, maximum) == :lt do
       Money.max!(minimum, Money.min!(maximum, money))
     else
-      raise ArgumentError, "Minimum must be less than maximum. Found #{inspect minimum} and #{inspect(maximum)}"
+      raise ArgumentError,
+            "Minimum must be less than maximum. Found #{inspect(minimum)} and #{inspect(maximum)}"
     end
   end
 
@@ -1556,11 +1567,16 @@ defmodule Money do
 
   @spec within?(money :: Money.t(), minimum :: Money.t(), maximum :: Money.t()) :: boolean()
 
-  def within?(%__MODULE__{currency: same_currency} = money, %__MODULE__{currency: same_currency} = minimum, %__MODULE__{currency: same_currency} = maximum) do
+  def within?(
+        %__MODULE__{currency: same_currency} = money,
+        %__MODULE__{currency: same_currency} = minimum,
+        %__MODULE__{currency: same_currency} = maximum
+      ) do
     if compare(minimum, maximum) == :lt do
       compare(money, minimum) in [:gt, :eq] && compare(money, maximum) in [:lt, :eq]
     else
-      raise ArgumentError, "Minimum must be less than maximum. Found #{inspect minimum} and #{inspect(maximum)}"
+      raise ArgumentError,
+            "Minimum must be less than maximum. Found #{inspect(minimum)} and #{inspect(maximum)}"
     end
   end
 
@@ -1699,8 +1715,11 @@ defmodule Money do
 
   """
   @doc since: "5.3.0"
-  @spec sum([t(), ...], ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}) ::
-    {:ok, t} | {:error, {module(), String.t()}}
+  @spec sum(
+          [t(), ...],
+          ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
+        ) ::
+          {:ok, t} | {:error, {module(), String.t()}}
 
   def sum(money_list, rates \\ latest_rates_or_empty_map())
 
@@ -2232,9 +2251,9 @@ defmodule Money do
   end
 
   def to_currency(%Money{currency: from_currency, amount: amount} = money, to_currency, rates)
-      when is_atom(to_currency) or is_digital_token(to_currency) and is_map(rates) do
+      when is_atom(to_currency) or (is_digital_token(to_currency) and is_map(rates)) do
     with {:ok, to_currency_code} <- validate_currency(to_currency),
-        {:ok, cross_rate} <- cross_rate(from_currency, to_currency_code, rates) do
+         {:ok, cross_rate} <- cross_rate(from_currency, to_currency_code, rates) do
       converted_amount = Decimal.mult(amount, cross_rate)
       {:ok, %{money | currency: to_currency, amount: converted_amount}}
     end
@@ -2582,9 +2601,10 @@ defmodule Money do
   defp do_digits_from_options(_currency_data, other),
     do: {:error, invalid_digits_error(other)}
 
-  defp invalid_digits_error(other), do:
-     {Money.InvalidDigitsError,
-      "Unknown or invalid :fractional_digits option found: #{inspect(other)}"}
+  defp invalid_digits_error(other),
+    do:
+      {Money.InvalidDigitsError,
+       "Unknown or invalid :fractional_digits option found: #{inspect(other)}"}
 
   @doc """
   Return a zero amount `t:Money.t/0` in the given currency.
@@ -2684,7 +2704,9 @@ defmodule Money do
   else
     def integer?(%{amount: %Decimal{coef: :NaN}}), do: false
     def integer?(%{amount: %Decimal{coef: :inf}}), do: false
-    def integer?(%{amount: %Decimal{coef: coef, exp: exp}}), do: exp >= 0 or zero_after_dot?(coef, exp)
+
+    def integer?(%{amount: %Decimal{coef: coef, exp: exp}}),
+      do: exp >= 0 or zero_after_dot?(coef, exp)
 
     defp zero_after_dot?(coef, exp) when coef >= 10 and exp < 0,
       do: Kernel.rem(coef, 10) == 0 and zero_after_dot?(Kernel.div(coef, 10), exp + 1)
@@ -2855,7 +2877,7 @@ defmodule Money do
   end
 
   defp get_rate(currency, rates) do
-    keys = is_atom(currency) && [currency, Atom.to_string(currency)] || [currency]
+    keys = (is_atom(currency) && [currency, Atom.to_string(currency)]) || [currency]
 
     rates
     |> Map.take(keys)

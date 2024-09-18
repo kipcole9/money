@@ -964,7 +964,7 @@ defmodule Money.Backend do
 
         """
         @spec round(Elixir.Money.t(), Keyword.t()) ::
-            Elixir.Money.t() | {:error, {module(), binary()}}
+                Elixir.Money.t() | {:error, {module(), binary()}}
 
         def round(%Elixir.Money{} = money, options \\ []) do
           Elixir.Money.round(money, options)

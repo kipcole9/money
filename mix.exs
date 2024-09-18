@@ -103,7 +103,6 @@ defmodule Money.Mixfile do
       {:benchee, "~> 1.0", optional: true, only: :dev},
       {:exprof, "~> 0.2", only: :dev, runtime: false},
       {:ex_doc, "~> 0.31", only: [:dev, :release]},
-
       {:gringotts, "~> 1.1", optional: true}
     ]
     |> Enum.reject(&is_nil/1)

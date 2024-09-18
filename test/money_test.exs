@@ -129,18 +129,22 @@ defmodule MoneyTest do
 
   test "that creating a money with a NaN is invalid" do
     assert Money.new(:USD, "NaN") ==
-             {:error, {Money.InvalidAmountError, "Invalid money amount. Found Decimal.new(\"NaN\")."}}
+             {:error,
+              {Money.InvalidAmountError, "Invalid money amount. Found Decimal.new(\"NaN\")."}}
 
     assert Money.new(:USD, "-NaN") ==
-             {:error, {Money.InvalidAmountError, "Invalid money amount. Found Decimal.new(\"-NaN\")."}}
+             {:error,
+              {Money.InvalidAmountError, "Invalid money amount. Found Decimal.new(\"-NaN\")."}}
   end
 
   test "that creating a money with a Inf is invalid" do
     assert Money.new(:USD, "Inf") ==
-             {:error, {Money.InvalidAmountError, "Invalid money amount. Found Decimal.new(\"Infinity\")."}}
+             {:error,
+              {Money.InvalidAmountError, "Invalid money amount. Found Decimal.new(\"Infinity\")."}}
 
     assert Money.new(:USD, "-Inf") ==
-             {:error, {Money.InvalidAmountError, "Invalid money amount. Found Decimal.new(\"-Infinity\")."}}
+             {:error,
+              {Money.InvalidAmountError, "Invalid money amount. Found Decimal.new(\"-Infinity\")."}}
   end
 
   test "that creating a money with a string amount that is invalid returns and error" do
@@ -430,8 +434,12 @@ defmodule MoneyTest do
 
   test "money conversion with digital_token" do
     rates = %{:USD => Decimal.new(50_000), "4H95J0R2X" => Decimal.new(1)}
-    assert Money.to_currency(Money.new(:USD, 50_000), "4H95J0R2X", rates) == {:ok, Money.new("4H95J0R2X", "1.00000")}
-    assert Money.to_currency(Money.new("4H95J0R2X", 1), :USD, rates) == {:ok, Money.new(:USD, 50_000)}
+
+    assert Money.to_currency(Money.new(:USD, 50_000), "4H95J0R2X", rates) ==
+             {:ok, Money.new("4H95J0R2X", "1.00000")}
+
+    assert Money.to_currency(Money.new("4H95J0R2X", 1), :USD, rates) ==
+             {:ok, Money.new(:USD, 50_000)}
   end
 
   test "money to_string" do

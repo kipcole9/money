@@ -193,7 +193,7 @@ defmodule Money.ExchangeRates.Supervisor do
   defp start_retriever! do
     case ExchangeRates.Retriever.start() do
       {:ok, _pid} -> :ok
-      {:error, reason} -> raise "Unhandled error starting retriever; #{inspect reason}"
+      {:error, reason} -> raise "Unhandled error starting retriever; #{inspect(reason)}"
     end
   end
 end
