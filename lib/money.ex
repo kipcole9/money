@@ -1294,7 +1294,7 @@ defmodule Money do
 
   * `{:ok, maximum_money}` or
 
-  * `{:error, reason}`
+  * `{:error, reason}`.
 
   ## Example
 
@@ -1414,22 +1414,21 @@ defmodule Money do
 
   @doc """
   Clamps a `t:Money.t/0` to be in the range of `minimum`
-  and `maximum`.
+  to `maximum`.
 
   ### Arguments
 
   * `money`, `minimum` and `maximum` are any valid `t:Money.t/0` types returned
-    by `Money.new/2`. `They should be of the same
-    currency.
+    by `Money.new/2`. They should be of the same currency.
 
   ### Returns
 
-  * `{:ok, money]` where `money` is clamped to the minimum or maximum if required.
+  * `{:ok, money]` where `money` is clamped to the `minimum` or `maximum` if required.
       * If `money` is within the range `minimum..maximum` then `money` is returned unchanged.
-      * If it is less than `minimum` then `minimum` is returned.
-      * If it is greater than `maximum` then `maximum` is returned.
+      * If `money` is less than `minimum` then `minimum` is returned.
+      * If `money` is greater than `maximum` then `maximum` is returned.
 
-  * or `{:error, {module, reason}}`.
+  * or `{:error, reason}`.
 
   ### Examples
 
@@ -1476,22 +1475,21 @@ defmodule Money do
 
   @doc """
   Clamps a `t:Money.t/0` to be in the range of `minimum`
-  and `maximum` or raises an exception.
+  to `maximum` or raises an exception.
 
   ### Arguments
 
   * `money`, `minimum` and `maximum` are any valid `t:Money.t/0` types returned
-    by `Money.new/2`. `They should be of the same
-    currency.
+    by `Money.new/2`. They should be of the same currency.
 
   ### Returns
 
-  * `{:ok, money]` where `money` is clamped to the minimum or maximum if required.
+  * `money` where `money` is clamped to the `minimum` or `maximum` if required.
       * If `money` is within the range `minimum..maximum` then `money` is returned unchanged.
-      * If it is less than `minimum` then `minimum` is returned.
-      * If it is greater than `maximum` then `maximum` is returned.
+      * If `money` is less than `minimum` then `minimum` is returned.
+      * If `money` is greater than `maximum` then `maximum` is returned.
 
-  * or `{:error, {module, reason}}`.
+  * or `{:error, reason}`.
 
   ### Examples
 
@@ -1541,12 +1539,11 @@ defmodule Money do
   ### Arguments
 
   * `money`, `minimum` and `maximum` are any valid `t:Money.t/0` types returned
-    by `Money.new/2`. `They should be of the same
-    currency.
+    by `Money.new/2`. They should be of the same currency.
 
   ### Returns
 
-  * `true` or `false`
+  * `true` or `false`.
 
   ### Examples
 
