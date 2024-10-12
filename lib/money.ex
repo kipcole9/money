@@ -1926,36 +1926,52 @@ defmodule Money do
   1. Round the money amount to the required currency precision using
   `Money.round/1`
 
-  2. Divide the result of step 1 by the integer divisor
+  2. Divide the result of step 1 by the integer divisor.
 
   3. Round the result of the division to the precision of the currency
-  using `Money.round/1`
+  using `Money.round/1`. If the deault rounding mode results in a
+  negative remainder, the rounding is done again using rounding mode
+  `:down`.
 
   4. Return two numbers: the result of the division and any remainder
   that could not be applied given the precision of the currency.
 
   ## Examples
 
-      Money.split Money.new(123.5, :JPY), 3
+      Money.split(Money.new(123.5, :JPY), 3)
       {¥41, ¥1}
 
-      Money.split Money.new(123.4, :JPY), 3
+      Money.split(Money.new(123.4, :JPY), 3)
       {¥41, ¥0}
 
-      Money.split Money.new(123.7, :USD), 9
+      Money.split(Money.new(123.7, :USD), 9)
       {$13.74, $0.04}
+
+      iex> Money.split(Money.new( :USD, 200), 3)
+      {Money.new(:USD, "66.66"), Money.new(:USD, "0.02")}
 
   """
   @spec split(Money.t(), non_neg_integer) :: {Money.t(), Money.t()}
   def split(%Money{} = money, parts) when is_integer(parts) do
     rounded_money = Money.round(money)
 
+    {split, remainder} = split_with_rounding(money, rounded_money, parts, default_rounding_mode())
+
+    if compare(remainder, zero(money)) == :lt do
+      split_with_rounding(money, rounded_money, parts, :down)
+    else
+      {split, remainder}
+    end
+  end
+
+  defp split_with_rounding(money, rounded_money, parts, rounding_mode) do
     div =
       rounded_money
       |> Money.div!(parts)
-      |> round
+      |> round(rounding_mode: rounding_mode)
 
     remainder = sub!(money, mult!(div, parts))
+
     {div, remainder}
   end
 
@@ -2947,6 +2963,15 @@ defmodule Money do
   @app_name Money.Mixfile.project() |> Keyword.get(:app)
   def app_name do
     @app_name
+  end
+
+  @doc """
+  Returns the default rounding mode.
+
+  """
+  @doc since: "5.18.1"
+  def default_rounding_mode do
+    @default_rounding_mode
   end
 
   @doc """
