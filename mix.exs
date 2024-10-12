@@ -20,7 +20,6 @@ defmodule Money.Mixfile do
       aliases: aliases(),
       elixirc_paths: elixirc_paths(Mix.env()),
       dialyzer: [
-        ignore_warnings: ".dialyzer_ignore_warnings",
         plt_add_apps: ~w(inets jason mix phoenix_html gringotts)a,
         flags: [
           :error_handling,
