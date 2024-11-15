@@ -1998,8 +1998,8 @@ defmodule Money do
      subtract and round that portion's value from the current remaining amount.
 
   eg. with [2, 1] as portions and $1 to spread, we calculate that 2/3 of the amount
-    should remain after `1` receives its portion, so we subtract an unrounded Money amount of
-    0.666666, and we round it (to 0.33).  Then $1.00 - 0.33 is the new remaining amount.
+    should remain after `1` receives its portion, so we subtract the unrounded Money amount of
+    0.666666, and we round the share to $0.33.  Then $1.00 - 0.33 is the new remaining amount.
     This approach avoids numerical instability by using the expected remaining amount,
     rather than summing up values as they are doled out.
 
