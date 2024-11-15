@@ -2024,7 +2024,7 @@ defmodule Money do
   end
 
   def spread([h | _] = portions, %Money{} = amount, opts) do
-    {shares, _, _} = recurse_spread(portions, spread_zero(h), Money.round(amount), opts)
+    {shares, _, _} = recurse_spread(portions, spread_zero(h), round(amount), opts)
     shares
   end
 
@@ -2037,23 +2037,23 @@ defmodule Money do
     {shares, remaining, total} = recurse_spread(tail, partial_sum, amount, opts)
 
     proportion_remaining = prop_remaining(curr_sum, total)
-    unrounded_now_remaining = Money.mult!(amount, proportion_remaining)
+    unrounded_now_remaining = mult!(amount, proportion_remaining)
 
-    share = Money.sub!(remaining, unrounded_now_remaining) |> Money.round(opts)
-    now_remaining = Money.sub!(remaining, share)
+    share = sub!(remaining, unrounded_now_remaining) |> round(opts)
+    now_remaining = sub!(remaining, share)
 
     {[share | shares], now_remaining, total}
   end
 
   defp prop_remaining(%Money{} = partial_sum, total),
-    do: Decimal.div(Money.to_decimal(partial_sum), Money.to_decimal(total))
+    do: Decimal.div(to_decimal(partial_sum), to_decimal(total))
 
   defp prop_remaining(partial_sum, total), do: partial_sum / total
 
-  defp spread_sum(%Money{} = head, sum), do: Money.add!(head, sum)
+  defp spread_sum(%Money{} = head, sum), do: add!(head, sum)
   defp spread_sum(head, sum), do: head + sum
 
-  defp spread_zero(%Money{} = head), do: Money.zero(head)
+  defp spread_zero(%Money{} = head), do: zero(head)
   defp spread_zero(_head), do: 0
 
   @doc """
