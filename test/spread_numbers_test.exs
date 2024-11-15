@@ -2,7 +2,7 @@ defmodule MoneySpreadNumbersTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  test "spread/2 works with number portions" do
+  property "spread/2 works with number portions" do
     # Max length is small; apparently float generation in stream_data is notably slow.
 
     check all(

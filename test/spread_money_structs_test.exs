@@ -2,7 +2,7 @@ defmodule MoneySpreadMoneyStructsTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  test "spread/2 works with Money.t() portions" do
+  property "spread/2 works with Money.t() portions" do
     check all(
             portions <- list_of(integer(1..1000), min_length: 1, max_length: 100),
             spread_pennies <- positive_integer(),
