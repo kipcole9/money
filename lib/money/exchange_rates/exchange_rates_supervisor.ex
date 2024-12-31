@@ -110,14 +110,16 @@ defmodule Money.ExchangeRates.Supervisor do
   retriever.  The returned value is one of:
 
   * `:running` if the service is running. In this
-    state the valid action is `Money.ExchangeRates.Service.stop/0`
+    state the valid action is `Money.ExchangeRates.Service.stop/0`.
+
   * `:stopped` if it is stopped. In this state
     the valid actions are `Money.ExchangeRates.Supervisor.restart_retriever/0`
-    or `Money.ExchangeRates.Supervisor.delete_retriever/0`
+    or `Money.ExchangeRates.Supervisor.delete_retriever/0`.
+
   * `:not_started` if it is not configured
     in the supervisor and is not running.  In
     this state the only valid action is
-    `Money.ExchangeRates.Supervisor.start_retriever/1`
+    `Money.ExchangeRates.Supervisor.start_retriever/1`.
 
   """
   def retriever_status do
@@ -135,17 +137,18 @@ defmodule Money.ExchangeRates.Supervisor do
   end
 
   @doc """
-  Starts the exchange rates retriever
+  Starts the exchange rates retriever.
 
   ## Arguments
 
-  * `config` is a `%Money.ExchangeRages.Config{}`
+  * `config` is a `t:Money.ExchangeRates.Config.t/0`
     struct returned by `Money.ExchangeRates.config/0`
     and adjusted as required.  The default is
-    `Money.ExchangeRates.config/0`
+    `Money.ExchangeRates.config/0`.
 
   """
   def start_retriever(config \\ ExchangeRates.config()) do
+    _ = Money.default_backend!()
     Supervisor.start_child(__MODULE__, retriever_spec(config))
   end
 

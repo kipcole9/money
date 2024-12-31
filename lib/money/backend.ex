@@ -245,7 +245,7 @@ defmodule Money.Backend do
         ## Options
 
         * `backend` is any module() that includes `use Cldr` and therefore
-          is a `Cldr` backend module(). The default is `Money.default_backend()`
+          is a `Cldr` backend module(). The default is `Money.default_backend!/0`
 
         * `locale_name` is any valid locale name returned by `Cldr.known_locale_names/1`
           or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
@@ -355,7 +355,7 @@ defmodule Money.Backend do
         ## Options
 
         * `:backend` is any CLDR backend module.  The default is
-          `Money.default_backend()`.
+          `Money.default_backend!/0`.
 
         * Any other options are passed to `Cldr.Number.to_string/3`
 
@@ -401,7 +401,7 @@ defmodule Money.Backend do
         ## Options
 
         * `:backend` is any CLDR backend module.  The default is
-          `Money.default_backend()`.
+          `Money.default_backend!/0`.
 
         * Any other options are passed to `Cldr.Number.to_string/3`
 
@@ -1317,7 +1317,7 @@ defmodule Money.Backend do
         end
 
         defp default_backend do
-          Elixir.Money.default_backend()
+          Elixir.Money.default_backend!()
         end
       end
     end

@@ -109,6 +109,6 @@ defmodule Money.Currency do
   end
 
   def currency_for_code(code) do
-    Cldr.Currency.currency_for_code(code, Money.default_backend())
+    Cldr.Currency.currency_for_code(code, Money.default_backend!())
   end
 end

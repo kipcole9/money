@@ -138,8 +138,8 @@ defmodule Money do
     the localised decimal separator with a ".".
     The default is `Cldr.get_locale/0`.
 
-  * `:backend` is any module() that includes `use Cldr` and therefore
-    is a `Cldr` backend module(). The default is `Money.default_backend/0`.
+  * `:backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module. The default is `Money.default_backend!/0`.
 
   * Any other options are considered as formatting options to
     be applied by default when calling `Money.to_string/2`.
@@ -487,7 +487,7 @@ defmodule Money do
   ## Options
 
   * `:backend` is any module() that includes `use Cldr` and therefore
-    is a `Cldr` backend module(). The default is `Money.default_backend()`
+    is a `Cldr` backend module(). The default is `Money.default_backend!()`
 
   * `:locale` is any valid locale returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
@@ -610,7 +610,7 @@ defmodule Money do
   # No currency was in the string so we'll derive it from
   # the locale
   defp maybe_create_money(%{currency: nil} = money_map, string, options) do
-    backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
+    backend = Keyword.get_lazy(options, :backend, &Money.default_backend!/0)
     locale = Keyword.get(options, :locale, backend.get_locale())
 
     with {:ok, backend} <- Cldr.validate_backend(backend),
@@ -624,7 +624,7 @@ defmodule Money do
   end
 
   defp maybe_create_money(%{currency: currency, amount: amount}, _string, options) do
-    backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
+    backend = Keyword.get_lazy(options, :backend, &Money.default_backend!/0)
     locale = Keyword.get(options, :locale, backend.get_locale())
     currency = Kernel.to_string(currency)
 
@@ -717,7 +717,7 @@ defmodule Money do
   ## Options
 
   * `:backend` is any CLDR backend module.  The default is
-    `Money.default_backend()`.
+    `Money.default_backend!/0`.
 
   * `currency_symbol`: Allows overriding a currency symbol. The alternatives
     are:
@@ -792,7 +792,7 @@ defmodule Money do
       |> Map.put(:currency, money.currency)
       |> maybe_no_fractional_digits(money)
 
-    backend = Map.get(options, :backend, Money.default_backend())
+    backend = Map.get(options, :backend, Money.default_backend!())
     Cldr.Number.to_string(money.amount, backend, options)
   end
 
@@ -826,7 +826,7 @@ defmodule Money do
   ## Options
 
   * `:backend` is any CLDR backend module.  The default is
-    `Money.default_backend()`.
+    `Money.default_backend!/0`.
 
   * Any other options are passed to `Cldr.Number.to_string/3`
 
@@ -2184,7 +2184,7 @@ defmodule Money do
     The default is `<backend>.get_locale()`
 
   * `:backend` is any module() that includes `use Cldr` and therefore
-    is a `Cldr` backend module(). The default is `Money.default_backend()`
+    is a `Cldr` backend module(). The default is `Money.default_backend!/0`
 
   ## Returns
 
@@ -2980,16 +2980,21 @@ defmodule Money do
   configured, an exception is raised.
 
   """
-  def default_backend() do
+  def default_backend!() do
     cldr_default_backend = Application.get_env(Cldr.Config.app_name(), :default_backend)
 
     Application.get_env(@app_name, :default_cldr_backend) || cldr_default_backend ||
       raise """
-        A default backend must be configured in config.exs as either:
+        A default :ex_cldr backend must be configured in config.exs as either:
           config :ex_cldr, default_backend: MyApp.Cldr
         or
           config :ex_money, default_cldr_backend: MyApp.Cldr
       """
+  end
+
+  @doc deprecated: "Use Money.default_backend!/0"
+  def default_backend do
+    default_backend!()
   end
 
   @doc false

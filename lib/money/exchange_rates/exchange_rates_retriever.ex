@@ -475,7 +475,7 @@ defmodule Money.ExchangeRates.Retriever do
     plural = if seconds == 1, do: "second", else: "seconds"
 
     {:ok, formatted_seconds} =
-      Cldr.Number.to_string(seconds, backend: Money.get_env(:default_cldr_backend))
+      Cldr.Number.to_string(seconds, backend: Money.default_backend!())
 
     {formatted_seconds, plural}
   end

@@ -27,12 +27,12 @@ defmodule Money.ExchangeRates do
 
   * `:exchange_rates_retrieve_every` defines how often the exchange
     rates are retrieved in milliseconds. The default is 5 minutes
-    (300,000 milliseconds)
+    (300,000 milliseconds).
 
   * `:api_module` identifies the module that does the retrieval of
     exchange rates. This is any module that implements the
     `Money.ExchangeRates` behaviour. The default is
-    `Money.ExchangeRates.OpenExchangeRates`
+    `Money.ExchangeRates.OpenExchangeRates`.
 
   * `:callback_module` defines a module that follows the
     Money.ExchangeRates.Callback behaviour whereby the function
@@ -47,7 +47,7 @@ defmodule Money.ExchangeRates do
     default is `nil` meaning no historic rates are preloaded.
 
   * `:log_failure` defines the log level at which api retrieval
-    errors are logged. The default is `:warn`
+    errors are logged. The default is `:warning`.
 
   * `:log_success` defines the log level at which successful api
     retrieval notifications are logged. The default is `nil` which
