@@ -8,11 +8,11 @@ This is the changelog for Money v5.19.0 released on January 1st, 2024.  For olde
 
 ### Deprecations
 
-* `Money.default_backend/0` is deprecated in favor of `Money.default_backend!/0` whose naming better expresses the side effect of an exception being raised if no default backend is configured.
+* `Money.default_backend/0` is soft deprecated in favor of `Money.default_backend!/0` whose naming better expresses the side effect of an exception being raised if no default backend is configured.
 
 ### Bug Fixes
 
-* Surface an error exception if, when starting the exchange rates service, no ex_cldr backend is configured.
+* Surface an error exception if, when starting the exchange rates service, no `Money.default_backend!/0` is configured.
 
 ## Money v5.18.0
 

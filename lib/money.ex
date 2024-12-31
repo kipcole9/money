@@ -2981,6 +2981,7 @@ defmodule Money do
   configured, an exception is raised.
 
   """
+  @doc since: "5.19.0"
   def default_backend!() do
     cldr_default_backend = Application.get_env(Cldr.Config.app_name(), :default_backend)
 
@@ -2993,7 +2994,7 @@ defmodule Money do
       """
   end
 
-  @deprecated "Use Money.default_backend!/0"
+  @doc deprecated: "Use Money.default_backend!/0"
   def default_backend do
     default_backend!()
   end
