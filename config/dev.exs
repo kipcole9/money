@@ -9,7 +9,6 @@ config :ex_money,
   log_failure: :warning,
   log_info: :info,
   log_success: :info,
-  # json_library: Jason,
   exchange_rates_cache: Money.ExchangeRates.Cache.Dets,
   default_cldr_backend: Money.Cldr
 
