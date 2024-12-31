@@ -2,6 +2,18 @@
 
 **Note** `ex_money` 5.17.0 and later is supported on Elixir 1.12 and later versions only.
 
+## Money v5.19.0
+
+This is the changelog for Money v5.19.0 released on January 1st, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Deprecations
+
+* `Money.default_backend/0` is deprecated in favor of `Money.default_backend!/0` whose naming better expresses the side effect of an exception being raised if no default backend is configured.
+
+### Bug Fixes
+
+* Surface an error exception if, when starting the exchange rates service, no ex_cldr backend is configured.
+
 ## Money v5.18.0
 
 This is the changelog for Money v5.18.0 released on September 18th, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

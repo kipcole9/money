@@ -538,14 +538,14 @@ defmodule Money do
   any entries in `:except` are removed from the `:only`
   entries.
 
-    * `:all`, the default, considers all currencies
+    * `:all`, the default, considers all currencies.
 
     * `:current` considers those currencies that have a `:to`
-      date of nil and which also is a known ISO4217 currency
+      date of nil and which also is a known ISO4217 currency.
 
-    * `:historic` is the opposite of `:current`
+    * `:historic` is the opposite of `:current`.
 
-    * `:tender` considers currencies that are legal tender
+    * `:tender` considers currencies that are legal tender.
 
     * `:unannotated` considers currencies that don't have
       "(some string)" in their names.  These are usually
@@ -704,9 +704,10 @@ defmodule Money do
   ## Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
-  * `options` is a keyword list of options or a `%Cldr.Number.Format.Options{}` struct
+  * `options` is a keyword list of options or a `t:Cldr.Number.Format.Options.t/0`
+    struct.
 
   ## Returns
 
@@ -736,7 +737,7 @@ defmodule Money do
   * `:no_fraction_if_integer` is a boolean which, if `true`, will set `:fractional_digits`
     to `0` if the money value is an integer value.
 
-  * Any other options are passed to `Cldr.Number.to_string/3`
+  * Any other options are passed to `Cldr.Number.to_string/3`.
 
   ## Examples
 
@@ -769,7 +770,7 @@ defmodule Money do
   end
 
   def to_string(%Money{} = money, options) when is_list(options) do
-    default_options = [backend: Money.default_backend(), currency: money.currency]
+    default_options = [backend: Money.default_backend!(), currency: money.currency]
     format_options = Map.get(money, :format_options, [])
 
     options =
@@ -2992,7 +2993,7 @@ defmodule Money do
       """
   end
 
-  @doc deprecated: "Use Money.default_backend!/0"
+  @deprecated "Use Money.default_backend!/0"
   def default_backend do
     default_backend!()
   end

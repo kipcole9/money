@@ -559,7 +559,7 @@ defmodule MoneyTest do
     Application.put_env(:ex_money, :default_cldr_backend, nil)
     Application.put_env(:ex_cldr, :default_backend, Test.Cldr)
 
-    assert Money.default_backend() == Test.Cldr
+    assert Money.default_backend!() == Test.Cldr
 
     Application.put_env(:ex_money, :default_cldr_backend, money_backend)
     Application.put_env(:ex_cldr, :default_backend, cldr_backend)

@@ -100,7 +100,7 @@ An optional callback module can also be defined.  This module defines a `rates_r
       log_failure: :warning,
       log_info: :info,
       log_success: nil,
-      json_library: Jason,
+      json_library: Jason on Elixir up to 1.17, JSON on Elixir 1.18+,
       default_cldr_backend: MyApp.Cldr,
       exclude_protocol_implementations: []
 
@@ -129,7 +129,7 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
 * `:retriever_options` is available for exchange rate retriever module developers as a place to add retriever-specific configuration information.  This information should be added in the `init/1` callback in the retriever module.  See `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
 
-* `:json_library` determines which json library to be used for decoding.  Two common options are `Poison` and `Jason`. The default is `Cldr.Config.json_library/0` which is currently configured by default as `Jason`.
+* `:json_library` determines which json library to be used for decoding.  Two common options are `Poison` and `Jason`. The default is `Cldr.Config.json_library/0` which will attempt to use `Json` (built in as of Elixir 1.18) or `:json` (built into OTP as of OTP 27).
 
 * `:exclude_protocol_implementations` is a protocol module, or list of protocol modules, that will not be defined by `ex_money`. The default is `[]`. The protocol implementations influenced by this option at `Json.Encoder`, `Phoenix.HTML.Safe` and `Gringotts.Money`.
 
