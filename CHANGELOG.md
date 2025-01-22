@@ -2,9 +2,17 @@
 
 **Note** `ex_money` 5.17.0 and later is supported on Elixir 1.12 and later versions only.
 
+## Money v5.19.1
+
+This is the changelog for Money v5.19.1 released on January 22nd, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bux Fixes
+
+* Fixes `Money.within/3` when `min` and `max` are the same. Thanks to @joewunderlich for the report. Closes #177.
+
 ## Money v5.19.0
 
-This is the changelog for Money v5.19.0 released on January 1st, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.19.0 released on January 1st, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Deprecations
 

@@ -1554,6 +1554,12 @@ defmodule Money do
       iex> Money.within?(Money.new(:USD, 10), Money.new(:USD, 50), Money.new(:USD, 200))
       false
 
+      iex> Money.within?(Money.new(:USD, 10), Money.new(:USD, 50), Money.new(:USD, 50))
+      false
+
+      iex> Money.within?(Money.new(:USD, 50), Money.new(:USD, 50), Money.new(:USD, 50))
+      true
+
       iex> Money.within?(Money.new(:USD, 100), Money.new(:USD, 300), Money.new(:USD, 200))
       ** (ArgumentError) Minimum must be less than maximum. Found Money.new(:USD, "300") and Money.new(:USD, "200")
 
@@ -1570,7 +1576,7 @@ defmodule Money do
         %__MODULE__{currency: same_currency} = minimum,
         %__MODULE__{currency: same_currency} = maximum
       ) do
-    if compare(minimum, maximum) == :lt do
+    if compare(minimum, maximum) in [:lt, :eq] do
       compare(money, minimum) in [:gt, :eq] && compare(money, maximum) in [:lt, :eq]
     else
       raise ArgumentError,
