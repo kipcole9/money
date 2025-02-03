@@ -92,7 +92,7 @@ defmodule Money do
     """)
 
     raise ArgumentError,
-          "Json library #{String.downcase(inspect(@json_library))} does " <>
+          "JSON library #{String.downcase(inspect(@json_library))} does " <>
             "not appear to be a dependency"
   end
 
@@ -758,6 +758,9 @@ defmodule Money do
 
       iex> Money.to_string Money.new(:USD, 1234), format: :long
       {:ok, "1,234 US dollars"}
+
+      iex> Money.to_string(Money.new(:EUR, "100"), locale: "bn")
+      {:ok, "১০০.০০€"}
 
   """
   @spec to_string(Money.t(), Keyword.t() | Cldr.Number.Format.Options.t()) ::

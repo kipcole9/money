@@ -2,11 +2,19 @@
 
 **Note** `ex_money` 5.17.0 and later is supported on Elixir 1.12 and later versions only.
 
+## Money v5.19.2
+
+This is the changelog for Money v5.19.2 released on February 4th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fix using Elixir 1.18's JSON module in `ex_money` (specifically decoding exchange rates). Thanks to @allenwyma and @maikelthedev for the report. Closes #176.
+
 ## Money v5.19.1
 
 This is the changelog for Money v5.19.1 released on January 22nd, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
-### Bux Fixes
+### Bug Fixes
 
 * Fixes `Money.within/3` when `min` and `max` are the same. Thanks to @joewunderlich for the report. Closes #177.
 

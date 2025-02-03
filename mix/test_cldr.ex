@@ -7,6 +7,7 @@ defmodule Money.Cldr do
   use Cldr,
     locales: [
       "en",
+      "bn",
       "de",
       "it",
       "es",

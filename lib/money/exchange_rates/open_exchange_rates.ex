@@ -49,7 +49,13 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
     Map.put(default_config, :retriever_options, %{url: url, app_id: app_id})
   end
 
-  def decode_rates(body) do
+  def decode_rates(body) when is_list(body) do
+    body
+    |> List.to_string()
+    |> decode_rates()
+  end
+
+  def decode_rates(body) when is_binary(body) do
     %{"base" => _base, "rates" => rates} = Money.json_library().decode!(body)
 
     rates
