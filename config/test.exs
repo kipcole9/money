@@ -15,5 +15,4 @@ config :ex_money,
   api_module: Money.ExchangeRates.Api.Test,
   log_failure: nil,
   log_info: nil,
-  default_cldr_backend: Test.Cldr,
-  json_library: JSON
+  default_cldr_backend: Test.Cldr
