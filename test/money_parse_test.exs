@@ -126,7 +126,7 @@ defmodule MoneyTest.Parse do
 
     test "parse a string that has RTL markers" do
       assert Money.parse("\u200F1.234,56\u00A0د.م.\u200F", locale: "ar-MA") ==
-      Money.new(:MAD, "1234.56")
+               Money.new(:MAD, "1234.56")
     end
   end
 end
