@@ -4,11 +4,15 @@
 
 ## Money v5.19.2
 
-This is the changelog for Money v5.19.2 released on February 4th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.19.2 released on February 13th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
 * Fix using Elixir 1.18's JSON module in `ex_money` (specifically decoding exchange rates). Thanks to @allenwyma and @maikelthedev for the report. Closes #176.
+
+* Document `currency_symbol: :none` option for `Money.to_string/2`. This option formats the money amount without a currency symbol. This may be useful for UI forms that separate the currency and the amount for input. Requires [ex_cldr_numbers version 2.33.6](https://hex.pm/packages/ex_cldr_numbers/2.33.6) or later.
+
+* Fix parsing money strings that contain trailing [RTL markers](https://en.wikipedia.org/wiki/Implicit_directional_marks). Requires [ex_cldr_currencies version 2.16.4](https://hex.pm/packages/ex_cldr_currencies/2.16.4) or later.
 
 ## Money v5.19.1
 
