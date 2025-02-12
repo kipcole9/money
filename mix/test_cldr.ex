@@ -20,7 +20,8 @@ defmodule Money.Cldr do
       "th",
       "es-CO",
       "pt-CV",
-      "ar-EG"
+      "ar-EG",
+      "ar-MA"
     ],
     default_locale: "en",
     providers: [Cldr.Number, Money]

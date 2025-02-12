@@ -733,6 +733,7 @@ defmodule Money do
     * "string" uses `string` as the currency symbol
     * `:standard` (the default and recommended) uses the CLDR-defined symbol
       based upon the currency format for the locale.
+    * `:none` means format the amount without any currency symbol.
 
   * `:no_fraction_if_integer` is a boolean which, if `true`, will set `:fractional_digits`
     to `0` if the money value is an integer value.

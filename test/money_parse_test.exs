@@ -123,5 +123,10 @@ defmodule MoneyTest.Parse do
     test "parsing strings that have `.` in them" do
       assert Money.parse("4.200,00 kr.", locale: "da") == Money.new(:DKK, "4200.00")
     end
+
+    test "parse a string that has RTL markers" do
+      assert Money.parse("\u200F1.234,56\u00A0د.م.\u200F", locale: "ar-MA") ==
+      Money.new(:MAD, "1234.56")
+    end
   end
 end

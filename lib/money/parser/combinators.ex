@@ -71,7 +71,12 @@ defmodule Money.Combinators do
     |> label("number")
   end
 
-  @invalid_chars @digits ++ @left_parens ++ @minus
+  @rtl [0x200F]
+  def rtl do
+    ignore(utf8_char(@rtl))
+  end
+
+  @invalid_chars @digits ++ @left_parens ++ @minus ++ @rtl
   @currency Enum.map(@invalid_chars, fn s -> {:not, s} end)
 
   def currency do
@@ -84,13 +89,17 @@ defmodule Money.Combinators do
 
   def money_with_currency do
     choice(empty(), [
-      number()
+      optional(rtl())
+      |> concat(number())
       |> ignore(optional(whitespace()))
       |> optional(currency())
+      |> optional(rtl())
       |> eos(),
-      optional(currency())
+      optional(rtl())
+      |> optional(currency())
       |> ignore(optional(whitespace()))
       |> concat(number())
+      |> optional(rtl())
       |> eos()
     ])
     |> label("money with currency")
