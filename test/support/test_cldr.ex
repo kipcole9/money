@@ -6,6 +6,7 @@ defmodule Test.Cldr do
     default_locale: "en",
     locales: [
       "en",
+      "en-ZA",
       "de",
       "da",
       "nl",

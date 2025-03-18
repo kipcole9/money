@@ -128,5 +128,10 @@ defmodule MoneyTest.Parse do
       assert Money.parse("\u200F1.234,56\u00A0د.م.\u200F", locale: "ar-MA") ==
                Money.new(:MAD, "1234.56")
     end
+
+    test "Parse a money string that uses a non-breaking-space for a separator" do
+      assert Money.parse("US$30\u00A0000,00", locale: :en_ZA, separators: :standard) ==
+        Money.new(:USD, "30000.00")
+    end
   end
 end

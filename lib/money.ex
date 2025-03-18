@@ -296,6 +296,7 @@ defmodule Money do
     |> Keyword.delete(:locale)
     |> Keyword.delete(:backend)
     |> Keyword.delete(:default_currency)
+    |> Keyword.delete(:separators)
   end
 
   @doc """

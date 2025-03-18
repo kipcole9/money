@@ -4,13 +4,14 @@ defmodule Money.Combinators do
   import NimbleParsec
 
   # Whitespace as defined by Unicode set :Zs plus tab
-  @whitespace [?\s, ?\t, 0xA0, 0x1680, 0x2000, 0x202F, 0x205F, 0x3000]
+  # non-breaking-space is considered a separator, not whitespace
+  @whitespace [?\s, ?\t, 0x1680, 0x2000, 0x202F, 0x205F, 0x3000]
   def whitespace do
     repeat(empty(), utf8_char(@whitespace))
     |> label("whitespace")
   end
 
-  @separators [?., ?,, ?،, ?٫, ?、, ?︐, ?︑, ?﹐, ?﹑, ?，, ?､, ? ]
+  @separators [?., ?,, ?،, ?٫, ?、, ?︐, ?︑, ?﹐, ?﹑, ?，, ?､, ? , 0x00A0]
   def separators do
     utf8_char(@separators)
     |> label("separators")
