@@ -6,6 +6,10 @@
 
 This is the changelog for Money v5.20.0 released on March 18th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
+### Bug Fixes
+
+* Allow a [non-breaking-space](https://en.wikipedia.org/wiki/Non-breaking_space) to be part of a number string. Some locales (like `en-ZA`) will format numbers with a nbsp when using standard separators for that locale.
+
 ### Enhancements
 
 * Update to [CLDR 47](https://cldr.unicode.org/downloads/cldr-47) data including update to ISO 4217 currency information.
