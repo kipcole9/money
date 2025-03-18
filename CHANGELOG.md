@@ -2,6 +2,14 @@
 
 **Note** `ex_money` 5.17.0 and later is supported on Elixir 1.12 and later versions only.
 
+## Money v5.20.0
+
+This is the changelog for Money v5.20.0 released on March 18th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Update to [CLDR 47](https://cldr.unicode.org/downloads/cldr-47) data including update to ISO 4217 currency information.
+
 ## Money v5.19.2
 
 This is the changelog for Money v5.19.2 released on February 13th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

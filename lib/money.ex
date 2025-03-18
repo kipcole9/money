@@ -141,6 +141,12 @@ defmodule Money do
   * `:backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module. The default is `Money.default_backend!/0`.
 
+  * `:separators` is an atom that selects which of the available symbol
+    sets should be used when attempting to parse a string into a number.
+    The default is `:standard`. Some limited locales have an alternative `:us`
+    variant that can be used. See `Cldr.Number.Symbol.number_symbols_for/3`
+    for the symbols supported for a given locale and number system.
+
   * Any other options are considered as formatting options to
     be applied by default when calling `Money.to_string/2`.
 
@@ -2922,26 +2928,27 @@ defmodule Money do
     @json_library
   end
 
-  defp parse_decimal(string, nil, nil) do
-    parse_decimal(string, default_backend().get_locale(), default_backend())
+  defp parse_decimal(string, nil, nil, options) do
+    parse_decimal(string, default_backend().get_locale(), default_backend(), options)
   end
 
-  defp parse_decimal(string, nil, backend) do
-    parse_decimal(string, backend.get_locale, backend)
+  defp parse_decimal(string, nil, backend, options) do
+    parse_decimal(string, backend.get_locale, backend, options)
   end
 
-  defp parse_decimal(string, locale, nil) do
-    parse_decimal(string, locale, default_backend())
+  defp parse_decimal(string, locale, nil, options) do
+    parse_decimal(string, locale, default_backend(), options)
   end
 
-  defp parse_decimal(string, locale, backend) do
+  defp parse_decimal(string, locale, backend, options) do
     with {:ok, locale} <- Cldr.validate_locale(locale, backend),
          {:ok, symbols} <- Cldr.Number.Symbol.number_symbols_for(locale, backend),
-         {:ok, script_symbols} <- number_symbols_for_number_system(symbols, locale, backend) do
+         {:ok, script_symbols} <- number_symbols_for_number_system(symbols, locale, backend),
+         {:ok, group, decimal} <- symbol_preference(script_symbols, options) do
       decimal =
         string
-        |> String.replace(script_symbols.group, "")
-        |> String.replace(script_symbols.decimal, ".")
+        |> String.replace(group, "")
+        |> String.replace(decimal, ".")
         |> Decimal.new()
 
       {:ok, decimal}
@@ -2951,10 +2958,22 @@ defmodule Money do
       {:error, invalid_amount_error(string)}
   end
 
+  defp symbol_preference(symbols, options) do
+    preference = Keyword.get(options, :separators, :standard)
+
+    group =
+      Map.get(symbols.group, preference) || Map.fetch!(symbols.group, :standard)
+
+    decimal =
+       Map.get(symbols.decimal, preference) || Map.fetch!(symbols.decimal, :standard)
+
+    {:ok, group, decimal}
+  end
+
   # Return either a Decimal or nil
 
   defp maybe_decimal(amount, options) when is_binary(amount) do
-    case parse_decimal(amount, options[:locale], options[:backend]) do
+    case parse_decimal(amount, options[:locale], options[:backend], options) do
       {:ok, decimal} -> decimal
       _other -> nil
     end

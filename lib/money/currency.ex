@@ -65,7 +65,7 @@ defmodule Money.Currency do
        :MVP, :MXP, :MZE, :MZM, :NIC, :NLG, :PEI, :PES, :PLZ, :PTE, :RHD, :ROL, :RUR,
        :SDD, :SDP, :SIT, :SKK, :SLE, :SRG, :STD, :SUR, :TJR, :TMM, :TPE, :TRL, :UAK,
        :UGS, :USS, :UYP, :VEB, :VED, :VEF, :VNN, :XCG, :XEU, :XFO, :XFU, :XRE, :YDD,
-       :YUD, :YUM, :YUN, :YUR, :ZAL, :ZMK, :ZRN, :ZRZ, :ZWD, :ZWR]
+       :YUD, :YUM, :YUN, :YUR, :ZAL, :ZMK, :ZRN, :ZRZ, :ZWD, :ZWG, :ZWR]
 
   """
   def known_historic_currencies do
@@ -101,7 +101,7 @@ defmodule Money.Currency do
        :UZS, :VEB, :VED, :VEF, :VES, :VND, :VNN, :VUV, :WST, :XAF, :XAG, :XAU, :XBA,
        :XBB, :XBC, :XBD, :XCD, :XCG, :XDR, :XEU, :XFO, :XFU, :XOF, :XPD, :XPF, :XPT,
        :XRE, :XSU, :XTS, :XUA, :XXX, :YDD, :YER, :YUD, :YUM, :YUN, :YUR, :ZAL, :ZAR,
-       :ZMK, :ZMW, :ZRN, :ZRZ, :ZWD, :ZWL, :ZWR]
+       :ZMK, :ZMW, :ZRN, :ZRZ, :ZWD, :ZWG, :ZWL, :ZWR]
 
   """
   def known_tender_currencies do
