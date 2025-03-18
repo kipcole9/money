@@ -1959,18 +1959,15 @@ defmodule Money do
   Returns a tuple `{dividend, remainder}` as the function result
   derived as follows:
 
-  1. Round the money amount to the required currency precision using
-     `Money.round/2`.
+  1. Divide the money by the integer divisor.
 
-  2. Divide the result of step 1 by the integer divisor.
-
-  3. Round the result of the division to the precision of the currency
+  2. Round the result of the division to the precision of the currency
     using `Money.round/2`. If the rounding mode results in a
     negative remainder, the rounding is done again using rounding mode
     `:down`.
 
-  4. Return two numbers: the result of the division and any remainder
-  that could not be applied given the precision of the currency.
+  3. Return two numbers: the result of the division and any remainder
+    that could not be applied given the precision of the currency.
 
   ## Examples
 
