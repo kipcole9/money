@@ -615,10 +615,12 @@ defmodule MoneyTest do
                "Unknown or invalid :fractional_digits option found: :rubbish"}}
   end
 
-  test "new/3 with separators specified" do
-    assert Money.new(:USD, "30,000", locale: :en_ZA, separators: :us) == Money.new(:USD, "30000")
-    assert Money.parse("US$30\u00A0000,00", locale: :en_ZA, separators: :us) ==
-      {:error,
-        {Money.Invalid, "Unable to create money from :USD and \"30\\u00A0000,00\""}}
+  if Version.compare(System.version(), "1.18.0") in [:gt, :eq] do
+    test "new/3 with separators specified" do
+      assert Money.new(:USD, "30,000", locale: :en_ZA, separators: :us) == Money.new(:USD, "30000")
+      assert Money.parse("US$30\u00A0000,00", locale: :en_ZA, separators: :us) ==
+        {:error,
+          {Money.Invalid, "Unable to create money from :USD and \"30\\u00A0000,00\""}}
+    end
   end
 end
