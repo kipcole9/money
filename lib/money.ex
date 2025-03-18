@@ -429,7 +429,7 @@ defmodule Money do
     binary or atom currency code or an
     [ISO 24165](https://www.iso.org/standard/80601.html) token identifier or shortname.
 
-  * `amount` is a float
+  * `amount` is a float.
 
   * `options` is a keyword list of options passed
     to `Money.new/3`. The default is `[]`.
@@ -460,11 +460,11 @@ defmodule Money do
   ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
   * `options` is a keyword list of options. These
     options are used when calling `Money.to_string/2`.
-    The default is `[]`
+    The default is `[]`.
 
   """
 
@@ -722,7 +722,7 @@ defmodule Money do
 
   * `{:ok, string}` or
 
-  * `{:error, reason}`
+  * `{:error, reason}`.
 
   ### Options
 
@@ -833,16 +833,17 @@ defmodule Money do
   ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
-  * `options` is a keyword list of options or a `%Cldr.Number.Format.Options{}` struct
+  * `options` is a keyword list of options or a
+    `%Cldr.Number.Format.Options{}` struct.
 
   ### Options
 
   * `:backend` is any CLDR backend module.  The default is
     `Money.default_backend!/0`.
 
-  * Any other options are passed to `Cldr.Number.to_string/3`
+  * Any other options are passed to `Cldr.Number.to_string/3`.
 
   ### Examples
 
@@ -870,16 +871,16 @@ defmodule Money do
   end
 
   @doc """
-  Returns the amount part of a `Money` type as a `Decimal`
+  Returns the amount part of a `Money` type as a `Decimal`.
 
   ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
-    by `Money.new/2`
+    by `Money.new/2`.
 
   ### Returns
 
-  * a `Decimal.t`
+  * a `Decimal.t`.
 
   ## Example
 
@@ -956,7 +957,7 @@ defmodule Money do
 
   * `{:ok, money}` or
 
-  * `{:error, reason}`
+  * `{:error, reason}`.
 
   ## Example
 
@@ -2229,7 +2230,7 @@ defmodule Money do
     atom or string and the value is a Decimal conversion factor.  The default is the
     latest available exchange rates returned from `Money.ExchangeRates.latest_rates/0`.
 
-  ## Converting to a currency defined in a locale
+  ### Converting to a currency defined in a locale
 
   To convert a `Money` to a currency defined by a locale,
   `Cldr.Currency.currency_from_locale/1` can be called with
@@ -2494,7 +2495,7 @@ defmodule Money do
   * Since the returned integer is expected to have the implied fractional
     digits the `Money` needs to be rounded which is what this function does.
 
-  ## Example
+  ### Example
 
       iex> m = Money.new(:USD, "200.012356")
       Money.new(:USD, "200.012356")
@@ -2656,7 +2657,7 @@ defmodule Money do
   * `options` is a keyword list of options passed
     to `Money.new/3`. The default is `[]`.
 
-  ## Example
+  ### Example
 
       iex> Money.zero(:USD)
       Money.new(:USD, "0")
@@ -2692,7 +2693,7 @@ defmodule Money do
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
-  ## Example
+  ### Example
 
       iex> Money.zero?(Money.new(:USD, 0))
       true
@@ -2724,7 +2725,7 @@ defmodule Money do
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
-  ## Example
+  ### Example
 
       iex> Money.integer?(Money.new(:USD, 0))
       true
@@ -2763,7 +2764,7 @@ defmodule Money do
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
-  ## Example
+  ### Example
 
       iex> Money.positive?(Money.new(:USD, 1))
       true
@@ -2794,7 +2795,7 @@ defmodule Money do
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
-  ## Example
+  ### Example
 
       iex> Money.negative?(Money.new(:USD, -1))
       true
