@@ -2968,7 +2968,7 @@ defmodule Money do
       Map.get(symbols.group, preference) || Map.fetch!(symbols.group, :standard)
 
     decimal =
-       Map.get(symbols.decimal, preference) || Map.fetch!(symbols.decimal, :standard)
+      Map.get(symbols.decimal, preference) || Map.fetch!(symbols.decimal, :standard)
 
     {:ok, group, decimal}
   end
