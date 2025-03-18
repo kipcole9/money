@@ -120,7 +120,7 @@ defmodule Money do
   Returns a %Money{} struct from a currency code and a currency amount or
   an error tuple of the form `{:error, {exception, message}}`.
 
-  ## Arguments
+  ### Arguments
 
   * `currency_code` is an [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
     binary or atom currency code or an
@@ -130,7 +130,7 @@ defmodule Money do
 
   * `options` is a keyword list of options.
 
-  ## Options
+  ### Options
 
   * `:locale` is any known locale.  The locale is used to normalize any
     binary (String) amounts to a form that can be consumed by `Decimal.new/1`.
@@ -303,7 +303,7 @@ defmodule Money do
   Returns a %Money{} struct from a currency code and a currency amount. Raises an
   exception if the current code is invalid.
 
-  ## Arguments
+  ### Arguments
 
   * `currency_code` is an [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
     binary or atom currency code or an
@@ -363,7 +363,7 @@ defmodule Money do
   introduced upstream. This function therefore should be used with
   great care and its use should be considered potentially harmful.
 
-  ## Arguments
+  ### Arguments
 
   * `currency_code` is an [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
     binary or atom currency code or an
@@ -423,7 +423,7 @@ defmodule Money do
   introduced upstream. This function therefore should be used with
   great care and its use should be considered potentially harmful.
 
-  ## Arguments
+  ### Arguments
 
   * `currency_code` is an [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
     binary or atom currency code or an
@@ -457,7 +457,7 @@ defmodule Money do
   @doc """
   Add format options to a `t:Money.t/0`.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
@@ -485,7 +485,7 @@ defmodule Money do
   currency code and amount will cause the parse to
   fail.
 
-  ## Arguments
+  ### Arguments
 
   * `string` is a string to be parsed
 
@@ -493,7 +493,7 @@ defmodule Money do
     passed to `Money.new/3` with the exception of
     the options listed below
 
-  ## Options
+  ### Options
 
   * `:backend` is any module() that includes `use Cldr` and therefore
     is a `Cldr` backend module(). The default is `Money.default_backend!()`
@@ -529,14 +529,14 @@ defmodule Money do
     used and an error will be returned if there is no currency
     in the string being parsed.
 
-  ## Returns
+  ### Returns
 
   * a `t:Money.t/0` if parsing is successful or
 
   * `{:error, {exception, reason}}` if an error is
     detected.
 
-  ## Notes
+  ### Notes
 
   The `:only` and `:except` options accept a list of
   currency codes and/or currency types.  The following
@@ -710,7 +710,7 @@ defmodule Money do
   as a currency which applies the appropriate rounding and fractional digits
   for the currency.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`.
@@ -718,13 +718,13 @@ defmodule Money do
   * `options` is a keyword list of options or a `t:Cldr.Number.Format.Options.t/0`
     struct.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, string}` or
 
   * `{:error, reason}`
 
-  ## Options
+  ### Options
 
   * `:backend` is any CLDR backend module.  The default is
     `Money.default_backend!/0`.
@@ -830,14 +830,14 @@ defmodule Money do
   as a currency which applies the appropriate rounding and fractional digits
   for the currency.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
   * `options` is a keyword list of options or a `%Cldr.Number.Format.Options{}` struct
 
-  ## Options
+  ### Options
 
   * `:backend` is any CLDR backend module.  The default is
     `Money.default_backend!/0`.
@@ -872,12 +872,12 @@ defmodule Money do
   @doc """
   Returns the amount part of a `Money` type as a `Decimal`
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
 
-  ## Returns
+  ### Returns
 
   * a `Decimal.t`
 
@@ -897,12 +897,12 @@ defmodule Money do
   Returns the currecny code of a `Money` type
   as an `atom`.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`.
 
-  ## Returns
+  ### Returns
 
   * the currency code as an `t:atom`.
 
@@ -923,12 +923,12 @@ defmodule Money do
   The absolute value of a `t:Money.t/0` amount.
   Returns a `t:Money.t/0` type with a positive sign for the amount.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`.
 
-  ## Returns
+  ### Returns
 
   * a `t:Money.t/0`.
 
@@ -947,12 +947,12 @@ defmodule Money do
   @doc """
   Add two `Money` values.
 
-  ## Arguments
+  ### Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, money}` or
 
@@ -992,12 +992,12 @@ defmodule Money do
   @doc """
   Add two `t:Money.t/0` values or raise on error.
 
-  ## Arguments
+  ### Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`.
 
-  ## Returns
+  ### Returns
 
   * a `t:Money.t/0` struct or
 
@@ -1024,12 +1024,12 @@ defmodule Money do
   @doc """
   Subtract one `t:Money.t/0` value struct from another.
 
-  ## Options
+  ### Options
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, money}` or
 
@@ -1063,12 +1063,12 @@ defmodule Money do
 
   Returns either `{:ok, money}` or `{:error, reason}`.
 
-  ## Arguments
+  ### Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`.
 
-  ## Returns
+  ### Returns
 
   * a `t:Money.t/0` struct or
 
@@ -1095,7 +1095,7 @@ defmodule Money do
   @doc """
   Multiply a `Money` value by a number.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`.
@@ -1104,7 +1104,7 @@ defmodule Money do
 
   > Note that multipling one `t:Money.t/0` by another is not supported.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, money}` or
 
@@ -1141,14 +1141,14 @@ defmodule Money do
   @doc """
   Multiply a `Money` value by a number and raise on error.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`.
 
   * `number` is an integer, float or `t:Decimal.t/0`.
 
-  ## Returns
+  ### Returns
 
   * a `t:Money.t/0` or
 
@@ -1175,7 +1175,7 @@ defmodule Money do
   @doc """
   Divide a `Money` value by a number.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` types returned
     by `Money.new/2`
@@ -1184,7 +1184,7 @@ defmodule Money do
 
   > Note that dividing one %Money{} by another is not supported.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, money}` or
 
@@ -1221,14 +1221,14 @@ defmodule Money do
   @doc """
   Divide a `Money` value by a number and raise on error.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
   * `number` is an integer, float or `Decimal.t`
 
-  ## Returns
+  ### Returns
 
   * a `t:Money.t/0` struct or
 
@@ -1255,13 +1255,13 @@ defmodule Money do
   @doc """
   Return the minimum of two `t:Money.t/0` amounts.
 
-  ## Arguments
+  ### Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`. `money_1` and `money_2` should be of the same
     currency.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, minimum_money}` or
 
@@ -1298,13 +1298,13 @@ defmodule Money do
   @doc """
   Return the maximum of two `t:Money.t/0` amounts.
 
-  ## Arguments
+  ### Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`. `money_1` and `money_2` should be of the same
     currency.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, maximum_money}` or
 
@@ -1342,13 +1342,13 @@ defmodule Money do
   Return the minimum of two `t:Money.t/0` amounts or
   raises an exception.
 
-  ## Arguments
+  ### Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`. `money_1` and `money_2` should be of the same
     currency.
 
-  ## Returns
+  ### Returns
 
   * `minimum_money` or
 
@@ -1386,13 +1386,13 @@ defmodule Money do
   Return the maximum of two `t:Money.t/0` amounts or
   raises an exception.
 
-  ## Arguments
+  ### Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`. `money_1` and `money_2` should be of the same
     currency.
 
-  ## Returns
+  ### Returns
 
   * `maximum_money` or
 
@@ -1430,12 +1430,12 @@ defmodule Money do
   Clamps a `t:Money.t/0` to be in the range of `minimum`
   to `maximum`.
 
-  ### Arguments
+  #### Arguments
 
   * `money`, `minimum` and `maximum` are any valid `t:Money.t/0` types returned
     by `Money.new/2`. They should be of the same currency.
 
-  ### Returns
+  #### Returns
 
   * `{:ok, money]` where `money` is clamped to the `minimum` or `maximum` if required.
       * If `money` is within the range `minimum..maximum` then `money` is returned unchanged.
@@ -1491,12 +1491,12 @@ defmodule Money do
   Clamps a `t:Money.t/0` to be in the range of `minimum`
   to `maximum` or raises an exception.
 
-  ### Arguments
+  #### Arguments
 
   * `money`, `minimum` and `maximum` are any valid `t:Money.t/0` types returned
     by `Money.new/2`. They should be of the same currency.
 
-  ### Returns
+  #### Returns
 
   * `money` where `money` is clamped to the `minimum` or `maximum` if required.
       * If `money` is within the range `minimum..maximum` then `money` is returned unchanged.
@@ -1550,12 +1550,12 @@ defmodule Money do
   Returns a boolean indicating if the `t:Money.t/0` is in the
   range `minimum..maximum`.
 
-  ### Arguments
+  #### Arguments
 
   * `money`, `minimum` and `maximum` are any valid `t:Money.t/0` types returned
     by `Money.new/2`. They should be of the same currency.
 
-  ### Returns
+  #### Returns
 
   * `true` or `false`.
 
@@ -1609,7 +1609,7 @@ defmodule Money do
 
   * `money_1` is any valid `t:Money.t/0` type.
 
-  ### Returns
+  #### Returns
 
   * `{:ok, negated_money}` with the amount negated.
 
@@ -1638,7 +1638,7 @@ defmodule Money do
 
   * `money_1` is any valid `t:Money.t/0` type.
 
-  ### Returns
+  #### Returns
 
   * `negated_money` with the amount negated or
 
@@ -1664,12 +1664,12 @@ defmodule Money do
   @doc """
   Returns a boolean indicating if two `Money` values are equal
 
-  ## Arguments
+  ### Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
-  ## Returns
+  ### Returns
 
   * `true` or `false`
 
@@ -1699,7 +1699,7 @@ defmodule Money do
   Sum a list of monies that may be in different
   currencies.
 
-  ## Arguments
+  ### Arguments
 
   * `money_list` is a list of any valid `t:Money.t/0` types returned
     by `Money.new/2`.
@@ -1709,7 +1709,7 @@ defmodule Money do
     exchange rates retriever is not running, then the default is
     `%{}`.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, money}` representing the sum of the maybe
     converted money amounts. The currency of the sum is
@@ -1771,12 +1771,12 @@ defmodule Money do
   than the second :gt is returned, if less than :lt is returned, if both
   numbers are equal :eq is returned.
 
-  ## Arguments
+  ### Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
-  ## Returns
+  ### Returns
 
   *  `:gt` | `:eq` | `:lt` or
 
@@ -1828,12 +1828,12 @@ defmodule Money do
   @doc """
   Compares two `Money` values numerically and raises on error.
 
-  ## Arguments
+  ### Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`.
 
-  ## Returns
+  ### Returns
 
   *  `:gt` | `:eq` | `:lt` or
 
@@ -1857,12 +1857,12 @@ defmodule Money do
   than the second #Integer<1> is returned, if less than Integer<-1> is
   returned. Otherwise, if both numbers are equal Integer<0> is returned.
 
-  ## Arguments
+  ### Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`.
 
-  ## Returns
+  ### Returns
 
   *  `-1` | `0` | `1` or
 
@@ -1905,12 +1905,12 @@ defmodule Money do
   @doc """
   Compares two `Money` values numerically and raises on error.
 
-  ## Arguments
+  ### Arguments
 
   * `money_1` and `money_2` are any valid `t:Money.t/0` types returned
     by `Money.new/2`
 
-  ## Returns
+  ### Returns
 
   *  `-1` | `0` | `1` or
 
@@ -1934,7 +1934,7 @@ defmodule Money do
   precision and rounding and ensuring that the parts sum to the original
   amount.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any `t:Money.t/0`.
 
@@ -1943,18 +1943,18 @@ defmodule Money do
 
   * `options` is a keyword list of options.
 
-  ## Options
+  ### Options
 
   * See `Money.round/2`; any options are passed to
     this function.
 
-  ## Returns
+  ### Returns
 
   * `{split_amount, remainder}` where `split_amount` is the amount
     money allocated by the split and `remainder` is the amount
     left over that could not be allocated evenly.
 
-  ## Notes
+  ### Notes
 
   Returns a tuple `{dividend, remainder}` as the function result
   derived as follows:
@@ -2012,13 +2012,13 @@ defmodule Money do
   @doc """
   Round a `Money` value into the acceptable range for the requested currency.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any `t:Money.t/0`.
 
   * `options` is a keyword list of options.
 
-  ## Options
+  ### Options
 
     * `:rounding_mode` that defines how the number will be rounded.  See
       `Decimal.Context`.  The default is `:half_even` which is also known
@@ -2029,7 +2029,7 @@ defmodule Money do
       an integer value representing the rounding factor.  The
       default is `:iso`.
 
-  ## Notes
+  ### Notes
 
   There are two kinds of rounding applied:
 
@@ -2127,14 +2127,14 @@ defmodule Money do
   @doc """
   Set the fractional part of a `Money`.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any `t:Money.t/0`.
 
   * `fraction` is an integer amount that will be set
     as the fraction of the `money`.
 
-  ## Notes
+  ### Notes
 
   The fraction can only be set if it matches the number of
   decimal digits for the currency associated with the `money`.
@@ -2184,13 +2184,13 @@ defmodule Money do
   Localizes a `Money` by converting it to the currency
   of the specified locale.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`.
 
   * `options` is a keyword list of options.
 
-  ## Options
+  ### Options
 
   * `:locale` is any valid locale returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
@@ -2199,7 +2199,7 @@ defmodule Money do
   * `:backend` is any module() that includes `use Cldr` and therefore
     is a `Cldr` backend module(). The default is `Money.default_backend!/0`
 
-  ## Returns
+  ### Returns
 
   * `{:ok, localized_money}` or
 
@@ -2219,7 +2219,7 @@ defmodule Money do
   @doc """
   Convert `money` from one currency to another.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`.
 
@@ -2295,7 +2295,7 @@ defmodule Money do
   @doc """
   Convert `money` from one currency to another or raises on error.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`.
 
@@ -2339,7 +2339,7 @@ defmodule Money do
   Returns the effective cross-rate to convert from one currency
   to another.
 
-  ## Arguments
+  ### Arguments
 
   * `from` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2` or a valid
      currency code.
@@ -2388,7 +2388,7 @@ defmodule Money do
   Returns the effective cross-rate to convert from one currency
   to another.
 
-  ## Arguments
+  ### Arguments
 
   * `from` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2` or a valid
      currency code.
@@ -2485,11 +2485,11 @@ defmodule Money do
   money with an implied exponent the `Money` has to be rounded
   potentially leaving a remainder.
 
-  ## Options
+  ### Options
 
   * `money` is any `t:Money.t/0` struct returned by `Cldr.Currency.new/2`.
 
-  ## Notes
+  ### Notes
 
   * Since the returned integer is expected to have the implied fractional
     digits the `Money` needs to be rounded which is what this function does.
@@ -2528,7 +2528,7 @@ defmodule Money do
   @doc """
   Convert an integer representation of money into a `Money` struct.
 
-  ## Arguments
+  ### Arguments
 
   * `integer` is an integer representation of a money amount including
     any decimal digits.  ie. `20000` would be interpreted to mean `$200.00`
@@ -2541,7 +2541,7 @@ defmodule Money do
 
   * `options` is a keyword list of options.
 
-  ## Options
+  ### Options
 
   * `:currency_digits` which determines the currency precision implied
     by the `integer`. The valid options are `:cash`, `:accounting`,
@@ -2551,13 +2551,13 @@ defmodule Money do
 
   All other options are passed to `Money.new/3`.
 
-  ## Returns
+  ### Returns
 
   * A `t:Money.t/0` struct or
 
   * `{:error, {exception, message}}`
 
-  ## Notes
+  ### Notes
 
   * Some currencies, like the [Iraqi Dinar](https://en.wikipedia.org/wiki/Iraqi_dinar)
     have a difference in the decimal digits defined by CLDR versus
@@ -2648,7 +2648,7 @@ defmodule Money do
   @doc """
   Return a zero amount `t:Money.t/0` in the given currency.
 
-  ## Arguments
+  ### Arguments
 
   * `money_or_currency` is either a `t:Money.t/0` or
     a currency code.
@@ -2687,7 +2687,7 @@ defmodule Money do
   Returns a boolean indicating if `t:Money.t/0`
   has a zero value.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
@@ -2719,7 +2719,7 @@ defmodule Money do
   is an integer value (has no significant fractional
   digits).
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
@@ -2758,7 +2758,7 @@ defmodule Money do
   Returns a boolean indicating if `t:Money.t/0`
   has a positive value.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
@@ -2789,7 +2789,7 @@ defmodule Money do
   Returns a boolean indicating if `t:Money.t/0`
   has a negative value.
 
-  ## Arguments
+  ### Arguments
 
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`
