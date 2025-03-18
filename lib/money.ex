@@ -153,7 +153,7 @@ defmodule Money do
   Note that the `currency_code` and `amount` arguments can be supplied in
   either order,
 
-  ## Examples
+  ### Examples
 
       iex> Money.new(:USD, 100)
       Money.new(:USD, "100")
@@ -313,7 +313,7 @@ defmodule Money do
 
   * `options` is a keyword list of options. See `Money.new/3`.
 
-  ## Examples
+  ### Examples
 
       Money.new!(:XYZZ, 100)
       ** (Money.UnknownCurrencyError) Currency :XYZZ is not known
@@ -374,7 +374,7 @@ defmodule Money do
   * `options` is a keyword list of options passed
     to `Money.new/3`. The default is `[]`.
 
-  ## Examples
+  ### Examples
 
       iex> Money.from_float 1.23456, :USD
       Money.new(:USD, "1.23456")
@@ -434,7 +434,7 @@ defmodule Money do
   * `options` is a keyword list of options passed
     to `Money.new/3`. The default is `[]`.
 
-  ## Examples
+  ### Examples
 
       iex> Money.from_float!(:USD, 1.234)
       Money.new(:USD, "1.234")
@@ -560,7 +560,7 @@ defmodule Money do
       "(some string)" in their names.  These are usually
       financial instruments.
 
-  ## Examples
+  ### Examples
 
       iex> Money.parse("USD 100")
       Money.new(:USD, "100")
@@ -749,7 +749,7 @@ defmodule Money do
 
   * Any other options are passed to `Cldr.Number.to_string/3`.
 
-  ## Examples
+  ### Examples
 
       iex> Money.to_string Money.new(:USD, 1234)
       {:ok, "$1,234.00"}
@@ -844,7 +844,7 @@ defmodule Money do
 
   * Any other options are passed to `Cldr.Number.to_string/3`
 
-  ## Examples
+  ### Examples
 
       iex> Money.to_string! Money.new(:USD, 1234)
       "$1,234.00"
@@ -1003,7 +1003,7 @@ defmodule Money do
 
   * raises an exception
 
-  ## Examples
+  ### Examples
 
       iex> Money.add! Money.new(:USD, 200), Money.new(:USD, 100)
       Money.new(:USD, "300")
@@ -1074,7 +1074,7 @@ defmodule Money do
 
   * raises an exception.
 
-  ## Examples
+  ### Examples
 
       iex> Money.sub! Money.new(:USD, 200), Money.new(:USD, 100)
       Money.new(:USD, "100")
@@ -1154,7 +1154,7 @@ defmodule Money do
 
   * raises an exception
 
-  ## Examples
+  ### Examples
 
       iex> Money.mult!(Money.new(:USD, 200), 2)
       Money.new(:USD, "400")
@@ -1234,7 +1234,7 @@ defmodule Money do
 
   * raises an exception
 
-  ## Examples
+  ### Examples
 
       iex> Money.div!(Money.new(:USD, 200), 2)
       Money.new(:USD, "100")
@@ -1444,7 +1444,7 @@ defmodule Money do
 
   * or `{:error, reason}`.
 
-  ### Examples
+  #### Examples
 
       iex> Money.clamp(Money.new(:USD, 100), Money.new(:USD, 50), Money.new(:USD, 200))
       {:ok, Money.new(:USD, 100)}
@@ -1505,7 +1505,7 @@ defmodule Money do
 
   * or `{:error, reason}`.
 
-  ### Examples
+  #### Examples
 
       iex> Money.clamp!(Money.new(:USD, 100), Money.new(:USD, 50), Money.new(:USD, 200))
       Money.new(:USD, 100)
@@ -1559,7 +1559,7 @@ defmodule Money do
 
   * `true` or `false`.
 
-  ### Examples
+  #### Examples
 
       iex> Money.within?(Money.new(:USD, 100), Money.new(:USD, 50), Money.new(:USD, 200))
       true
@@ -1717,7 +1717,7 @@ defmodule Money do
 
   * `{:error, {exception, reason}}` describing an error.
 
-  ## Examples
+  ### Examples
 
       iex> Money.sum([Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:USD, 50)])
       {:ok, Money.new(:USD, 350)}
@@ -1782,7 +1782,7 @@ defmodule Money do
 
   * `{:error, {module(), String.t}}`
 
-  ## Examples
+  ### Examples
 
       iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 100)
       :gt
@@ -1839,7 +1839,7 @@ defmodule Money do
 
   * raises an exception
 
-  ## Examples
+  ### Examples
 
       Money.compare! Money.new(:USD, 200), Money.new(:CAD, 500)
       ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :CAD.
@@ -1868,7 +1868,7 @@ defmodule Money do
 
   * `{:error, {module(), String.t}}`
 
-  ## Examples
+  ### Examples
 
       iex> Money.cmp Money.new(:USD, 200), Money.new(:USD, 100)
       1
@@ -1916,7 +1916,7 @@ defmodule Money do
 
   * raises an exception
 
-  ## Examples
+  ### Examples
 
       Money.cmp! Money.new(:USD, 200), Money.new(:CAD, 500)
       ** (ArgumentError) Cannot compare monies with different currencies. Received :USD and :CAD.
@@ -1969,7 +1969,7 @@ defmodule Money do
   3. Return two numbers: the result of the division and any remainder
     that could not be applied given the precision of the currency.
 
-  ## Examples
+  ### Examples
 
       iex> Money.split(Money.new("123.5", :JPY), 3)
       {Money.new(:JPY, "41"), Money.new(:JPY, "0.5")}
@@ -2045,7 +2045,7 @@ defmodule Money do
      of decimal digits or rounding strategies. Therefore the `money` is
      returned unmodified.
 
-  ## Examples
+  ### Examples
 
       iex> Money.round Money.new("123.73", :CHF), currency_digits: :cash
       Money.new(:CHF, "123.75")
@@ -2141,7 +2141,7 @@ defmodule Money do
   Therefore, for a currency with 2 decimal digits, the
   maximum for `fraction` is `99`.
 
-  ## Examples
+  ### Examples
 
       iex> Money.put_fraction Money.new(:USD, "2.49"), 99
       Money.new(:USD, "2.99")
@@ -2236,7 +2236,7 @@ defmodule Money do
   a `t:Cldr.LanguageTag.t/0` parameter. It will return
   the currency configured for that locale.
 
-  ## Examples
+  ### Examples
 
       iex> Money.to_currency(Money.new(:USD, 100), :AUD,
       ...>   %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)})
@@ -2305,7 +2305,7 @@ defmodule Money do
     atom or string and the value is a Decimal conversion factor.  The default is the
     latest available exchange rates returned from `Money.ExchangeRates.latest_rates/0`.
 
-  ## Examples
+  ### Examples
 
       iex> Money.to_currency! Money.new(:USD, 100), :AUD,
       ...>   %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
@@ -2350,7 +2350,7 @@ defmodule Money do
     atom or string and the value is a Decimal conversion factor.  The default is the
     latest available exchange rates returned from `Money.ExchangeRates.latest_rates/0`.
 
-  ## Examples
+  ### Examples
 
       Money.cross_rate(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
       {:ok, Decimal.new("0.7345")}
@@ -2399,7 +2399,7 @@ defmodule Money do
     atom or string and the value is a Decimal conversion factor.  The default is the
     latest available exchange rates returned from `Money.ExchangeRates.latest_rates/0`.
 
-  ## Examples
+  ### Examples
 
       iex> Money.cross_rate!(Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")})
       Decimal.new("0.7345")
@@ -2571,7 +2571,7 @@ defmodule Money do
     with this function and care taken in specifying the `:fractional_digits`
     parameter.
 
-  ## Examples
+  ### Examples
 
       iex> Money.from_integer(20000, :USD)
       Money.new(:USD, "200.00")
