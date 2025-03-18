@@ -141,7 +141,7 @@ defmodule Money do
   * `:backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module. The default is `Money.default_backend!/0`.
 
-  * `:separators` is an atom that selects which of the available symbol
+  * `:separators` selects which of the available symbol
     sets should be used when attempting to parse a string into a number.
     The default is `:standard`. Some limited locales have an alternative `:us`
     variant that can be used. See `Cldr.Number.Symbol.number_symbols_for/3`
@@ -309,6 +309,8 @@ defmodule Money do
     [ISO 24165](https://www.iso.org/standard/80601.html) token identifier or shortname.
 
   * `amount` is an integer, float or Decimal
+
+  * `options` is a keyword list of options. See `Money.new/3`.
 
   ## Examples
 
