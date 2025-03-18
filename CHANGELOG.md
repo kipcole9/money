@@ -12,11 +12,17 @@ This is the changelog for Money v5.20.0 released on March 18th, 2025.  For older
 
 ### Bug Fixes
 
+* Ensure `Money.split/3` always returns a remainder that is greater than or equal to 0. Thanks to @jdewar for the report and @coladarci, @Wigny for their collaboration. Closes #173.
+
 * Allow a [non-breaking-space](https://en.wikipedia.org/wiki/Non-breaking_space) to be part of a number string. Some locales (like `en-ZA`) will format numbers with a nbsp when using standard separators for that locale.
+
+* Fix documentation for `Money.ExchangeRates` replacing `:exchange_rate_service` with `:auto_start_exchange_rate_service`. Thanks to @cw789 for the PR. Closes #174.
 
 ### Enhancements
 
 * Update to [CLDR 47](https://cldr.unicode.org/downloads/cldr-47) data including update to ISO 4217 currency information.
+
+* Support passing rounding options to `Money.split/3`.
 
 ## Money v5.19.2
 

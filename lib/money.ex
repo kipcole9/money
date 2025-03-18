@@ -1974,36 +1974,36 @@ defmodule Money do
 
   ## Examples
 
-      Money.split(Money.new(123.5, :JPY), 3)
-      {¥41, ¥1}
+      iex> Money.split(Money.new("123.5", :JPY), 3)
+      {Money.new(:JPY, "41"), Money.new(:JPY, "0.5")}
 
-      Money.split(Money.new(123.4, :JPY), 3)
-      {¥41, ¥0}
+      iex> Money.split(Money.new("123.4", :JPY), 3)
+      {Money.new(:JPY, "41"), Money.new(:JPY, "0.4")}
 
-      Money.split(Money.new(123.7, :USD), 9)
-      {$13.74, $0.04}
+      iex> Money.split(Money.new("123.7", :USD), 9)
+      {Money.new(:USD, "13.74"), Money.new(:USD, "0.04")}
 
-      iex> Money.split(Money.new( :USD, 200), 3)
+      iex> Money.split(Money.new(:USD, 200), 3)
       {Money.new(:USD, "66.66"), Money.new(:USD, "0.02")}
 
   """
-  @spec split(Money.t(), non_neg_integer, options \\ []) :: {Money.t(), Money.t()}
-  def split(%Money{} = money, parts) when is_integer(parts) do
-    rounded_money = Money.round(money, options)
+  @spec split(money :: Money.t(), parts :: non_neg_integer, options :: Keyword.t()) ::
+    {Money.t(), Money.t()}
 
-    {split, remainder} = split_with_rounding(money, rounded_money, parts, options)
+  def split(%Money{} = money, parts, options \\ []) when is_integer(parts) do
+    {split, remainder} = split_with_rounding(money, parts, options)
 
     if compare(remainder, zero(money)) == :lt do
       options = Keyword.put(options, :rounding_mode, :down)
-      split_with_rounding(money, rounded_money, parts, options)
+      split_with_rounding(money, parts, options)
     else
       {split, remainder}
     end
   end
 
-  defp split_with_rounding(money, rounded_money, parts, options) do
+  defp split_with_rounding(money, parts, options) do
     div =
-      rounded_money
+      money
       |> Money.div!(parts)
       |> round(options)
 
