@@ -612,7 +612,7 @@ defmodule MoneyTest do
     assert Money.from_integer(100, :USD, fractional_digits: :rubbish) ==
              {:error,
               {Money.InvalidDigitsError,
-               "Unknown or invalid :fractional_digits option found: :rubbish"}}
+               "Unknown or invalid :currency_digits option, found: :rubbish"}}
   end
 
   if Version.compare(System.version(), "1.18.0") in [:gt, :eq] do

@@ -92,6 +92,7 @@ defmodule Money.Mixfile do
   defp deps do
     [
       {:ex_cldr_numbers, "~> 2.34"},
+
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:decimal, "~> 1.6 or ~> 2.0"},
       {:poison, "~> 3.0 or ~> 4.0 or ~> 5.0 or ~> 6.0", optional: true},

@@ -6,6 +6,10 @@
 
 This is the changelog for Money v5.20.0 released on March 18th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
+### Soft Deprecation
+
+* The option `:fractional_digits` for `Money.from_integer/3` has been deprecated in favour of `:currency_digits` for consistency with `Money.round/2` and functions in [ex_cldr_numbers](https://hex.pm/packages/ex_cldr_numbers). `:fractional_digits` will continue to be supported for an indefinite period.
+
 ### Bug Fixes
 
 * Allow a [non-breaking-space](https://en.wikipedia.org/wiki/Non-breaking_space) to be part of a number string. Some locales (like `en-ZA`) will format numbers with a nbsp when using standard separators for that locale.

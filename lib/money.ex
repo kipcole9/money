@@ -1936,22 +1936,38 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any `t:Money.t/0`
+  * `money` is any `t:Money.t/0`.
 
-  * `parts` is an integer number of parts into which the `money` is split
+  * `parts` is an integer number of parts into which the
+    `money` is split.
+
+  * `options` is a keyword list of options.
+
+  ## Options
+
+  * See `Money.round/2`; any options are passed to
+    this function.
+
+  ## Returns
+
+  * `{split_amount, remainder}` where `split_amount` is the amount
+    money allocated by the split and `remainder` is the amount
+    left over that could not be allocated evenly.
+
+  ## Notes
 
   Returns a tuple `{dividend, remainder}` as the function result
   derived as follows:
 
   1. Round the money amount to the required currency precision using
-  `Money.round/1`
+     `Money.round/2`.
 
   2. Divide the result of step 1 by the integer divisor.
 
   3. Round the result of the division to the precision of the currency
-  using `Money.round/1`. If the deault rounding mode results in a
-  negative remainder, the rounding is done again using rounding mode
-  `:down`.
+    using `Money.round/2`. If the rounding mode results in a
+    negative remainder, the rounding is done again using rounding mode
+    `:down`.
 
   4. Return two numbers: the result of the division and any remainder
   that could not be applied given the precision of the currency.
@@ -1971,24 +1987,25 @@ defmodule Money do
       {Money.new(:USD, "66.66"), Money.new(:USD, "0.02")}
 
   """
-  @spec split(Money.t(), non_neg_integer) :: {Money.t(), Money.t()}
+  @spec split(Money.t(), non_neg_integer, options \\ []) :: {Money.t(), Money.t()}
   def split(%Money{} = money, parts) when is_integer(parts) do
-    rounded_money = Money.round(money)
+    rounded_money = Money.round(money, options)
 
-    {split, remainder} = split_with_rounding(money, rounded_money, parts, default_rounding_mode())
+    {split, remainder} = split_with_rounding(money, rounded_money, parts, options)
 
     if compare(remainder, zero(money)) == :lt do
-      split_with_rounding(money, rounded_money, parts, :down)
+      options = Keyword.put(options, :rounding_mode, :down)
+      split_with_rounding(money, rounded_money, parts, options)
     else
       {split, remainder}
     end
   end
 
-  defp split_with_rounding(money, rounded_money, parts, rounding_mode) do
+  defp split_with_rounding(money, rounded_money, parts, options) do
     div =
       rounded_money
       |> Money.div!(parts)
-      |> round(rounding_mode: rounding_mode)
+      |> round(options)
 
     remainder = sub!(money, mult!(div, parts))
 
@@ -2000,15 +2017,15 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any `t:Money.t/0`
+  * `money` is any `t:Money.t/0`.
 
-  * `opts` is a keyword list of options
+  * `options` is a keyword list of options.
 
   ## Options
 
     * `:rounding_mode` that defines how the number will be rounded.  See
       `Decimal.Context`.  The default is `:half_even` which is also known
-      as "banker's rounding"
+      as "banker's rounding".
 
     * `:currency_digits` which determines the rounding increment.
       The valid options are `:cash`, `:accounting` and `:iso` or
@@ -2019,13 +2036,13 @@ defmodule Money do
 
   There are two kinds of rounding applied:
 
-  1. Round to the appropriate number of fractional digits
+  1. Round to the appropriate number of currency digits.
 
   3. Apply an appropriate rounding increment.  Most currencies
      round to the same precision as the number of decimal digits, but some
      such as `:CHF` round to a minimum such as `0.05` when its a cash
      amount. The rounding increment is applied when the option
-     `:currency_digits` is set to `:cash`
+     `:fractional_digits` is set to `:cash`.
 
   3. Digital Tokens (crypto currencies) do not have formal definitions
      of decimal digits or rounding strategies. Therefore the `money` is
@@ -2054,46 +2071,26 @@ defmodule Money do
     money
   end
 
-  def round(%Money{} = money, opts) do
+  def round(%Money{} = money, options) do
     money
-    |> round_to_decimal_digits(opts)
-    |> round_to_nearest(opts)
+    |> round_to_decimal_digits(options)
+    |> round_to_nearest(options)
   end
 
-  defp round_to_decimal_digits(%Money{currency: code, amount: amount}, opts) do
-    with {:ok, currency} <- Currency.currency_for_code(code) do
-      rounding_mode = Keyword.get(opts, :rounding_mode, @default_rounding_mode)
-      rounding = digits_from_opts(currency, opts[:currency_digits])
+  defp round_to_decimal_digits(%Money{currency: code, amount: amount}, options) do
+    with {:ok, currency} <- Currency.currency_for_code(code),
+         {:ok, rounding, _options} = digits_from_options(currency, options) do
+      rounding_mode = Keyword.get(options, :rounding_mode, @default_rounding_mode)
       rounded_amount = Decimal.round(amount, rounding, rounding_mode)
       %Money{currency: code, amount: rounded_amount}
     end
   end
 
-  defp digits_from_opts(currency, nil) do
-    currency.iso_digits
-  end
-
-  defp digits_from_opts(currency, :iso) do
-    currency.iso_digits
-  end
-
-  defp digits_from_opts(currency, :accounting) do
-    currency.digits
-  end
-
-  defp digits_from_opts(currency, :cash) do
-    currency.cash_digits
-  end
-
-  defp digits_from_opts(_currency, digits) when is_integer(digits) do
-    digits
-  end
-
-  defp round_to_nearest(%Money{currency: code} = money, opts) do
-    with {:ok, currency} <- Currency.currency_for_code(code) do
-      digits = digits_from_opts(currency, opts[:currency_digits])
-      increment = increment_from_opts(currency, opts[:currency_digits])
-      do_round_to_nearest(money, digits, increment, opts)
+  defp round_to_nearest(%Money{currency: code} = money, options) do
+    with {:ok, currency} <- Currency.currency_for_code(code),
+         {:ok, digits, _options} = digits_from_options(currency, options) do
+      increment = increment_from_options(currency, options)
+      do_round_to_nearest(money, digits, increment, options)
     end
   end
 
@@ -2105,8 +2102,8 @@ defmodule Money do
     money
   end
 
-  defp do_round_to_nearest(money, digits, increment, opts) do
-    rounding_mode = Keyword.get(opts, :rounding_mode, @default_rounding_mode)
+  defp do_round_to_nearest(money, digits, increment, options) do
+    rounding_mode = Keyword.get(options, :rounding_mode, @default_rounding_mode)
 
     rounding =
       -digits
@@ -2123,12 +2120,11 @@ defmodule Money do
     %Money{currency: money.currency, amount: rounded_amount}
   end
 
-  defp increment_from_opts(currency, :cash) do
-    currency.cash_rounding
-  end
-
-  defp increment_from_opts(currency, _) do
-    currency.rounding
+  defp increment_from_options(currency, options) do
+    case Keyword.get(options, :currency_digits) do
+      :cash -> currency.cash_rounding
+      _other -> currency.rounding
+    end
   end
 
   @doc """
@@ -2136,10 +2132,10 @@ defmodule Money do
 
   ## Arguments
 
-  * `money` is any `t:Money.t/0`
+  * `money` is any `t:Money.t/0`.
 
   * `fraction` is an integer amount that will be set
-    as the fraction of the `money`
+    as the fraction of the `money`.
 
   ## Notes
 
@@ -2499,7 +2495,7 @@ defmodule Money do
   ## Notes
 
   * Since the returned integer is expected to have the implied fractional
-  digits the `Money` needs to be rounded which is what this function does.
+    digits the `Money` needs to be rounded which is what this function does.
 
   ## Example
 
@@ -2514,22 +2510,22 @@ defmodule Money do
       {:USD, 20000, -2, Money.new(:USD, "0.00")}
 
   """
-  def to_integer_exp(%Money{} = money, opts \\ []) do
+  def to_integer_exp(%Money{} = money, options \\ []) do
     new_money =
       money
-      |> Money.round(opts)
+      |> Money.round(options)
       |> Money.normalize()
 
-    {:ok, remainder} = Money.sub(money, new_money)
-    {:ok, currency} = Currency.currency_for_code(money.currency)
-    digits = digits_from_opts(currency, opts[:currency_digits])
-    exponent = -digits
-    exponent_adjustment = Kernel.abs(exponent - new_money.amount.exp)
+    with {:ok, remainder} <- Money.sub(money, new_money),
+         {:ok, currency} <- Currency.currency_for_code(money.currency),
+         {:ok, exponent, _options} <- digits_from_options(currency, options) do
+      exponent_adjustment = Kernel.abs(-exponent - new_money.amount.exp)
 
-    integer =
-      Cldr.Math.power_of_10(exponent_adjustment) * new_money.amount.coef * new_money.amount.sign
+      integer =
+        Cldr.Math.power_of_10(exponent_adjustment) * new_money.amount.coef * new_money.amount.sign
 
-    {money.currency, integer, exponent, remainder}
+      {money.currency, integer, -exponent, remainder}
+    end
   end
 
   @doc """
@@ -2539,7 +2535,7 @@ defmodule Money do
 
   * `integer` is an integer representation of a money amount including
     any decimal digits.  ie. `20000` would be interpreted to mean `$200.00`
-    if the `currency` is `:USD` and no `:fractional_digits` option
+    if the `currency` is `:USD` and no `:currency_digits` option
     was provided.
 
   * `currency` is the currency code for the `integer`.  The assumed
@@ -2550,7 +2546,7 @@ defmodule Money do
 
   ## Options
 
-  * `:fractional_digits` which determines the currency precision implied
+  * `:currency_digits` which determines the currency precision implied
     by the `integer`. The valid options are `:cash`, `:accounting`,
     `:iso` or a non-negative integer. The default is `:iso` which uses the
     [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) definition of
@@ -2566,17 +2562,17 @@ defmodule Money do
 
   ## Notes
 
-  Some currencies, like the [Iraqi Dinar](https://en.wikipedia.org/wiki/Iraqi_dinar)
-  have a difference in the decimal digits defined by CLDR versus
-  those defined by [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217). CLDR
-  defines the decimal digits for `IQD` as `0` whereas ISO 4217 defines
-  `3` decimal digits.
+  * Some currencies, like the [Iraqi Dinar](https://en.wikipedia.org/wiki/Iraqi_dinar)
+    have a difference in the decimal digits defined by CLDR versus
+    those defined by [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217). CLDR
+    defines the decimal digits for `IQD` as `0` whereas ISO 4217 defines
+    `3` decimal digits.
 
-  Since converting an integer to a money amount is very
-  sensitive to the number of fractional digits specified it is
-  important to be very clear about the precision of the data used
-  with this function and care taken in specifying the `:fractional_digits`
-  parameter.
+  * Since converting an integer to a money amount is very
+    sensitive to the number of fractional digits specified it is
+    important to be very clear about the precision of the data used
+    with this function and care taken in specifying the `:fractional_digits`
+    parameter.
 
   ## Examples
 
@@ -2589,7 +2585,7 @@ defmodule Money do
       iex> Money.from_integer(20012, :USD)
       Money.new(:USD, "200.12")
 
-      iex> Money.from_integer(20012, :USD, fractional_digits: 3)
+      iex> Money.from_integer(20012, :USD, currency_digits: 3)
       Money.new(:USD, "20.012")
 
       iex> Money.from_integer(20012, :IQD)
@@ -2601,22 +2597,24 @@ defmodule Money do
 
   def from_integer(amount, currency, options \\ [])
       when is_integer(amount) and is_list(options) do
+    options = replace_fractional_digits_with_currency_digits(options)
+
     with {:ok, currency} <- validate_currency(currency),
          {:ok, currency_data} <- Currency.currency_for_code(currency),
          {:ok, digits, options} <- digits_from_options(currency_data, options) do
       sign = if amount < 0, do: -1, else: 1
 
       sign
-      |> Decimal.new(Kernel.abs(amount), digits)
+      |> Decimal.new(Kernel.abs(amount), -digits)
       |> Money.new(currency, options)
     end
   end
 
   defp digits_from_options(currency_data, options) when is_list(options) do
-    {fractional_digits, options} = Keyword.pop(options, :fractional_digits)
+    {fractional_digits, options} = Keyword.pop(options, :currency_digits)
 
     with {:ok, digits} <- do_digits_from_options(currency_data, fractional_digits) do
-      {:ok, -digits, options}
+      {:ok, digits, options}
     else
       :error -> {:error, invalid_digits_error(fractional_digits)}
       other -> other
@@ -2637,7 +2635,18 @@ defmodule Money do
   defp invalid_digits_error(other),
     do:
       {Money.InvalidDigitsError,
-       "Unknown or invalid :fractional_digits option found: #{inspect(other)}"}
+       "Unknown or invalid :currency_digits option, found: #{inspect(other)}"}
+
+  # :fractional_digits option renamed to :currency_digits for
+  # consistency with Money.round/2 and `ex_cldr_numbers`
+
+  defp replace_fractional_digits_with_currency_digits(options) do
+    case Keyword.pop(options, :fractional_digits) do
+      {nil, options} -> options
+      {digits, options} -> Keyword.put(options, :currency_digits, digits)
+    end
+  end
+
 
   @doc """
   Return a zero amount `t:Money.t/0` in the given currency.
