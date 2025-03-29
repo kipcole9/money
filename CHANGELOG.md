@@ -300,7 +300,7 @@ This is the changelog for Money v5.8.0 released on January 31st, 2022.  For olde
 
 ### Enhancements
 
-* Adds configuration option `:exclude_protocol_implementations` to omit generating implementations for one or more protocols from the list `Json.Encoder`, `Phoneix.HTML.Safe` and `Gringotts.Money`. Thanks to @jgough-playoxygen for the [suggestion](https://elixirforum.com/t/cldr-number-custom-formatter/45520).
+* Adds configuration option `:exclude_protocol_implementations` to omit generating implementations for one or more protocols from the list `Jason.Encoder`, `JSON.Encoder`, `Phoneix.HTML.Safe` and `Gringotts.Money`. Thanks to @jgough-playoxygen for the [suggestion](https://elixirforum.com/t/cldr-number-custom-formatter/45520).
 
 ## Money v5.7.4
 

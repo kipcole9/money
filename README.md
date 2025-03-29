@@ -91,6 +91,7 @@ An optional callback module can also be defined.  This module defines a `rates_r
 `Money` provides a set of configuration keys to customize behaviour. The default configuration is:
 
     config :ex_money,
+      auto_start_exchange_rate_service: true,
       exchange_rates_retrieve_every: 300_000,
       api_module: Money.ExchangeRates.OpenExchangeRates,
       callback_module: Money.ExchangeRates.Callback,
@@ -106,6 +107,8 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
 ### Configuration key definitions
 
+* `:auto_start_exchange_rate_service` indicates if the exchange rate service is to be started when `ex_money` starts. The default is `true`. Set this to `false` when configuring the service to run within a different supervision tree.
+
 * `:default_cldr_backend` defines the `Cldr` backend module that is default for `Money`.  See the [ex_cldr documentation](https://hexdocs.pm/ex_cldr/2.0.0/readme.html) for further information on how to define this module.  **This is a required option**.
 
 * `:exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is `:never`. An `atom` value is interpreted to mean that there should be no periodic retrieval.
@@ -117,6 +120,9 @@ An optional callback module can also be defined.  This module defines a `rates_r
   * `Money.ExchangeRates.Cache.Ets` which is also the default.
   * `Money.ExchangeRates.Cache.Dets`
 
+
+* `:retriever_options` is available for exchange rate retriever module developers as a place to add retriever-specific configuration information.  This information should be added in the `init/1` callback in the retriever module.  See `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
+
 * `:preload_historic_rates` defines a date or a date range that will be requested when the exchange rate service starts up. The date or date range should be specified as either a `Date.t` or a `Date.Range.t` or a tuple of `{Date.t, Date.t}` representing the `from` and `to` dates for the rates to be retrieved. The default is `nil` meaning no historic rates are preloaded. See [Preloading historic rates](#preloading-historic-rates) for more information.
 
 * `callback_module` defines a module that follows the `Money.ExchangeRates.Callback` behaviour whereby the function `rates_retrieved/2` is invoked after every successful retrieval of exchange rates.  The default is `Money.ExchangeRates.Callback`.
@@ -127,18 +133,15 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
 * `log_info` defines the log level at which service startup messages are logged.  The default is `info`.
 
-* `:retriever_options` is available for exchange rate retriever module developers as a place to add retriever-specific configuration information.  This information should be added in the `init/1` callback in the retriever module.  See `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
+* `:json_library` determines which json library to be used for decoding.  Two common options are `Poison` and `Jason`. The default is `Cldr.Config.json_library/0` which will attempt to use `JSON` (built in as of Elixir 1.18) or `:json` (built into OTP as of OTP 27).
 
-* `:json_library` determines which json library to be used for decoding.  Two common options are `Poison` and `Jason`. The default is `Cldr.Config.json_library/0` which will attempt to use `Json` (built in as of Elixir 1.18) or `:json` (built into OTP as of OTP 27).
-
-* `:exclude_protocol_implementations` is a protocol module, or list of protocol modules, that will not be defined by `ex_money`. The default is `[]`. The protocol implementations influenced by this option at `Json.Encoder`, `Phoenix.HTML.Safe` and `Gringotts.Money`.
-
+* `:exclude_protocol_implementations` is a protocol module, or list of protocol modules, that will not be defined by `ex_money`. The default is `[]`. The protocol implementations influenced by this option at `Jason.Encoder`, `JSON.Encoder`, `Phoenix.HTML.Safe` and `Gringotts.Money`.
 
 ### JSON library configuration
 
 Note that `ex_money` does not define a json library dependency and therefore it is the users responsibility to configure the required json library as a dependency in the application's `mix.exs`.
 
-The recommended library is [jason](https://hex.pm/packages/jason) which would be configured as:
+The recommended library is [jason](https://hex.pm/packages/jason) on Elixir versions prior to 1.18 which would be configured as:
 ```
   defp deps do
     [
@@ -147,12 +150,14 @@ The recommended library is [jason](https://hex.pm/packages/jason) which would be
     ]
   end
 ```
+For Elixir version 1.18 or later, no JSON library need be configured since the built-in `JSON` module can be used automatically. For earlier Elixir versions that are running on OTP 27 or later, the built-in OTP module `:json` will be used automatically.
+
 `ex_money` depends on `ex_cldr` which provides currency and localisation data. The default configuration of `ex_money` uses the default `json_library` from `ex_cldr`.  This can be configured as follows in `config.exs`:
 ```
 config :ex_cldr,
   json_library: Jason
 ```
-In most cases this is not required since the presence of `Jason` (or `Poison`) is automatic.
+In most cases this is not required since the presence of `Jason`, `JSON` (Elixir 1.18 or later), `:json` (OTP 27 or later) or `Poison` is automatic.
 
 ### Configuring locales to support localised formatting
 
