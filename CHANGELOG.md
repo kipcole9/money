@@ -2,6 +2,14 @@
 
 **Note** `ex_money` 5.17.0 and later is supported on Elixir 1.12 and later versions only.
 
+## Money v5.21.0
+
+This is the changelog for Money v5.21.0 released on March 30th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Add `JSON.Encoder` implementation to support serializing money types with Elixir's JSON module. Thanks to @jfpedroza for the PR. Closes #182.
+
 ## Money v5.20.0
 
 This is the changelog for Money v5.20.0 released on March 18th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
