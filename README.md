@@ -480,7 +480,7 @@ The main API for formatting `Money` is `Money.to_string/2`. Additionally formatt
 
 ### Arithmetic Functions
 
-See also the module `Money.Arithmetic`:
+Some basic math functions are available to operate on `Money` structs.
 
     iex> m1 = Money.new(:USD, 100)
     #Money<:USD, 100>}
