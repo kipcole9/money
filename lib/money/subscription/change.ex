@@ -8,7 +8,7 @@ defmodule Money.Subscription.Change do
   * `:first_billing_amount` is the amount to be billed, net of any credit, at
     the `:first_interval_starts`
 
-  * `:next_interval_starts` is the start date of the next interval after the `
+  * `:next_interval_starts` is the start date of the next interval after the
     first interval including any `credit_days_applied`
 
   * `:credit_amount` is the amount of unconsumed credit of the current plan
@@ -16,7 +16,7 @@ defmodule Money.Subscription.Change do
   * `:credit_amount_applied` is the amount of credit applied to the new plan. If
     the `:prorate` option is `:price` (the default) the `:first_billing_amount`
     is the plan `:price` reduced by the `:credit_amount_applied`. If the `:prorate`
-    option is `:period` then the `:first_billing_amount` is the plan `price and
+    option is `:period` then the `:first_billing_amount` is the plan `price` and
     the `:next_interval_date` is extended by the `:credit_days_applied`
     instead.
 
