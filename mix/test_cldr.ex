@@ -25,5 +25,5 @@ defmodule Money.Cldr do
       "ar-MA"
     ],
     default_locale: "en",
-    providers: [Cldr.Number, Money]
+    providers: [Cldr.Number, Cldr.Unit, Money]
 end

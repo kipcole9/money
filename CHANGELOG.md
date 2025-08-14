@@ -4,6 +4,14 @@
 
 ## Money v5.21.0
 
+This is the changelog for Money v5.22.0 released on ______, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Enhancements
+
+* Adds `Money.Subscription.Plan.to_string/2` to return a localized string representation of a subscription plan. The implementation is conditional on [ex_cldr_units](https://hex.pm/packages/ex_cldr_units) being configured as a dependency in `mix.exs` and `Cldr.Unit` being added as a provider in the CLDR backend module. Thanks to @peaceful-james for the suggestion. Closes #186.
+
+## Money v5.21.0
+
 This is the changelog for Money v5.21.0 released on March 30th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Enhancements

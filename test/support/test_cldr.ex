@@ -19,6 +19,6 @@ defmodule Test.Cldr do
       "bn",
       "ar-MA"
     ],
-    providers: [Cldr.Number, Money],
+    providers: [Cldr.Number, Cldr.Unit, Money],
     suppress_warnings: true
 end

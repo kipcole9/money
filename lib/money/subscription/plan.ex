@@ -29,7 +29,7 @@ defmodule Money.Subscription.Plan do
   Returns `{:ok, Money.Subscription.Plan.t}` or an `{:error, reason}`
   tuple.
 
-  ## Arguments
+  ### Arguments
 
   * `:price` is any `Money.t`
 
@@ -39,11 +39,11 @@ defmodule Money.Subscription.Plan do
   * `:interval_count` is an integer count of the number of `:interval`s
     of the plan.  The default is `1`
 
-  ## Returns
+  ### Returns
 
   A `Money.Subscription.Plan.t`
 
-  ## Examples
+  ### Examples
 
       iex> Money.Subscription.Plan.new Money.new(:USD, 100), :month, 1
       {:ok,
@@ -93,7 +93,7 @@ defmodule Money.Subscription.Plan do
 
   Takes the same arguments as `Money.Subscription.Plan.new/3`.
 
-  ## Example
+  ##@ Example
 
       iex> Money.Subscription.Plan.new! Money.new(:USD, 100), :day, 30
       %Money.Subscription.Plan{
@@ -110,6 +110,70 @@ defmodule Money.Subscription.Plan do
     case new(price, interval, interval_count) do
       {:ok, plan} -> plan
       {:error, {exception, reason}} -> raise exception, reason
+    end
+  end
+
+  if Code.ensure_loaded?(Cldr.Unit) do
+    import Kernel, except: [to_string: 1]
+
+    @doc """
+    Return a localised string representation of a subscription
+    plan.
+
+    ### Arguments
+
+    * Any `Money.Subscription.Plan.t/1` as returned from
+      `Money.Subscription.Plan.new/3`.
+
+    * `options` is a keyword list of options.
+
+    ### Options
+
+    * See `Cldr.Unit.to_string/1` for available options.
+
+    ### Returns
+
+    * `{:ok, localized_string}` or
+
+    * `{:error, reason}`
+
+    ### Examples
+
+        iex> {:ok, plan} = Money.Subscription.Plan.new(Money.new(:USD, 10), :year)
+        iex> Money.Subscription.Plan.to_string(plan)
+        {:ok, "$10.00 per year"}
+        iex> Money.Subscription.Plan.to_string(plan, locale: :ja)
+        {:ok, "$10.00毎年"}
+        iex> Money.Subscription.Plan.to_string(plan, locale: :de, style: :narrow)
+        {:ok, "10,00\u00A0$/J"}
+
+        iex> {:ok, plan} = Money.Subscription.Plan.new(Money.new(:USD, 10), :day, 30)
+        iex> Money.Subscription.Plan.to_string(plan)
+        {:ok, "$10.00 per 30 days"}
+        iex> Money.Subscription.Plan.to_string(plan, locale: :de)
+        {:ok, "10,00\u00A0$ pro 30 Tage"}
+        iex> Money.Subscription.Plan.to_string(plan, locale: :de, style: :short)
+        {:ok, "10,00\u00A0$/30 Tg."}
+
+    """
+    @doc since: "5.22.0"
+    def to_string(%__MODULE__{} = plan, options \\ []) do
+      backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
+
+      plan
+      |> unit_from_plan()
+      |> Cldr.Unit.new!(plan.price.amount)
+      |> Cldr.Unit.to_string(backend, options)
+    end
+
+    defp unit_from_plan(%__MODULE__{interval_count: 1} = plan) do
+      %{price: amount, interval: interval} = plan
+      "curr-#{amount.currency}-per-#{interval}"
+    end
+
+    defp unit_from_plan(%__MODULE__{interval_count: interval_count} = plan) do
+      %{price: amount, interval: interval} = plan
+      "curr-#{amount.currency}-per-#{interval_count}-#{interval}"
     end
   end
 end
