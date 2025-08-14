@@ -14,11 +14,11 @@ defmodule Money.DigitalToken.Test do
 
   if System.otp_release() < "28" do
     test "Formatting digital token" do
-      assert {:ok, "₿100.234235"} = Money.to_string(Money.new("BTC", "100.234235"))
+      assert {:ok, "₿\u00A0100.234235"} = Money.to_string(Money.new("BTC", "100.234235"))
     end
   else
     test "Formatting digital token" do
-      assert {:ok, "₿\u00A0100.234235"} = Money.to_string(Money.new("BTC", "100.234235"))
+      assert {:ok, "₿100.234235"} = Money.to_string(Money.new("BTC", "100.234235"))
     end
   end
 end
