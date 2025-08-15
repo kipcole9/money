@@ -122,7 +122,7 @@ defmodule Money.Subscription.Plan do
 
     ### Arguments
 
-    * Any `Money.Subscription.Plan.t/1` as returned from
+    * Any `t:Money.Subscription.Plan.t/1` as returned from
       `Money.Subscription.Plan.new/3`.
 
     * `options` is a keyword list of options.
