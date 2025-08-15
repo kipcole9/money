@@ -166,6 +166,13 @@ defmodule Money.Subscription.Plan do
       |> Cldr.Unit.to_string(backend, options)
     end
 
+    def to_string!(%__MODULE__{} = plan, options \\ []) do
+      case to_string(plan, options) do
+        {:ok, string} -> string
+        {:error, {exception, reason}} -> raise exception, reason
+      end
+    end
+
     defp unit_from_plan(%__MODULE__{interval_count: 1} = plan) do
       %{price: amount, interval: interval} = plan
       "curr-#{amount.currency}-per-#{interval}"
