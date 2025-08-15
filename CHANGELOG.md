@@ -2,7 +2,7 @@
 
 **Note** `ex_money` 5.17.0 and later is supported on Elixir 1.12 and later versions only.
 
-## Money v5.21.0
+## Money v5.22.0
 
 This is the changelog for Money v5.22.0 released on August 15th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
