@@ -1760,6 +1760,50 @@ defmodule Money do
     end)
   end
 
+  @doc """
+  Sum a list of monies that may be in different
+  currencies or raise on error.
+
+  ### Arguments
+
+  * `money_list` is a list of any valid `t:Money.t/0` types returned
+    by `Money.new/2`.
+
+  * `rates` is a map of exchange rates. The default is the rates
+    returned by `Money.ExchangeRates.latest_rates/0`. If the
+    exchange rates retriever is not running, then the default is
+    `%{}`.
+
+  ### Returns
+
+  * a `t:Money.t/0` struct or
+
+  * raises an exception
+
+  ### Examples
+      iex> Money.sum!([Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:USD, 50)])
+      Money.new(:USD, 350)
+
+      iex> Money.sum!([Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:AUD, 50)], %{})
+      ** (Money.ExchangeRateError) No exchange rate is available for currency :AUD
+
+      iex> rates = %{AUD: Decimal.new(2), USD: Decimal.new(1)}
+      iex> Money.sum! [Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:AUD, 50)], rates
+      Money.from_float(:USD, 325.0)
+  """
+  @spec sum!(
+          [t(), ...],
+          ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
+        ) ::
+          t() | no_return()
+
+  def sum!(money_list, rates \\ latest_rates_or_empty_map()) do
+    case sum(money_list, rates) do
+      {:ok, result} -> result
+      {:error, {exception, message}} -> raise exception, message
+    end
+  end
+
   defp latest_rates_or_empty_map do
     case Money.ExchangeRates.latest_rates() do
       {:error, _} -> %{}
