@@ -1712,8 +1712,8 @@ defmodule Money do
 
   ### Returns
 
-  * `{:ok, money}` representing the sum of the maybe
-    converted money amounts. The currency of the sum is
+  * `{:ok, money}` where `money` is a `t:Money.t/0` representing the
+    sum of the maybe converted money amounts. The currency of the sum is
     the currency of the first `Money` in the `money_list`.
 
   * `{:error, {exception, reason}}` describing an error.
@@ -1729,7 +1729,7 @@ defmodule Money do
 
       iex> rates = %{AUD: Decimal.new(2), USD: Decimal.new(1)}
       iex> Money.sum [Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:AUD, 50)], rates
-      {:ok, Money.from_float(:USD, 325.0)}
+      {:ok, Money.new(:USD, "325.0")}
 
   """
   @doc since: "5.3.0"
@@ -1737,7 +1737,7 @@ defmodule Money do
           [t(), ...],
           ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
         ) ::
-          {:ok, t} | {:error, {module(), String.t()}}
+          {:ok, t()} | {:error, {module(), String.t()}}
 
   def sum(money_list, rates \\ latest_rates_or_empty_map())
 
@@ -1762,7 +1762,7 @@ defmodule Money do
 
   @doc """
   Sum a list of monies that may be in different
-  currencies or raise on error.
+  currencies or raise an exception on error.
 
   ### Arguments
 
@@ -1776,11 +1776,14 @@ defmodule Money do
 
   ### Returns
 
-  * a `t:Money.t/0` struct or
+  * A `t:Money.t/0`  representing the sum of the maybe
+    converted money amounts. The currency of the sum is
+    the currency of the first `Money` in the `money_list`.
 
-  * raises an exception
+  * raises an exception.
 
   ### Examples
+
       iex> Money.sum!([Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:USD, 50)])
       Money.new(:USD, 350)
 
@@ -1789,7 +1792,8 @@ defmodule Money do
 
       iex> rates = %{AUD: Decimal.new(2), USD: Decimal.new(1)}
       iex> Money.sum! [Money.new(:USD, 100), Money.new(:USD, 200), Money.new(:AUD, 50)], rates
-      Money.from_float(:USD, 325.0)
+      Money.new(:USD, "325.0")
+
   """
   @spec sum!(
           [t(), ...],
