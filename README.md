@@ -618,7 +618,7 @@ The primary functions supporting subscriptions are:
 
     # Change plans in the middle of the current plan period
     # and credit the balance of the current plan to the new plan
-    iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01], effective: ~D[2018-03-15]
+    iex> Money.Subscription.change_plan! current_plan, new_plan, current_interval_started: ~D[2018-03-01], effective: ~D[2018-03-15]
     %Money.Subscription.Change{
       first_billing_amount: Money.new(:USD, "4.51"),
       first_interval_starts: ~D[2018-03-15],
