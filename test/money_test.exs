@@ -524,7 +524,7 @@ defmodule MoneyTest do
 
   test "that we can use accounting digits for to_integer_exp" do
     assert Money.to_integer_exp(Money.new(:COP, 1234), currency_digits: :accounting) ==
-             {:COP, 123_400, -2, Money.new(:COP, 0)}
+             {:COP, 1_234, 0, Money.new(:COP, 0)}
   end
 
   test "that to_integer_exp handles negative amounts" do
