@@ -284,25 +284,25 @@ end
 ### Creating a %Money{} struct
 
     iex> Money.new(:USD, 100)
-    #Money<:USD, 100>
+    Money.new(:USD, "100")
 
     iex> Money.new(100, :USD)
-    #Money<:USD, 100>
+    Money.new(:USD, "100")
 
     iex> Money.new("CHF", "130.02")
-    #Money<:CHF, 130.02>
+    Money.new(:CHF, "130.02")
 
     iex> Money.new("thb", 11)
-    #Money<:THB, 11>
+    Money.new(:THB, "11")
 
     iex> Money.new("1.000,99", :EUR, locale: "de")
-    #Money<:EUR, 1000.99>
+    Money.new(:EUR, "1000.99")
 
     iex> Money.parse("USD 100")
-    #Money<:USD, 100>
+    Money.new(:USD, "100")
 
     iex> Money.parse("USD 100,00", locale: "de")
-    #Money<:USD, 100.00>
+    Money.new(:USD, "100.00")
 
 The canonical representation of a currency code is an `atom` that is a valid
 [ISO4217](http://www.currency-iso.org/en/home/tables/table-a1.html) currency code or a `t:String.t/0` representation of an [ISO 24165](https://www.iso.org/standard/80601.html) digital token identifier. The amount of a `%Money{}` is represented by a `Decimal`.
@@ -320,36 +320,32 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
   ["aud", "au$", "australischer dollar", "australische dollar"]
 
   iex> Money.parse "$au 12 346", locale: "fr"
-  #Money<:AUD, 12346>
+  Money.new(:AUD, "12346")
 
   iex> Money.parse "12 346 dollar australien", locale: "fr"
-  #Money<:AUD, 12346>
+  Money.new(:AUD, "12346")
 
   iex> Money.parse "A$ 12346", locale: "en"
-  #Money<:AUD, 12346>
+  Money.new(:AUD, "12346")
 
   iex> Money.parse "australian dollar 12346.45", locale: "en"
-  #Money<:AUD, 12346.45>
+  Money.new(:AUD, "12346.45")
 
   # Parse using a default currency
   iex> Money.parse("100", default_currency: :EUR)
-  #Money<:EUR, 100>
+  Money.new(:EUR, "100")
 
   # Parse using the default currency of the locale
 	# If no `:locale` option is provided then
 	# the locale associated with `Money.default_backend/0`
 	# is used.
   iex> Money.parse("100", locale: "en")
-  #Money<:EUR, 100>
-
-  # Parse with a default currency for the current locale
-  iex> Money.parse("100", default_currency: Money.default_currency_for_locale())
-  #Money<:USD, 100>
+  Money.new(:USD, "100")
 
   # Note that the decimal separator in the "de" locale
   # is a `.`
   iex> Money.parse "AU$ 12346,45", locale: "de"
-  #Money<:AUD, 12346.45>
+  Money.new(:AUD, "12346.45")
 
   # Round trip formatting is supported
   iex> {:ok, string} = Cldr.Number.to_string 1234, Money.Cldr, currency: :AUD
@@ -359,7 +355,7 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
 
   # Fuzzy matching is possible
   iex> Money.parse("100 eurosports", fuzzy: 0.8)
-  #Money<:EUR, 100>
+  Money.new(:EUR, "100")
 
   iex> Money.parse("100 eurosports", fuzzy: 0.9)
   {:error,
@@ -367,10 +363,10 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
 
   # Eligible currencies can be filtered
   iex> Money.parse("100 eurosports", fuzzy: 0.8, only: [:current])
-  #Money<:EUR, 100>
+  Money.new(:EUR, "100")
 
   iex> Money.parse("100 euro", only: [:EUR, :USD, :COP])
-  #Money<:EUR, 100>
+  Money.new(:EUR, "100")
 
   iex> Money.parse("100 euro", except: [:EUR, :USD, :COP])
   {:error,
@@ -378,7 +374,7 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
       "The currency \"euro\" is unknown or not supported"}}
 
   iex> Money.parse "100 afghan afghanis"
-  #Money<:AFN, 100>
+  Money.new(:AFN, "100")
 
   iex> Money.parse "100 afa", only: [:current]
   {:error,
@@ -421,13 +417,13 @@ iex> Money.compare Money.new(:USD, 100), Money.new(:AUD, 200)
 From Elixir verison `1.10.0` onwards, several functions in the `Enum` module can use the `Money.compare/2` function to simplify sorting. For example:
 ```
 iex> list = [Money.new(:USD, 100), Money.new(:USD, 200)]
-[#Money<:USD, 100>, #Money<:USD, 200>]
+[Money.new(:USD, "100"), Money.new(:USD, "200")]
 iex> Enum.sort list, Money
-[#Money<:USD, 100>, #Money<:USD, 200>]
+[Money.new(:USD, "100"), Money.new(:USD, "200")]
 iex> Enum.sort list, {:asc, Money}
-[#Money<:USD, 100>, #Money<:USD, 200>]
+[Money.new(:USD, "100"), Money.new(:USD, "200")]
 iex> Enum.sort list, {:desc, Money}
-[#Money<:USD, 200>, #Money<:USD, 100>]
+[Money.new(:USD, "200"), Money.new(:USD, "100")]
 ```
 
 **Note that `Enum.sort/2` will sort money amounts even when the currencies are incompatible. In this case the order of the result is not predictable. It is the developers responsibility to filter the list to compatible currencies prior to sorting. This is a limitation of the `Enum.sort/2` implementation.**
@@ -439,7 +435,7 @@ An optional sigil module is available to aid in creating %Money{} structs.  It n
     import Money.Sigil
 
     ~M[100]USD
-    #> #Money<:USD, 100>
+    #> Money.new(:USD, "100")
 
 ### Localised Money formatting
 
@@ -483,59 +479,61 @@ The main API for formatting `Money` is `Money.to_string/2`. Additionally formatt
 Some basic math functions are available to operate on `Money` structs.
 
     iex> m1 = Money.new(:USD, 100)
-    #Money<:USD, 100>}
+    Money.new(:USD, "100")
 
     iex> m2 = Money.new(:USD, 200)
-    #Money<:USD, 200>}
+    Money.new(:USD, "200")
 
     iex> Money.add(m1, m2)
-    {:ok, #Money<:USD, 300>}
+    {:ok, Money.new(:USD, "300")}
 
     iex> Money.add!(m1, m2)
-    #Money<:USD, 300>
+    Money.new(:USD, "300")
 
     iex> m3 = Money.new(:AUD, 300)
-    #Money<:AUD, 300>
+    Money.new(:AUD, "300")
 
     iex> Money.add Money.new(:USD, 200), Money.new(:AUD, 100)
-    {:error, {ArgumentError, "Cannot add monies with different currencies. Received :USD and :AUD."}}
+    {:error,
+      {ArgumentError,
+        "Cannot add monies with different currencies. Received :USD and :AUD."}}
 
     # Split a %Money{} returning the a dividend and a remainder. All
     # operations respect the number of fractional digits defined for a currency
     iex> m1 = Money.new(:USD, 100)
-    #Money<:USD, 100>
+    Money.new(:USD, "100")
 
     iex> Money.split(m1, 3)
-    {#Money<:USD, 33.33>, #Money<:USD, 0.01>}
+    {Money.new(:USD, "33.33"), Money.new(:USD, "0.01")}
 
     # Rounding applies the currency definitions of CLDR as implemented in
     # the hex package [ex_cldr](https://hex.pm/packages/ex_cldr)
     iex> Money.round Money.new(:USD, "100.678")
-    #Money<:USD, 100.68>
+    Money.new(:USD, "100.68")
 
     iex> Money.round Money.new(:JPY, "100.678")
-    #Money<:JPY, 101>
+    Money.new(:JPY, "101")
 
 ### Currency Conversion
 
 A `%Money{}` struct can be converted to another currency using `Money.to_currency/3` or `Money.to_currency!/3`.  For example:
 
     iex> Money.to_currency Money.new(:USD, 100), :AUD
-    {:ok, #Money<:AUD, 136.43>}
+    {:ok, Money.new(:AUD, "152.9300")}
 
-    iex> Money.to_currency Money.new(:USD, 100), :AUD, ExchangeRates.historic_rates(~D[2017-01-01])
-    {:ok, #Money<:AUD, 128.76>}
+    iex> Money.to_currency Money.new(:USD, 100), :AUD, Money.ExchangeRates.historic_rates(~D[2017-01-01])
+    {:ok, Money.new(:AUD, "138.6200")}
 
-    iex> Money.to_currency Money.new(:USD, 100) , :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new(0.7345)}
-    {:error, {Cldr.UnknownCurrencyError, "Currency :AUDD is not known"}}
+    iex> Money.to_currency Money.new(:USD, 100) , :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")}
+    {:error, {Cldr.UnknownCurrencyError, "The currency :AUDD is invalid"}}
 
     iex> Money.to_currency! Money.new(:USD, 100), :XXX
     ** (Money.ExchangeRateError) No exchange rate is available for currency :XXX
 
 A user-defined map of exchange rates can also be supplied:
 
-    iex> Money.to_currency Money.new(:USD, 100), :AUD, %{USD: Decimal.new(1.0), AUD: Decimal.new(1.3)}
-    #Money<:AUD, 130>
+    iex> Money.to_currency Money.new(:USD, 100), :AUD, %{USD: Decimal.new("1.0"), AUD: Decimal.new("1.3")}
+    {:ok, Money.new(:AUD, "130.0")}
 
 ### Historic Conversion Rates
 
@@ -577,9 +575,9 @@ The primary functions supporting subscriptions are:
     # Create the current plan
     iex> current_plan = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 1)
     %Money.Subscription.Plan{
+      price: Money.new(:USD, "10"),
       interval: :month,
-      interval_count: 1,
-      price: #Money<:USD, 10>
+      interval_count: 1
     }
 
     # How many days in a billing period?
@@ -600,116 +598,116 @@ The primary functions supporting subscriptions are:
     # Create a new plan
     iex> new_plan = Money.Subscription.Plan.new!(Money.new(:USD, 10), :month, 3)
     %Money.Subscription.Plan{
+      price: Money.new(:USD, "10"),
       interval: :month,
-      interval_count: 3,
-      price: #Money<:USD, 10>
+      interval_count: 3
     }
 
     # Change plans at the end of the current billing period
-    iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01]
+    iex> Money.Subscription.change_plan! current_plan, new_plan, current_interval_started: ~D[2018-03-01]
     %Money.Subscription.Change{
-      carry_forward: #Money<:USD, 0>,
-      credit_amount: #Money<:USD, 0>,
-      credit_amount_applied: #Money<:USD, 0>,
+      first_billing_amount: Money.new(:USD, "10"),
+      first_interval_starts: ~D[2018-04-01],
+      next_interval_starts: ~D[2018-07-01],
+      credit_amount_applied: Money.new(:USD, "0"),
+      credit_amount: Money.new(:USD, "0"),
       credit_days_applied: 0,
       credit_period_ends: nil,
-      first_billing_amount: #Money<:USD, 10>,
-      first_interval_starts: ~D[2018-04-01],
-      next_interval_starts: ~D[2018-07-01]
+      carry_forward: Money.new(:USD, "0")
     }
 
     # Change plans in the middle of the current plan period
     # and credit the balance of the current plan to the new plan
-    iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01], effective: ~D[2018-03-15]
+    iex> Money.Subscription.change_plan! current_plan, new_plan, current_interval_started: ~D[2018-03-01], effective: ~D[2018-03-15]
     %Money.Subscription.Change{
-      carry_forward: #Money<:USD, 0>,
-      credit_amount: #Money<:USD, 5.49>,
-      credit_amount_applied: #Money<:USD, 5.49>,
+      first_billing_amount: Money.new(:USD, "4.51"),
+      first_interval_starts: ~D[2018-03-15],
+      next_interval_starts: ~D[2018-06-15],
+      credit_amount_applied: Money.new(:USD, "5.49"),
+      credit_amount: Money.new(:USD, "5.49"),
       credit_days_applied: 0,
       credit_period_ends: nil,
-      first_billing_amount: #Money<:USD, 4.51>,
-      first_interval_starts: ~D[2018-03-15],
-      next_interval_starts: ~D[2018-06-15]
+      carry_forward: Money.new(:USD, "0")
     }
 
     # Change plans in the middle of the current plan period
     # but instead of a monetary credit, apply the credit as
     # extra days on the new plan in the first billing period
-    iex> Money.Subscription.change_plan current_plan, new_plan, current_interval_started: ~D[2018-03-01], effective: ~D[2018-03-15], prorate: :period
+    iex> Money.Subscription.change_plan! current_plan, new_plan, current_interval_started: ~D[2018-03-01], effective: ~D[2018-03-15], prorate: :period
     %Money.Subscription.Change{
-      carry_forward: #Money<:USD, 0>,
-      credit_amount: #Money<:USD, 5.49>,
-      credit_amount_applied: #Money<:USD, 0>,
+      first_billing_amount: Money.new(:USD, "10"),
+      first_interval_starts: ~D[2018-03-15],
+      next_interval_starts: ~D[2018-08-05],
+      credit_amount_applied: Money.new(:USD, "0"),
+      credit_amount: Money.new(:USD, "5.49"),
       credit_days_applied: 51,
       credit_period_ends: ~D[2018-05-04],
-      first_billing_amount: #Money<:USD, 10>,
-      first_interval_starts: ~D[2018-03-15],
-      next_interval_starts: ~D[2018-08-05]
+      carry_forward: Money.new(:USD, "0")
     }
 
     # Create a subscription
     iex> plan = Money.Subscription.Plan.new!(Money.new(:USD, 200), :month, 3)
     iex> subscription = Money.Subscription.new! plan, ~D[2018-01-01]
     %Money.Subscription{
-      created_at: #DateTime<2018-03-23 07:45:44.418916Z>,
       id: nil,
       plans: [
         {%Money.Subscription.Change{
-           carry_forward: #Money<:USD, 0>,
-           credit_amount: #Money<:USD, 0>,
-           credit_amount_applied: #Money<:USD, 0>,
-           credit_days_applied: 0,
-           credit_period_ends: nil,
-           first_billing_amount: #Money<:USD, 200>,
-           first_interval_starts: ~D[2018-01-01],
-           next_interval_starts: ~D[2018-04-01]
-         },
-         %Money.Subscription.Plan{
-           interval: :month,
-           interval_count: 3,
-           price: #Money<:USD, 200>
-         }}
-      ]
+          first_billing_amount: Money.new(:USD, "200"),
+          first_interval_starts: ~D[2018-01-01],
+          next_interval_starts: ~D[2018-04-01],
+          credit_amount_applied: Money.new(:USD, "0"),
+          credit_amount: Money.new(:USD, "0"),
+          credit_days_applied: 0,
+          credit_period_ends: nil,
+          carry_forward: Money.new(:USD, "0")
+        },
+        %Money.Subscription.Plan{
+          price: Money.new(:USD, "200"),
+          interval: :month,
+          interval_count: 3
+        }}
+      ],
+      created_at: ~U[2025-08-30 04:20:22.018760Z]
     }
 
     # Change a subscription's plan
     iex> new_plan = Money.Subscription.Plan.new!(Money.new(:USD, 150), :day, 30)
     iex> Money.Subscription.change_plan! subscription, new_plan
     %Money.Subscription{
-      created_at: #DateTime<2018-03-23 07:47:48.593973Z>,
       id: nil,
       plans: [
         {%Money.Subscription.Change{
-           carry_forward: #Money<:USD, 0>,
-           credit_amount: #Money<:USD, 0>,
-           credit_amount_applied: #Money<:USD, 0>,
-           credit_days_applied: 0,
-           credit_period_ends: nil,
-           first_billing_amount: #Money<:USD, 150>,
-           first_interval_starts: ~D[2018-04-01],
-           next_interval_starts: ~D[2018-05-01]
-         },
-         %Money.Subscription.Plan{
-           interval: :day,
-           interval_count: 30,
-           price: #Money<:USD, 150>
-         }},
+          first_billing_amount: Money.new(:USD, "150"),
+          first_interval_starts: ~D[2025-10-01],
+          next_interval_starts: ~D[2025-10-31],
+          credit_amount_applied: Money.new(:USD, "0"),
+          credit_amount: Money.new(:USD, "0"),
+          credit_days_applied: 0,
+          credit_period_ends: nil,
+          carry_forward: Money.new(:USD, "0")
+        },
+        %Money.Subscription.Plan{
+          price: Money.new(:USD, "150"),
+          interval: :day,
+          interval_count: 30
+        }},
         {%Money.Subscription.Change{
-           carry_forward: #Money<:USD, 0>,
-           credit_amount: #Money<:USD, 0>,
-           credit_amount_applied: #Money<:USD, 0>,
-           credit_days_applied: 0,
-           credit_period_ends: nil,
-           first_billing_amount: #Money<:USD, 200>,
-           first_interval_starts: ~D[2018-01-01],
-           next_interval_starts: ~D[2018-04-01]
-         },
-         %Money.Subscription.Plan{
-           interval: :month,
-           interval_count: 3,
-           price: #Money<:USD, 200>
-         }}
-      ]
+          first_billing_amount: Money.new(:USD, "200"),
+          first_interval_starts: ~D[2018-01-01],
+          next_interval_starts: ~D[2018-04-01],
+          credit_amount_applied: Money.new(:USD, "0"),
+          credit_amount: Money.new(:USD, "0"),
+          credit_days_applied: 0,
+          credit_period_ends: nil,
+          carry_forward: Money.new(:USD, "0")
+        },
+        %Money.Subscription.Plan{
+          price: Money.new(:USD, "200"),
+          interval: :month,
+          interval_count: 3
+        }}
+      ],
+      created_at: ~U[2025-08-30 04:20:22.018760Z]
     }
 
 ## Serializing to a database with Ecto
