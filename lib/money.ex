@@ -117,7 +117,7 @@ defmodule Money do
            when is_binary(token_id) and byte_size(token_id) == 9
 
   @doc """
-  Returns a %Money{} struct from a currency code and a currency amount or
+  Returns a `t:Money.t/0` from a currency code and a currency amount or
   an error tuple of the form `{:error, {exception, message}}`.
 
   ### Arguments
@@ -300,7 +300,7 @@ defmodule Money do
   end
 
   @doc """
-  Returns a %Money{} struct from a currency code and a currency amount. Raises an
+  Returns a `t:Money.t/0` from a currency code and a currency amount. Raises an
   exception if the current code is invalid.
 
   ### Arguments
@@ -349,7 +349,7 @@ defmodule Money do
   end
 
   @doc """
-  Returns a %Money{} struct from a currency code and a float amount, or
+  Returns a `t:Money.t/0` from a currency code and a float amount, or
   an error tuple of the form `{:error, {exception, message}}`.
 
   Floats are fraught with danger in computer arithmetic due to the
@@ -414,7 +414,7 @@ defmodule Money do
   end
 
   @doc """
-  Returns a %Money{} struct from a currency code and a float amount, or
+  Returns a `t:Money.t/0` from a currency code and a float amount, or
   raises an exception if the currency code is invalid.
 
   See `Money.from_float/2` for further information.
