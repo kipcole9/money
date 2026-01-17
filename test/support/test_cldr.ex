@@ -1,4 +1,4 @@
-require Money.Backend
+# require Money.Backend
 require Money
 
 defmodule Test.Cldr do

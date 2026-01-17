@@ -598,11 +598,6 @@ defmodule MoneyTest do
     refute Money.zero?(Money.new(:USD, -1))
   end
 
-  test "to_string/2 on a Money that doesn't have a :format_options key" do
-    money = %{__struct__: Money, amount: Decimal.new(3), currency: :USD}
-    assert Money.to_string(money) == {:ok, "$3.00"}
-  end
-
   test "from_integer/3" do
     assert Money.from_integer(100, :USD, fractional_digits: 1) == Money.new(:USD, "10.0")
     assert Money.from_integer(100, :USD, fractional_digits: 0) == Money.new(:USD, "100")

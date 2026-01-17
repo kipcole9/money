@@ -154,7 +154,6 @@ defmodule Money.ExchangeRates do
   @callback init(config :: Money.ExchangeRates.Config.t()) :: Money.ExchangeRates.Config.t()
   @optional_callbacks init: 1
 
-  require Logger
   import Money.ExchangeRates.Cache
   alias Money.ExchangeRates.Retriever
 

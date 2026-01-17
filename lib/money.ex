@@ -621,6 +621,7 @@ defmodule Money do
   defp maybe_create_money(%{currency: nil} = money_map, string, options) do
     backend = Keyword.get_lazy(options, :backend, &Money.default_backend!/0)
     locale = Keyword.get(options, :locale, backend.get_locale())
+    options = Keyword.put(options, :backend, backend)
 
     with {:ok, backend} <- Cldr.validate_backend(backend),
          {:ok, locale} <- Cldr.validate_locale(locale, backend) do
@@ -778,8 +779,8 @@ defmodule Money do
 
   def to_string(money, options \\ [])
 
-  def to_string(%Money{currency: {:token, _token_id}} = money, options) when is_list(options) do
-    IO.inspect(money, label: "TODO for token monies")
+  def to_string(%Money{currency: {:token, _token_id}}, options) when is_list(options) do
+    {:error, {Money.FormatError, "Formatting of digital tokens is not current supported"}}
   end
 
   def to_string(%Money{} = money, options) when is_list(options) do
@@ -2872,19 +2873,9 @@ defmodule Money do
 
   @doc false
   def validate_currency(currency_code) do
-    currency_code
-    |> Cldr.validate_currency()
-    |> do_validate_currency(currency_code)
-  end
-
-  defp do_validate_currency({:ok, currency_code}, _currency_code) do
-    {:ok, currency_code}
-  end
-
-  defp do_validate_currency({:error, _}, currency_code) do
     case DigitalToken.validate_token(currency_code) do
       {:ok, token_id} -> {:ok, token_id}
-      {:error, _} -> {:error, Cldr.unknown_currency_error(currency_code)}
+      {:error, _} -> Cldr.Currency.validate_currency(currency_code)
     end
   end
 

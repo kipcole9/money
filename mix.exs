@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "5.23.0"
+  @version "5.24.0"
 
   def project do
     [
@@ -91,7 +91,8 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:ex_cldr_numbers, "~> 2.34"},
+      # {:ex_cldr_numbers, "~> 2.34"},
+      {:ex_cldr_numbers, github: "elixir-cldr/cldr_numbers", branch: "custom_currency_code", override: true},
 
       # Used for Money.Subscription.Plan.to_string/1
       {:ex_cldr_units, "~> 3.19", optional: true},
