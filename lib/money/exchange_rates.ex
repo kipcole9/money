@@ -102,8 +102,9 @@ defmodule Money.ExchangeRates do
   at `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
 
   """
+  alias Cldr.Currency
 
-  @type t :: %{Money.currency_code() => Decimal.t()}
+  @type t :: %{Currency.currency_code() => Decimal.t()}
 
   @doc """
   Invoked to return the latest exchange rates from the configured

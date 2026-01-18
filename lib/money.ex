@@ -35,22 +35,17 @@ defmodule Money do
   """
 
   import Kernel, except: [round: 1, abs: 1]
+
   require Cldr.Macros
+
   alias Cldr.Config
+  alias Cldr.Currency
 
   @typedoc """
   Money is composed of an atom representation of an ISO4217 currency code and
   a `Decimal` representation of an amount.
   """
-  @type t :: %Money{currency: currency_code(), amount: Decimal.t(), format_options: Keyword.t()}
-
-  @typedoc """
-  A currency code is an ISO 4217 code expressed
-  as an atom or binary or an ISO 24165 Digital
-  Token ID or Digital Token short name.
-
-  """
-  @type currency_code :: atom() | String.t()
+  @type t :: %Money{currency: Currency.currency_reference(), amount: Decimal.t(), format_options: Keyword.t()}
 
   @typedoc """
   An amount can be expressed as a float, an integer,
@@ -100,7 +95,6 @@ defmodule Money do
   # as bankers rounding
   @default_rounding_mode :half_even
 
-  alias Money.Currency
   alias Money.ExchangeRates
 
   defdelegate known_currencies, to: Cldr
@@ -190,7 +184,7 @@ defmodule Money do
         "use Money.from_float/2"}}
 
   """
-  @spec new(amount | currency_code, amount | currency_code, Keyword.t()) ::
+  @spec new(amount | Currency.currency_reference(), amount | Currency.currency_reference(), Keyword.t()) ::
           Money.t() | {:error, {module(), String.t()}}
 
   def new(currency_code, amount, options \\ [])
@@ -320,7 +314,7 @@ defmodule Money do
         (ex_money) lib/money.ex:177: Money.new!/2
 
   """
-  @spec new!(amount | currency_code, amount | currency_code, Keyword.t()) ::
+  @spec new!(amount | Currency.currency_reference(), amount | Currency.currency_reference(), Keyword.t()) ::
           Money.t() | no_return()
 
   def new!(currency_code, amount, options \\ [])
@@ -389,7 +383,7 @@ defmodule Money do
   """
   Cldr.Macros.doc_since("2.0.0")
   @max_precision_allowed 15
-  @spec from_float(float | currency_code, float | currency_code, Keyword.t()) ::
+  @spec from_float(float | Currency.currency_reference(), float | Currency.currency_reference(), Keyword.t()) ::
           Money.t() | {:error, {module(), String.t()}}
 
   def from_float(currency_code, amount, options \\ [])
@@ -445,7 +439,7 @@ defmodule Money do
 
   """
   Cldr.Macros.doc_since("2.0.0")
-  @spec from_float!(currency_code, float, Keyword.t()) :: Money.t() | no_return()
+  @spec from_float!(Currency.currency_reference(), float, Keyword.t()) :: Money.t() | no_return()
 
   def from_float!(currency_code, amount, options \\ []) do
     case from_float(currency_code, amount, options) do
@@ -2308,7 +2302,7 @@ defmodule Money do
   """
   @spec to_currency(
           Money.t(),
-          currency_code(),
+          Currency.currency_reference(),
           ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
         ) :: {:ok, Money.t()} | {:error, {module(), String.t()}}
 
@@ -2372,7 +2366,7 @@ defmodule Money do
   """
   @spec to_currency!(
           Money.t(),
-          currency_code(),
+          Currency.currency_reference(),
           ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
         ) :: Money.t() | no_return
 
@@ -2410,8 +2404,8 @@ defmodule Money do
 
   """
   @spec cross_rate(
-          Money.t() | currency_code,
-          currency_code,
+          Money.t() | Currency.currency_reference(),
+          Currency.currency_reference(),
           ExchangeRates.t() | {:ok, ExchangeRates.t()}
         ) :: {:ok, Decimal.t()} | {:error, {module(), String.t()}}
 
@@ -2462,8 +2456,8 @@ defmodule Money do
 
   """
   @spec cross_rate!(
-          Money.t() | currency_code,
-          currency_code,
+          Money.t() | Currency.currency_reference(),
+          Currency.currency_reference(),
           ExchangeRates.t() | {:ok, ExchangeRates.t()}
         ) :: Decimal.t() | no_return
 
@@ -2639,7 +2633,7 @@ defmodule Money do
       Money.new(:IQD, "20.012")
 
   """
-  @spec from_integer(integer, currency_code, Keyword.t()) ::
+  @spec from_integer(integer, Currency.currency_reference(), Keyword.t()) ::
           Money.t() | {:error, {module(), String.t()}}
 
   def from_integer(amount, currency, options \\ [])
@@ -2719,17 +2713,18 @@ defmodule Money do
       {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
 
   """
-  @spec zero(currency_code | Money.t()) :: Money.t() | {:error, {module(), binary()}}
+  @spec zero(Currency.currency_reference() | Money.t()) :: Money.t() | {:error, {module(), binary()}}
+  @spec zero(Currency.currency_reference() | Money.t(), Keyword.t()) :: Money.t() | {:error, {module(), binary()}}
 
-  def zero(money_or_currency, options \\ [])
+  def zero(money_or_currency_code, options \\ [])
 
-  def zero(%Money{currency: currency}, options) do
-    zero(currency, options)
+  def zero(%Money{currency: currency_code}, options) do
+    zero(currency_code, options)
   end
 
-  def zero(currency, options) do
-    with {:ok, currency} <- validate_currency(currency) do
-      Money.new(currency, 0, options)
+  def zero(currency_code, options) do
+    with {:ok, currency_code} <- validate_currency(currency_code) do
+      Money.new(currency_code, 0, options)
     end
   end
 
