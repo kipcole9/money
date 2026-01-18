@@ -1,12 +1,6 @@
 defmodule Money.CustomCurrencyTest do
   use ExUnit.Case
 
-  setup do
-    Cldr.Currency.start_link()
-    {:ok, _currency} = Cldr.Currency.new(:ABCD, name: "ABCD", digits: 0)
-    :ok
-  end
-
   test "Exchange rate conversion for a custom currency fails" do
     m1 = Money.new(:ABCD, 10)
 

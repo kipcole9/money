@@ -191,8 +191,8 @@ defmodule MoneyTest do
   end
 
   test "creating a money struct with an invalid binary currency code returns error tuple" do
-    assert Money.new("ABCD", 100) ==
-             {:error, {Money.UnknownCurrencyError, "The currency \"ABCD\" is invalid"}}
+    assert Money.new("XYZABC", 100) ==
+             {:error, {Money.UnknownCurrencyError, "The currency \"XYZABC\" is invalid"}}
   end
 
   test "string output of money is correctly formatted" do
