@@ -10,7 +10,7 @@ This is the changelog for Money v5.23.1 released on January 17th, 2026.  For old
 
 * Fixes compile warnings on Elixir 1.20.
 
-* Fix examples in README.md to align with the current `inspect/2` output. THanks very much to @carlgleisner for the PR (and apologies for the long delayed merge). Closes #188.
+* Fix examples in README.md to align with the current `inspect/2` output. Thanks very much to @carlgleisner for the PR (and apologies for the long delayed merge). Closes #188.
 
 ### Enhancements
 
