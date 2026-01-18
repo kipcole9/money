@@ -2,7 +2,7 @@ defmodule Money.CustomCurrencyTest do
   use ExUnit.Case
 
   setup do
-    {:ok, _pid} = Cldr.Currency.start_link()
+    Cldr.Currency.start_link()
     {:ok, _currency} = Cldr.Currency.new(:ABCD, name: "ABCD", digits: 0)
     :ok
   end
