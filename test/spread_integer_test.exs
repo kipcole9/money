@@ -9,7 +9,7 @@ defmodule MoneySpreadIntegerTest do
             max_runs: 1_000
           ) do
       amount = Money.from_integer(spread_pennies, :usd)
-      splits = Money.spread(portions, amount)
+      splits = Money.spread(amount, portions)
 
       {:ok, sum} = Money.sum(splits)
       assert Money.equal?(sum, amount)

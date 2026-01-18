@@ -12,7 +12,7 @@ defmodule MoneySpreadMoneyStructsTest do
       amount = Money.from_integer(spread_pennies, code)
       portions = Enum.map(portions, &Money.from_integer(&1, code))
 
-      splits = Money.spread(portions, amount)
+      splits = Money.spread(amount, portions)
 
       {:ok, sum} = Money.sum(splits)
       assert Money.equal?(sum, amount)

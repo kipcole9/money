@@ -2058,51 +2058,53 @@ defmodule Money do
 
   ## Arguments
 
-    * `amount` is any `t:Money.t/0`
+    * `amount` is any `t:Money.t/0`.
 
     * `portions` may be a list of `t:Money.t/0`, a list of numbers, or an integer
-      into which the `money` is spread
+      into which the `money` is spread.
 
-    * `opts` is a keyword list of options, as defined by `Money.round/2`
+    * `options` is a keyword list of options, which will be applied to
+      `Money.round/2`.
 
-  Returns a %Money{} list the same length (or value of the integer), with the amount spread
-  as evenly as the currency's smallest unit allows.  The result is derived as follows:
+  Returns a list of `t:Money.t/0` that is the same length (or value of the integer),
+  with the amount spread as evenly as the currency's smallest unit allows.
+  The result is derived as follows:
 
-  1. Round the amount to the currency's default precision
+  1. Round the amount to the currency's default precision.
 
-  2. Calculate partial sums of the given portions
+  2. Calculate partial sums of the given portions.
 
   3. Starting with the last portion, calculate the expected remaining amount then
      subtract and round that portion's value from the current remaining amount.
 
-  eg. with [2, 1] as portions and $1 to spread, we calculate that 2/3 of the amount
-    should remain after `1` receives its portion, so we subtract the unrounded Money amount of
-    0.666666, and we round the share to $0.33.  Then $1.00 - 0.33 is the new remaining amount.
-    This approach avoids numerical instability by using the expected remaining amount,
-    rather than summing up values as they are doled out.
+  For example, with `[2, 1]` as portions and `$1` to spread, we calculate that 2/3 of the amount
+  should remain after `1` receives its portion, so we subtract the unrounded Money amount of
+  `0.666666`, and we round the share to `$0.33`.  Then `$1.00 - 0.33` is the new remaining amount.
+  This approach avoids numerical instability by using the expected remaining amount,
+  rather than summing up values as they are doled out.
 
   ## Examples
 
-      iex> Money.spread([Money.new(:usd, 10), Money.new(:usd, 1)], Money.new(:usd, 10))
+      iex> Money.spread(Money.new(:usd, 10), [Money.new(:usd, 10), Money.new(:usd, 1)])
       [Money.new(:USD, "9.09"), Money.new(:USD, "0.91")]
 
-      iex> Money.spread([2.5, 1, 1], Money.new(:usd, "2.50"))
+      iex> Money.spread(Money.new(:usd, "2.50"), [2.5, 1, 1])
       [Money.new(:USD, "1.39"), Money.new(:USD, "0.55"), Money.new(:USD, "0.56")]
 
-      iex> Money.spread(3, Money.new(:usd, 2))
+      iex> Money.spread(Money.new(:usd, 2), 3)
       [Money.new(:USD, "0.67"), Money.new(:USD, "0.66"), Money.new(:USD, "0.67")]
 
   """
-  @spec spread(list(Money.t()) | list(number()) | integer(), Money.t()) :: list(Money.t())
-  def spread(portions, amount, opts \\ [])
+  @spec spread(Money.t(), list(Money.t()) | list(number()) | integer()) :: list(Money.t())
+  def spread(amount, portions, options \\ [])
   def spread([], _, _), do: []
 
-  def spread(portions, amount, opts) when is_integer(portions) do
-    spread(List.duplicate(1, portions), amount, opts)
+  def spread(amount, portions, options) when is_integer(portions) do
+    spread(amount, List.duplicate(1, portions), options)
   end
 
-  def spread([h | _] = portions, %Money{} = amount, opts) do
-    {shares, _, _} = recurse_spread(portions, spread_zero(h), round(amount), opts)
+  def spread(%Money{} = amount, [h | _] = portions, options) do
+    {shares, _, _} = recurse_spread(portions, spread_zero(h), round(amount), options)
     shares
   end
 
@@ -2110,14 +2112,14 @@ defmodule Money do
 
   defp recurse_spread([], total, amount, _opts), do: {[], amount, total}
 
-  defp recurse_spread([head | tail], curr_sum, amount, opts) do
+  defp recurse_spread([head | tail], curr_sum, amount, options) do
     partial_sum = spread_sum(head, curr_sum)
-    {shares, remaining, total} = recurse_spread(tail, partial_sum, amount, opts)
+    {shares, remaining, total} = recurse_spread(tail, partial_sum, amount, options)
 
     proportion_remaining = prop_remaining(curr_sum, total)
     unrounded_now_remaining = mult!(amount, proportion_remaining)
 
-    share = sub!(remaining, unrounded_now_remaining) |> round(opts)
+    share = sub!(remaining, unrounded_now_remaining) |> round(options)
     now_remaining = sub!(remaining, share)
 
     {[share | shares], now_remaining, total}

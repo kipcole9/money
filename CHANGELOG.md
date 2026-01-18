@@ -4,7 +4,7 @@
 
 ## Money v5.24.0
 
-This is the changelog for Money v5.23.1 released on January 17th, 2026.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+This is the changelog for Money v5.24.0 released on January 18th, 2026.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 
 ### Bug Fixes
 
@@ -14,7 +14,9 @@ This is the changelog for Money v5.23.1 released on January 17th, 2026.  For old
 
 ### Enhancements
 
-* Add support for custom currency codes.
+* Add `Money.spread/3` to proptionally allocate (that is, spread) am money amount amongst a list of amounts or integers. Thanks to @jdewar for the PR and great patience. Closes #175.
+
+* Add support for custom currency codes. A custom currency code is created with `Cldr.Currency.new/2` and is distinguised from an ISO4217 code by being at least 4 characters long (ISO4217 codes are always 3 characters long). The first character must be a Latin alphabetic character. The additional characters must be Latin alphanumeric characters.
 
 ## Money v5.23.0
 
