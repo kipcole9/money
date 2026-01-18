@@ -2119,7 +2119,7 @@ defmodule Money do
   end
 
   defp round_to_decimal_digits(%Money{currency: code, amount: amount}, options) do
-    with {:ok, currency} <- Currency.currency_for_code(code),
+    with {:ok, currency} <- Money.Currency.currency_for_code(code),
          {:ok, rounding, _options} = digits_from_options(currency, options) do
       rounding_mode = Keyword.get(options, :rounding_mode, @default_rounding_mode)
       rounded_amount = Decimal.round(amount, rounding, rounding_mode)
@@ -2128,7 +2128,7 @@ defmodule Money do
   end
 
   defp round_to_nearest(%Money{currency: code} = money, options) do
-    with {:ok, currency} <- Currency.currency_for_code(code),
+    with {:ok, currency} <- Money.Currency.currency_for_code(code),
          {:ok, digits, _options} = digits_from_options(currency, options) do
       increment = increment_from_options(currency, options)
       do_round_to_nearest(money, digits, increment, options)
@@ -2204,7 +2204,7 @@ defmodule Money do
   @zero Decimal.new(0)
 
   def put_fraction(%Money{amount: amount} = money, upto) when is_integer(upto) do
-    with {:ok, currency} <- Currency.currency_for_code(money.currency) do
+    with {:ok, currency} <- Money.Currency.currency_for_code(money.currency) do
       digits = currency.digits
       diff = Decimal.from_float((100 - upto) * :math.pow(10, -digits))
 
@@ -2558,7 +2558,7 @@ defmodule Money do
       |> Money.normalize()
 
     with {:ok, remainder} <- Money.sub(money, new_money),
-         {:ok, currency} <- Currency.currency_for_code(money.currency),
+         {:ok, currency} <- Money.Currency.currency_for_code(money.currency),
          {:ok, exponent, _options} <- digits_from_options(currency, options) do
       exponent_adjustment = Kernel.abs(-exponent - new_money.amount.exp)
 
@@ -2641,7 +2641,7 @@ defmodule Money do
     options = replace_fractional_digits_with_currency_digits(options)
 
     with {:ok, currency} <- validate_currency(currency),
-         {:ok, currency_data} <- Currency.currency_for_code(currency),
+         {:ok, currency_data} <- Money.Currency.currency_for_code(currency),
          {:ok, digits, options} <- digits_from_options(currency_data, options) do
       sign = if amount < 0, do: -1, else: 1
 
