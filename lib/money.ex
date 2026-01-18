@@ -1828,16 +1828,16 @@ defmodule Money do
 
   ### Examples
 
-      iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 100)
+      iex> Money.compare(Money.new(:USD, 200), Money.new(:USD, 100))
       :gt
 
-      iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 200)
+      iex> Money.compare(Money.new(:USD, 200), Money.new(:USD, 200))
       :eq
 
-      iex> Money.compare Money.new(:USD, 200), Money.new(:USD, 500)
+      iex> Money.compare(Money.new(:USD, 200), Money.new(:USD, 500))
       :lt
 
-      iex> Money.compare Money.new(:USD, 200), Money.new(:CAD, 500)
+      iex> Money.compare(Money.new(:USD, 200), Money.new(:CAD, 500))
       {:error,
        {ArgumentError,
         "Cannot compare monies with different currencies. Received :USD and :CAD."}}

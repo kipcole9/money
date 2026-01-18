@@ -7,7 +7,7 @@
 [![Hex.pm](https://img.shields.io/hexpm/l/ex_money.svg)](https://hex.pm/packages/ex_money)
 
 Money implements a set of functions to store, retrieve, convert and perform arithmetic
-on a `t:Money.t/0` type that is composed of an [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) currency code or an [ISO 24165](https://www.iso.org/standard/80601.html) Digital Token Identifier (crypto currency) with a currency amount.
+on a `t:Money.t/0` type that is composed of an [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) currency code, an [ISO 24165](https://www.iso.org/standard/80601.html) Digital Token Identifier (crypto currency) or a custom currency code with a currency amount.
 
 Money is opinionated in the interests of serving as a dependable library that can underpin accounting and financial applications.
 
@@ -37,7 +37,7 @@ How is this opinion expressed?
 
 ## Prerequisities
 
-* `Money` is supported on Elixir 1.11 and later only.
+* `Money` is supported on Elixir 1.12 and later only.
 
 ## Supervisor configuration and operation
 
@@ -45,11 +45,11 @@ How is this opinion expressed?
 
 The application supervisor is used by default to start the exchange rates service when required. The exchange rate service can be configured to run in a user defined supervision tree as explained in the next section.
 
-## Private Use Currencies
+## Private Use and Custom Currencies
 
-As of [ex_cldr_currencies version 2.6.0](https://hex.pm/packages/ex_cldr_currencies/2.6.0) it is possible to define private use currencies. These are currencies that are [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) compliant but guaranteed never to be allocated by the ISO committee and therefore safe to be used by developers.
+As of [ex_cldr_currencies version 2.6.0](https://hex.pm/packages/ex_cldr_currencies/2.6.0) it is possible to define private use currencies. These are currencies that are [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) compliant but guaranteed never to be allocated by the ISO committee and therefore safe to be used by developers. It is also possible to define custom currencies which are *not* ISO4217 compliant.
 
-### Defining private use currencies
+### Defining private use and custom currencies
 
 See [Cldr.Currency.new/2](https://hexdocs.pm/ex_cldr_currencies/Cldr.Currency.html#new/2)
 
@@ -76,7 +76,7 @@ defmodule MyApp do
   end
 end
 ```
-It is also possible to define a callback that is called when the `Cldr.Currency` supervisor is started so that private use currencies can be defined. For further information see [Defining Private Use Currencies](https://hexdocs.pm/ex_cldr_currencies/readme.html#defining-private-use-currencies).
+It is also possible to define a callback that is called when the `Cldr.Currency` supervisor is started so that private use and custom currencies can be defined. For further information see [Defining Private Use Currencies](https://hexdocs.pm/ex_cldr_currencies/readme.html#defining-private-use-currencies).
 
 ## Exchange rates and currency conversion
 
@@ -119,7 +119,6 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
   * `Money.ExchangeRates.Cache.Ets` which is also the default.
   * `Money.ExchangeRates.Cache.Dets`
-
 
 * `:retriever_options` is available for exchange rate retriever module developers as a place to add retriever-specific configuration information.  This information should be added in the `init/1` callback in the retriever module.  See `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
 
