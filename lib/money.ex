@@ -2054,6 +2054,87 @@ defmodule Money do
   end
 
   @doc """
+  Proportionally spreads a given amount across the given portions with no remainder.
+
+  ## Arguments
+
+    * `amount` is any `t:Money.t/0`
+
+    * `portions` may be a list of `t:Money.t/0`, a list of numbers, or an integer
+      into which the `money` is spread
+
+    * `opts` is a keyword list of options, as defined by `Money.round/2`
+
+  Returns a %Money{} list the same length (or value of the integer), with the amount spread
+  as evenly as the currency's smallest unit allows.  The result is derived as follows:
+
+  1. Round the amount to the currency's default precision
+
+  2. Calculate partial sums of the given portions
+
+  3. Starting with the last portion, calculate the expected remaining amount then
+     subtract and round that portion's value from the current remaining amount.
+
+  eg. with [2, 1] as portions and $1 to spread, we calculate that 2/3 of the amount
+    should remain after `1` receives its portion, so we subtract the unrounded Money amount of
+    0.666666, and we round the share to $0.33.  Then $1.00 - 0.33 is the new remaining amount.
+    This approach avoids numerical instability by using the expected remaining amount,
+    rather than summing up values as they are doled out.
+
+  ## Examples
+
+      iex> Money.spread([Money.new(:usd, 10), Money.new(:usd, 1)], Money.new(:usd, 10))
+      [Money.new(:USD, "9.09"), Money.new(:USD, "0.91")]
+
+      iex> Money.spread([2.5, 1, 1], Money.new(:usd, "2.50"))
+      [Money.new(:USD, "1.39"), Money.new(:USD, "0.55"), Money.new(:USD, "0.56")]
+
+      iex> Money.spread(3, Money.new(:usd, 2))
+      [Money.new(:USD, "0.67"), Money.new(:USD, "0.66"), Money.new(:USD, "0.67")]
+
+  """
+  @spec spread(list(Money.t()) | list(number()) | integer(), Money.t()) :: list(Money.t())
+  def spread(portions, amount, opts \\ [])
+  def spread([], _, _), do: []
+
+  def spread(portions, amount, opts) when is_integer(portions) do
+    spread(List.duplicate(1, portions), amount, opts)
+  end
+
+  def spread([h | _] = portions, %Money{} = amount, opts) do
+    {shares, _, _} = recurse_spread(portions, spread_zero(h), round(amount), opts)
+    shares
+  end
+
+  def spread(_, _, _), do: raise("Amount to spread must be Money.t()")
+
+  defp recurse_spread([], total, amount, _opts), do: {[], amount, total}
+
+  defp recurse_spread([head | tail], curr_sum, amount, opts) do
+    partial_sum = spread_sum(head, curr_sum)
+    {shares, remaining, total} = recurse_spread(tail, partial_sum, amount, opts)
+
+    proportion_remaining = prop_remaining(curr_sum, total)
+    unrounded_now_remaining = mult!(amount, proportion_remaining)
+
+    share = sub!(remaining, unrounded_now_remaining) |> round(opts)
+    now_remaining = sub!(remaining, share)
+
+    {[share | shares], now_remaining, total}
+  end
+
+  defp prop_remaining(%Money{} = partial_sum, total),
+    do: Decimal.div(to_decimal(partial_sum), to_decimal(total))
+
+  defp prop_remaining(partial_sum, total), do: partial_sum / total
+
+  defp spread_sum(%Money{} = head, sum), do: add!(head, sum)
+  defp spread_sum(head, sum), do: head + sum
+
+  defp spread_zero(%Money{} = head), do: zero(head)
+  defp spread_zero(_head), do: 0
+
+  @doc """
   Round a `Money` value into the acceptable range for the requested currency.
 
   ### Arguments
