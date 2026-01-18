@@ -42,8 +42,8 @@ defmodule Money do
   alias Cldr.Currency
 
   @typedoc """
-  Money is composed of an atom representation of an ISO4217 currency code and
-  a `Decimal` representation of an amount.
+  Money is composed of an atom representation of an ISO4217 currency code or a custom
+  currency code and a `Decimal` representation of an amount.
   """
   @type t :: %Money{currency: Currency.currency_reference(), amount: Decimal.t(), format_options: Keyword.t()}
 
