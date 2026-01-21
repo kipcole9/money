@@ -2,7 +2,15 @@
 
 **Note** `ex_money` 5.17.0 and later is supported on Elixir 1.12 and later versions only.
 
-## Money v5.24.0
+## Money v5.24.1
+
+This is the changelog for Money v5.24.1 released on January 20th, 2026.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fixes casting a binary currency code that is both a valid ISO4217 currency code and a valid digital currency short code (for example, "TRY"). Precedence is given to returning the ISO4217 code (this was not the case in v5.24.0).
+
+## Money v5.24.0 (deprecated and retired)
 
 This is the changelog for Money v5.24.0 released on January 18th, 2026.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
 

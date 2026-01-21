@@ -85,7 +85,7 @@ defmodule Money.Backend do
             Money.new(:EUR, "100.30")
 
             iex> #{inspect(__MODULE__)}.new(:XYZZ, 100)
-            {:error, {Money.UnknownCurrencyError, "The currency :XYZZ is invalid"}}
+            {:error, {Money.UnknownCurrencyError, "The currency :XYZZ is unknown"}}
 
             iex> #{inspect(__MODULE__)}.new("1.000,99", :EUR, locale: "de")
             Money.new(:EUR, "1000.99")
@@ -1015,7 +1015,7 @@ defmodule Money.Backend do
             {:ok, Money.new(:AUD, "73.4500")}
 
             iex> #{inspect(__MODULE__)}.to_currency Money.new(:USD, 100), :AUDD, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
-            {:error, {Cldr.UnknownCurrencyError, "The currency :AUDD is invalid"}}
+            {:error, {Cldr.UnknownCurrencyError, "The currency :AUDD is unknown"}}
 
             iex> #{inspect(__MODULE__)}.to_currency Money.new(:USD, 100), :CHF, %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)}
             {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :CHF"}}
@@ -1283,7 +1283,7 @@ defmodule Money.Backend do
             Money.new(:USD, "0")
 
             iex> #{inspect(__MODULE__)}.zero :ZZZ
-            {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
+            {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is unknown"}}
 
         """
         @spec zero(Currency.currency_reference() | Money.t()) :: Money.t() | {:error, {module(), binary()}}

@@ -171,7 +171,7 @@ defmodule Money do
       Money.new(:EUR, "100.30", fractional_digits: 4)
 
       iex> Money.new(:XYZZ, 100)
-      {:error, {Money.UnknownCurrencyError, "The currency :XYZZ is invalid"}}
+      {:error, {Money.UnknownCurrencyError, "The currency :XYZZ is unknown"}}
 
       iex> Money.new("1.000,99", :EUR, locale: "de")
       Money.new(:EUR, "1000.99")
@@ -2375,7 +2375,7 @@ defmodule Money do
 
       iex> Money.to_currency(Money.new(:USD, 100), :AUDD,
       ...>   %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)})
-      {:error, {Cldr.UnknownCurrencyError, "The currency :AUDD is invalid"}}
+      {:error, {Cldr.UnknownCurrencyError, "The currency :AUDD is unknown"}}
 
       iex> Money.to_currency(Money.new(:USD, 100), :CHF,
       ...>   %{USD: Decimal.new(1), AUD: Decimal.from_float(0.7345)})
@@ -2793,7 +2793,7 @@ defmodule Money do
       Money.new(:USD, "0")
 
       iex> Money.zero :ZZZ
-      {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
+      {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is unknown"}}
 
   """
   @spec zero(Currency.currency_reference() | Money.t()) :: Money.t() | {:error, {module(), binary()}}
@@ -2951,9 +2951,19 @@ defmodule Money do
 
   @doc false
   def validate_currency(currency_code) do
+    case Cldr.Currency.validate_currency(currency_code) do
+      {:ok, currency_code} -> {:ok, currency_code}
+      {:error, error} -> validate_digital_token(currency_code, error)
+    end
+  end
+
+  defp validate_digital_token(currency_code, original_error) do
     case DigitalToken.validate_token(currency_code) do
-      {:ok, token_id} -> {:ok, token_id}
-      {:error, _} -> Cldr.Currency.validate_currency(currency_code)
+      {:ok, token_id} ->
+        {:ok, token_id}
+
+      {:error, {DigitalToken.UnknownTokenError, _}} ->
+        {:error, original_error}
     end
   end
 

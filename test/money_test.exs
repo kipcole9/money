@@ -34,10 +34,10 @@ defmodule MoneyTest do
 
   test "create a new money struct wth a invalid binary currency code and binary amount" do
     money = Money.new("1234", "ZZZ")
-    assert money == {:error, {Money.UnknownCurrencyError, "The currency \"ZZZ\" is invalid"}}
+    assert money == {:error, {Money.UnknownCurrencyError, "The currency \"ZZZ\" is unknown"}}
 
     money = Money.new("ZZZ", "1234")
-    assert money == {:error, {Money.UnknownCurrencyError, "The currency \"ZZZ\" is invalid"}}
+    assert money == {:error, {Money.UnknownCurrencyError, "The currency \"ZZZ\" is unknown"}}
   end
 
   test "create a new! money struct with a binary currency code" do
@@ -154,15 +154,15 @@ defmodule MoneyTest do
   end
 
   test "raise when creating a new money struct from invalid input" do
-    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is unknown", fn ->
       Money.new!("ABCDE", 100)
     end
 
-    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is unknown", fn ->
       Money.new!(Decimal.new(100), "ABCDE")
     end
 
-    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is invalid", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is unknown", fn ->
       Money.new!("ABCDE", Decimal.new(100))
     end
   end
@@ -187,12 +187,20 @@ defmodule MoneyTest do
 
   test "creating a money struct with an invalid atom currency code returns error tuple" do
     assert Money.new(:ZYZ, 100) ==
-             {:error, {Money.UnknownCurrencyError, "The currency :ZYZ is invalid"}}
+             {:error, {Money.UnknownCurrencyError, "The currency :ZYZ is unknown"}}
   end
 
   test "creating a money struct with an invalid binary currency code returns error tuple" do
     assert Money.new("XYZABC", 100) ==
-             {:error, {Money.UnknownCurrencyError, "The currency \"XYZABC\" is invalid"}}
+             {:error, {Money.UnknownCurrencyError, "The currency \"XYZABC\" is unknown"}}
+  end
+
+  test "creating a money struct with a code that is also a digital token short code" do
+    money = Money.new(:TRY, 100)
+    assert :TRY = money.currency
+
+    money = Money.new("TRY", 100)
+    assert :TRY = money.currency
   end
 
   test "string output of money is correctly formatted" do
@@ -206,13 +214,13 @@ defmodule MoneyTest do
   end
 
   # Comment out until the next version that depends on ex_cldr_numbers 2.31.0
-  # test "to_string! raises if there is an error" do
-  #   money = Money.new(1234, :USD)
-  #
-  #   assert_raise Cldr.FormatCompileError, fn ->
-  #     Money.to_string!(money, format: "0#")
-  #   end
-  # end
+  test "to_string! raises if there is an error" do
+    money = Money.new(1234, :USD)
+
+    assert_raise Cldr.FormatCompileError, fn ->
+      Money.to_string!(money, format: "0#")
+    end
+  end
 
   test "abs value of a negative value returns positive value" do
     assert Money.abs(Money.new(:USD, -100)) == Money.new(:USD, 100)
@@ -454,7 +462,7 @@ defmodule MoneyTest do
   end
 
   test "raise when a sigil function has an invalid currency" do
-    assert_raise Money.UnknownCurrencyError, ~r/The currency .* is invalid/, fn ->
+    assert_raise Money.UnknownCurrencyError, ~r/The currency .* is unknown/, fn ->
       Money.Sigil.sigil_M("42", [?A, ?A, ?A])
     end
   end
@@ -462,7 +470,7 @@ defmodule MoneyTest do
   test "raise when a sigil has an invalid currency" do
     import Money.Sigil
 
-    assert_raise Money.UnknownCurrencyError, ~r/The currency .* is invalid/, fn ->
+    assert_raise Money.UnknownCurrencyError, ~r/The currency .* is unknown/, fn ->
       ~M[42]ABD
     end
   end

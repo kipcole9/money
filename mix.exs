@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "5.24.0"
+  @version "5.24.1"
 
   def project do
     [
@@ -91,6 +91,7 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
+      {:ex_cldr, "~> 2.46"},
       {:ex_cldr_numbers, "~> 2.38"},
 
       # Used for Money.Subscription.Plan.to_string/1

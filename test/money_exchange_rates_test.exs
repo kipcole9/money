@@ -30,13 +30,13 @@ defmodule Money.ExchangeRates.Test do
   test "Convert from USD to ZZZ should return an error" do
     capture_io(fn ->
       assert Money.to_currency(Money.new(:USD, 100), :ZZZ) ==
-               {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is invalid"}}
+               {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is unknown"}}
     end)
   end
 
   test "Convert from USD to ZZZ should raise an exception" do
     capture_io(fn ->
-      assert_raise Cldr.UnknownCurrencyError, ~r/The currency :ZZZ is invalid/, fn ->
+      assert_raise Cldr.UnknownCurrencyError, ~r/The currency :ZZZ is unknown/, fn ->
         assert Money.to_currency!(Money.new(:USD, 100), :ZZZ)
       end
     end)
