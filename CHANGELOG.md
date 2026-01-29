@@ -2,6 +2,14 @@
 
 **Note** `ex_money` 5.17.0 and later is supported on Elixir 1.12 and later versions only.
 
+## Money v5.24.2
+
+This is the changelog for Money v5.24.2 released on January 30th, 2026.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+### Bug Fixes
+
+* Fix deprecated map.field notation in Money.parse_decimal/4. Thanks to @oliver-kriska for the PR. Closes #191.
+
 ## Money v5.24.1
 
 This is the changelog for Money v5.24.1 released on January 20th, 2026.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

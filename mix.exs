@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "5.24.1"
+  @version "5.24.2"
 
   def project do
     [
