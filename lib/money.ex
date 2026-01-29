@@ -3070,7 +3070,7 @@ defmodule Money do
   end
 
   defp parse_decimal(string, nil, backend, options) do
-    parse_decimal(string, backend.get_locale, backend, options)
+    parse_decimal(string, backend.get_locale(), backend, options)
   end
 
   defp parse_decimal(string, locale, nil, options) do
