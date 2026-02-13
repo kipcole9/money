@@ -179,7 +179,7 @@ defmodule Money do
       iex> Money.new 123.445, :USD
       {:error,
        {Money.InvalidAmountError,
-        "Float amounts are not supported in new/2 due to potenial " <>
+        "Float amounts are not supported in new/2 due to potential " <>
         "rounding and precision issues.  If absolutely required, " <>
         "use Money.from_float/2"}}
 
@@ -232,14 +232,14 @@ defmodule Money do
   def new(_currency_code, amount, _options) when is_float(amount) do
     {:error,
      {Money.InvalidAmountError,
-      "Float amounts are not supported in new/2 due to potenial rounding " <>
+      "Float amounts are not supported in new/2 due to potential rounding " <>
         "and precision issues.  If absolutely required, use Money.from_float/2"}}
   end
 
   def new(amount, _currency_code, _options) when is_float(amount) do
     {:error,
      {Money.InvalidAmountError,
-      "Float amounts are not supported in new/2 due to potenial rounding " <>
+      "Float amounts are not supported in new/2 due to potential rounding " <>
         "and precision issues.  If absolutely required, use Money.from_float/2"}}
   end
 
