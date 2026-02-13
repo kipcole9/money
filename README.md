@@ -395,7 +395,7 @@ Therefore an error is returned if an attempt is made to use `Money.new/2` with a
 
     {:error,
      {Money.InvalidAmountError,
-      "Float amounts are not supported in new/2 due to potenial rounding " <>
+      "Float amounts are not supported in new/2 due to potential rounding " <>
         "and precision issues.  If absolutely required, use Money.from_float/2"}}
 
 If the use of `float`s is require then the function `Money.from_float/2` is provided with the same arguments as those for `Money.new/2`.  `Money.from_float/2` provides an addition check and will return an error if the precision (number of digits) of the provided float is more than 15 (the number of digits guaranteed to round-trip between a 64-bit float and a string).
