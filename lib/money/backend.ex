@@ -93,7 +93,7 @@ defmodule Money.Backend do
             iex> #{inspect(__MODULE__)}.new 123.445, :USD
             {:error,
              {Money.InvalidAmountError,
-              "Float amounts are not supported in new/2 due to potenial " <>
+              "Float amounts are not supported in new/2 due to potential " <>
               "rounding and precision issues.  If absolutely required, " <>
               "use Money.from_float/2"}}
 
