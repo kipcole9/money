@@ -8,7 +8,7 @@ This is the changelog for Money v5.24.2 released on January 30th, 2026.  For old
 
 ### Bug Fixes
 
-* Fix deprecated map.field notation in Money.parse_decimal/4. Thanks to @oliver-kriska for the PR. Closes #191.
+* Fix deprecated map.field notation in `Money.parse_decimal/4`. Thanks to @oliver-kriska for the PR. Closes #191.
 
 ## Money v5.24.1
 
