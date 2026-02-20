@@ -15,7 +15,7 @@ How is this opinion expressed?
 
 1. Money must always have both a amount and a currency code or digital token identifier.
 
-2. The currency code must always be a valid [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) code or a valid [ISO 24165](https://www.iso.org/standard/80601.html) digital token idenfier. [Current](https://www.currency-iso.org/en/home/tables/table-a1.html) and [historical](https://www.currency-iso.org/en/home/tables/table-a3.html) currency codes can be used.  See the [ISO Currency](https://www.currency-iso.org/en/home/tables.html) for more information. You can also identify the relevant codes by:
+2. The currency code must always be a valid [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) code or a valid [ISO 24165](https://www.iso.org/standard/80601.html) digital token identifier. [Current](https://www.currency-iso.org/en/home/tables/table-a1.html) and [historical](https://www.currency-iso.org/en/home/tables/table-a3.html) currency codes can be used.  See the [ISO Currency](https://www.currency-iso.org/en/home/tables.html) for more information. You can also identify the relevant codes by:
 
    * `Money.known_currencies/0` returns all the ISO 4217 currency codes known to `Money`
    * `Money.known_current_currencies/0` returns the ISO 4217 currency codes currently in use
