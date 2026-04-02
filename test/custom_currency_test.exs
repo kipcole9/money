@@ -4,9 +4,8 @@ defmodule Money.CustomCurrencyTest do
   test "Exchange rate conversion for a custom currency fails" do
     m1 = Money.new(:ABCD, 10)
 
-    assert  Money.to_currency(m1, :USD) ==
-      {:error,
-        {Money.ExchangeRateError, "No exchange rate is available for currency :ABCD"}}
+    assert Money.to_currency(m1, :USD) ==
+             {:error, {Money.ExchangeRateError, "No exchange rate is available for currency :ABCD"}}
   end
 
   test "Exchange rate conversion for a custom currency succeeds" do

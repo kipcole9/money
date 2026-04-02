@@ -9,8 +9,4 @@ config :ex_money,
   log_failure: :warning,
   log_info: :info,
   log_success: :info,
-  exchange_rates_cache: Money.ExchangeRates.Cache.Dets,
-  default_cldr_backend: Money.Cldr
-
-config :ex_cldr,
-  default_backend: Money.Cldr
+  exchange_rates_cache: Money.ExchangeRates.Cache.Dets

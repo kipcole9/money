@@ -1,7 +1,7 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "5.24.2"
+  @version "6.0.0"
 
   def project do
     [
@@ -20,7 +20,7 @@ defmodule Money.Mixfile do
       aliases: aliases(),
       elixirc_paths: elixirc_paths(Mix.env()),
       dialyzer: [
-        plt_add_apps: ~w(inets jason mix phoenix_html gringotts)a,
+        plt_add_apps: ~w(inets jason mix phoenix_html)a,
         flags: [
           :error_handling,
           :unknown,
@@ -92,12 +92,8 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:ex_cldr, "~> 2.46"},
-      {:ex_cldr_numbers, "~> 2.38"},
-
-      # Used for Money.Subscription.Plan.to_string/1
-      {:ex_cldr_units, "~> 3.19", optional: true},
-
+      {:localize, path: "../localize"},
+      {:digital_token, "~> 1.0", optional: true},
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:decimal, "~> 1.6 or ~> 2.0"},
       {:poison, "~> 3.0 or ~> 4.0 or ~> 5.0 or ~> 6.0", optional: true},
@@ -107,8 +103,7 @@ defmodule Money.Mixfile do
       {:stream_data, "~> 1.0", only: [:dev, :test]},
       {:benchee, "~> 1.0", optional: true, only: :dev},
       {:exprof, "~> 0.2", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.31", only: [:dev, :release]},
-      {:gringotts, "~> 1.1", optional: true}
+      {:ex_doc, "~> 0.31", only: [:dev, :release]}
     ]
     |> Enum.reject(&is_nil/1)
   end

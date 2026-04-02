@@ -47,12 +47,12 @@ defmodule MoneyTest.Parse do
     end
 
     test "currency filtering" do
-      assert Money.parse("100 Mexican silver pesos") == Money.new(:MXP, 100)
+      assert Money.parse("100 French francs") == Money.new(:FRF, 100)
 
-      assert Money.parse("100 Mexican silver pesos", currency_filter: [:current]) ==
+      assert Money.parse("100 French francs", currency_filter: [:current]) ==
                {:error,
                 {Money.UnknownCurrencyError,
-                 "The currency \"Mexican silver pesos\" is unknown or not supported"}}
+                 "The currency \"French francs\" is unknown or not supported"}}
     end
 
     test "fuzzy matching of currencies" do

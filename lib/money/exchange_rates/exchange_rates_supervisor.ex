@@ -148,7 +148,6 @@ defmodule Money.ExchangeRates.Supervisor do
 
   """
   def start_retriever(config \\ ExchangeRates.config()) do
-    _ = Money.default_backend!()
     Supervisor.start_child(__MODULE__, retriever_spec(config))
   end
 

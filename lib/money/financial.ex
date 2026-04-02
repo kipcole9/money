@@ -4,7 +4,7 @@ defmodule Money.Financial do
 
   Some of the algorithms are from [finance formulas](http://www.financeformulas.net)
   """
-  alias Cldr.Math
+  alias Localize.Utils.Math
 
   @doc """
   Calculates the future value for a present value, an interest rate

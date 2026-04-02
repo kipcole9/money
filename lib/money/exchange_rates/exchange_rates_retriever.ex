@@ -197,7 +197,7 @@ defmodule Money.ExchangeRates.Retriever do
     headers = if_none_match_header(url)
 
     {url, headers}
-    |> Cldr.Http.get_with_headers(verify_peer: Map.get(config, :verify_peer, true))
+    |> Localize.Utils.Http.get_with_headers(verify_peer: Map.get(config, :verify_peer, true))
     |> process_response(url, config)
   end
 
@@ -475,7 +475,7 @@ defmodule Money.ExchangeRates.Retriever do
     plural = if seconds == 1, do: "second", else: "seconds"
 
     {:ok, formatted_seconds} =
-      Cldr.Number.to_string(seconds, backend: Money.default_backend!())
+      Localize.Number.to_string(seconds)
 
     {formatted_seconds, plural}
   end

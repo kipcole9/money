@@ -102,7 +102,7 @@ defmodule Money.ExchangeRates do
   at `Money.ExchangeRates.OpenExchangeRates.init/1` for an example.
 
   """
-  alias Cldr.Currency
+  alias Localize.Currency
 
   @type t :: %{Currency.currency_code() => Decimal.t()}
 

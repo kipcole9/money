@@ -59,7 +59,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
     %{"base" => _base, "rates" => rates} = Money.json_library().decode!(body)
 
     rates
-    |> Cldr.Map.atomize_keys()
+    |> Localize.Utils.Map.atomize_keys()
     |> Enum.map(fn
       {k, v} when is_float(v) -> {k, Decimal.from_float(v)}
       {k, v} when is_integer(v) -> {k, Decimal.new(v)}

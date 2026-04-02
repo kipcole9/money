@@ -1,4 +1,4 @@
-if Cldr.Config.ensure_compiled?(Jason) &&
+if Localize.Utils.Code.ensure_compiled?(Jason) &&
      !Money.exclude_protocol_implementation(Jason.Encoder) do
   defimpl Jason.Encoder, for: Money do
     def encode(struct, opts) do

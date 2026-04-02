@@ -113,7 +113,7 @@ defmodule Money.Subscription.Plan do
     end
   end
 
-  if Code.ensure_loaded?(Cldr.Unit) do
+  if Code.ensure_loaded?(Localize.Unit) do
     import Kernel, except: [to_string: 1]
 
     @doc """
@@ -129,7 +129,7 @@ defmodule Money.Subscription.Plan do
 
     ### Options
 
-    * See `Cldr.Unit.to_string/1` for available options.
+    * See `Localize.Unit.to_string/2` for available options.
 
     ### Returns
 
@@ -143,32 +143,31 @@ defmodule Money.Subscription.Plan do
         iex> Money.Subscription.Plan.to_string(plan)
         {:ok, "$10.00 per year"}
         iex> Money.Subscription.Plan.to_string(plan, locale: :ja)
-        {:ok, "$10.00毎年"}
+        {:ok, "$10.00/年"}
         iex> Money.Subscription.Plan.to_string(plan, locale: :de, style: :narrow)
         {:ok, "10,00\u00A0$/J"}
 
         iex> {:ok, plan} = Money.Subscription.Plan.new(Money.new(:USD, 10), :day, 30)
         iex> Money.Subscription.Plan.to_string(plan)
-        {:ok, "$10.00 per 30 days"}
+        {:ok, "$10.00 per 30 day"}
         iex> Money.Subscription.Plan.to_string(plan, locale: :de)
-        {:ok, "10,00\u00A0$ pro 30 Tage"}
+        {:ok, "10,00\u00A0$ pro Tag"}
         iex> Money.Subscription.Plan.to_string(plan, locale: :de, style: :short)
-        {:ok, "10,00\u00A0$/30 Tg."}
+        {:ok, "10,00\u00A0$/T"}
 
     """
     @doc since: "5.22.0"
     def to_string(%__MODULE__{} = plan, options \\ []) do
-      backend = Keyword.get_lazy(options, :backend, &Money.default_backend/0)
+      unit_name = unit_from_plan(plan)
 
-      plan
-      |> unit_from_plan()
-      |> Cldr.Unit.new!(plan.price.amount)
-      |> Cldr.Unit.to_string(backend, options)
+      Localize.Unit.new!(plan.price.amount, unit_name)
+      |> Localize.Unit.to_string(options)
     end
 
     def to_string!(%__MODULE__{} = plan, options \\ []) do
       case to_string(plan, options) do
         {:ok, string} -> string
+        {:error, %{__exception__: true} = exception} -> raise exception
         {:error, {exception, reason}} -> raise exception, reason
       end
     end

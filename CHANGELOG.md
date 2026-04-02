@@ -2,6 +2,46 @@
 
 **Note** `ex_money` 5.17.0 and later is supported on Elixir 1.12 and later versions only.
 
+## Money v6.0.0
+
+This is the changelog for Money v6.0.0 released on April 2nd, 2026. For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)
+
+This is a major release that replaces the `ex_cldr` family of dependencies with the new `localize` package. See the [Migration from 5.x to 6.0](#migration-from-5x-to-60) section in the README for upgrade instructions.
+
+### Breaking Changes
+
+* The `ex_cldr`, `ex_cldr_numbers`, and `ex_cldr_units` dependencies have been replaced by `localize`.
+
+* The CLDR backend system has been removed entirely. There is no longer a need to define a backend module (e.g. `MyApp.Cldr`) or configure `use Cldr, providers: [Money]`. The `Money.Backend` module has been deleted.
+
+* The `:backend` option has been removed from all public functions including `Money.new/3`, `Money.to_string/2`, `Money.parse/2`, and `Money.localize/2`. Locale resolution now uses `Localize.get_locale/0` by default.
+
+* The `Money.default_backend!/0` and `Money.default_backend/0` functions have been removed.
+
+* The `Money.cldr_backend_provider/1` callback has been removed.
+
+* The configuration keys `default_cldr_backend` (in `:ex_money`) and `default_backend` (in `:ex_cldr`) are no longer used.
+
+* Error messages from currency validation have changed. For example, `"The currency :ZZZ is unknown"` is now `"The currency :ZZZ is not known."` (the message comes from `Localize.UnknownCurrencyError`).
+
+* The `Gringotts.Money` protocol implementation is conditionally compiled only when Gringotts is available. The `gringotts` dependency has been removed from `mix.exs` due to incompatibility with `gettext ~> 1.0`.
+
+* Currency lists returned by `Money.Currency.known_current_currencies/0`, `Money.Currency.known_historic_currencies/0`, and `Money.Currency.known_tender_currencies/0` have been updated to reflect newer CLDR data. Some currencies have moved between current and historic status.
+
+### Enhancements
+
+* All CLDR functionality is now provided by the single `localize` package, simplifying the dependency tree and removing the need for compile-time backend configuration.
+
+* Locale management is now handled at runtime via `Localize.get_locale/0` and `Localize.put_locale/1`, consistent with how `Gettext` manages locales.
+
+* `digital_token` is now an explicit optional dependency rather than a transitive dependency through `ex_cldr`.
+
+* The `Money.Subscription.Plan.to_string/2` function now uses `Localize.Unit` for compound currency-per-unit formatting.
+
+### Migration from 5.x
+
+See the [Migration from 5.x to 6.0](#migration-from-5x-to-60) section in the README for detailed upgrade instructions.
+
 ## Money v5.24.2
 
 This is the changelog for Money v5.24.2 released on January 30th, 2026.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/money/tags)

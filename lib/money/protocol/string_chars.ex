@@ -5,7 +5,7 @@ if !Money.exclude_protocol_implementation(String.Chars) do
     end
   end
 
-  if Code.ensure_loaded?(Cldr.Unit) do
+  if Code.ensure_loaded?(Localize.Unit) do
     defimpl String.Chars, for: Money.Subscription.Plan do
       def to_string(v) do
         Money.Subscription.Plan.to_string!(v)

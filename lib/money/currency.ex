@@ -3,10 +3,12 @@ defmodule Money.Currency do
   Functions to return lists of known, historic and
   legal tender currencies.
   """
-  @data_dir [:code.priv_dir(:ex_cldr), "/cldr/locales"] |> :erlang.iolist_to_binary()
-  @config %{data_dir: @data_dir, locales: ["en"], default_locale: "en"}
+  @data_dir :code.priv_dir(:localize) |> :erlang.iolist_to_binary()
+  @locale_file Path.join([@data_dir, "localize", "locales", "en.etf"])
 
-  @currencies Cldr.Locale.Loader.get_locale(:en, @config)
+  @currencies @locale_file
+              |> File.read!()
+              |> :erlang.binary_to_term()
               |> Map.get(:currencies)
 
   @current_currencies @currencies
@@ -30,20 +32,20 @@ defmodule Money.Currency do
   ## Example:
 
       iex> Money.Currency.known_current_currencies()
-      [:AED, :AFN, :ALL, :AMD, :ANG, :AOA, :ARS, :AUD, :AWG, :AZN, :BAM, :BBD, :BDT,
-       :BGN, :BHD, :BIF, :BMD, :BND, :BOB, :BOV, :BRL, :BSD, :BTN, :BWP, :BYN, :BZD,
-       :CAD, :CDF, :CHE, :CHF, :CHW, :CLF, :CLP, :CNY, :COP, :COU, :CRC, :CUC, :CUP,
-       :CVE, :CZK, :DJF, :DKK, :DOP, :DZD, :EGP, :ERN, :ETB, :EUR, :FJD, :FKP, :GBP,
-       :GEL, :GHS, :GIP, :GMD, :GNF, :GTQ, :GYD, :HKD, :HNL, :HRK, :HTG, :HUF, :IDR,
-       :ILS, :INR, :IQD, :IRR, :ISK, :JMD, :JOD, :JPY, :KES, :KGS, :KHR, :KMF, :KPW,
-       :KRW, :KWD, :KYD, :KZT, :LAK, :LBP, :LKR, :LRD, :LSL, :LYD, :MAD, :MDL, :MGA,
-       :MKD, :MMK, :MNT, :MOP, :MRU, :MUR, :MVR, :MWK, :MXN, :MXV, :MYR, :MZN, :NAD,
-       :NGN, :NIO, :NOK, :NPR, :NZD, :OMR, :PAB, :PEN, :PGK, :PHP, :PKR, :PLN, :PYG,
-       :QAR, :RON, :RSD, :RUB, :RWF, :SAR, :SBD, :SCR, :SDG, :SEK, :SGD, :SHP, :SLL,
-       :SOS, :SRD, :SSP, :STN, :SVC, :SYP, :SZL, :THB, :TJS, :TMT, :TND, :TOP, :TRY,
-       :TTD, :TWD, :TZS, :UAH, :UGX, :USD, :USN, :UYI, :UYU, :UYW, :UZS, :VES, :VND,
-       :VUV, :WST, :XAF, :XAG, :XAU, :XBA, :XBB, :XBC, :XBD, :XCD, :XDR, :XOF, :XPD,
-       :XPF, :XPT, :XSU, :XTS, :XUA, :XXX, :YER, :ZAR, :ZMW, :ZWL]
+      [:AED, :AFN, :ALL, :AMD, :AOA, :ARS, :AUD, :AWG, :AZN, :BAM, :BBD, :BDT, :BHD,
+       :BIF, :BMD, :BND, :BOB, :BOV, :BRL, :BSD, :BTN, :BWP, :BYN, :BZD, :CAD, :CDF,
+       :CHE, :CHF, :CHW, :CLF, :CLP, :CNY, :COP, :COU, :CRC, :CUP, :CVE, :CZK, :DJF,
+       :DKK, :DOP, :DZD, :EGP, :ERN, :ETB, :EUR, :FJD, :FKP, :GBP, :GEL, :GHS, :GIP,
+       :GMD, :GNF, :GTQ, :GYD, :HKD, :HNL, :HTG, :HUF, :IDR, :ILS, :INR, :IQD, :IRR,
+       :ISK, :JMD, :JOD, :JPY, :KES, :KGS, :KHR, :KMF, :KPW, :KRW, :KWD, :KYD, :KZT,
+       :LAK, :LBP, :LKR, :LRD, :LSL, :LYD, :MAD, :MDL, :MGA, :MKD, :MMK, :MNT, :MOP,
+       :MRU, :MUR, :MVR, :MWK, :MXN, :MXV, :MYR, :MZN, :NAD, :NGN, :NIO, :NOK, :NPR,
+       :NZD, :OMR, :PAB, :PEN, :PGK, :PHP, :PKR, :PLN, :PYG, :QAR, :RON, :RSD, :RUB,
+       :RWF, :SAR, :SBD, :SCR, :SDG, :SEK, :SGD, :SHP, :SLE, :SOS, :SRD, :SSP, :STN,
+       :SVC, :SYP, :SZL, :THB, :TJS, :TMT, :TND, :TOP, :TRY, :TTD, :TWD, :TZS, :UAH,
+       :UGX, :USD, :USN, :UYI, :UYU, :UYW, :UZS, :VED, :VES, :VND, :VUV, :WST, :XAF,
+       :XAG, :XAU, :XBA, :XBB, :XBC, :XBD, :XCD, :XCG, :XDR, :XOF, :XPD, :XPF, :XPT,
+       :XSU, :XTS, :XUA, :XXX, :YER, :ZAR, :ZMW, :ZWG]
 
   """
   def known_current_currencies do
@@ -56,16 +58,16 @@ defmodule Money.Currency do
   ## Example:
 
       iex> Money.Currency.known_historic_currencies()
-      [:ADP, :AFA, :ALK, :AOK, :AON, :AOR, :ARA, :ARL, :ARM, :ARP, :ATS, :AZM, :BAD,
-       :BAN, :BEC, :BEF, :BEL, :BGL, :BGM, :BGO, :BOL, :BOP, :BRB, :BRC, :BRE, :BRN,
-       :BRR, :BRZ, :BUK, :BYB, :BYR, :CLE, :CNH, :CNX, :CSD, :CSK, :CYP, :DDM, :DEM,
-       :ECS, :ECV, :EEK, :ESA, :ESB, :ESP, :FIM, :FRF, :GEK, :GHC, :GNS, :GQE, :GRD,
-       :GWE, :GWP, :HRD, :IEP, :ILP, :ILR, :ISJ, :ITL, :KRH, :KRO, :LTL, :LTT, :LUC,
-       :LUF, :LUL, :LVL, :LVR, :MAF, :MCF, :MDC, :MGF, :MKN, :MLF, :MRO, :MTL, :MTP,
-       :MVP, :MXP, :MZE, :MZM, :NIC, :NLG, :PEI, :PES, :PLZ, :PTE, :RHD, :ROL, :RUR,
-       :SDD, :SDP, :SIT, :SKK, :SLE, :SRG, :STD, :SUR, :TJR, :TMM, :TPE, :TRL, :UAK,
-       :UGS, :USS, :UYP, :VEB, :VED, :VEF, :VNN, :XCG, :XEU, :XFO, :XFU, :XRE, :YDD,
-       :YUD, :YUM, :YUN, :YUR, :ZAL, :ZMK, :ZRN, :ZRZ, :ZWD, :ZWG, :ZWR]
+      [:ADP, :AFA, :ALK, :ANG, :AOK, :AON, :AOR, :ARA, :ARL, :ARM, :ARP, :ATS, :AZM,
+       :BAD, :BAN, :BEC, :BEF, :BEL, :BGL, :BGM, :BGN, :BGO, :BOL, :BOP, :BRB, :BRC,
+       :BRE, :BRN, :BRR, :BRZ, :BUK, :BYB, :BYR, :CLE, :CNH, :CNX, :CSD, :CSK, :CUC,
+       :CYP, :DDM, :DEM, :ECS, :ECV, :EEK, :ESA, :ESB, :ESP, :FIM, :FRF, :GEK, :GHC,
+       :GNS, :GQE, :GRD, :GWE, :GWP, :HRD, :HRK, :IEP, :ILP, :ILR, :ISJ, :ITL, :KRH,
+       :KRO, :LTL, :LTT, :LUC, :LUF, :LUL, :LVL, :LVR, :MAF, :MCF, :MDC, :MGF, :MKN,
+       :MLF, :MRO, :MTL, :MTP, :MVP, :MXP, :MZE, :MZM, :NIC, :NLG, :PEI, :PES, :PLZ,
+       :PTE, :RHD, :ROL, :RUR, :SDD, :SDP, :SIT, :SKK, :SLL, :SRG, :STD, :SUR, :TJR,
+       :TMM, :TPE, :TRL, :UAK, :UGS, :USS, :UYP, :VEB, :VEF, :VNN, :XEU, :XFO, :XFU,
+       :XRE, :YDD, :YUD, :YUM, :YUN, :YUR, :ZAL, :ZMK, :ZRN, :ZRZ, :ZWD, :ZWL, :ZWR]
 
   """
   def known_historic_currencies do
@@ -109,6 +111,6 @@ defmodule Money.Currency do
   end
 
   def currency_for_code(code) do
-    Cldr.Currency.currency_for_code(code, Money.default_backend!())
+    Localize.Currency.currency_for_code(code)
   end
 end

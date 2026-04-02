@@ -31,13 +31,122 @@ How is this opinion expressed?
 
 6. All arithmetic functions work on a `Decimal`. No rounding occurs automatically (unless expressly called out for a function, as is the case for `Money.split/2`).
 
-7. Explicit rounding obeys the rounding rules for a given currency. The rounding rules are defined by the Unicode consortium in its CLDR repository as implemented by the hex package [ex_cldr](https://hex.pm/packages/ex_cldr). These rules define the number of fractional digits for a currency and the rounding increment where appropriate.
+7. Explicit rounding obeys the rounding rules for a given currency. The rounding rules are defined by the Unicode consortium in its CLDR repository as implemented by the hex package [localize](https://hex.pm/packages/localize). These rules define the number of fractional digits for a currency and the rounding increment where appropriate.
 
-8. Money output string formatting output using the hex package [ex_cldr](https://hex.pm/packages/ex_cldr) that correctly rounds to the appropriate number of fractional digits and to the correct rounding increment for currencies that have minimum cash increments (like the Swiss Franc and Australian Dollar)
+8. Money output string formatting output using the hex package [localize](https://hex.pm/packages/localize) that correctly rounds to the appropriate number of fractional digits and to the correct rounding increment for currencies that have minimum cash increments (like the Swiss Franc and Australian Dollar)
 
 ## Prerequisities
 
 * `Money` is supported on Elixir 1.12 and later only.
+
+## Migration from 5.x to 6.0
+
+Money 6.0 replaces the `ex_cldr` family of dependencies (`ex_cldr`, `ex_cldr_numbers`, `ex_cldr_units`) with the unified `localize` package. This is a breaking change that removes the compile-time backend system.
+
+### Update dependencies
+
+In `mix.exs`, replace the CLDR dependencies with `localize`:
+
+```elixir
+# Remove these:
+{:ex_cldr, "~> 2.46"},
+{:ex_cldr_numbers, "~> 2.38"},
+{:ex_cldr_units, "~> 3.19", optional: true},
+
+# Add this:
+{:localize, "~> 0.1"},
+```
+
+### Remove backend modules
+
+Delete your CLDR backend module (e.g. `MyApp.Cldr`). Localize has no compile-time backend system. The backend module typically looked like:
+
+```elixir
+# DELETE THIS MODULE
+defmodule MyApp.Cldr do
+  use Cldr,
+    locales: ["en", "fr", "de"],
+    default_locale: "en",
+    providers: [Cldr.Number, Money]
+end
+```
+
+### Update configuration
+
+Remove all backend-related configuration:
+
+```elixir
+# Remove these from config.exs:
+config :ex_money, default_cldr_backend: MyApp.Cldr
+config :ex_cldr, default_backend: MyApp.Cldr
+
+# Optionally configure localize locales:
+config :localize,
+  default_locale: :en,
+  preload_locales: [:en, :fr, :de]
+```
+
+### Remove `:backend` option from function calls
+
+The `:backend` option has been removed from all Money functions. Remove it from any calls to `Money.new/3`, `Money.to_string/2`, `Money.parse/2`, `Money.localize/2`, and others:
+
+```elixir
+# Before (5.x):
+Money.to_string(money, backend: MyApp.Cldr, locale: "de")
+Money.parse("100 USD", backend: MyApp.Cldr)
+
+# After (6.0):
+Money.to_string(money, locale: "de")
+Money.parse("100 USD")
+```
+
+### Update locale management
+
+Replace CLDR locale functions with Localize equivalents:
+
+```elixir
+# Before (5.x):
+Cldr.put_locale(MyApp.Cldr, "de")
+Cldr.get_locale()
+
+# After (6.0):
+Localize.put_locale(:de)
+Localize.get_locale()
+```
+
+### Update custom currency creation
+
+```elixir
+# Before (5.x):
+Cldr.Currency.new(:XBTC, name: "Bitcoin", symbol: "₿", digits: 8)
+
+# After (6.0):
+Localize.Currency.new(:XBTC, name: "Bitcoin", symbol: "₿", digits: 8)
+```
+
+### Update error handling
+
+Error types have changed for currency validation:
+
+```elixir
+# Before (5.x):
+{:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is unknown"}}
+
+# After (6.0):
+{:error, {Money.UnknownCurrencyError, "The currency :ZZZ is not known."}}
+```
+
+### Update number formatting references
+
+If you use number formatting directly, update the module references:
+
+```elixir
+# Before (5.x):
+Cldr.Number.to_string(1234, MyApp.Cldr, currency: :USD)
+
+# After (6.0):
+Localize.Number.to_string(1234, currency: :USD)
+```
 
 ## Supervisor configuration and operation
 
@@ -47,36 +156,19 @@ The application supervisor is used by default to start the exchange rates servic
 
 ## Private Use and Custom Currencies
 
-As of [ex_cldr_currencies version 2.6.0](https://hex.pm/packages/ex_cldr_currencies/2.6.0) it is possible to define private use currencies. These are currencies that are [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) compliant but guaranteed never to be allocated by the ISO committee and therefore safe to be used by developers. It is also possible to define custom currencies which are *not* ISO4217 compliant.
+It is possible to define private use currencies. These are currencies that are [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) compliant but guaranteed never to be allocated by the ISO committee and therefore safe to be used by developers. It is also possible to define custom currencies which are *not* ISO4217 compliant.
 
 ### Defining private use and custom currencies
 
-See [Cldr.Currency.new/2](https://hexdocs.pm/ex_cldr_currencies/Cldr.Currency.html#new/2)
+See `Localize.Currency.new/2`.
 
-### Starting the private use currency store
+### Custom currency store
 
-In order to define private use currencies, a special `:ets` table is required to hold their definitions. The is implemented by a supervisor and two workers that together aim to preserve the availability of the `:ets` table as resiliently as possible. The implementation is an embedded and updated version of [eternal](https://hex.pm/packages/eternal).
+The `Localize.Currency.Store` GenServer is started automatically by the `localize` application and manages the storage of custom currency definitions. Custom currencies can be defined at any time after application startup:
 
-The basic requirement is to add a the private use currency supervisor to your applications supervision tree. For example:
 ```elixir
-defmodule MyApp do
-  use Application
-
-  def start(_type, _args) do
-
-    # Start the service which maintains the
-    # :ets table that holds the private use currencies
-    children = [
-      Cldr.Currency
-      ...
-    ]
-
-    opts = [strategy: :one_for_one, name: MoneyTest.Supervisor]
-    Supervisor.start_link(children, opts)
-  end
-end
+Localize.Currency.new(:XBTC, name: "Bitcoin", symbol: "₿", digits: 8)
 ```
-It is also possible to define a callback that is called when the `Cldr.Currency` supervisor is started so that private use and custom currencies can be defined. For further information see [Defining Private Use Currencies](https://hexdocs.pm/ex_cldr_currencies/readme.html#defining-private-use-currencies).
 
 ## Exchange rates and currency conversion
 
@@ -101,15 +193,12 @@ An optional callback module can also be defined.  This module defines a `rates_r
       log_failure: :warning,
       log_info: :info,
       log_success: nil,
-      json_library: Jason on Elixir up to 1.17, JSON on Elixir 1.18+,
-      default_cldr_backend: MyApp.Cldr,
+      json_library: Jason,
       exclude_protocol_implementations: []
 
 ### Configuration key definitions
 
 * `:auto_start_exchange_rate_service` indicates if the exchange rate service is to be started when `ex_money` starts. The default is `true`. Set this to `false` when configuring the service to run within a different supervision tree.
-
-* `:default_cldr_backend` defines the `Cldr` backend module that is default for `Money`.  See the [ex_cldr documentation](https://hexdocs.pm/ex_cldr/2.0.0/readme.html) for further information on how to define this module.  **This is a required option**.
 
 * `:exchange_rates_retrieve_every` defines how often the exchange rates are retrieved in milliseconds.  The default is `:never`. An `atom` value is interpreted to mean that there should be no periodic retrieval.
 
@@ -132,9 +221,9 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
 * `log_info` defines the log level at which service startup messages are logged.  The default is `info`.
 
-* `:json_library` determines which json library to be used for decoding.  Two common options are `Poison` and `Jason`. The default is `Cldr.Config.json_library/0` which will attempt to use `JSON` (built in as of Elixir 1.18) or `:json` (built into OTP as of OTP 27).
+* `:json_library` determines which json library to be used for decoding. Two common options are `Jason` and `Poison`. The default is `:json` (built into OTP).
 
-* `:exclude_protocol_implementations` is a protocol module, or list of protocol modules, that will not be defined by `ex_money`. The default is `[]`. The protocol implementations influenced by this option at `Jason.Encoder`, `JSON.Encoder`, `Phoenix.HTML.Safe` and `Gringotts.Money`.
+* `:exclude_protocol_implementations` is a protocol module, or list of protocol modules, that will not be defined by `ex_money`. The default is `[]`. The protocol implementations influenced by this option are `Jason.Encoder`, `JSON.Encoder`, `Phoenix.HTML.Safe` and `Gringotts.Money`.
 
 ### JSON library configuration
 
@@ -151,25 +240,24 @@ The recommended library is [jason](https://hex.pm/packages/jason) on Elixir vers
 ```
 For Elixir version 1.18 or later, no JSON library need be configured since the built-in `JSON` module can be used automatically. For earlier Elixir versions that are running on OTP 27 or later, the built-in OTP module `:json` will be used automatically.
 
-`ex_money` depends on `ex_cldr` which provides currency and localisation data. The default configuration of `ex_money` uses the default `json_library` from `ex_cldr`.  This can be configured as follows in `config.exs`:
-```
-config :ex_cldr,
-  json_library: Jason
-```
-In most cases this is not required since the presence of `Jason`, `JSON` (Elixir 1.18 or later), `:json` (OTP 27 or later) or `Poison` is automatic.
+In most cases no JSON library configuration is required since the built-in OTP `:json` module is used by default. For Elixir versions prior to 1.18, configure `Jason` as the json library.
 
 ### Configuring locales to support localised formatting
 
-`Money` uses [ex_cldr](https://hex.pm/packages/ex_cldr) and [ex_cldr_numbers](https://hex.pm/packages/ex_cldr_numbers) to support configuring locales and providing locale formatting.  These packages are also the source of currency definitions, names, formats and so on.
+`Money` uses [localize](https://hex.pm/packages/localize) to support configuring locales and providing locale formatting. This package is also the source of currency definitions, names, formats and so on.
 
-To use `Cldr` and therefore `Money`, a backend module must be defined.  This module will host the `Cldr` data and public API used by `Money`.  A simple example would be:
+No backend module is required. Localize uses runtime locale resolution. Configure locales via the `localize` application configuration:
+
+```elixir
+config :localize,
+  default_locale: :en,
+  preload_locales: [:en, :fr, :zh]
 ```
-defmodule MyApp.Cldr do
-  use Cldr,
-    locales: ["en", "fr", "zh"],
-    default_locale: "en",
-    providers: [Cldr.Number, Money]
-end
+
+The current locale can be set at runtime:
+
+```elixir
+Localize.put_locale(:fr)
 ```
 
 ### Preloading historic rates
@@ -313,15 +401,10 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
 `Money` provides an ability to parse strings that contain a currency and an amount.  The currency can be represented in different ways depending on the locale. See `Money.parse/2` for further information.  Some examples are:
 
 ```
-  # These are the strings available for a given currency
-  # and locale that are recognised during parsing
-  iex> Cldr.Currency.strings_for_currency :AUD, "de"
-  ["aud", "au$", "australischer dollar", "australische dollar"]
-
-  iex> Money.parse "$au 12 346", locale: "fr"
+  iex> Money.parse "$au 12346", locale: "fr"
   Money.new(:AUD, "12346")
 
-  iex> Money.parse "12 346 dollar australien", locale: "fr"
+  iex> Money.parse "dollar australien 12346", locale: "fr"
   Money.new(:AUD, "12346")
 
   iex> Money.parse "A$ 12346", locale: "en"
@@ -336,8 +419,7 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
 
   # Parse using the default currency of the locale
 	# If no `:locale` option is provided then
-	# the locale associated with `Money.default_backend/0`
-	# is used.
+	# `Localize.get_locale/0` is used.
   iex> Money.parse("100", locale: "en")
   Money.new(:USD, "100")
 
@@ -347,7 +429,7 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
   Money.new(:AUD, "12346.45")
 
   # Round trip formatting is supported
-  iex> {:ok, string} = Cldr.Number.to_string 1234, Money.Cldr, currency: :AUD
+  iex> {:ok, string} = Localize.Number.to_string 1234, currency: :AUD
   {:ok, "A$1,234.00"}
   iex> Money.parse string
   #Money<:AUD, 1234.00>
@@ -385,7 +467,7 @@ Note that the amount and currency code arguments to `Money.new/3` can be supplie
 
 `Money` supports form field inputs that are a single string combining both a currency code and an amount.  When a form field (or other data) is [cast](https://hexdocs.pm/ecto/Ecto.Changeset.html#cast/4) then `Money` will attempt to parse a string field into a `Money.t` using `Money.parse/2`. Therefore simple money form input can be supported with a single input field of `type=text`.
 
-Note that when parsing the input text, the amount is interpreted in the context of the current locale set on the default backend configured for `ex_money`.  This affects how separator characters are interpreted in exactly the same way as is done for `Money.new/3`.
+Note that when parsing the input text, the amount is interpreted in the context of the current locale set via `Localize.get_locale/0`. This affects how separator characters are interpreted in exactly the same way as is done for `Money.new/3`.
 
 ### Float amounts cannot be provided to `Money.new/2`
 
@@ -438,17 +520,15 @@ An optional sigil module is available to aid in creating %Money{} structs.  It n
 
 ### Localised Money formatting
 
-`Money` provides locale-specific formatted output that is controlled be either the locale that has been set for this process or by the `:locale` parameter supplied to `Money.to_string/2`.  Configuring your localised environment requires configuring `ex_cldr` which is a dependency to `Money`.  See the [Configuration](https://github.com/kipcole9/cldr#configuration) section of the `ex_cldr` readme for more information.
+`Money` provides locale-specific formatted output that is controlled by either the locale that has been set for this process or by the `:locale` parameter supplied to `Money.to_string/2`.
 
-The main API for formatting `Money` is `Money.to_string/2`. Additionally formatting options are passed to `Cldr.Number.to_string/2`.  Those options are described in the [readme for ex_cldr_numbers](https://github.com/kipcole9/cldr_numbers#primary-public-api) which is also a dependency to `Money`.
+The main API for formatting `Money` is `Money.to_string/2`. Formatting options are passed to `Localize.Number.to_string/2`. See the [localize documentation](https://hexdocs.pm/localize) for more information.
 
     iex> Money.to_string Money.new("thb", 11)
-    {:ok, "THB11.00"}
+    {:ok, "THB\u00A011.00"}
 
-    # The default locale is "en-001" which is
-    # "global english"
     iex> Money.to_string Money.new("USD", "234.467")
-    {:ok, "$US234.47"}
+    {:ok, "$234.47"}
 
     # The locale "en" is "American English".  For
     # UK English use the locale "en-GB".  Australian
@@ -457,7 +537,7 @@ The main API for formatting `Money` is `Money.to_string/2`. Additionally formatt
     {:ok, "$234.47"}
 
     iex> Money.to_string Money.new("USD", "234.467"), format: :long
-    {:ok, "234.47 US dollars"}
+    {:ok, "234 US dollars"}
 
     iex> Money.to_string Money.new("USD", "234.467"), locale: "fr"
     {:ok, "234,47 $US"}
@@ -471,7 +551,7 @@ The main API for formatting `Money` is `Money.to_string/2`. Additionally formatt
     iex> Money.to_string Money.new("EUR", "234.467"), locale: "fr"
     {:ok, "234,47 €"}
 
-**Note that the output is influenced by the locale in effect.**  By default the locale used is that returned by `Cldr.get_locale/0`.  Its default value is `:en-001`.  Additional locales can be configured, see `Cldr`.  The formatting options are defined in `Cldr.Number.to_string/2`.
+**Note that the output is influenced by the locale in effect.** By default the locale used is that returned by `Localize.get_locale/0`. Its default value is `:en`. Additional locales can be configured via the `localize` application configuration. The formatting options are defined in `Localize.Number.to_string/2`.
 
 ### Arithmetic Functions
 
@@ -506,7 +586,7 @@ Some basic math functions are available to operate on `Money` structs.
     {Money.new(:USD, "33.33"), Money.new(:USD, "0.01")}
 
     # Rounding applies the currency definitions of CLDR as implemented in
-    # the hex package [ex_cldr](https://hex.pm/packages/ex_cldr)
+    # the hex package [localize](https://hex.pm/packages/localize)
     iex> Money.round Money.new(:USD, "100.678")
     Money.new(:USD, "100.68")
 
@@ -524,7 +604,7 @@ A `%Money{}` struct can be converted to another currency using `Money.to_currenc
     {:ok, Money.new(:AUD, "138.6200")}
 
     iex> Money.to_currency Money.new(:USD, 100) , :AUDD, %{USD: Decimal.new(1), AUD: Decimal.new("0.7345")}
-    {:error, {Cldr.UnknownCurrencyError, "The currency :AUDD is invalid"}}
+    {:error, {Money.UnknownCurrencyError, "The currency :AUDD is not known."}}
 
     iex> Money.to_currency! Money.new(:USD, 100), :XXX
     ** (Money.ExchangeRateError) No exchange rate is available for currency :XXX
@@ -728,7 +808,7 @@ end
 
 ## Why yet another Money package?
 
-* Fully localized formatting and rounding using [ex_cldr](https://hex.pm/packages/ex_cldr)
+* Fully localized formatting and rounding using [localize](https://hex.pm/packages/localize)
 
 * Provides serialization to Postgres using a composite type and MySQL using a JSON type that keeps both the currency code and the amount together removing a source of potential error
 
@@ -777,7 +857,7 @@ All `Money` calculations are done with decimal arithmetic to the maxium precisio
 
 **10. Countries have only one currency.**
 
-`Money` doesn't link territories (countries) to a currency - it focuses only on the `Money` domain.  The addon package [cldr_territories](https://github.com/Schultzer/cldr_territories) does have knowledge of what curriencies are in effect throughout history for a given territory.  See `Cldr.Territory.info/1`.
+`Money` doesn't link territories (countries) to a currency - it focuses only on the `Money` domain. The `Localize.Territory` module has knowledge of what currencies are in effect throughout history for a given territory.
 
 **11. Countries have only one currency currently in circulation. (Panama officially uses both PAB and USD)**
 
@@ -789,7 +869,7 @@ All `Money` calculations are done with decimal arithmetic to the maxium precisio
 
 **13. All currencies have an ISO 4217 3-letter code. (The Transnistrian ruble has none, for example)**
 
-`Money` does validate currency codes against the ISO 4217 list.  Custom currencies can be created in accordance with ISO 4217 using `Cldr.Currency.new/2`.
+`Money` does validate currency codes against the ISO 4217 list. Custom currencies can be created in accordance with ISO 4217 using `Localize.Currency.new/2`.
 
 **14. All currencies have a different name. (French franc, "nouveau franc")**
 

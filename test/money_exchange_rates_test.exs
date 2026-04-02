@@ -15,7 +15,7 @@ defmodule Money.ExchangeRates.Test do
   end
 
   test "Localize money" do
-    assert {:ok, _} = Money.localize(Money.new(:AUD, 100), locale: "en", backend: Test.Cldr)
+    assert {:ok, _} = Money.localize(Money.new(:AUD, 100), locale: "en")
   end
 
   test "Convert from USD to AUD" do
@@ -30,13 +30,13 @@ defmodule Money.ExchangeRates.Test do
   test "Convert from USD to ZZZ should return an error" do
     capture_io(fn ->
       assert Money.to_currency(Money.new(:USD, 100), :ZZZ) ==
-               {:error, {Cldr.UnknownCurrencyError, "The currency :ZZZ is unknown"}}
+               {:error, {Money.UnknownCurrencyError, "The currency :ZZZ is not known."}}
     end)
   end
 
   test "Convert from USD to ZZZ should raise an exception" do
     capture_io(fn ->
-      assert_raise Cldr.UnknownCurrencyError, ~r/The currency :ZZZ is unknown/, fn ->
+      assert_raise Money.UnknownCurrencyError, ~r/The currency :ZZZ is not known/, fn ->
         assert Money.to_currency!(Money.new(:USD, 100), :ZZZ)
       end
     end)

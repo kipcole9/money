@@ -34,10 +34,10 @@ defmodule MoneyTest do
 
   test "create a new money struct wth a invalid binary currency code and binary amount" do
     money = Money.new("1234", "ZZZ")
-    assert money == {:error, {Money.UnknownCurrencyError, "The currency \"ZZZ\" is unknown"}}
+    assert money == {:error, {Money.UnknownCurrencyError, "The currency :ZZZ is not known."}}
 
     money = Money.new("ZZZ", "1234")
-    assert money == {:error, {Money.UnknownCurrencyError, "The currency \"ZZZ\" is unknown"}}
+    assert money == {:error, {Money.UnknownCurrencyError, "The currency :ZZZ is not known."}}
   end
 
   test "create a new! money struct with a binary currency code" do
@@ -154,15 +154,15 @@ defmodule MoneyTest do
   end
 
   test "raise when creating a new money struct from invalid input" do
-    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is unknown", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency :ABCDE is not known.", fn ->
       Money.new!("ABCDE", 100)
     end
 
-    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is unknown", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency :ABCDE is not known.", fn ->
       Money.new!(Decimal.new(100), "ABCDE")
     end
 
-    assert_raise Money.UnknownCurrencyError, "The currency \"ABCDE\" is unknown", fn ->
+    assert_raise Money.UnknownCurrencyError, "The currency :ABCDE is not known.", fn ->
       Money.new!("ABCDE", Decimal.new(100))
     end
   end
@@ -187,12 +187,12 @@ defmodule MoneyTest do
 
   test "creating a money struct with an invalid atom currency code returns error tuple" do
     assert Money.new(:ZYZ, 100) ==
-             {:error, {Money.UnknownCurrencyError, "The currency :ZYZ is unknown"}}
+             {:error, {Money.UnknownCurrencyError, "The currency :ZYZ is not known."}}
   end
 
   test "creating a money struct with an invalid binary currency code returns error tuple" do
     assert Money.new("XYZABC", 100) ==
-             {:error, {Money.UnknownCurrencyError, "The currency \"XYZABC\" is unknown"}}
+             {:error, {Money.UnknownCurrencyError, "The currency :XYZABC is not known."}}
   end
 
   test "creating a money struct with a code that is also a digital token short code" do
@@ -213,11 +213,10 @@ defmodule MoneyTest do
     assert to_string(money) == "$1,234.00"
   end
 
-  # Comment out until the next version that depends on ex_cldr_numbers 2.31.0
   test "to_string! raises if there is an error" do
     money = Money.new(1234, :USD)
 
-    assert_raise Cldr.FormatCompileError, fn ->
+    assert_raise Localize.InvalidValueError, fn ->
       Money.to_string!(money, format: "0#")
     end
   end
@@ -462,7 +461,7 @@ defmodule MoneyTest do
   end
 
   test "raise when a sigil function has an invalid currency" do
-    assert_raise Money.UnknownCurrencyError, ~r/The currency .* is unknown/, fn ->
+    assert_raise Money.UnknownCurrencyError, ~r/The currency .* is not known/, fn ->
       Money.Sigil.sigil_M("42", [?A, ?A, ?A])
     end
   end
@@ -470,7 +469,7 @@ defmodule MoneyTest do
   test "raise when a sigil has an invalid currency" do
     import Money.Sigil
 
-    assert_raise Money.UnknownCurrencyError, ~r/The currency .* is unknown/, fn ->
+    assert_raise Money.UnknownCurrencyError, ~r/The currency .* is not known/, fn ->
       ~M[42]ABD
     end
   end
@@ -549,29 +548,6 @@ defmodule MoneyTest do
     assert Poison.encode(
              Money.new("0.0020", :USD) == {:ok, "{\"currency\":\"USD\",\"amount\":\"0.0020\"}"}
            )
-  end
-
-  test "an exception is raised if no default backend" do
-    backend = Application.get_env(:ex_money, :default_cldr_backend)
-    Application.put_env(:ex_money, :default_cldr_backend, nil)
-
-    assert_raise Cldr.NoDefaultBackendError, fn ->
-      Cldr.default_backend!()
-    end
-
-    Application.put_env(:ex_money, :default_cldr_backend, backend)
-  end
-
-  test "that cldr default backend is used if there is no money default backend" do
-    money_backend = Application.get_env(:ex_money, :default_cldr_backend)
-    cldr_backend = Application.get_env(:ex_cldr, :default_backend)
-    Application.put_env(:ex_money, :default_cldr_backend, nil)
-    Application.put_env(:ex_cldr, :default_backend, Test.Cldr)
-
-    assert Money.default_backend!() == Test.Cldr
-
-    Application.put_env(:ex_money, :default_cldr_backend, money_backend)
-    Application.put_env(:ex_cldr, :default_backend, cldr_backend)
   end
 
   test "that format options propagate through operations" do
