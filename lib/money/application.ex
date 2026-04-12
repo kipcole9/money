@@ -7,6 +7,7 @@ defmodule Money.Application do
 
   def start(_type, args) do
     children = [
+      Money.Currency.Store,
       Money.ExchangeRates.Supervisor
     ]
 
@@ -18,6 +19,8 @@ defmodule Money.Application do
       end
 
     supervisor = Supervisor.start_link(children, opts)
+
+    register_custom_currencies()
 
     if start_exchange_rate_service?() do
       ExchangeRates.Supervisor.start_retriever()
@@ -44,6 +47,27 @@ defmodule Money.Application do
     end
 
     start? && api_module_present?
+  end
+
+  defp register_custom_currencies do
+    case Application.get_env(:ex_money, :custom_currencies) do
+      nil ->
+        :ok
+
+      currencies when is_list(currencies) ->
+        Enum.each(currencies, fn {code, options} ->
+          case Money.Currency.new(code, options) do
+            {:ok, _currency} ->
+              :ok
+
+            {:error, exception} ->
+              Logger.warning(
+                "Failed to register custom currency #{inspect(code)}: " <>
+                  Exception.message(exception)
+              )
+          end
+        end)
+    end
   end
 
   defp api_module_name(name) when is_atom(name) do

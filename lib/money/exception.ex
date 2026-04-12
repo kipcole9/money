@@ -6,6 +6,32 @@ defmodule Money.UnknownCurrencyError do
   end
 end
 
+defmodule Money.CurrencyAlreadyDefinedError do
+  defexception [:currency]
+
+  def exception(bindings) when is_list(bindings) do
+    struct!(__MODULE__, bindings)
+  end
+
+  @impl true
+  def message(%__MODULE__{currency: currency}) do
+    "The currency #{inspect(currency)} is already defined."
+  end
+end
+
+defmodule Money.CurrencyNotSavedError do
+  defexception [:currency]
+
+  def exception(bindings) when is_list(bindings) do
+    struct!(__MODULE__, bindings)
+  end
+
+  @impl true
+  def message(%__MODULE__{currency: currency}) do
+    "The currency #{inspect(currency)} could not be saved. Ensure Money.Currency.Store is started."
+  end
+end
+
 defmodule Money.InvalidCurrencyError do
   defexception [:message]
 

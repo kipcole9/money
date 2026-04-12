@@ -93,7 +93,9 @@ defmodule Money do
 
   alias Money.ExchangeRates
 
-  defdelegate known_currencies, to: Localize.Currency, as: :known_currency_codes
+  def known_currencies do
+    Localize.Currency.known_currency_codes() ++ Money.Currency.Store.codes()
+  end
   defdelegate known_current_currencies, to: Money.Currency
   defdelegate known_historic_currencies, to: Money.Currency
   defdelegate known_tender_currencies, to: Money.Currency
@@ -2999,14 +3001,17 @@ defmodule Money do
       {:ok, code} ->
         {:ok, code}
 
-      {:error, %Localize.UnknownCurrencyError{} = error} ->
-        validate_digital_token(
-          currency_code,
-          {Money.UnknownCurrencyError, Exception.message(error)}
-        )
+      {:error, _} ->
+        store_key = if is_binary(normalized), do: String.to_atom(normalized), else: normalized
 
-      {:error, error} ->
-        validate_digital_token(currency_code, error)
+        case Money.Currency.Store.get(store_key) do
+          %Localize.Currency{code: code} ->
+            {:ok, code}
+
+          nil ->
+            error = {Money.UnknownCurrencyError, "The currency #{inspect(store_key)} is not known."}
+            validate_digital_token(currency_code, error)
+        end
     end
   end
 
