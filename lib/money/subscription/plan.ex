@@ -168,7 +168,6 @@ defmodule Money.Subscription.Plan do
       case to_string(plan, options) do
         {:ok, string} -> string
         {:error, %{__exception__: true} = exception} -> raise exception
-        {:error, {exception, reason}} -> raise exception, reason
       end
     end
 

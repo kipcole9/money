@@ -36,14 +36,25 @@ defmodule Money do
 
   import Kernel, except: [round: 1, abs: 1]
 
-  alias Localize.Currency
+  @typedoc """
+  A value that can reference a currency. This is either:
+
+  * An atom — an ISO 4217 currency code (e.g. `:USD`) or a custom/private-use
+    currency code registered via `Money.Currency.new/2` (e.g. `:XBT`).
+
+  * A binary — either a string form of an ISO code (e.g. `"USD"`), a digital
+    token short name (e.g. `"BTC"`), or a 9-character ISO 24165 digital
+    token identifier (DTI).
+
+  """
+  @type currency_reference :: atom() | String.t()
 
   @typedoc """
   Money is composed of an atom representation of an ISO4217 currency code or a custom
   currency code and a `Decimal` representation of an amount.
   """
   @type t :: %Money{
-          currency: Currency.currency_reference(),
+          currency: currency_reference(),
           amount: Decimal.t(),
           format_options: Keyword.t()
         }
@@ -159,8 +170,8 @@ defmodule Money do
 
   """
   @spec new(
-          amount | Currency.currency_reference(),
-          amount | Currency.currency_reference(),
+          amount | currency_reference(),
+          amount | currency_reference(),
           Keyword.t()
         ) ::
           Money.t() | {:error, {module(), String.t()}}
@@ -294,8 +305,8 @@ defmodule Money do
 
   """
   @spec new!(
-          amount | Currency.currency_reference(),
-          amount | Currency.currency_reference(),
+          amount | currency_reference(),
+          amount | currency_reference(),
           Keyword.t()
         ) ::
           Money.t() | no_return()
@@ -367,8 +378,8 @@ defmodule Money do
   @doc since: "2.0.0"
   @max_precision_allowed 15
   @spec from_float(
-          float | Currency.currency_reference(),
-          float | Currency.currency_reference(),
+          float | currency_reference(),
+          float | currency_reference(),
           Keyword.t()
         ) ::
           Money.t() | {:error, {module(), String.t()}}
@@ -426,7 +437,7 @@ defmodule Money do
 
   """
   @doc since: "2.0.0"
-  @spec from_float!(Currency.currency_reference(), float, Keyword.t()) :: Money.t() | no_return()
+  @spec from_float!(currency_reference(), float, Keyword.t()) :: Money.t() | no_return()
 
   def from_float!(currency_code, amount, options \\ []) do
     case from_float(currency_code, amount, options) do
@@ -752,7 +763,7 @@ defmodule Money do
 
   """
   @spec to_string(Money.t(), Keyword.t() | Localize.Number.Format.Options.t()) ::
-          {:ok, String.t()} | {:error, {module, String.t()}}
+          {:ok, String.t()} | {:error, {module, String.t()}} | {:error, Exception.t()}
 
   def to_string(money, options \\ [])
 
@@ -2407,7 +2418,7 @@ defmodule Money do
   """
   @spec to_currency(
           Money.t(),
-          Currency.currency_reference(),
+          currency_reference(),
           ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
         ) :: {:ok, Money.t()} | {:error, {module(), String.t()}}
 
@@ -2471,7 +2482,7 @@ defmodule Money do
   """
   @spec to_currency!(
           Money.t(),
-          Currency.currency_reference(),
+          currency_reference(),
           ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
         ) :: Money.t() | no_return
 
@@ -2509,8 +2520,8 @@ defmodule Money do
 
   """
   @spec cross_rate(
-          Money.t() | Currency.currency_reference(),
-          Currency.currency_reference(),
+          Money.t() | currency_reference(),
+          currency_reference(),
           ExchangeRates.t() | {:ok, ExchangeRates.t()}
         ) :: {:ok, Decimal.t()} | {:error, {module(), String.t()}}
 
@@ -2561,8 +2572,8 @@ defmodule Money do
 
   """
   @spec cross_rate!(
-          Money.t() | Currency.currency_reference(),
-          Currency.currency_reference(),
+          Money.t() | currency_reference(),
+          currency_reference(),
           ExchangeRates.t() | {:ok, ExchangeRates.t()}
         ) :: Decimal.t() | no_return
 
@@ -2739,7 +2750,7 @@ defmodule Money do
       Money.new(:IQD, "20.012")
 
   """
-  @spec from_integer(integer, Currency.currency_reference(), Keyword.t()) ::
+  @spec from_integer(integer, currency_reference(), Keyword.t()) ::
           Money.t() | {:error, {module(), String.t()}}
 
   def from_integer(amount, currency, options \\ [])
@@ -2818,9 +2829,9 @@ defmodule Money do
       {:error, {Money.UnknownCurrencyError, "The currency :ZZZ is not known."}}
 
   """
-  @spec zero(Currency.currency_reference() | Money.t()) ::
+  @spec zero(currency_reference() | Money.t()) ::
           Money.t() | {:error, {module(), binary()}}
-  @spec zero(Currency.currency_reference() | Money.t(), Keyword.t()) ::
+  @spec zero(currency_reference() | Money.t(), Keyword.t()) ::
           Money.t() | {:error, {module(), binary()}}
 
   def zero(money_or_currency_code, options \\ [])
