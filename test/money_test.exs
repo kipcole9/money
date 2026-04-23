@@ -440,6 +440,7 @@ defmodule MoneyTest do
     assert Money.to_currency(Money.new(:USD, 100), "USD", rates) == {:ok, Money.new(:USD, 100)}
   end
 
+  @tag :digital_token
   test "money conversion with digital_token" do
     rates = %{:USD => Decimal.new(50_000), "4H95J0R2X" => Decimal.new(1)}
 

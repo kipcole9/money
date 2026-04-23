@@ -223,7 +223,7 @@ An optional callback module can also be defined.  This module defines a `rates_r
 
 * `:json_library` determines which json library to be used for decoding. Two common options are `Jason` and `Poison`. The default is `:json` (built into OTP).
 
-* `:exclude_protocol_implementations` is a protocol module, or list of protocol modules, that will not be defined by `ex_money`. The default is `[]`. The protocol implementations influenced by this option are `Jason.Encoder`, `JSON.Encoder`, `Phoenix.HTML.Safe` and `Gringotts.Money`.
+* `:exclude_protocol_implementations` is a protocol module, or list of protocol modules, that will not be defined by `ex_money`. The default is `[]`. The protocol implementations influenced by this option are `Jason.Encoder`, `JSON.Encoder` and `Phoenix.HTML.Safe`.
 
 ### JSON library configuration
 

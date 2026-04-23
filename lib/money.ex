@@ -36,6 +36,11 @@ defmodule Money do
 
   import Kernel, except: [round: 1, abs: 1]
 
+  # `:digital_token` is an optional dependency. Runtime call sites are all
+  # guarded with `Code.ensure_loaded?(DigitalToken)`, but the compiler still
+  # warns about unknown remote calls. Suppress those warnings.
+  @compile {:no_warn_undefined, DigitalToken}
+
   @typedoc """
   A value that can reference a currency. This is either:
 
@@ -685,7 +690,7 @@ defmodule Money do
 
   defp maybe_token(token_id) do
     if Code.ensure_loaded?(DigitalToken) do
-      case DigitalToken.validate_token(token_id) do
+      case apply(DigitalToken, :validate_token, [token_id]) do
         {:ok, token_id} -> token_id
         _other -> nil
       end
@@ -825,9 +830,11 @@ defmodule Money do
 
   defp digital_token_symbol(token_id) when is_binary(token_id) do
     if Code.ensure_loaded?(DigitalToken) do
-      case Map.get(DigitalToken.symbols(), token_id) do
+      symbols = apply(DigitalToken, :symbols, [])
+
+      case Map.get(symbols, token_id) do
         nil ->
-          case DigitalToken.short_name(token_id) do
+          case apply(DigitalToken, :short_name, [token_id]) do
             {:ok, name} -> name
             _ -> token_id
           end
@@ -3008,12 +3015,9 @@ defmodule Money do
 
   defp validate_digital_token(currency_code, options, original_error) do
     if Code.ensure_loaded?(DigitalToken) do
-      case DigitalToken.validate_token(currency_code, options) do
-        {:ok, token_id} ->
-          {:ok, token_id}
-
-        {:error, {DigitalToken.UnknownTokenError, _}} ->
-          {:error, original_error}
+      case apply(DigitalToken, :validate_token, [currency_code, options]) do
+        {:ok, token_id} -> {:ok, token_id}
+        {:error, _} -> {:error, original_error}
       end
     else
       {:error, original_error}

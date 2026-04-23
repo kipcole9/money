@@ -24,13 +24,15 @@ This is a major release that replaces the `ex_cldr` family of dependencies with 
 
 * Error messages from currency validation have changed. For example, `"The currency :ZZZ is unknown"` is now `"The currency :ZZZ is not known."` (the message comes from `Localize.UnknownCurrencyError`).
 
-* The `Gringotts.Money` protocol implementation is conditionally compiled only when Gringotts is available. The `gringotts` dependency has been removed from `mix.exs` due to incompatibility with `gettext ~> 1.0`.
+* `gringotts` support is removed.
 
 * Currency lists returned by `Money.Currency.known_current_currencies/0`, `Money.Currency.known_historic_currencies/0`, and `Money.Currency.known_tender_currencies/0` have been updated to reflect newer CLDR data. Some currencies have moved between current and historic status.
 
 ### Enhancements
 
 * All CLDR functionality is now provided by the single `localize` package, simplifying the dependency tree and removing the need for compile-time backend configuration.
+
+* Custom currencies are now managed in `ex_money` rather than `localize`. See `Money.Currency.new`.
 
 * Locale management is now handled at runtime via `Localize.get_locale/0` and `Localize.put_locale/1`, consistent with how `Gettext` manages locales.
 

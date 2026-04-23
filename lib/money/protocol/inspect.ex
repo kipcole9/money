@@ -1,8 +1,19 @@
 defimpl Inspect, for: Money do
   import Money, only: [is_digital_token: 1]
 
+  # `:digital_token` is an optional dependency. See `Money` for context.
+  @compile {:no_warn_undefined, DigitalToken}
+
   def inspect(%Money{currency: token_id} = money, opts) when is_digital_token(token_id) do
-    {:ok, short_name} = DigitalToken.short_name(token_id)
+    short_name =
+      if Code.ensure_loaded?(DigitalToken) do
+        case apply(DigitalToken, :short_name, [token_id]) do
+          {:ok, name} -> name
+          _ -> token_id
+        end
+      else
+        token_id
+      end
 
     money
     |> Map.put(:currency, short_name)

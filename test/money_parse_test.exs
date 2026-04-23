@@ -24,6 +24,7 @@ defmodule MoneyTest.Parse do
       assert Money.parse("100.00USD") == Money.new(:USD, "100.00")
     end
 
+    @tag :digital_token
     test "parses digital tokens" do
       assert Money.new("BTC", "100") == Money.parse("100 BTC")
       assert Money.new("BTC", "100") == Money.parse("100 Bitcoin")
