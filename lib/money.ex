@@ -43,7 +43,7 @@ defmodule Money do
   currency code and a `Decimal` representation of an amount.
   """
   @type t :: %Money{
-          currency: Currency.currency_reference(),
+          currency: Currency.currency_code(),
           amount: Decimal.t(),
           format_options: Keyword.t()
         }
@@ -178,8 +178,8 @@ defmodule Money do
 
   """
   @spec new(
-          amount | Currency.currency_reference(),
-          amount | Currency.currency_reference(),
+          amount | Currency.currency_code(),
+          amount | Currency.currency_code(),
           Keyword.t()
         ) ::
           Money.t() | {:error, {module(), String.t()}}
@@ -312,8 +312,8 @@ defmodule Money do
 
   """
   @spec new!(
-          amount | Currency.currency_reference(),
-          amount | Currency.currency_reference(),
+          amount | Currency.currency_code(),
+          amount | Currency.currency_code(),
           Keyword.t()
         ) ::
           Money.t() | no_return()
@@ -385,8 +385,8 @@ defmodule Money do
   @doc since: "2.0.0"
   @max_precision_allowed 15
   @spec from_float(
-          float | Currency.currency_reference(),
-          float | Currency.currency_reference(),
+          float | Currency.currency_code(),
+          float | Currency.currency_code(),
           Keyword.t()
         ) ::
           Money.t() | {:error, {module(), String.t()}}
@@ -444,7 +444,7 @@ defmodule Money do
 
   """
   @doc since: "2.0.0"
-  @spec from_float!(Currency.currency_reference(), float, Keyword.t()) :: Money.t() | no_return()
+  @spec from_float!(Currency.currency_code(), float, Keyword.t()) :: Money.t() | no_return()
 
   def from_float!(currency_code, amount, options \\ []) do
     case from_float(currency_code, amount, options) do
@@ -2425,7 +2425,7 @@ defmodule Money do
   """
   @spec to_currency(
           Money.t(),
-          Currency.currency_reference(),
+          Currency.currency_code(),
           ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
         ) :: {:ok, Money.t()} | {:error, {module(), String.t()}}
 
@@ -2489,7 +2489,7 @@ defmodule Money do
   """
   @spec to_currency!(
           Money.t(),
-          Currency.currency_reference(),
+          Currency.currency_code(),
           ExchangeRates.t() | {:ok, ExchangeRates.t()} | {:error, {module(), String.t()}}
         ) :: Money.t() | no_return
 
@@ -2527,8 +2527,8 @@ defmodule Money do
 
   """
   @spec cross_rate(
-          Money.t() | Currency.currency_reference(),
-          Currency.currency_reference(),
+          Money.t() | Currency.currency_code(),
+          Currency.currency_code(),
           ExchangeRates.t() | {:ok, ExchangeRates.t()}
         ) :: {:ok, Decimal.t()} | {:error, {module(), String.t()}}
 
@@ -2579,8 +2579,8 @@ defmodule Money do
 
   """
   @spec cross_rate!(
-          Money.t() | Currency.currency_reference(),
-          Currency.currency_reference(),
+          Money.t() | Currency.currency_code(),
+          Currency.currency_code(),
           ExchangeRates.t() | {:ok, ExchangeRates.t()}
         ) :: Decimal.t() | no_return
 
@@ -2757,7 +2757,7 @@ defmodule Money do
       Money.new(:IQD, "20.012")
 
   """
-  @spec from_integer(integer, Currency.currency_reference(), Keyword.t()) ::
+  @spec from_integer(integer, Currency.currency_code(), Keyword.t()) ::
           Money.t() | {:error, {module(), String.t()}}
 
   def from_integer(amount, currency, options \\ [])
@@ -2836,9 +2836,9 @@ defmodule Money do
       {:error, {Money.UnknownCurrencyError, "The currency :ZZZ is not known."}}
 
   """
-  @spec zero(Currency.currency_reference() | Money.t()) ::
+  @spec zero(Currency.currency_code() | Money.t()) ::
           Money.t() | {:error, {module(), binary()}}
-  @spec zero(Currency.currency_reference() | Money.t(), Keyword.t()) ::
+  @spec zero(Currency.currency_code() | Money.t(), Keyword.t()) ::
           Money.t() | {:error, {module(), binary()}}
 
   def zero(money_or_currency_code, options \\ [])
