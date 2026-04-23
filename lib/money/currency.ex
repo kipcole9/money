@@ -324,7 +324,7 @@ defmodule Money.Currency do
 
       {:ok, validated}
     else
-      {:error, Money.InvalidAmountError.exception("Options must include at least a :name key.")}
+      {:error, Money.InvalidCurrencyError.exception("Options must include at least a :name key.")}
     end
   end
 

@@ -58,35 +58,6 @@ defmodule Money do
   @enforce_keys [:currency, :amount]
   defstruct currency: nil, amount: nil, format_options: []
 
-  @json_library Application.compile_env(:ex_money, :json_library, :json)
-  unless Code.ensure_loaded?(@json_library) do
-    IO.puts("""
-
-    The json_library '#{inspect(@json_library)}' does not appear
-    to be available.  A json library is required
-    for Money to operate. Is it configured as a
-    dependency in mix.exs?
-
-    In config.exs your expicit or implicit configuration is:
-
-      config ex_money,
-        json_library: #{inspect(@json_library)}
-
-    In mix.exs you will need something like:
-
-      def deps() do
-        [
-          ...
-          {:#{String.downcase(inspect(@json_library))}, version_string}
-        ]
-      end
-    """)
-
-    raise ArgumentError,
-          "JSON library #{String.downcase(inspect(@json_library))} does " <>
-            "not appear to be a dependency"
-  end
-
   # Default mode for rounding is :half_even, also known
   # as bankers rounding
   @default_rounding_mode :half_even
@@ -135,6 +106,14 @@ defmodule Money do
     The default is `:standard`. Some limited locales have an alternative `:us`
     variant that can be used. See `Localize.Number.Symbol.number_symbols_for/2`
     for the symbols supported for a given locale and number system.
+
+  * `:dti_type` specifies the digital token type when the currency code
+    is a digital token short name or long name that maps to more than one
+    token identifier. One of `:native`, `:auxiliary`, `:distributed`, or
+    `:fungible`. When not specified, the lookup tries each type in priority
+    order: `:native`, `:auxiliary`, `:distributed`, `:fungible`. The first
+    match wins. This option is only relevant for digital tokens and is
+    ignored for ISO 4217 currencies.
 
   * Any other options are considered as formatting options to
     be applied by default when calling `Money.to_string/2`.
@@ -192,7 +171,7 @@ defmodule Money do
 
   def new(currency_code, amount, options)
       when is_currency_code(currency_code) and is_integer(amount) do
-    with {:ok, code} <- validate_currency(currency_code) do
+    with {:ok, code} <- validate_currency(currency_code, options) do
       format_options = extract_format_options(options)
       %Money{amount: Decimal.new(amount), currency: code, format_options: format_options}
     else
@@ -210,7 +189,7 @@ defmodule Money do
 
   def new(currency_code, %Decimal{} = amount, options) when is_currency_code(currency_code) do
     with {:ok, amount} <- validate_not_nan_or_inf(amount),
-         {:ok, code} <- validate_currency(currency_code) do
+         {:ok, code} <- validate_currency(currency_code, options) do
       format_options = extract_format_options(options)
       %Money{amount: amount, currency: code, format_options: format_options}
     else
@@ -290,6 +269,7 @@ defmodule Money do
     |> Keyword.delete(:backend)
     |> Keyword.delete(:default_currency)
     |> Keyword.delete(:separators)
+    |> Keyword.delete(:dti_type)
   end
 
   @doc """
@@ -2994,7 +2974,7 @@ defmodule Money do
   end
 
   @doc false
-  def validate_currency(currency_code) do
+  def validate_currency(currency_code, options \\ []) do
     normalized = normalize_currency_code(currency_code)
 
     case Localize.Currency.validate_currency(normalized) do
@@ -3010,14 +2990,14 @@ defmodule Money do
 
           nil ->
             error = {Money.UnknownCurrencyError, "The currency #{inspect(store_key)} is not known."}
-            validate_digital_token(currency_code, error)
+            validate_digital_token(currency_code, options, error)
         end
     end
   end
 
-  defp validate_digital_token(currency_code, original_error) do
+  defp validate_digital_token(currency_code, options, original_error) do
     if Code.ensure_loaded?(DigitalToken) do
-      case DigitalToken.validate_token(currency_code) do
+      case DigitalToken.validate_token(currency_code, options) do
         {:ok, token_id} ->
           {:ok, token_id}
 
@@ -3120,11 +3100,6 @@ defmodule Money do
          {Money.ExchangeRateError,
           "No exchange rate is available for currency #{inspect(currency)}"}}
     end
-  end
-
-  @doc false
-  def json_library do
-    @json_library
   end
 
   defp parse_decimal(string, nil, options) do

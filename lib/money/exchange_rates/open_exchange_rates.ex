@@ -56,7 +56,7 @@ defmodule Money.ExchangeRates.OpenExchangeRates do
   end
 
   def decode_rates(body) when is_binary(body) do
-    %{"base" => _base, "rates" => rates} = Money.json_library().decode!(body)
+    %{"base" => _base, "rates" => rates} = :json.decode(body)
 
     rates
     |> Localize.Utils.Map.atomize_keys()

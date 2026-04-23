@@ -49,7 +49,8 @@ defmodule Money.Application do
     start? && api_module_present?
   end
 
-  defp register_custom_currencies do
+  @doc false
+  def register_custom_currencies do
     case Application.get_env(:ex_money, :custom_currencies) do
       nil ->
         :ok

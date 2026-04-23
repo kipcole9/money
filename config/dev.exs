@@ -10,3 +10,6 @@ config :ex_money,
   log_info: :info,
   log_success: :info,
   exchange_rates_cache: Money.ExchangeRates.Cache.Dets
+
+config :localize,
+  default_locale: :en

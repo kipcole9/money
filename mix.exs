@@ -1,13 +1,13 @@
 defmodule Money.Mixfile do
   use Mix.Project
 
-  @version "6.0.0"
+  @version "6.0.0-rc.0"
 
   def project do
     [
       app: :ex_money,
       version: @version,
-      elixir: "~> 1.12",
+      elixir: "~> 1.17",
       name: "Money",
       source_url: "https://github.com/kipcole9/money",
       docs: docs(),
@@ -20,7 +20,7 @@ defmodule Money.Mixfile do
       aliases: aliases(),
       elixirc_paths: elixirc_paths(Mix.env()),
       dialyzer: [
-        plt_add_apps: ~w(inets jason mix phoenix_html)a,
+        plt_add_apps: ~w(inets mix phoenix_html)a,
         flags: [
           :error_handling,
           :unknown,
@@ -92,11 +92,10 @@ defmodule Money.Mixfile do
 
   defp deps do
     [
-      {:localize, path: "../localize"},
-      {:digital_token, "~> 1.0", optional: true},
+      {:localize, "~> 0.20"},
+      {:digital_token, "~> 2.0", optional: true},
       {:nimble_parsec, "~> 0.5 or ~> 1.0"},
       {:decimal, "~> 1.6 or ~> 2.0"},
-      {:poison, "~> 3.0 or ~> 4.0 or ~> 5.0 or ~> 6.0", optional: true},
       {:phoenix_html, "~> 2.0 or ~> 3.0 or ~> 4.0", optional: true},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:jason, "~> 1.0", optional: true},
@@ -104,8 +103,15 @@ defmodule Money.Mixfile do
       {:benchee, "~> 1.0", optional: true, only: :dev},
       {:exprof, "~> 0.2", only: :dev, runtime: false},
       {:ex_doc, "~> 0.31", only: [:dev, :release]}
-    ]
-    |> Enum.reject(&is_nil/1)
+    ] ++ maybe_json_polyfill()
+  end
+
+  defp maybe_json_polyfill do
+    if Code.ensure_loaded?(:json) do
+      []
+    else
+      [{:json_polyfill, "~> 0.2 or ~> 1.0"}]
+    end
   end
 
   defp elixirc_paths(:test), do: ["lib", "test", "test/support"]

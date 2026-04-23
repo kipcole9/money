@@ -10,7 +10,8 @@ config :ex_money, Money.Repo,
 config :ex_money, ecto_repos: [Money.Repo]
 
 config :localize,
-  default_locale: :en
+  default_locale: :en,
+  allow_runtime_locale_download: true
 
 config :ex_money,
   exchange_rates_retrieve_every: :never,

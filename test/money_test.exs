@@ -539,13 +539,7 @@ defmodule MoneyTest do
   end
 
   test "json encoding for Jason" do
-    assert Jason.encode(
-             Money.new("0.0020", :USD) == {:ok, "{\"currency\":\"USD\",\"amount\":\"0.0020\"}"}
-           )
-  end
-
-  test "json encoding for Poison" do
-    assert Poison.encode(
+    assert :json.encode(
              Money.new("0.0020", :USD) == {:ok, "{\"currency\":\"USD\",\"amount\":\"0.0020\"}"}
            )
   end
