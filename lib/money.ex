@@ -492,7 +492,7 @@ defmodule Money do
 
   ### Options
 
-  * `:locale` is any valid locale returned by `Localize.known_locale_names/0`
+  * `:locale` is any valid locale returned by `Localize.supported_locales/0`
     or a `Localize.LanguageTag` struct.
     The default is `Localize.get_locale/0`.
 
@@ -712,8 +712,8 @@ defmodule Money do
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`.
 
-  * `options` is a keyword list of options or a `t:Localize.Number.Format.Options.t/0`
-    struct.
+  * `options` is a keyword list, or a validated options struct accepted by
+    `Localize.Number.to_string/2`.
 
   ### Returns
 
@@ -767,7 +767,7 @@ defmodule Money do
       {:ok, "১০০.০০€"}
 
   """
-  @spec to_string(Money.t(), Keyword.t() | Localize.Number.Format.Options.t()) ::
+  @spec to_string(Money.t(), Keyword.t() | map()) ::
           {:ok, String.t()} | {:error, {module, String.t()}} | {:error, Exception.t()}
 
   def to_string(money, options \\ [])
@@ -873,8 +873,8 @@ defmodule Money do
   * `money` is any valid `t:Money.t/0` type returned
     by `Money.new/2`.
 
-  * `options` is a keyword list of options or a
-    `%Localize.Number.Format.Options{}` struct.
+  * `options` is a keyword list, or a validated options struct accepted by
+    `Localize.Number.to_string/2`.
 
   ### Options
 
@@ -895,7 +895,7 @@ defmodule Money do
       "1,234 US dollars"
 
   """
-  @spec to_string!(Money.t(), Keyword.t() | Localize.Number.Format.Options.t()) ::
+  @spec to_string!(Money.t(), Keyword.t() | map()) ::
           String.t() | no_return()
 
   def to_string!(%Money{} = money, options \\ []) do
@@ -2354,13 +2354,13 @@ defmodule Money do
 
   ### Arguments
 
-  * `money` is any `t:Money.t/0` struct returned by `Localize.Currency.new/2`.
+  * `money` is any `t:Money.t/0` struct returned by `Money.Currency.new/2`.
 
   * `options` is a keyword list of options.
 
   ### Options
 
-  * `:locale` is any valid locale returned by `Localize.known_locale_names/0`
+  * `:locale` is any valid locale returned by `Localize.supported_locales/0`
     or a `Localize.LanguageTag` struct.
     The default is `Localize.get_locale/0`.
 
@@ -2388,7 +2388,7 @@ defmodule Money do
 
   ### Arguments
 
-  * `money` is any `t:Money.t/0` struct returned by `Localize.Currency.new/2`.
+  * `money` is any `t:Money.t/0` struct returned by `Money.Currency.new/2`.
 
   * `to_currency` is a valid currency code into which the `money` is converted.
 
@@ -2464,7 +2464,7 @@ defmodule Money do
 
   ### Arguments
 
-  * `money` is any `t:Money.t/0` struct returned by `Localize.Currency.new/2`.
+  * `money` is any `t:Money.t/0` struct returned by `Money.Currency.new/2`.
 
   * `to_currency` is a valid currency code into which the `money` is converted.
 
@@ -2508,7 +2508,7 @@ defmodule Money do
 
   ### Arguments
 
-  * `from` is any `t:Money.t/0` struct returned by `Localize.Currency.new/2` or a valid
+  * `from` is any `t:Money.t/0` struct returned by `Money.Currency.new/2` or a valid
      currency code.
 
   * `to_currency` is a valid currency code into which the `money` is converted.
@@ -2557,7 +2557,7 @@ defmodule Money do
 
   ### Arguments
 
-  * `from` is any `t:Money.t/0` struct returned by `Localize.Currency.new/2` or a valid
+  * `from` is any `t:Money.t/0` struct returned by `Money.Currency.new/2` or a valid
      currency code.
 
   * `to_currency` is a valid currency code into which the `money` is converted.
@@ -2654,7 +2654,7 @@ defmodule Money do
 
   ### Options
 
-  * `money` is any `t:Money.t/0` struct returned by `Localize.Currency.new/2`.
+  * `money` is any `t:Money.t/0` struct returned by `Money.Currency.new/2`.
 
   ### Notes
 
